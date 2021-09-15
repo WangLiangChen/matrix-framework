@@ -4,6 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>liangchen.wang.matrix</groupId>
     <artifactId>matrix-framework</artifactId>
+    <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
     <developers>
@@ -17,13 +18,45 @@
             <timezone>+8</timezone>
         </developer>
     </developers>
+    <modules>
+        <module>matrix.framework.commons</module>
+        <module>matrix.framework.springboot</module>
+        <module>matrix.framework.web</module>
+        <module>matrix.framework.cloud</module>
+    </modules>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss(+8)</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <version.matrix>1.0.0-SNAPSHOT</version.matrix>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>liangchen.wang.matrix</groupId>
+                <artifactId>matrix.framework.commons</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>liangchen.wang.matrix</groupId>
+                <artifactId>matrix.framework.springboot</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>liangchen.wang.matrix</groupId>
+                <artifactId>matrix.framework.web</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>liangchen.wang.matrix</groupId>
+                <artifactId>matrix.framework.cloud</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>${project.artifactId}</finalName>
