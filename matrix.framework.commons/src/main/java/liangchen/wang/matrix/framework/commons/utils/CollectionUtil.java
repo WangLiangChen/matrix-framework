@@ -15,15 +15,9 @@ public enum CollectionUtil {
         if (null == object) {
             return false;
         }
-        return object.getClass().isArray();
-    }
+        Class<?> type = object.getClass();
 
-    public <T> boolean isEmpty(T[] array) {
-        return (null == array || array.length == 0);
-    }
-
-    public <T> boolean isNotEmpty(T[] array) {
-        return !isEmpty(array);
+        return type.isArray();
     }
 
     public boolean isEmpty(byte[] array) {
@@ -82,7 +76,6 @@ public enum CollectionUtil {
         return !isEmpty(array);
     }
 
-
     public <T> boolean isEmpty(Collection<T> collection) {
         return (null == collection || collection.isEmpty());
     }
@@ -107,11 +100,19 @@ public enum CollectionUtil {
         return !isEmpty(map);
     }
 
+    public <T> boolean isEmpty(T[] array) {
+        return (null == array || array.length == 0);
+    }
+
+    public <T> boolean isNotEmpty(T[] array) {
+        return !isEmpty(array);
+    }
+
     public <T> boolean contains(T[] array, T value) {
         if (isEmpty(array)) {
             return false;
         }
-        return Arrays.asList(array).contains(value);
+        return array2Set(array).contains(value);
     }
 
     public <T> boolean notContains(T[] array, T value) {
@@ -132,6 +133,7 @@ public enum CollectionUtil {
         }
         return new HashSet<>(Arrays.asList(array));
     }
+
     public <T> List<T> iterator2List(Iterator<T> iterator) {
         if (isEmpty(iterator)) {
             return Collections.emptyList();
@@ -142,4 +144,16 @@ public enum CollectionUtil {
         }
         return list;
     }
+
+    public <T> Set<T> iterator2Set(Iterator<T> iterator) {
+        if (isEmpty(iterator)) {
+            return Collections.emptySet();
+        }
+        Set<T> set = new HashSet<>();
+        while (iterator.hasNext()) {
+            set.add(iterator.next());
+        }
+        return set;
+    }
+
 }
