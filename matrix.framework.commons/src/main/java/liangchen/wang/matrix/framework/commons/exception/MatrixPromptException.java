@@ -2,7 +2,6 @@ package liangchen.wang.matrix.framework.commons.exception;
 
 /**
  * @author Liangchen.Wang 2021-08-19 20:19
- * 用于将异常message展示给终端用户的异常
  */
 public class MatrixPromptException extends MatrixRuntimeException {
     public MatrixPromptException() {

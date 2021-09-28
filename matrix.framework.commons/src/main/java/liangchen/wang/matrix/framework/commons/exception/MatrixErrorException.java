@@ -2,7 +2,6 @@ package liangchen.wang.matrix.framework.commons.exception;
 
 /**
  * @author Liangchen.Wang 2021-08-19 20:19
- * 用于包装其它类型的异常
  */
 public class MatrixErrorException extends MatrixRuntimeException {
     public MatrixErrorException() {

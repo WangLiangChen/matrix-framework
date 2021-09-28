@@ -1,41 +1,16 @@
 package liangchen.wang.matrix.framework.commons.test;
 
+import liangchen.wang.matrix.framework.commons.utils.PrintUtil;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 
 public class CollectionUtilTest {
     @Test
-    public void testArray2Set() {
-        System.out.println(isEmpty(new byte[]{1}));
-        System.out.println(isEmpty(new byte[0]));
+    public void test(){
+        PrintUtil.INSTANCE.buffer("a");
+        PrintUtil.INSTANCE.buffer("b");
+        PrintUtil.INSTANCE.buffer("c");
+        PrintUtil.INSTANCE.buffer("d");
+        PrintUtil.INSTANCE.buffer("e");
+        PrintUtil.INSTANCE.prettyPrint();
     }
-
-    private boolean isEmpty(Object object) {
-        if (null == object) {
-            return true;
-        }
-        if (object instanceof String) {
-            return object.toString().isEmpty();
-        }
-        if (object instanceof Map) {
-            return ((Map<?, ?>) object).isEmpty();
-        }
-        if (object instanceof Collection) {
-            return ((Collection<?>) object).isEmpty();
-        }
-        if (object instanceof Iterator) {
-            return !((Iterator<?>) object).hasNext();
-        }
-        Class<?> type = object.getClass();
-        if (type.isArray()) {
-            return Array.getLength(object) == 0;
-        }
-
-        return true;
-    }
-
 }
