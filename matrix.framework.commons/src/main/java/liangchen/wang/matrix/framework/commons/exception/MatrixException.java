@@ -36,19 +36,22 @@ public class MatrixException extends Exception {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public void withCode(String code) {
+    public MatrixException withCode(String code) {
         this.code = code;
+        return this;
     }
 
-    public void withPayload(Map<String, Object> payload) {
+    public MatrixException withPayload(Map<String, Object> payload) {
         this.payload = payload;
+        return this;
     }
 
-    public void putPayload(String key, Object value) {
+    public MatrixException putPayload(String key, Object value) {
         if (null == payload) {
             payload = new HashMap<>();
         }
         payload.put(key, value);
+        return this;
     }
 
     public String getCode() {

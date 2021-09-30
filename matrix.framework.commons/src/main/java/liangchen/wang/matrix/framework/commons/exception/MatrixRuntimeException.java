@@ -47,11 +47,12 @@ public class MatrixRuntimeException extends RuntimeException {
         return this;
     }
 
-    public void putPayload(String key, Object value) {
+    public MatrixRuntimeException putPayload(String key, Object value) {
         if (null == payload) {
             payload = new HashMap<>();
         }
         payload.put(key, value);
+        return this;
     }
 
     public String getCode() {
