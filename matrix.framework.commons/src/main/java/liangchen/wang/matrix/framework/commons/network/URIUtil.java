@@ -28,7 +28,7 @@ public enum URIUtil {
             return Paths.get(resolveFirst(uriString), resolveMore(resolveMore(more))).toUri();
         } catch (InvalidPathException ex) {
             if (null == more || more.length == 0) {
-                return URI.create(uriString);
+                return URI.create(resolveFirst(uriString));
             }
             return URI.create(resolveFirst(uriString)).resolve(resolveMore(more));
         }
@@ -38,7 +38,7 @@ public enum URIUtil {
         if (null == more || more.length == 0) {
             return uri;
         }
-        return toURI(uri.toString(), more);
+        return uri.resolve(resolveMore(more));
     }
 
     public URL toURL(URI uri) {
@@ -49,8 +49,9 @@ public enum URIUtil {
         }
     }
 
-    public URL toURL(String string, String... more) {
-        return toURL(toURI(string, more));
+    public URL toURL(String urlString, String... more) {
+        URI uri = toURI(urlString, more);
+        return toURL(uri);
     }
 
 
@@ -58,9 +59,12 @@ public enum URIUtil {
         if (null == more || more.length == 0) {
             return url;
         }
-        return toURL(url.toString(), more);
+        try {
+            return new URL(url, resolveMore(more));
+        } catch (MalformedURLException e) {
+            throw new MatrixErrorException(e);
+        }
     }
-
 
     public boolean isAvailableURL(URL url) {
         try {
@@ -73,7 +77,7 @@ public enum URIUtil {
 
     private String resolveFirst(String uriString) {
         // 把 \\ 替换为 /
-        uriString = uriString.replaceAll("\\\\", "/");
+        uriString = uriString.replaceAll("\\\\", Symbol.URI_SEPARATOR.getSymbol());
         // 末尾加上 /
         return uriString.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? uriString : uriString.concat(Symbol.URI_SEPARATOR.getSymbol());
     }
@@ -81,7 +85,7 @@ public enum URIUtil {
     private String resolveMore(String... more) {
         for (int i = 0; i < more.length; i++) {
             // 把 \\ 替换为 / 去除开头和结尾 /
-            more[i] = more[i].replaceAll("\\\\", "/").replaceAll("^/*|/*$", "");
+            more[i] = more[i].replaceAll("\\\\", Symbol.URI_SEPARATOR.getSymbol()).replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
         }
         return Arrays.stream(more).collect(Collectors.joining(Symbol.URI_SEPARATOR.getSymbol()));
     }

@@ -20,55 +20,78 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Liangchen.Wang 2021-09-30 11:07
  */
-public final class ConfigurationBuilder {
-    private final static String XML = ".xml";
-    private final static String PROPERTIES = ".properties";
-    private final static String YML = ".yml";
-    private final static String YAML = ".yaml";
-    private final static String JSON = ".json";
+public final class ConfigurationResolver {
+    private final static String XML = "xml";
+    private final static String PROPERTIES = "properties";
+    private final static String YML = "yml";
+    private final static String YAML = "yaml";
+    private final static String JSON = "json";
 
     private URI baseUri;
 
-    private ConfigurationBuilder(URI baseUri) {
+    private ConfigurationResolver(URI baseUri) {
         this.baseUri = baseUri;
     }
 
-    public static ConfigurationBuilder newInstance(URI baseUri) {
-        return new ConfigurationBuilder(baseUri);
+    private ConfigurationResolver() {
     }
 
-    public static ConfigurationBuilder newInstance(String baseUri, String... more) {
-        return new ConfigurationBuilder(URIUtil.INSTANCE.toURI(baseUri, more));
+    public static ConfigurationResolver newInstance() {
+        return new ConfigurationResolver();
     }
 
-    public String getBaseUri() {
+    public static ConfigurationResolver newInstance(URI baseUri) {
+        return new ConfigurationResolver(baseUri);
+    }
+
+    public static ConfigurationResolver newInstance(String baseUri) {
+        return new ConfigurationResolver(URIUtil.INSTANCE.toURI(baseUri));
+    }
+
+    public void setBaseUri(URI baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public void setBaseUri(String baseUri) {
+        this.baseUri = URIUtil.INSTANCE.toURI(baseUri);
+    }
+
+    public URI getBaseUri() {
+        return baseUri;
+    }
+
+    public String getBaseUriString() {
         return baseUri.toString();
     }
 
-    public URI getURI(String configurationFileName) {
-        return baseUri.resolve(configurationFileName);
+    public URL getBaseUrl() {
+        return URIUtil.INSTANCE.toURL(this.baseUri);
     }
 
-    public URL getURL(String configurationFileName) {
-        return URIUtil.INSTANCE.toURL(getURI(configurationFileName));
+    public URI getURI(String relativePath) {
+        return URIUtil.INSTANCE.expandURI(this.baseUri, relativePath);
     }
 
-    public String getPath(String configurationFileName) {
-        return getURL(configurationFileName).toString();
+    public URL getURL(String relativePath) {
+        return URIUtil.INSTANCE.toURL(getURI(relativePath));
     }
 
-    public boolean exists(String configurationFileName) {
-        return URIUtil.INSTANCE.isAvailableURL(getURL(configurationFileName));
+    public String getURIString(String relativePath) {
+        return getURI(relativePath).toString();
     }
 
-    public Configuration build(String configurationFileName) {
-        return build(configurationFileName, null, 0);
+    public boolean exists(String relativePath) {
+        return URIUtil.INSTANCE.isAvailableURL(getURL(relativePath));
     }
 
-    private Configuration build(String configurationFileName, TimeUnit timeUnit, long reloadPeriod) {
-        AssertUtil.INSTANCE.notBlank(configurationFileName, "The name of configuration file can't be blank");
-        String extension = FileUtil.INSTANCE.extension(configurationFileName).toLowerCase();
-        ReloadingFileBasedConfigurationBuilder<?> builder = null;
+    public Configuration resolve(String relativePath) {
+        return resolve(relativePath, null, 0);
+    }
+
+    private Configuration resolve(String relativePath, TimeUnit timeUnit, long reloadPeriod) {
+        AssertUtil.INSTANCE.notBlank(relativePath, "The name of configuration file can't be blank");
+        String extension = FileUtil.INSTANCE.extension(relativePath).toLowerCase();
+        ReloadingFileBasedConfigurationBuilder<?> builder;
         switch (extension) {
             case PROPERTIES:
                 builder = new ReloadingFileBasedConfigurationBuilder<>(PropertiesConfiguration.class);
@@ -86,8 +109,9 @@ public final class ConfigurationBuilder {
             default:
                 throw new MatrixInfoException();
         }
-        FileBasedBuilderParameters fileBasedBuilderParameters = new Parameters().fileBased().setListDelimiterHandler(new DefaultListDelimiterHandler(','));
-        URL url = getURL(configurationFileName);
+        FileBasedBuilderParameters fileBasedBuilderParameters = new Parameters().fileBased();
+        //.setListDelimiterHandler(new DefaultListDelimiterHandler(','));
+        URL url = getURL(relativePath);
         fileBasedBuilderParameters = fileBasedBuilderParameters.setURL(url);
         builder.configure(fileBasedBuilderParameters);
         if (reloadPeriod > 0L && null != timeUnit) {
