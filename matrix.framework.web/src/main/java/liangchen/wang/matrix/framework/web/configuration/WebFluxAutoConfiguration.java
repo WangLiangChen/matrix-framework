@@ -1,6 +1,7 @@
 package liangchen.wang.matrix.framework.web.configuration;
 
 import liangchen.wang.matrix.framework.web.exchange.ServerWebExchangeDecorator;
+import liangchen.wang.matrix.framework.web.response.ResponseBodyResultHandler;
 import liangchen.wang.matrix.framework.web.response.ResponseEntity;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
@@ -10,7 +11,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.HandlerFilterFunction;
 import org.springframework.web.server.WebFilter;
@@ -49,6 +52,11 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
         return (request, handlerFunction) -> {
             return handlerFunction.handle(request);
         };
+    }
+
+    @Bean
+    public ResponseBodyResultHandler responseBodyResultHandler(ServerCodecConfigurer serverCodecConfigurer, RequestedContentTypeResolver requestedContentTypeResolver) {
+        return new ResponseBodyResultHandler(serverCodecConfigurer.getWriters(), requestedContentTypeResolver);
     }
 
     @Bean
