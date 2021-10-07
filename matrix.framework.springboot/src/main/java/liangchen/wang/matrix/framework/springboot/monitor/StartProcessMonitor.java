@@ -1,7 +1,6 @@
 package liangchen.wang.matrix.framework.springboot.monitor;
 
 import com.google.common.base.Splitter;
-import liangchen.wang.matrix.framework.commons.configuration.ConfigurationResolver;
 import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
@@ -43,8 +42,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

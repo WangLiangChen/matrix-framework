@@ -1,8 +1,20 @@
 package liangchen.wang.matrix.framework.web.configuration;
 
+import liangchen.wang.matrix.framework.web.request.HttpServletRequestWrapper;
+import liangchen.wang.matrix.framework.web.response.HttpServletResponseWrapper;
+import liangchen.wang.matrix.framework.web.response.ResponseEntity;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 /**
  * @author LiangChen.Wang
@@ -14,5 +26,52 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 //@EnableWebMvc
 @AutoConfigureBefore(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
+    //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
+    @Bean
+    public FilterRegistrationBean<Filter> rootFilter() {
+        FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>(createRootFilter());
+        filterFilterRegistrationBean.setEnabled(true);
+        filterFilterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        filterFilterRegistrationBean.addUrlPatterns("/*");
+        return filterFilterRegistrationBean;
+    }
 
+    private Filter createRootFilter() {
+        return new Filter() {
+            @Override
+            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+                HttpServletRequest request = (HttpServletRequest) servletRequest;
+                String requestURI = request.getRequestURI();
+                if (requestURI.endsWith("favicon.ico")) {
+                    filterChain.doFilter(servletRequest, servletResponse);
+                    return;
+                }
+                HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request);
+                HttpServletResponse response = (HttpServletResponse) servletResponse;
+                HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
+                filterChain.doFilter(requestWrapper, responseWrapper);
+
+                ServletOutputStream outputStream = response.getOutputStream();
+                int statusCode = responseWrapper.getStatusCode();
+                if (SC_NOT_FOUND == statusCode) {
+                    outputStream.write(ResponseEntity.failure().message("'{}' does not exist").toString().getBytes());
+                    outputStream.flush();
+                    return;
+                }
+
+                if (0 == responseWrapper.getContentSize()) {
+                    outputStream.write(ResponseEntity.success().toString().getBytes());
+                    outputStream.flush();
+                    return;
+                }
+                outputStream.write(responseWrapper.getContentAsByteArray());
+                outputStream.flush();
+            }
+
+            @Override
+            public void destroy() {
+
+            }
+        };
+    }
 }

@@ -3,7 +3,11 @@ package liangchen.wang.matrix.framework.web.response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
-import liangchen.wang.matrix.framework.commons.exception.*;
+import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
+import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
+import liangchen.wang.matrix.framework.commons.exception.MatrixPromptException;
+import liangchen.wang.matrix.framework.commons.exception.MatrixRuntimeException;
+import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +78,8 @@ public class ResponseEntity<T> implements Serializable {
         return this;
     }
 
-    public ResponseEntity message(String message) {
-        this.message = message;
+    public ResponseEntity message(String message,Object... args) {
+        this.message = StringUtil.INSTANCE.format(message,args);
         return this;
     }
 

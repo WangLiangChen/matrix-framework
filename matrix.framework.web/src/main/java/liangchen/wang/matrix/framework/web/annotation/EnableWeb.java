@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Import({EnableWeb.WebImportSelector.class})
 public @interface EnableWeb {
-    WebType webType() default WebType.WEBMVC;
+    WebType webType() default WebType.WEBFLUX;
 
     enum WebType {
         WEBFLUX, WEBMVC;

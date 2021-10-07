@@ -14,6 +14,7 @@
     <properties>
         <version.commons.configuration2>2.7</version.commons.configuration2>
         <version.commons.beanutils>1.9.4</version.commons.beanutils>
+        <version.commons.io>2.11.0</version.commons.io>
         <version.transmittable-threadlocal>2.12.2</version.transmittable-threadlocal>
         <version.guava>31.0.1-jre</version.guava>
     </properties>
@@ -29,6 +30,11 @@
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>${version.commons.beanutils}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${version.commons.io}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -55,6 +61,10 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
