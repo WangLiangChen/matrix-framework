@@ -1,8 +1,8 @@
 package liangchen.wang.matrix.framework.web.configuration;
 
 import liangchen.wang.matrix.framework.web.request.HttpServletRequestWrapper;
+import liangchen.wang.matrix.framework.web.response.FormattedResponse;
 import liangchen.wang.matrix.framework.web.response.HttpServletResponseWrapper;
-import liangchen.wang.matrix.framework.web.response.ResponseEntity;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -54,13 +54,13 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 ServletOutputStream outputStream = response.getOutputStream();
                 int statusCode = responseWrapper.getStatusCode();
                 if (SC_NOT_FOUND == statusCode) {
-                    outputStream.write(ResponseEntity.failure().message("'{}' does not exist").toString().getBytes());
+                    outputStream.write(FormattedResponse.failure().message("'{}' does not exist").toString().getBytes());
                     outputStream.flush();
                     return;
                 }
 
                 if (0 == responseWrapper.getContentSize()) {
-                    outputStream.write(ResponseEntity.success().toString().getBytes());
+                    outputStream.write(FormattedResponse.success().toString().getBytes());
                     outputStream.flush();
                     return;
                 }

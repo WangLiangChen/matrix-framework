@@ -30,11 +30,13 @@ public class ServerHttpResponseDecorator extends org.springframework.http.server
     @Override
     public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
         if (body instanceof Mono) {
+            //noinspection unchecked
             final Mono<DataBuffer> monoBody = (Mono<DataBuffer>) body;
             return super.writeWith(monoBody.publishOn(single()).map(dataBuffer -> copyDataBuffer(dataBuffer, bytes -> {
             })));
         }
         if (body instanceof Flux) {
+            //noinspection unchecked
             final Flux<DataBuffer> monoBody = (Flux<DataBuffer>) body;
             return super.writeWith(monoBody.publishOn(single()).map(dataBuffer -> copyDataBuffer(dataBuffer, bytes -> {
             })));
@@ -48,6 +50,7 @@ public class ServerHttpResponseDecorator extends org.springframework.http.server
             consumer.accept(bytes);
             DataBufferUtils.release(dataBuffer);
             DataBufferFactory dataBufferFactory = new NettyDataBufferFactory(new UnpooledByteBufAllocator(false));
+            //noinspection unchecked
             return (T) dataBufferFactory.wrap(bytes);
         } catch (IOException e) {
             throw new MatrixErrorException(e);

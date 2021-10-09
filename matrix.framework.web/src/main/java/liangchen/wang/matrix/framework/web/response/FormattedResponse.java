@@ -16,8 +16,8 @@ import java.io.Serializable;
 /**
  * @author Liangchen.Wang
  */
-public class ResponseEntity<T> implements Serializable {
-    private final static Logger logger = LoggerFactory.getLogger(ResponseEntity.class);
+public class FormattedResponse<T> implements Serializable {
+    private final static Logger logger = LoggerFactory.getLogger(FormattedResponse.class);
     private final static String MESSAGE = "System error, please contact the administrator!";
 
     private boolean success;
@@ -38,8 +38,8 @@ public class ResponseEntity<T> implements Serializable {
      */
     private T payload;
 
-    public static ResponseEntity exception(Throwable throwable) {
-        ResponseEntity failure = failure().message(MESSAGE);
+    public static FormattedResponse exception(Throwable throwable) {
+        FormattedResponse failure = failure().message(MESSAGE);
         if (throwable instanceof MatrixRuntimeException) {
             MatrixRuntimeException ex = (MatrixRuntimeException) throwable;
             failure.code(ex.getCode()).payload(ex.getPayload());
@@ -61,34 +61,34 @@ public class ResponseEntity<T> implements Serializable {
         return failure;
     }
 
-    public static ResponseEntity failure() {
-        ResponseEntity responseEntity = new ResponseEntity();
+    public static FormattedResponse failure() {
+        FormattedResponse responseEntity = new FormattedResponse();
         responseEntity.success = false;
         return responseEntity;
     }
 
-    public static ResponseEntity success() {
-        ResponseEntity responseEntity = new ResponseEntity();
+    public static FormattedResponse success() {
+        FormattedResponse responseEntity = new FormattedResponse();
         responseEntity.success = true;
         return responseEntity;
     }
 
-    public ResponseEntity code(String code) {
+    public FormattedResponse code(String code) {
         this.code = code;
         return this;
     }
 
-    public ResponseEntity message(String message,Object... args) {
+    public FormattedResponse message(String message, Object... args) {
         this.message = StringUtil.INSTANCE.format(message,args);
         return this;
     }
 
-    public ResponseEntity debug(String debug) {
+    public FormattedResponse debug(String debug) {
         this.debug = debug;
         return this;
     }
 
-    public ResponseEntity payload(T payload) {
+    public FormattedResponse payload(T payload) {
         this.payload = payload;
         return this;
     }

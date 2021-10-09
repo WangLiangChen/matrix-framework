@@ -366,6 +366,10 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         下面覆盖这个配置
         */
         String configFile = configuration.getString(CONFIG_FILE);
+        if (StringUtil.INSTANCE.isBlank(configFile)) {
+            PrettyPrinter.INSTANCE.flush();
+            throw new MatrixInfoException("'config.file' does not exist in the file:" + LOGGER_ROOT);
+        }
         configFile = ConfigContext.INSTANCE.getURI(LOGGER_ROOT).resolve(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);

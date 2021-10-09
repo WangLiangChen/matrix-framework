@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.function.Function;
 
 public class ResponseBodyResultHandler extends org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler {
     private final MethodParameter methodParameter;
@@ -37,24 +36,25 @@ public class ResponseBodyResultHandler extends org.springframework.web.reactive.
     public Mono<Void> handleResult(ServerWebExchange exchange, HandlerResult result) {
         Object returnValue = result.getReturnValue();
         if (returnValue instanceof Mono) {
-            Mono body = ((Mono) returnValue).map(e -> wrapBody(e)).defaultIfEmpty(ResponseEntity.success());
-            return writeBody(body, methodParameter, exchange);
+            Mono<?> monoBody = ((Mono<?>) returnValue).map(this::wrapBody);
+            return writeBody(monoBody, methodParameter, exchange);
         }
         if (returnValue instanceof Flux) {
-            Mono mono = ((Flux) returnValue).collectList().map(e -> wrapBody(e)).defaultIfEmpty(ResponseEntity.success());
-            return writeBody(mono, methodParameter, exchange);
+            Mono<?> monoBody = ((Flux<?>) returnValue).collectList().map(this::wrapBody);
+            return writeBody(monoBody, methodParameter, exchange);
         }
-        return writeBody(wrapBody(returnValue), methodParameter, exchange);
+        Mono<?> monoBody = Mono.just(wrapBody(returnValue));
+        return writeBody(monoBody, methodParameter, exchange);
     }
 
-    private static Mono<ResponseEntity> responseMethod() {
+    private static Mono<FormattedResponse> responseMethod() {
         return Mono.empty();
     }
 
-    private ResponseEntity<?> wrapBody(Object body) {
-        if (body instanceof ResponseEntity) {
-            return (ResponseEntity<?>) body;
+    private FormattedResponse<?> wrapBody(Object body) {
+        if (body instanceof FormattedResponse) {
+            return (FormattedResponse<?>) body;
         }
-        return ResponseEntity.success().payload(body);
+        return FormattedResponse.success().payload(body);
     }
 }
