@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.function.Consumer;
 
 import static reactor.core.scheduler.Schedulers.single;
+
 /**
  * @author Liangchen.Wang
  * 用于弥补body只能读取一次的不足
@@ -25,13 +26,14 @@ public class ServerHttpRequestDecorator extends org.springframework.http.server.
     public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
         super(delegate);
         Flux<DataBuffer> superBody = super.getBody();
-        this.body = superBody.publishOn(single()).map(dataBuffer -> copyDataBuffer(dataBuffer,bytes -> {}));
+        this.body = superBody.publishOn(single()).map(dataBuffer -> copyDataBuffer(dataBuffer, bytes -> {
+        }));
     }
 
 
     @Override
     public Flux<DataBuffer> getBody() {
-        return this.getBody();
+        return this.body;
     }
 
     private <T extends DataBuffer> T copyDataBuffer(T dataBuffer, Consumer<byte[]> consumer) {
