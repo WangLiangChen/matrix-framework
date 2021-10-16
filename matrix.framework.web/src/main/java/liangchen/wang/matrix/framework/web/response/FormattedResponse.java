@@ -16,7 +16,7 @@ import java.io.Serializable;
 /**
  * @author Liangchen.Wang
  */
-public class FormattedResponse<T> implements Serializable {
+public final class FormattedResponse<T> implements Serializable {
     private final static Logger logger = LoggerFactory.getLogger(FormattedResponse.class);
     private final static String MESSAGE = "System error, please contact the administrator!";
 
