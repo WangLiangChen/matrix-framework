@@ -6,6 +6,7 @@ import liangchen.wang.matrix.framework.commons.exception.MatrixPromptException;
 import liangchen.wang.matrix.framework.web.annotation.FormattedResponseIgnore;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.web.reactive.HandlerResult;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
@@ -18,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ResponseBodyResultHandler extends org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler {
     private final MethodParameter monoParameter;
@@ -36,6 +38,11 @@ public class ResponseBodyResultHandler extends org.springframework.web.reactive.
         } catch (NoSuchMethodException e) {
             throw new MatrixErrorException(e);
         }
+    }
+
+    @Override
+    protected MediaType selectMediaType(ServerWebExchange exchange, Supplier<List<MediaType>> producibleTypesSupplier) {
+        return super.selectMediaType(exchange, producibleTypesSupplier);
     }
 
     @Override
