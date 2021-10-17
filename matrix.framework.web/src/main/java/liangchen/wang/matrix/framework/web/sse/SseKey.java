@@ -3,7 +3,7 @@ package liangchen.wang.matrix.framework.web.sse;
 /**
  * @author LiangChen.Wang
  */
-public class SseKey {
+public final class SseKey {
     private final String name;
     private final String group;
 

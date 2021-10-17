@@ -1,5 +1,7 @@
 package liangchen.wang.matrix.framework.commons.utils;
 
+import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +13,7 @@ public enum StringUtil {
      * instance
      */
     INSTANCE;
-    private final String FORMAT_REGEX = "\\{(.*?)\\}";
+    private final String FORMAT_REGEX = "\\{(.*?)}";
     private final String FORMAT_REPLACEMENT = "\\%s";
     private final Pattern nonNumberPattern = Pattern.compile("[^0-9]");
 
@@ -39,10 +41,6 @@ public enum StringUtil {
 
     /**
      * 按顺序替换{}或者{.*}
-     *
-     * @param format
-     * @param args
-     * @return 替换后的字符串
      */
     public String format(String format, Object... args) {
         if (isBlank(format)) {
@@ -110,5 +108,9 @@ public enum StringUtil {
         }
         Matcher matcher = nonNumberPattern.matcher(string);
         return matcher.replaceAll("");
+    }
+
+    public String blankString() {
+        return Symbol.BLANK.getSymbol();
     }
 }

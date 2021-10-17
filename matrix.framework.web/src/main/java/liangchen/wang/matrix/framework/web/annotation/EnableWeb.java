@@ -19,11 +19,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import({EnableWeb.WebImportSelector.class})
+@SuppressWarnings("NullableProblems")
 public @interface EnableWeb {
     WebType webType() default WebType.WEBFLUX;
 
     enum WebType {
-        WEBFLUX, WEBMVC;
+        WEBFLUX, WEBMVC
     }
 
     class WebImportSelector implements ImportSelector {
@@ -36,9 +37,9 @@ public @interface EnableWeb {
             }
             Class<?> annotationType = EnableWeb.class;
             AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(annotationType.getName(), false));
-            WebType webType = (WebType) attributes.get("webType");
-            PrettyPrinter.INSTANCE.buffer("@EnableWeb 开启了Web模式:{}", webType.name());
-            PrettyPrinter.INSTANCE.buffer("@EnableWeb 匹配的类: {}", annotationMetadata.getClassName());
+            WebType webType = attributes == null ? WebType.WEBFLUX : (WebType) attributes.get("webType");
+            PrettyPrinter.INSTANCE.buffer("@EnableWeb:{}", webType.name());
+            PrettyPrinter.INSTANCE.buffer("@EnableWeb matchs: {}", annotationMetadata.getClassName());
             String[] imports;
             switch (webType) {
                 case WEBMVC:

@@ -23,6 +23,7 @@
         <module>matrix.framework.springboot</module>
         <module>matrix.framework.web</module>
         <module>matrix.framework.cloud</module>
+        <module>matrix.framework.data</module>
     </modules>
 
     <properties>
@@ -56,6 +57,11 @@
             <dependency>
                 <groupId>liangchen.wang.matrix</groupId>
                 <artifactId>matrix.framework.web</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>liangchen.wang.matrix</groupId>
+                <artifactId>matrix.framework.data</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>

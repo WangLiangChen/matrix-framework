@@ -9,7 +9,8 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Liangchen.Wang
  * 用于弥补body只能读取一次的不足
  */
-public class ServerWebExchangeDecorator extends org.springframework.web.server.ServerWebExchangeDecorator {
+@SuppressWarnings("NullableProblems")
+public final class ServerWebExchangeDecorator extends org.springframework.web.server.ServerWebExchangeDecorator {
     private final ServerHttpRequestDecorator requestDecorator;
     private final ServerHttpResponseDecorator responseDecorator;
 

@@ -1,8 +1,6 @@
 package liangchen.wang.matrix.framework.web.response;
 
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
-import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
-import liangchen.wang.matrix.framework.commons.exception.MatrixPromptException;
 import liangchen.wang.matrix.framework.web.annotation.FormattedResponseIgnore;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -16,12 +14,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.TypeVariable;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-
-public class ResponseBodyResultHandler extends org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler {
+@SuppressWarnings("NullableProblems")
+public final class ResponseBodyResultHandler extends org.springframework.web.reactive.result.method.annotation.ResponseBodyResultHandler {
     private final MethodParameter monoParameter;
 
     public ResponseBodyResultHandler(List<HttpMessageWriter<?>> writers, RequestedContentTypeResolver resolver) {
@@ -72,7 +68,7 @@ public class ResponseBodyResultHandler extends org.springframework.web.reactive.
         return writeBody(monoBody, monoParameter, exchange);
     }
 
-    private static Mono<FormattedResponse> monoResponse() {
+    private static Mono<FormattedResponse<?>> monoResponse() {
         return Mono.empty();
     }
 

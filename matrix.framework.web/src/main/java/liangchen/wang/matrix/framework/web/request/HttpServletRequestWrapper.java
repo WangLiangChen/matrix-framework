@@ -17,7 +17,7 @@ import java.util.*;
  * @author LiangChen.Wang
  * 弥补body只能读取一次的缺陷
  */
-public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
+public final class HttpServletRequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
 
     private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
@@ -163,7 +163,7 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
      *                          just been exceeded
      * @since 4.3.6
      */
-    protected void handleContentOverflow(int contentCacheLimit) {
+    void handleContentOverflow(int contentCacheLimit) {
     }
 
     private class ContentCachingInputStream extends ServletInputStream {

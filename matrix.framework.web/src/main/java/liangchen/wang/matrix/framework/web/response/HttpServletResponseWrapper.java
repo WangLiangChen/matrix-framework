@@ -12,7 +12,8 @@ import java.io.*;
  * @author LiangChen.Wang
  * 弥补body只能读取一次的不足
  */
-public class HttpServletResponseWrapper extends javax.servlet.http.HttpServletResponseWrapper {
+@SuppressWarnings("NullableProblems")
+public final class HttpServletResponseWrapper extends javax.servlet.http.HttpServletResponseWrapper {
     private final FastByteArrayOutputStream content = new FastByteArrayOutputStream(1024);
 
     private ServletOutputStream outputStream;
@@ -158,7 +159,7 @@ public class HttpServletResponseWrapper extends javax.servlet.http.HttpServletRe
      *                 cached body content
      * @since 4.2
      */
-    protected void copyBodyToResponse(boolean complete) throws IOException {
+    void copyBodyToResponse(boolean complete) throws IOException {
         if (this.content.size() > 0) {
             HttpServletResponse rawResponse = (HttpServletResponse) getResponse();
             if ((complete || this.contentLength != null) && !rawResponse.isCommitted()) {

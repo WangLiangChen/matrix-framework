@@ -3,7 +3,7 @@ package liangchen.wang.matrix.framework.web.sse;
 /**
  * @author LiangChen.Wang
  */
-public class SseMulticastEvent extends SseEvent {
+public final class SseMulticastEvent extends SseEvent {
     private final String group;
 
     public SseMulticastEvent newInstance(Object source, String group, String message) {

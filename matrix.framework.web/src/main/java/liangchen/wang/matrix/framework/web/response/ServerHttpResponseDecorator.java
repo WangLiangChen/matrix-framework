@@ -22,7 +22,8 @@ import static reactor.core.scheduler.Schedulers.single;
  * @author Liangchen.Wang
  * 用于弥补body只能读取一次的不足
  */
-public class ServerHttpResponseDecorator extends org.springframework.http.server.reactive.ServerHttpResponseDecorator {
+@SuppressWarnings("NullableProblems")
+public final class ServerHttpResponseDecorator extends org.springframework.http.server.reactive.ServerHttpResponseDecorator {
     public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
         super(delegate);
     }
@@ -44,14 +45,13 @@ public class ServerHttpResponseDecorator extends org.springframework.http.server
         return super.writeWith(body);
     }
 
-    private <T extends DataBuffer> T copyDataBuffer(T dataBuffer, Consumer<byte[]> consumer) {
+    private DataBuffer copyDataBuffer(DataBuffer dataBuffer, Consumer<byte[]> consumer) {
         try (InputStream in = dataBuffer.asInputStream()) {
             byte[] bytes = IOUtils.toByteArray(in);
             consumer.accept(bytes);
             DataBufferUtils.release(dataBuffer);
             DataBufferFactory dataBufferFactory = new NettyDataBufferFactory(new UnpooledByteBufAllocator(false));
-            //noinspection unchecked
-            return (T) dataBufferFactory.wrap(bytes);
+            return dataBufferFactory.wrap(bytes);
         } catch (IOException e) {
             throw new MatrixErrorException(e);
         }

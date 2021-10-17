@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class Server {
+public final class Server {
     private LocalDateTime datetime;
     private LocalDate date;
     private LocalTime time;

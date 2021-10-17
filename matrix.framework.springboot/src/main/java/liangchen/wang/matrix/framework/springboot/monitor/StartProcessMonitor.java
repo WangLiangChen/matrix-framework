@@ -8,7 +8,7 @@ import liangchen.wang.matrix.framework.commons.utils.CollectionUtil;
 import liangchen.wang.matrix.framework.commons.utils.PrettyPrinter;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.springboot.context.BeanLoader;
-import liangchen.wang.matrix.framework.springboot.context.ConfigContext;
+import liangchen.wang.matrix.framework.springboot.context.ConfigurationContext;
 import liangchen.wang.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 import org.apache.commons.configuration2.Configuration;
 import org.springframework.beans.BeansException;
@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 /**
  * @author LiangChen.Wang 2021/7/2
  */
+@SuppressWarnings("NullableProblems")
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StartProcessMonitor implements EnvironmentPostProcessor,
@@ -101,11 +102,11 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         springApplication.setBannerMode(Banner.Mode.OFF);
         PrettyPrinter.INSTANCE.buffer("set BannerMode=OFF");
         String configRoot = resolveConfigRoot();
-        ConfigContext.INSTANCE.setBaseUri(configRoot);
+        ConfigurationContext.INSTANCE.setBaseUri(configRoot);
         PrettyPrinter.INSTANCE.buffer("set configRoot={}", configRoot);
         // 需要排除扫描的包
         Set<Object> allSources = springApplication.getAllSources();
-        String excludeScanPackages = allSources.stream().map(e -> ((Class) e).getPackage().getName()).filter(e -> e.startsWith(DEFAULT_PACKAGES)).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+        String excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName()).filter(e -> e.startsWith(DEFAULT_PACKAGES)).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
         // 因为在使用到这个值的地方，跟当前对象不是一个对象，所以通过这种方式传递
         System.setProperty(EXCLUDE_SCAN_PACKAGES, excludeScanPackages);
         PrettyPrinter.INSTANCE.buffer("set exclude.scan.packages={}", excludeScanPackages);
@@ -358,7 +359,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         final String LOGGER_ROOT = "framework/logger.properties";
         final String LOGGING_CONFIG = "logging.config";
         final String CONFIG_FILE = "config.file";
-        Configuration configuration = ConfigContext.INSTANCE.resolve(LOGGER_ROOT);
+        Configuration configuration = ConfigurationContext.INSTANCE.resolve(LOGGER_ROOT);
         /*配置默认属性
         使用外置Tomcat时,Tomcat会设置环境变量logging.config
         在org.springframework.boot.logging.LoggingApplicationListener#initializeSystem中
@@ -370,7 +371,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             PrettyPrinter.INSTANCE.flush();
             throw new MatrixInfoException("'config.file' does not exist in the file:" + LOGGER_ROOT);
         }
-        configFile = ConfigContext.INSTANCE.getURI(LOGGER_ROOT).resolve(configFile).toString();
+        configFile = ConfigurationContext.INSTANCE.getURI(LOGGER_ROOT).resolve(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
@@ -405,11 +406,11 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             });
         }
         // 获取自动扫描配置
-        Configuration configuration = ConfigContext.INSTANCE.resolve("framework/autoscan.properties");
+        Configuration configuration = ConfigurationContext.INSTANCE.resolve("framework/autoscan.properties");
         String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
         List<String> autoScanList = Splitter.on(',').omitEmptyStrings().splitToList(autoScanPackages);
         PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", autoScanList);
-        scanner.scan(autoScanList.toArray(new String[autoScanList.size()]));
+        scanner.scan(autoScanList.toArray(new String[0]));
     }
 }

@@ -17,6 +17,7 @@
         <version.commons.io>2.11.0</version.commons.io>
         <version.transmittable-threadlocal>2.12.2</version.transmittable-threadlocal>
         <version.guava>31.0.1-jre</version.guava>
+        <version.cglib>3.3.0</version.cglib>
     </properties>
 
     <dependencyManagement>
@@ -46,6 +47,11 @@
                 <artifactId>guava</artifactId>
                 <version>${version.guava}</version>
             </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>${version.cglib}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -73,6 +79,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
         </dependency>
     </dependencies>
 </project>

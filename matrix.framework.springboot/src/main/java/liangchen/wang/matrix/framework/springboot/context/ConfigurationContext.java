@@ -8,7 +8,7 @@ import java.net.URI;
 /**
  * @author Liangchen.Wang
  */
-public enum ConfigContext {
+public enum ConfigurationContext {
     INSTANCE;
     private final ConfigurationResolver configurationResolver = ConfigurationResolver.newInstance();
 
@@ -26,5 +26,9 @@ public enum ConfigContext {
 
     public URI getURI(String relativePath) {
         return this.configurationResolver.getURI(relativePath);
+    }
+
+    public boolean exists(String relativePath) {
+        return this.configurationResolver.exists(relativePath);
     }
 }
