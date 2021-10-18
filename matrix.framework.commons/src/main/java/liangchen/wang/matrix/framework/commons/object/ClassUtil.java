@@ -11,6 +11,16 @@ public enum ClassUtil {
      */
     INSTANCE;
 
+    @SuppressWarnings("unchecked")
+    public <T> T instantiate(String className) {
+        try {
+            Class<T> clazz = (Class<T>) Class.forName(className);
+            return instantiate(clazz);
+        } catch (ClassNotFoundException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
     public <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.getConstructor().newInstance();

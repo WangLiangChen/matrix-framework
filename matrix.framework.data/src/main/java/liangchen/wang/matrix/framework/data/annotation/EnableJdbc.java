@@ -2,12 +2,14 @@ package liangchen.wang.matrix.framework.data.annotation;
 
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
+import liangchen.wang.matrix.framework.commons.object.ClassUtil;
 import liangchen.wang.matrix.framework.commons.utils.PrettyPrinter;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.data.configuration.JdbcAutoConfiguration;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceContext;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceRegister;
 import liangchen.wang.matrix.framework.data.datasource.dialect.AbstractDialect;
+import liangchen.wang.matrix.framework.data.datasource.dialect.MySQLDialect;
 import liangchen.wang.matrix.framework.data.enumeration.DataStatus;
 import liangchen.wang.matrix.framework.springboot.context.ConfigurationContext;
 import org.apache.commons.configuration2.Configuration;
@@ -43,9 +45,9 @@ import java.util.*;
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector {
         private final String JDBC_CONFIG_FILE = "jdbc.properties";
-        private final String[] requiredKeys = new String[]{"dialect", "datasource", "host", "port", "database", "username", "password"};
+        private final Object[] requiredKeys = new String[]{"dialect", "datasource", "host", "port", "database", "username", "password"};
         private final String DIALECT_ITEM = "dialect", URL_ITEM = "url", EXTRA_ITEM = "extra";
-        private static boolean loaded = false;
+        private static volatile boolean loaded = false;
 
         @Override
         public String[] selectImports(AnnotationMetadata annotationMetadata) {
@@ -59,9 +61,9 @@ public @interface EnableJdbc {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             instantiateDataSource();
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName()};
-            loaded = true;
             // 设置全局jdbc状态
             DataStatus.INSTANCE.setJdbcEnabled(true);
+            loaded = true;
             PrettyPrinter.INSTANCE.flush();
             return imports;
         }
@@ -73,27 +75,26 @@ public @interface EnableJdbc {
             keys.forEachRemaining(key -> {
                 int firstDot = key.indexOf('.');
                 String dataSourceName = key.substring(0, firstDot);
-                Properties properties = dataSourcePropertiesMap.get(dataSourceName);
-                if (null == properties) {
-                    properties = new Properties();
-                    dataSourcePropertiesMap.put(dataSourceName, properties);
-                }
+                Properties properties = dataSourcePropertiesMap.computeIfAbsent(dataSourceName, k -> new Properties());
                 String item = key.substring(firstDot + 1);
                 properties.put(item, configuration.getProperty(key));
             });
             ConfigurationPropertyNameAliases aliases = new ConfigurationPropertyNameAliases("datasource", "type");
             dataSourcePropertiesMap.forEach((dataSourceName, properties) -> {
-                List<String> requiredKeyList = Arrays.asList(requiredKeys);
+                List<Object> requiredKeyList = Arrays.asList(requiredKeys);
                 requiredKeyList.retainAll(properties.keySet());
                 AssertUtil.INSTANCE.isTrue(requiredKeys.length == requiredKeyList.size(), "DataSource: {}, configuration items :{} are required!", dataSourceName, requiredKeyList);
 
                 ConfigurationPropertySource source = new MapConfigurationPropertySource(properties);
                 Binder binder = new Binder(source.withAliases(aliases));
                 DataSourceProperties dataSourceProperties = binder.bind(ConfigurationPropertyName.EMPTY, Bindable.of(DataSourceProperties.class)).get();
-                AbstractDialect dialect = resolveDialect(properties.getProperty(DIALECT_ITEM));
+                AbstractDialect dialect = ClassUtil.INSTANCE.instantiate(properties.getProperty(DIALECT_ITEM));
                 if (StringUtil.INSTANCE.isBlank(properties.getProperty(URL_ITEM))) {
-                    String query = "serverTimezone=GMT%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
-                    String url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
+                    String query, url = null;
+                    if (dialect instanceof MySQLDialect) {
+                        query = "serverTimezone=GMT%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
+                        url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
+                    }
                     dataSourceProperties.setUrl(url);
                 }
                 dataSourceProperties.setBeanClassLoader(this.getClass().getClassLoader());
@@ -107,15 +108,6 @@ public @interface EnableJdbc {
                 MultiDataSourceContext.INSTANCE.putDialect(dataSourceName, dialect);
                 MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource);
             });
-        }
-
-        private AbstractDialect resolveDialect(String dialectClassName) {
-            try {
-                Class<?> forName = Class.forName(dialectClassName);
-                return (AbstractDialect) forName.getDeclaredConstructor().newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                throw new MatrixErrorException(e.toString());
-            }
         }
     }
 }

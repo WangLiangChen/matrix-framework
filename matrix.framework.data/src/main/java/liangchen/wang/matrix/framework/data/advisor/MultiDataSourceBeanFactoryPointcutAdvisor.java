@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author LiangChen.Wang 2021/5/31
- * 多数据源切入规则
+ * 采用切面的方式 使用注解切换数据源
  */
 @SuppressWarnings("NullableProblems")
 public class MultiDataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPointcutAdvisor {
