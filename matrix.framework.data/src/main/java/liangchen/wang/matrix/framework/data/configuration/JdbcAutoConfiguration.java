@@ -7,9 +7,7 @@ import liangchen.wang.matrix.framework.data.advisor.MultiDataSourceBeanFactoryPo
 import liangchen.wang.matrix.framework.data.annotation.DataSource;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceContext;
 import org.aopalliance.intercept.MethodInterceptor;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -17,12 +15,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -87,17 +81,5 @@ public class JdbcAutoConfiguration {
     @Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
         return new NamedParameterJdbcTemplate(jdbcTemplate);
-    }
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(EntityManagerFactoryBuilder entityManagerFactoryBuilder, javax.sql.DataSource dataSource) {
-        return entityManagerFactoryBuilder.dataSource(dataSource).build();
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean entityManagerFactoryBean) {
-        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
-        jpaTransactionManager.setEntityManagerFactory(entityManagerFactoryBean.getObject());
-        return jpaTransactionManager;
     }
 }

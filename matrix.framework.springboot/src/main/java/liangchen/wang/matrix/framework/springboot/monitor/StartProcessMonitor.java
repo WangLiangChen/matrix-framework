@@ -378,15 +378,19 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     }
 
     private void populateDefaultProperties(Properties defaultProperties) {
-        defaultProperties.setProperty("spring.jpa.properties.javax.persistence.validation.mode", "none");
-        defaultProperties.setProperty("spring.data.jpa.repositories.enabled", "false");
-        defaultProperties.setProperty(" spring.data.jpa.repositories.bootstrap-mode", "default");
+        // defaultProperties.setProperty("spring.jpa.properties.javax.persistence.validation.mode", "none");
+        // defaultProperties.setProperty("spring.data.jpa.repositories.enabled", "false");
+        // defaultProperties.setProperty(" spring.data.jpa.repositories.bootstrap-mode", "default");
         for (int i = 0; i < excludeAutoConfigure.length; i++) {
             defaultProperties.setProperty(StringUtil.INSTANCE.format("spring.autoconfigure.exclude[{}]", i), excludeAutoConfigure[i]);
         }
     }
 
     private void hanldeAutoScan(ConfigurableApplicationContext applicationContext) {
+        boolean ignore = true;
+        if (ignore) {
+            return;
+        }
         // 处理自动扫描和排除扫描项目
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) beanFactory;
