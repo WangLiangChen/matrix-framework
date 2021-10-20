@@ -3,7 +3,7 @@ package liangchen.wang.matrix.framework.data.configuration;
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
 import liangchen.wang.matrix.framework.commons.utils.PrettyPrinter;
-import liangchen.wang.matrix.framework.data.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
+import liangchen.wang.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
 import liangchen.wang.matrix.framework.data.annotation.DataSource;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceContext;
 import org.aopalliance.intercept.MethodInterceptor;

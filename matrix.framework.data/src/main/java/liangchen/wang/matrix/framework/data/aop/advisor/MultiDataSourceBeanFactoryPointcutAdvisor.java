@@ -1,4 +1,4 @@
-package liangchen.wang.matrix.framework.data.advisor;
+package liangchen.wang.matrix.framework.data.aop.advisor;
 
 import liangchen.wang.matrix.framework.data.annotation.DataSource;
 import liangchen.wang.matrix.framework.data.annotation.DataSourceSwitchable;

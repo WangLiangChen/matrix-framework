@@ -4,6 +4,7 @@ import liangchen.wang.matrix.framework.commons.configuration.ConfigurationResolv
 import org.apache.commons.configuration2.Configuration;
 
 import java.net.URI;
+import java.net.URL;
 
 /**
  * @author Liangchen.Wang
@@ -28,7 +29,12 @@ public enum ConfigurationContext {
         return this.configurationResolver.getURI(relativePath);
     }
 
+    public URL getURL(String relativePath) {
+        return this.configurationResolver.getURL(relativePath);
+    }
+
     public boolean exists(String relativePath) {
         return this.configurationResolver.exists(relativePath);
     }
+
 }

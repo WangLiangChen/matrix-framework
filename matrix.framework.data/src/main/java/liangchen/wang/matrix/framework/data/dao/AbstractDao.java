@@ -4,6 +4,7 @@ package liangchen.wang.matrix.framework.data.dao;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import org.hibernate.metamodel.model.domain.internal.EntityTypeImpl;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.inject.Inject;
@@ -20,17 +21,17 @@ import java.util.stream.Collectors;
 /**
  * @author Liangchen.Wang 2021-10-19 18:35
  */
-public abstract class AbstractDao<E extends RootEntity, Q extends RootQuery> {
+public abstract class AbstractDao<E extends RootEntity, Q extends RootQuery> implements InitializingBean {
     @Inject
     protected JdbcTemplate jdbcTemplate;
     @Inject
     protected SqlSessionTemplate sqlSessionTemplate;
     @PersistenceContext
     protected EntityManager entityManager;
+    protected MybatisStatementIdBuilder mybatisStatementIdBuilder;
+
     private final Class<E> entityClass;
     private final Class<Q> queryClass;
-    private final EntityMeta entityMeta;
-    private final MybatisStatementIdBuilder mybatisStatementIdBuilder;
     private final static String EXCEPTION = "Type must be ParameterizedType '<E extends RootEntity, Q extends RootQuery>'";
 
     @SuppressWarnings({"unchecked"})
@@ -45,13 +46,16 @@ public abstract class AbstractDao<E extends RootEntity, Q extends RootQuery> {
         }
         entityClass = (Class<E>) argTypes[0];
         queryClass = (Class<Q>) argTypes[1];
+    }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
         Metamodel metamodel = entityManager.getMetamodel();
         EntityTypeImpl entityType = (EntityTypeImpl) metamodel.entity(entityClass);
         String tableName = entityType.getName();
         Set<?> attributes = entityType.getAttributes();
         Map<Boolean, Set<String>> fieldMap = attributes.stream().map(e -> (SingularAttribute) e).collect(Collectors.groupingBy(SingularAttribute::isId, Collectors.mapping(SingularAttribute::getName, Collectors.toSet())));
-        entityMeta = new EntityMeta(tableName, fieldMap.get(Boolean.TRUE), fieldMap.get(Boolean.FALSE));
+        EntityMeta entityMeta = new EntityMeta(tableName, fieldMap.get(Boolean.TRUE), fieldMap.get(Boolean.FALSE));
         mybatisStatementIdBuilder = new MybatisStatementIdBuilder(sqlSessionTemplate, entityMeta);
     }
 }

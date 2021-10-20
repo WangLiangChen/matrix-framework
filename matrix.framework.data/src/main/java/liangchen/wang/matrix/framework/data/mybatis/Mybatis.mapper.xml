@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommonSQL">
+    <sql id="OrderBy">
+        <if test="null!=orderBy and orderBy.size()>0">
+            order by
+            <foreach collection="orderBy" item="item" index="index" separator=",">
+                ${item.orderBy} ${item.direction}
+            </foreach>
+        </if>
+    </sql>
+    <sql id="Limit">
+        <if test="null!=offset and null!=rows">
+            limit #{offset},#{rows}
+        </if>
+    </sql>
+    <sql id="DynamicFields4Update">
+        <if test="dynamicFields!=null">
+            <foreach collection="dynamicFields.keys" item="key" separator=",">
+                <if test="dynamicFields[key]!=null">
+                    ${key} = #{dynamicFields.${key}}
+                </if>
+                <if test="dynamicFields[key]==null">
+                    ${key} = null
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <sql id="CriteriasCondition">
+        <if test="null!=criterias and criterias.size()>0">
+            and
+            <foreach collection="criterias" item="criteria" open="(" separator="or " close=")">
+                <if test="criteria.valid">
+                    <foreach collection="criteria.criterions" item="criterion" open="(" separator="and" close=")">
+                        <choose>
+                            <when test="criterion.noValue">
+                                ${criterion.field} ${criterion.condition}
+                            </when>
+                            <when test="criterion.singleValue">
+                                ${criterion.field} ${criterion.condition} #{criterion.value}
+                            </when>
+                            <when test="criterion.betweenValue">
+                                ${criterion.field} between #{criterion.value} and #{criterion.secondValue}
+                            </when>
+                            <when test="criterion.listValue and criterion.value!=null and criterion.value.size()>0">
+                                ${criterion.field} ${criterion.condition}
+                                <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                    #{listItem}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </foreach>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+</mapper>
