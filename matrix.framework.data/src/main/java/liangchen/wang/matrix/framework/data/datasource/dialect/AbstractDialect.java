@@ -3,7 +3,7 @@ package liangchen.wang.matrix.framework.data.datasource.dialect;
 
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
-import liangchen.wang.matrix.framework.data.dao.RootQuery;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 
 /**
  * @author LiangChen.Wang

@@ -1,8 +1,8 @@
 package liangchen.wang.matrix.framework.data.annotation;
 
 
-import liangchen.wang.matrix.framework.data.enumeration.AndOr;
-import liangchen.wang.matrix.framework.data.enumeration.Operator;
+import liangchen.wang.matrix.framework.data.query.AndOr;
+import liangchen.wang.matrix.framework.data.query.Operator;
 
 import java.lang.annotation.*;
 

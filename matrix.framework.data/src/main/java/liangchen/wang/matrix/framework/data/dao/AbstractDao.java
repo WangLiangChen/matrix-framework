@@ -1,10 +1,12 @@
 package liangchen.wang.matrix.framework.data.dao;
 
 
-import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
+import liangchen.wang.matrix.framework.data.dao.entity.EntityMeta;
+import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import org.hibernate.metamodel.model.domain.internal.EntityTypeImpl;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.InitializingBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.inject.Inject;
@@ -12,50 +14,34 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2021-10-19 18:35
  */
-public abstract class AbstractDao<E extends RootEntity, Q extends RootQuery> implements InitializingBean {
+public abstract class AbstractDao {
+    private final static Logger logger = LoggerFactory.getLogger(AbstractDao.class);
     @Inject
     protected JdbcTemplate jdbcTemplate;
     @Inject
     protected SqlSessionTemplate sqlSessionTemplate;
     @PersistenceContext
     protected EntityManager entityManager;
-    protected MybatisStatementIdBuilder mybatisStatementIdBuilder;
+    private final Map<Class<? extends RootEntity>, EntityMeta> entityMetaCache = new ConcurrentHashMap<>(128);
 
-    private final Class<E> entityClass;
-    private final Class<Q> queryClass;
-    private final static String EXCEPTION = "Type must be ParameterizedType '<E extends RootEntity, Q extends RootQuery>'";
-
-    @SuppressWarnings({"unchecked"})
-    public AbstractDao() {
-        Type thisType = getClass().getGenericSuperclass();
-        if (!(thisType instanceof ParameterizedType)) {
-            throw new MatrixInfoException(EXCEPTION);
-        }
-        Type[] argTypes = ((ParameterizedType) thisType).getActualTypeArguments();
-        if (argTypes.length < 2) {
-            throw new MatrixInfoException(EXCEPTION);
-        }
-        entityClass = (Class<E>) argTypes[0];
-        queryClass = (Class<Q>) argTypes[1];
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        Metamodel metamodel = entityManager.getMetamodel();
-        EntityTypeImpl entityType = (EntityTypeImpl) metamodel.entity(entityClass);
-        String tableName = entityType.getName();
-        Set<?> attributes = entityType.getAttributes();
-        Map<Boolean, Set<String>> fieldMap = attributes.stream().map(e -> (SingularAttribute) e).collect(Collectors.groupingBy(SingularAttribute::isId, Collectors.mapping(SingularAttribute::getName, Collectors.toSet())));
-        EntityMeta entityMeta = new EntityMeta(tableName, fieldMap.get(Boolean.TRUE), fieldMap.get(Boolean.FALSE));
-        mybatisStatementIdBuilder = new MybatisStatementIdBuilder(sqlSessionTemplate, entityMeta);
+    protected EntityMeta entityMeta(Class<? extends RootEntity> entityClass) {
+        EntityMeta entityMeta = entityMetaCache.computeIfAbsent(entityClass, key -> {
+            Metamodel metamodel = entityManager.getMetamodel();
+            EntityTypeImpl entityType = (EntityTypeImpl) metamodel.entity(entityClass);
+            String tableName = entityType.getName();
+            Set<?> attributes = entityType.getAttributes();
+            Map<Boolean, Set<String>> fieldMap = attributes.stream().map(e -> (SingularAttribute) e).collect(Collectors.groupingBy(SingularAttribute::isId, Collectors.mapping(SingularAttribute::getName, Collectors.toSet())));
+            logger.debug("create entity meta:{}", entityClass.getName());
+            return new EntityMeta(tableName, fieldMap.get(Boolean.TRUE), fieldMap.get(Boolean.FALSE));
+        });
+        return entityMeta;
     }
 }

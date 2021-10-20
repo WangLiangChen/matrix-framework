@@ -2,7 +2,7 @@ package liangchen.wang.matrix.framework.data.datasource.dialect;
 
 
 import liangchen.wang.matrix.framework.commons.utils.CollectionUtil;
-import liangchen.wang.matrix.framework.data.dao.RootQuery;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 import liangchen.wang.matrix.framework.data.pagination.OrderBy;
 
 import java.util.List;

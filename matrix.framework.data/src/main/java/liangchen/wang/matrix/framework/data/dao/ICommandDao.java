@@ -1,10 +1,10 @@
 package liangchen.wang.matrix.framework.data.dao;
 
 
-import liangchen.wang.matrix.framework.data.pagination.PaginationResult;
+import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author LiangChen.Wang

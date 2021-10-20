@@ -387,10 +387,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     }
 
     private void hanldeAutoScan(ConfigurableApplicationContext applicationContext) {
-        boolean ignore = true;
-        if (ignore) {
-            return;
-        }
         // 处理自动扫描和排除扫描项目
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) beanFactory;

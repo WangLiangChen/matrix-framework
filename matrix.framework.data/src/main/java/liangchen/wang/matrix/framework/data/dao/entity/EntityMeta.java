@@ -1,4 +1,4 @@
-package liangchen.wang.matrix.framework.data.dao;
+package liangchen.wang.matrix.framework.data.dao.entity;
 
 import java.util.HashSet;
 import java.util.Set;

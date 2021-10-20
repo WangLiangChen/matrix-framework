@@ -1,4 +1,4 @@
-package liangchen.wang.matrix.framework.data.dao;
+package liangchen.wang.matrix.framework.data.dao.entity;
 
 
 import liangchen.wang.matrix.framework.commons.object.EnhancedObject;

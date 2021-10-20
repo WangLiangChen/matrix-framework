@@ -1,5 +1,7 @@
 package liangchen.wang.matrix.framework.commons.exception;
 
+import liangchen.wang.matrix.framework.commons.utils.StringUtil;
+
 /**
  * @author Liangchen.Wang 2021-08-19 20:19
  */
@@ -7,8 +9,8 @@ public class MatrixInfoException extends MatrixRuntimeException {
     public MatrixInfoException() {
     }
 
-    public MatrixInfoException(String message) {
-        super(message);
+    public MatrixInfoException(String message, String... args) {
+        super(StringUtil.INSTANCE.format(message, args));
     }
 
     public MatrixInfoException(String message, Throwable cause) {

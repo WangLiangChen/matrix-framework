@@ -1,4 +1,4 @@
-package liangchen.wang.matrix.framework.data.enumeration;
+package liangchen.wang.matrix.framework.data.query;
 
 /**
  * @author .LiangChen.Wang

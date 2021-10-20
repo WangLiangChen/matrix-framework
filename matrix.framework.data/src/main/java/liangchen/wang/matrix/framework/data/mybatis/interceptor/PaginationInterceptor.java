@@ -1,7 +1,7 @@
 package liangchen.wang.matrix.framework.data.mybatis.interceptor;
 
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
-import liangchen.wang.matrix.framework.data.dao.RootQuery;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceContext;
 import liangchen.wang.matrix.framework.data.datasource.dialect.AbstractDialect;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
