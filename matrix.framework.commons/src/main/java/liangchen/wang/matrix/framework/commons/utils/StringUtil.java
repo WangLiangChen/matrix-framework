@@ -113,4 +113,31 @@ public enum StringUtil {
     public String blankString() {
         return Symbol.BLANK.getSymbol();
     }
+
+    public String underline2camelCase(String string) {
+        char[] chars = string.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < chars.length; i++) {
+            if ('_' == chars[i]) {
+                builder.append((char) (chars[++i] - 32));
+                continue;
+            }
+            builder.append(chars[i]);
+        }
+
+        return builder.toString();
+    }
+
+    public String camelCase2underline(String string) {
+        char[] chars = string.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for (char c : chars) {
+            if (c >= 'a' && c <= 'z') {
+                builder.append(c);
+                continue;
+            }
+            builder.append(Symbol.UNDERLINE.getSymbol()).append((char) (c + 32));
+        }
+        return builder.toString();
+    }
 }

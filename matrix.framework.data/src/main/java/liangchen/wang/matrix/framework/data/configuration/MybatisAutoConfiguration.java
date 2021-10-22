@@ -12,10 +12,15 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.wrapper.MapWrapper;
+import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
+import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
@@ -26,6 +31,7 @@ import org.springframework.lang.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,6 +97,7 @@ public class MybatisAutoConfiguration {
         Properties mybatisConfiguration = new Properties();
         mybatisConfiguration.put("cacheEnabled", false);
         mybatisConfiguration.put("localCacheScope", LocalCacheScope.STATEMENT.name());
+        mybatisConfiguration.put("mapUnderscoreToCamelCase", true);
         sqlSessionFactoryBean.setConfigurationProperties(mybatisConfiguration);
 
         // 设置要扫描mapper.xml
@@ -125,6 +132,29 @@ public class MybatisAutoConfiguration {
     @Bean
     public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
         return new SqlSessionTemplate(sqlSessionFactory);
+    }
+
+    @Bean
+    public ConfigurationCustomizer configurationCustomizer() {
+        return configuration -> configuration.setObjectWrapperFactory(new ObjectWrapperFactory() {
+            @Override
+            public boolean hasWrapperFor(Object object) {
+                return object != null && object instanceof Map;
+            }
+
+            @Override
+            public ObjectWrapper getWrapperFor(MetaObject metaObject, Object object) {
+                return new MapWrapper(metaObject, (Map<String, Object>) object) {
+                    @Override
+                    public String findProperty(String name, boolean useCamelCaseMapping) {
+                        if (useCamelCaseMapping) {
+                            return StringUtil.INSTANCE.underline2camelCase(name);
+                        }
+                        return name;
+                    }
+                };
+            }
+        });
     }
 
     @Bean

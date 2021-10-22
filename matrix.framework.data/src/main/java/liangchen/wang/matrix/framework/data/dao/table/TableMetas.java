@@ -3,6 +3,7 @@ package liangchen.wang.matrix.framework.data.dao.table;
 import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.commons.object.ClassUtil;
+import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.data.annotation.Query;
 
 import javax.persistence.Column;
@@ -44,21 +45,9 @@ public enum TableMetas {
         if (null != columnAnnotation) {
             return ColumnMeta.newInstance(columnAnnotation.name(), isId, queryAnnotation, fieldName, field.getType());
         }
-        return ColumnMeta.newInstance(field2Column(fieldName), isId, queryAnnotation, fieldName, field.getType());
+        return ColumnMeta.newInstance(StringUtil.INSTANCE.camelCase2underline(fieldName), isId, queryAnnotation, fieldName, field.getType());
     }
 
-    private String field2Column(final String fieldName) {
-        char[] chars = fieldName.toCharArray();
-        StringBuilder builder = new StringBuilder();
-        for (char c : chars) {
-            if (c >= 'a' && c <= 'z') {
-                builder.append(c);
-                continue;
-            }
-            builder.append(Symbol.UNDERLINE.getSymbol()).append((char) (c - 32));
-        }
-        return builder.toString();
-    }
 
     private String resolveTableName(Class<?> clazz) {
         Entity entity = clazz.getAnnotation(Entity.class);
