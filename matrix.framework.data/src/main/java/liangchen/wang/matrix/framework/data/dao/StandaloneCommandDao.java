@@ -2,6 +2,7 @@ package liangchen.wang.matrix.framework.data.dao;
 
 import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import liangchen.wang.matrix.framework.data.mybatis.MybatisStatementIdBuilder;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  */
 @Repository
 public class StandaloneCommandDao extends AbstractDao {
+
     public void insert(RootEntity entity) {
         entityManager.persist(entity);
     }
@@ -19,7 +21,18 @@ public class StandaloneCommandDao extends AbstractDao {
         entities.forEach(entity -> insert(entity));
     }
 
-    public void delete(RootEntity entity) {
-        MybatisStatementIdBuilder mybatisStatementIdBuilder = new MybatisStatementIdBuilder(sqlSessionTemplate,entityMeta(entity.getClass()));
+    int deleteByQuery(RootQuery query) {
+        String deleteByQueryId = MybatisStatementIdBuilder.INSTANCE.deleteByQueryId(sqlSessionTemplate, query.getClass());
+        return sqlSessionTemplate.delete(deleteByQueryId, query);
+    }
+
+    int updateByQuery(RootEntity entity, RootQuery query) {
+        String updateByQueryId = MybatisStatementIdBuilder.INSTANCE.updateByQueryId(sqlSessionTemplate, entity.getClass(), query.getClass());
+        query.setEntity(entity);
+        return sqlSessionTemplate.update(updateByQueryId, query);
+    }
+
+    void update(RootEntity entity) {
+        entityManager.persist(entity);
     }
 }

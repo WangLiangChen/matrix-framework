@@ -3,8 +3,10 @@ package liangchen.wang.matrix.framework.data.mybatis;
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.data.annotation.Query;
+import liangchen.wang.matrix.framework.data.dao.table.ColumnMeta;
+import liangchen.wang.matrix.framework.data.dao.table.TableMeta;
+import liangchen.wang.matrix.framework.data.dao.table.TableMetas;
 import liangchen.wang.matrix.framework.data.query.Between;
-import liangchen.wang.matrix.framework.data.dao.entity.EntityMeta;
 import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import liangchen.wang.matrix.framework.data.query.RootQuery;
 import liangchen.wang.matrix.framework.data.query.AndOr;
@@ -25,25 +27,20 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MybatisStatementIdBuilder {
+public enum MybatisStatementIdBuilder {
+    INSTANCE;
     public final Logger logger = LoggerFactory.getLogger(MybatisStatementIdBuilder.class);
-    private final SqlSessionTemplate sqlSessionTemplate;
-    private final EntityMeta entityMeta;
     private final static Map<String, String> statementCache = new ConcurrentHashMap<>(128);
 
-    public MybatisStatementIdBuilder(SqlSessionTemplate sqlSessionTemplate, EntityMeta entityMeta) {
-        this.sqlSessionTemplate = sqlSessionTemplate;
-        this.entityMeta = entityMeta;
-    }
-
-    public String insertId(Class<? extends RootEntity> entityClass) {
+    public String insertId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootEntity> entityClass) {
         String entityClassName = entityClass.getName();
         String cacheKey = String.format("%s.%s", entityClassName, "insert");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
-            Set<String> ids = entityMeta.getIds();
-            Set<String> fields = entityMeta.getFields();
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            Set<String> ids = entityTableMeta.getIds();
+            Set<String> fields = entityTableMeta.getColumns();
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("<script>insert into ").append(entityMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             ids.forEach(pk -> sqlBuilder.append(pk).append(","));
             fields.forEach(field -> sqlBuilder.append(field).append(","));
             sqlBuilder.append("</trim>values<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
@@ -51,21 +48,22 @@ public class MybatisStatementIdBuilder {
             fields.forEach(field -> sqlBuilder.append("#{").append(field).append("},"));
             sqlBuilder.append("</trim></script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
             logger.debug("create insertId:{},sql:{}", cacheKey, sql);
             return sql;
         });
         return cacheKey;
     }
 
-    public <E extends RootEntity> String insertBatchId(Class<E> entityClass) {
+    public <E extends RootEntity> String insertBatchId(final SqlSessionTemplate sqlSessionTemplate, final Class<E> entityClass) {
         String entityClassName = entityClass.getName();
         String cacheKey = String.format("%s.%s", entityClassName, "insertBatch");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
-            Set<String> ids = entityMeta.getIds();
-            Set<String> fields = entityMeta.getFields();
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            Set<String> ids = entityTableMeta.getIds();
+            Set<String> fields = entityTableMeta.getColumns();
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("<script>insert into ").append(entityMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             ids.forEach(pk -> sqlBuilder.append(pk).append(","));
             fields.forEach(field -> sqlBuilder.append(field).append(","));
             sqlBuilder.append("</trim>values");
@@ -77,14 +75,14 @@ public class MybatisStatementIdBuilder {
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
             logger.debug("create insertBatchId:{},sql:{}", cacheKey, sql);
             return sql;
         });
         return cacheKey;
     }
 
-    public String deleteByQueryId(Class<? extends RootQuery> queryClass) {
+    public String deleteByQueryId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootQuery> queryClass) {
         String tableName = tableNameByQueryClass(queryClass);
         String queryClassName = queryClass.getName();
         String cacheKey = String.format("%s.%s", queryClassName, "delete");
@@ -94,23 +92,24 @@ public class MybatisStatementIdBuilder {
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(cacheKey, SqlCommandType.DELETE, sql, queryClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.DELETE, sql, queryClass, Integer.class);
             logger.debug("create deleteByQueryId:{},sql:{}", cacheKey, sql);
             return sql;
         });
         return cacheKey;
     }
 
-    public String updateByQueryId(Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
-        return updateId(entityClass, queryClass);
+    public String updateByQueryId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
+        return updateId(sqlSessionTemplate, entityClass, queryClass);
     }
 
-    private String updateId(Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
+    private String updateId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
         String cacheKey = null == queryClass ? String.format("%s.%s", entityClass.getName(), "update") : String.format("%s.%s", queryClass.getName(), "update");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("<script>update ").append(entityMeta.getTableName()).append("<set>");
-            entityMeta.getFields().forEach(e -> {
+            sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
+            entityTableMeta.getColumns().forEach(e -> {
                 sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(entity.").append(e).append(")\">");
                 sqlBuilder.append(e).append("=#{entity.").append(e).append("},");
                 sqlBuilder.append("</if>");
@@ -130,14 +129,14 @@ public class MybatisStatementIdBuilder {
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(cacheKey, SqlCommandType.UPDATE, sql, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.UPDATE, sql, entityClass, Integer.class);
             logger.debug("create updateId:{},sql:{}", cacheKey, sql);
             return sql;
         });
         return cacheKey;
     }
 
-    public String countId(Class<? extends RootQuery> queryClass) {
+    public String countId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootQuery> queryClass) {
         String tableName = tableNameByQueryClass(queryClass);
         String cacheKey = String.format("%s.%s", queryClass.getName(), "count");
 
@@ -148,7 +147,7 @@ public class MybatisStatementIdBuilder {
             sqlBuilder.append("<script>select count(*) from ").append(tableName);
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("</script>");
-            buildMappedStatement(cacheKey, SqlCommandType.SELECT, sqlBuilder.toString(), queryClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sqlBuilder.toString(), queryClass, Integer.class);
             String sql = sqlBuilder.toString();
             logger.debug("create countId:{},sql:{}", cacheKey, sql);
             return sql;
@@ -156,18 +155,19 @@ public class MybatisStatementIdBuilder {
         return cacheKey;
     }
 
-    public String listId(Class<? extends RootQuery> queryClass, Class<? extends RootEntity> entityClass) {
+    public String listId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootQuery> queryClass, Class<? extends RootEntity> entityClass) {
         String cacheKey = String.format("%s.%s", entityClass.getName(), "list");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("<script>select <trim suffixOverrides=\",\"><foreach collection=\"returnFields\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ").append(entityMeta.getTableName());
+            sqlBuilder.append("<script>select <trim suffixOverrides=\",\"><foreach collection=\"returnFields\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ").append(entityTableMeta.getTableName());
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
             sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
             sqlBuilder.append("<if test=\"null!=offset and null!=rows\">limit #{offset},#{rows}</if>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(cacheKey, SqlCommandType.SELECT, sql, queryClass, entityClass);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sql, queryClass, entityClass);
             logger.debug("create listId:{},sql:{}", cacheKey, sql);
             return sql;
         });
@@ -175,23 +175,24 @@ public class MybatisStatementIdBuilder {
     }
 
     private StringBuilder findWhereSql(Class<? extends RootQuery> queryClass) {
+        TableMeta queryTableMeta = TableMetas.INSTANCE.tableMeta(queryClass);
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        Field[] fields = queryClass.getDeclaredFields();
-        for (Field field : fields) {
-            Query annotation = field.getAnnotation(Query.class);
-            if (null == annotation) {
+        Set<ColumnMeta> columnMetas = queryTableMeta.getColumnMetas();
+        for (ColumnMeta columnMeta : columnMetas) {
+            Query queryAnnotation = columnMeta.getQueryAnnotation();
+            if (null == queryAnnotation) {
                 continue;
             }
-            String fieldName = field.getName();
-            String columnName = annotation.column();
+            String fieldName = columnMeta.getFieldName();
+            String columnName = queryAnnotation.column();
             if (columnName.length() == 0) {
                 columnName = fieldName;
             }
             whereSql.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(").append(fieldName).append(")\">");
-            AndOr andOr = annotation.andOr();
+            AndOr andOr = queryAnnotation.andOr();
             whereSql.append(andOr.getAndOr()).append(columnName);
-            Operator operator = annotation.operator();
+            Operator operator = queryAnnotation.operator();
             switch (operator) {
                 case ISNULL:
                 case ISNOTNULL:
@@ -199,7 +200,7 @@ public class MybatisStatementIdBuilder {
                     break;
                 case BETWEEN:
                 case NOTBETWEEN:
-                    Class<?> fieldType = field.getType();
+                    Class<?> fieldType = columnMeta.getFieldType();
                     if (fieldType.isAssignableFrom(Between.class)) {
                         whereSql.append(operator.getOperator()).append("#{").append(fieldName).append(".min}").append(" and #{").append(fieldName).append(".max}");
                         break;
@@ -232,7 +233,7 @@ public class MybatisStatementIdBuilder {
                     break;
                 case IN:
                 case NOTIN:
-                    fieldType = field.getType();
+                    fieldType = columnMeta.getFieldType();
                     if (fieldType.isArray() || fieldType.isAssignableFrom(List.class) || fieldType.isAssignableFrom(Set.class)) {
                         whereSql.append(operator.getOperator()).append("<foreach open=\"(\" close=\")\" collection=\"").append(fieldName).append("\" item=\"item\" index=\"index\" separator=\",\">#{item}</foreach>");
                         break;
@@ -255,8 +256,7 @@ public class MybatisStatementIdBuilder {
         return tableName;
     }
 
-
-    private void buildMappedStatement(String mappedStatementId, SqlCommandType sqlCommandType, String sql, Class<?> parameterType, Class<?> resultType) {
+    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sql, Class<?> parameterType, Class<?> resultType) {
         List<ResultMap> resultMaps = new ArrayList<>(1);
         Configuration configuration = sqlSessionTemplate.getConfiguration();
         resultMaps.add(new ResultMap.Builder(configuration, "defaultResultMap", resultType, Collections.emptyList()).build());

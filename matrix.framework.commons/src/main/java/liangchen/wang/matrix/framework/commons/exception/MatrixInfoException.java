@@ -9,7 +9,7 @@ public class MatrixInfoException extends MatrixRuntimeException {
     public MatrixInfoException() {
     }
 
-    public MatrixInfoException(String message, String... args) {
+    public MatrixInfoException(String message, Object... args) {
         super(StringUtil.INSTANCE.format(message, args));
     }
 

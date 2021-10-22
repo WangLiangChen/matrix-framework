@@ -1,5 +1,6 @@
 package liangchen.wang.matrix.framework.commons.object;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -8,12 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
 @SuppressWarnings("NullableProblems")
 public abstract class EnhancedObject implements Serializable, Cloneable, Map<String, Object> {
     /**
      * 动态fields，用于动态扩展类的filed
      */
-    private Map<String, Object> extendedFields = new ConcurrentHashMap<>();
+    private transient Map<String, Object> extendedFields = new ConcurrentHashMap<>();
 
     @Override
     public int size() {
