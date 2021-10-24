@@ -1,10 +1,12 @@
 package liangchen.wang.matrix.framework.data.dao;
 
+import liangchen.wang.matrix.framework.commons.utils.CollectionUtil;
 import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import liangchen.wang.matrix.framework.data.mybatis.MybatisStatementIdBuilder;
 import liangchen.wang.matrix.framework.data.query.RootQuery;
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.TypeVariable;
 import java.util.List;
 
 /**
@@ -14,11 +16,19 @@ import java.util.List;
 public class StandaloneCommandDao extends AbstractDao {
 
     public void insert(RootEntity entity) {
+        if (null == entity) {
+            return;
+        }
         entityManager.persist(entity);
     }
 
     public void insertBatch(List<? extends RootEntity> entities) {
-        entities.forEach(entity -> insert(entity));
+        if (CollectionUtil.INSTANCE.isEmpty(entities)) {
+            return;
+        }
+        RootEntity entity = entities.get(0);
+        String insertBatchId = MybatisStatementIdBuilder.INSTANCE.insertBatchId(sqlSessionTemplate, entity.getClass());
+        sqlSessionTemplate.insert(insertBatchId, entities);
     }
 
     int deleteByQuery(RootQuery query) {

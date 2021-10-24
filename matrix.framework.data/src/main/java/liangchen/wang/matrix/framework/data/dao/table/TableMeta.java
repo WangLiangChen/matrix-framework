@@ -16,7 +16,7 @@ public class TableMeta {
         this.tableName = tableName;
         this.columnMetas = columnMetas;
         this.ids = columnMetas.stream().filter(ColumnMeta::isId).map(ColumnMeta::getColumnName).collect(Collectors.toSet());
-        this.columns = columnMetas.stream().filter(ColumnMeta::isId).map(ColumnMeta::getColumnName).collect(Collectors.toSet());
+        this.columns = columnMetas.stream().filter(ColumnMeta::isNotId).map(ColumnMeta::getColumnName).collect(Collectors.toSet());
     }
 
     public static TableMeta newInstance(String tableName, Set<ColumnMeta> columnMetas) {

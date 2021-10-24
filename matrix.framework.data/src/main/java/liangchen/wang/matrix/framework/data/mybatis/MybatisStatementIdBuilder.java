@@ -60,22 +60,19 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insertBatch");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Set<String> ids = entityTableMeta.getIds();
-            Set<String> fields = entityTableMeta.getColumns();
+            Set<ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            ids.forEach(pk -> sqlBuilder.append(pk).append(","));
-            fields.forEach(field -> sqlBuilder.append(field).append(","));
+            columnMetas.forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             sqlBuilder.append("</trim>values");
             sqlBuilder.append("<foreach collection=\"list\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            ids.forEach(pk -> sqlBuilder.append("#{item.").append(pk).append("},"));
-            fields.forEach(field -> sqlBuilder.append("#{item.").append(field).append("},"));
+            columnMetas.forEach(columnMeta -> sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append("},"));
             sqlBuilder.append("</trim>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, List.class, Integer.class);
             logger.debug("create insertBatchId:{},sql:{}", cacheKey, sql);
             return sql;
         });
@@ -260,13 +257,8 @@ public enum MybatisStatementIdBuilder {
         List<ResultMap> resultMaps = new ArrayList<>(1);
         Configuration configuration = sqlSessionTemplate.getConfiguration();
         resultMaps.add(new ResultMap.Builder(configuration, "defaultResultMap", resultType, Collections.emptyList()).build());
-        SqlSource sqlSource;
-        if (null == parameterType) {
-            sqlSource = new StaticSqlSource(configuration, sql);
-        } else {
-            LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
-            sqlSource = languageDriver.createSqlSource(configuration, sql, parameterType);
-        }
+        LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, parameterType);
         MappedStatement ms = new MappedStatement.Builder(configuration, mappedStatementId, sqlSource, sqlCommandType).resultMaps(resultMaps).build();
         configuration.addMappedStatement(ms);
     }

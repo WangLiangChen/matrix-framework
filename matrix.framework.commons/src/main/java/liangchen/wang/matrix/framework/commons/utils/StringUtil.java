@@ -132,11 +132,11 @@ public enum StringUtil {
         char[] chars = string.toCharArray();
         StringBuilder builder = new StringBuilder();
         for (char c : chars) {
-            if (c >= 'a' && c <= 'z') {
-                builder.append(c);
+            if (c >= 'A' && c <= 'Z') {
+                builder.append(Symbol.UNDERLINE.getSymbol()).append((char) (c + 32));
                 continue;
             }
-            builder.append(Symbol.UNDERLINE.getSymbol()).append((char) (c + 32));
+            builder.append(c);
         }
         return builder.toString();
     }
