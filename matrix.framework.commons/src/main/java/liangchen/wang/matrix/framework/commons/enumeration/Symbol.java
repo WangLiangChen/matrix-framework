@@ -7,6 +7,7 @@ public enum Symbol {
     /**
      *
      */
+    EQUAL("=", "等号"),
     BLANK("", "空串"),
     SPACE(" ", "空格"),
     TAB("   ", "TAB"),
@@ -20,7 +21,7 @@ public enum Symbol {
     HYPHEN("-", "连字号"),
     UNDERLINE("_", "下划线"),
     STAR("*", "星号"),
-    AT("@","@"),
+    AT("@", "@"),
     FILE_SEPARATOR(System.getProperty("file.separator"), "文件分割符"),
     LINE_SEPARATOR(System.getProperty("line.separator"), "换行符"),
     PATH_SEPARATOR(System.getProperty("path.separator"), "路径分割符"),

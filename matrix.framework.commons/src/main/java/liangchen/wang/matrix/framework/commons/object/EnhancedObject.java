@@ -131,7 +131,10 @@ public abstract class EnhancedObject implements Serializable, Cloneable {
         return extendedFields.merge(key, value, remappingFunction);
     }
 
-    
+    public Map<String, Object> getExtendedFields() {
+        return extendedFields;
+    }
+
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

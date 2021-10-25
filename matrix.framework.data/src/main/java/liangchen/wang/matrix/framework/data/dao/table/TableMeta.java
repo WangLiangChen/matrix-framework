@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 public class TableMeta {
     private final String tableName;
     private final Set<ColumnMeta> columnMetas;
-    private final Set<String> ids;
-    private final Set<String> columns;
+    private final Set<ColumnMeta> pkColumnMetas;
+    private final Set<ColumnMeta> NonPkColumnMetas;
 
     private TableMeta(String tableName, Set<ColumnMeta> columnMetas) {
         this.tableName = tableName;
         this.columnMetas = columnMetas;
-        this.ids = columnMetas.stream().filter(ColumnMeta::isId).map(ColumnMeta::getColumnName).collect(Collectors.toSet());
-        this.columns = columnMetas.stream().filter(ColumnMeta::isNotId).map(ColumnMeta::getColumnName).collect(Collectors.toSet());
+        this.pkColumnMetas = columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toSet());
+        this.NonPkColumnMetas = columnMetas.stream().filter(ColumnMeta::isNotId).collect(Collectors.toSet());
     }
 
     public static TableMeta newInstance(String tableName, Set<ColumnMeta> columnMetas) {
@@ -31,11 +31,12 @@ public class TableMeta {
         return columnMetas;
     }
 
-    public Set<String> getIds() {
-        return ids;
+
+    public Set<ColumnMeta> getPkColumnMetas() {
+        return pkColumnMetas;
     }
 
-    public Set<String> getColumns() {
-        return columns;
+    public Set<ColumnMeta> getNonPkColumnMetas() {
+        return NonPkColumnMetas;
     }
 }

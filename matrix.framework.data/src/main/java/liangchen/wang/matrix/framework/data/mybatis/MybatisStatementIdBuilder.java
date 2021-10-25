@@ -1,5 +1,6 @@
 package liangchen.wang.matrix.framework.data.mybatis;
 
+import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.data.annotation.Query;
@@ -37,15 +38,12 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insert");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Set<String> ids = entityTableMeta.getIds();
-            Set<String> fields = entityTableMeta.getColumns();
+            Set<ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            ids.forEach(pk -> sqlBuilder.append(pk).append(","));
-            fields.forEach(field -> sqlBuilder.append(field).append(","));
+            columnMetas.forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             sqlBuilder.append("</trim>values<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            ids.forEach(pk -> sqlBuilder.append("#{").append(pk).append("},"));
-            fields.forEach(field -> sqlBuilder.append("#{").append(field).append("},"));
+            columnMetas.forEach(columnMeta -> sqlBuilder.append("#{").append(columnMeta.getFieldName()).append("},"));
             sqlBuilder.append("</trim></script>");
             String sql = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
@@ -96,34 +94,79 @@ public enum MybatisStatementIdBuilder {
         return cacheKey;
     }
 
-    public String updateByQueryId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
-        return updateId(sqlSessionTemplate, entityClass, queryClass);
+    public String deleteId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootEntity> entityClass) {
+        String cacheKey = String.format("%s.%s", entityClass.getName(), "delete");
+        statementCache.computeIfAbsent(cacheKey, statementId -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>delete from ").append(entityTableMeta.getTableName());
+            sqlBuilder.append(findWhereSql(entityTableMeta.getPkColumnMetas()));
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.DELETE, sql, entityClass, Integer.class);
+            logger.debug("create deleteByQueryId:{},sql:{}", cacheKey, sql);
+            return sql;
+        });
+        return cacheKey;
     }
 
-    private String updateId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
-        String cacheKey = null == queryClass ? String.format("%s.%s", entityClass.getName(), "update") : String.format("%s.%s", queryClass.getName(), "update");
+    public String updateByQueryId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass, Class<? extends RootQuery> queryClass) {
+        String cacheKey = String.format("%s.%s", queryClass.getName(), "update");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
-            entityTableMeta.getColumns().forEach(e -> {
-                sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(entity.").append(e).append(")\">");
-                sqlBuilder.append(e).append("=#{entity.").append(e).append("},");
+            entityTableMeta.getNonPkColumnMetas().forEach(columnMeta -> {
+                sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.").append(columnMeta.getFieldName()).append(")\">");
+                sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append("},");
                 sqlBuilder.append("</if>");
             });
 
-            sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(entity.dynamicFields)\">");
-            sqlBuilder.append("<foreach collection=\"entity.dynamicFields.keys\" item=\"key\" separator=\",\">");
-            sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNull(entity.dynamicFields[key])\">");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.extendedFields)\">");
+            sqlBuilder.append("<foreach collection=\"entity.extendedFields.keys\" item=\"key\" separator=\",\">");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNull(entity.extendedFields[key])\">");
             sqlBuilder.append("${key} = null");
             sqlBuilder.append("</if>");
-            sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotNull(entity.dynamicFields[key])\">");
-            sqlBuilder.append("${key} = #{entity.dynamicFields.${key}}");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotNull(entity.extendedFields[key])\">");
+            sqlBuilder.append("${key} = #{entity.extendedFields.${key}}");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
             sqlBuilder.append(findWhereSql(queryClass));
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.UPDATE, sql, queryClass, Integer.class);
+            logger.debug("create updateByQueryId:{},sql:{}", cacheKey, sql);
+            return sql;
+        });
+        return cacheKey;
+    }
+
+    public String updateId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootEntity> entityClass) {
+        String cacheKey = String.format("%s.%s", entityClass.getName(), "update");
+        statementCache.computeIfAbsent(cacheKey, statementId -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
+            entityTableMeta.getNonPkColumnMetas().forEach(columnMeta -> {
+                sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(").append(columnMeta.getFieldName()).append(")\">");
+                sqlBuilder.append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("},");
+                sqlBuilder.append("</if>");
+            });
+
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(extendedFields)\">");
+            sqlBuilder.append("<foreach collection=\"extendedFields.keys\" item=\"key\" separator=\",\">");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNull(extendedFields[key])\">");
+            sqlBuilder.append("${key} = null");
+            sqlBuilder.append("</if>");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotNull(extendedFields[key])\">");
+            sqlBuilder.append("${key} = #{extendedFields.${key}}");
+            sqlBuilder.append("</if>");
+            sqlBuilder.append("</foreach>");
+            sqlBuilder.append("</if>");
+            sqlBuilder.append("</set>");
+            sqlBuilder.append(findWhereSql(entityTableMeta.getPkColumnMetas()));
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.UPDATE, sql, entityClass, Integer.class);
@@ -160,7 +203,7 @@ public enum MybatisStatementIdBuilder {
             sqlBuilder.append("<script>select <trim suffixOverrides=\",\"><foreach collection=\"returnFields\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ").append(entityTableMeta.getTableName());
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
-            sqlBuilder.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
+            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
             sqlBuilder.append("<if test=\"null!=offset and null!=rows\">limit #{offset},#{rows}</if>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
@@ -169,6 +212,15 @@ public enum MybatisStatementIdBuilder {
             return sql;
         });
         return cacheKey;
+    }
+
+    private StringBuilder findWhereSql(Set<ColumnMeta> pkColumnMetas) {
+        StringBuilder whereSql = new StringBuilder();
+        whereSql.append("<where>");
+        pkColumnMetas.forEach(columnMeta -> whereSql.append("and ").append(columnMeta.getColumnName())
+                .append("=#{").append(columnMeta.getFieldName()).append("}"));
+        whereSql.append("</where>");
+        return whereSql;
     }
 
     private StringBuilder findWhereSql(Class<? extends RootQuery> queryClass) {
@@ -186,7 +238,7 @@ public enum MybatisStatementIdBuilder {
             if (columnName.length() == 0) {
                 columnName = fieldName;
             }
-            whereSql.append("<if test=\"@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotEmpty(").append(fieldName).append(")\">");
+            whereSql.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(").append(fieldName).append(")\">");
             AndOr andOr = queryAnnotation.andOr();
             whereSql.append(andOr.getAndOr()).append(columnName);
             Operator operator = queryAnnotation.operator();
