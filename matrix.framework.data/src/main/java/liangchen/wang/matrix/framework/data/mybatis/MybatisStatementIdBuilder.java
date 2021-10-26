@@ -78,10 +78,10 @@ public enum MybatisStatementIdBuilder {
     }
 
     public String deleteByQueryId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootQuery> queryClass) {
-        String tableName = tableNameByQueryClass(queryClass);
         String queryClassName = queryClass.getName();
         String cacheKey = String.format("%s.%s", queryClassName, "delete");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
+            String tableName = tableNameByQueryClass(queryClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>delete from ").append(tableName);
             sqlBuilder.append(findWhereSql(queryClass));
@@ -124,12 +124,10 @@ public enum MybatisStatementIdBuilder {
 
             sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.extendedFields)\">");
             sqlBuilder.append("<foreach collection=\"entity.extendedFields.keys\" item=\"key\" separator=\",\">");
-            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNull(entity.extendedFields[key])\">");
-            sqlBuilder.append("${key} = null");
-            sqlBuilder.append("</if>");
-            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotNull(entity.extendedFields[key])\">");
-            sqlBuilder.append("${key} = #{entity.extendedFields.${key}}");
-            sqlBuilder.append("</if>");
+            sqlBuilder.append("<choose>");
+            sqlBuilder.append("<when test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNullValue(extendedFields[key])\">${key} = null</when>");
+            sqlBuilder.append("<otherwise>${key} = #{extendedFields.${key}}</otherwise>");
+            sqlBuilder.append("</choose>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
@@ -157,12 +155,10 @@ public enum MybatisStatementIdBuilder {
 
             sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(extendedFields)\">");
             sqlBuilder.append("<foreach collection=\"extendedFields.keys\" item=\"key\" separator=\",\">");
-            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNull(extendedFields[key])\">");
-            sqlBuilder.append("${key} = null");
-            sqlBuilder.append("</if>");
-            sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotNull(extendedFields[key])\">");
-            sqlBuilder.append("${key} = #{extendedFields.${key}}");
-            sqlBuilder.append("</if>");
+            sqlBuilder.append("<choose>");
+            sqlBuilder.append("<when test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNullValue(extendedFields[key])\">${key} = null</when>");
+            sqlBuilder.append("<otherwise>${key} = #{extendedFields.${key}}</otherwise>");
+            sqlBuilder.append("</choose>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
@@ -233,11 +229,11 @@ public enum MybatisStatementIdBuilder {
             if (null == queryAnnotation) {
                 continue;
             }
-            String fieldName = columnMeta.getFieldName();
             String columnName = queryAnnotation.column();
             if (columnName.length() == 0) {
-                columnName = fieldName;
+                columnName = columnMeta.getColumnName();
             }
+            String fieldName = columnMeta.getFieldName();
             whereSql.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(").append(fieldName).append(")\">");
             AndOr andOr = queryAnnotation.andOr();
             whereSql.append(andOr.getAndOr()).append(columnName);

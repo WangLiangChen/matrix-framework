@@ -1,5 +1,7 @@
 package liangchen.wang.matrix.framework.data.mybatis;
 
+import liangchen.wang.matrix.framework.commons.object.NullValue;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
@@ -52,5 +54,9 @@ public class Ognl {
 
     public static boolean isNotEmpty(Object o) {
         return !isEmpty(o);
+    }
+
+    public static boolean isNullValue(Object object) {
+        return object instanceof NullValue;
     }
 }
