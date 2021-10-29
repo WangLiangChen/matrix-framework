@@ -1,5 +1,6 @@
 package liangchen.wang.matrix.framework.commons.object;
 
+import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 
 import java.io.Serializable;
@@ -140,7 +141,11 @@ public abstract class EnhancedObject implements Serializable, Cloneable {
         return extendedFields;
     }
 
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new MatrixErrorException(e);
+        }
     }
 }
