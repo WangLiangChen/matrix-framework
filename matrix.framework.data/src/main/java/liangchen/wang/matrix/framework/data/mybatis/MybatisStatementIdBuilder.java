@@ -196,7 +196,7 @@ public enum MybatisStatementIdBuilder {
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("<script>select <trim suffixOverrides=\",\"><foreach collection=\"returnFields\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ").append(entityTableMeta.getTableName());
+            sqlBuilder.append("<script>select <trim suffixOverrides=\",\"><foreach collection=\"columns\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ").append(entityTableMeta.getTableName());
             sqlBuilder.append(findWhereSql(queryClass));
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
             sqlBuilder.append("<if test=\"@liangchen.wang.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");

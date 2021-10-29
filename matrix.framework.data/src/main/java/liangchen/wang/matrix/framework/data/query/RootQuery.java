@@ -48,10 +48,10 @@ public abstract class RootQuery extends PaginationParameter {
     private String keyword;
 
     /**
-     * 返回的字段
+     * 指定返回的字段
      */
     @Transient
-    private transient String[] returnFields;
+    private transient String[] columns;
 
     /**
      * 实体对象，主要用于update操作
@@ -99,12 +99,12 @@ public abstract class RootQuery extends PaginationParameter {
         this.distinct = distinct;
     }
 
-    public String[] getReturnFields() {
-        return returnFields;
+    public String[] getColumns() {
+        return columns;
     }
 
-    public void setReturnFields(String[] returnFields) {
-        this.returnFields = returnFields;
+    public void setColumns(String[] columns) {
+        this.columns = columns;
     }
 
     public RootEntity getEntity() {
@@ -168,7 +168,6 @@ public abstract class RootQuery extends PaginationParameter {
 
         /**
          * 无值，如is null；not null；
-         *
          */
         protected Criterion(String field, String condition) {
             super();
@@ -180,7 +179,6 @@ public abstract class RootQuery extends PaginationParameter {
 
         /**
          * 单值，如=，！=
-         *
          */
         protected Criterion(String field, String condition, Object value, String typeHandler) {
             super();
@@ -201,7 +199,6 @@ public abstract class RootQuery extends PaginationParameter {
 
         /**
          * 两值，如between
-         *
          */
         protected Criterion(String field, String condition, Object value, Object secondValue, String typeHandler) {
             super();
