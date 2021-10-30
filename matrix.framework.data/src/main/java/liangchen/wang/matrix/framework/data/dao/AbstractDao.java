@@ -27,7 +27,6 @@ public abstract class AbstractDao {
     protected JdbcTemplate jdbcTemplate;
     @Inject
     protected SqlSessionTemplate sqlSessionTemplate;
-    @Inject
     @PersistenceContext
     protected EntityManager entityManager;
 

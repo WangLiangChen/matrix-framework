@@ -25,24 +25,28 @@ public class ForUpdateLockImpl extends AbstractDBLock {
 
     @Override
     protected void executeLockSQL(final Connection connection, final String lockName) throws SQLException {
+        getLogger().debug("Lock '{}' is being obtained by thread:{} ", lockName, Thread.currentThread().getName());
         if (lockViaSelectForUpdate(connection, lockName)) {
+            getLogger().debug("Lock: '{}' is obtained by thread:{} ", lockName, Thread.currentThread().getName());
             return;
         }
-        // 当数据不存在时，线程并不会等待，所有线程都会到达这里;
-        // 当多个线程都到这里执行insert时，第一个进入的线程会等待(因为上面的for update)，其它线程会产生死锁异常，然后第一个进入线程会执行成功
+        /**
+         * 数据存在：第一个线程执行SQL成功，返回
+         * 数据不存在：所有的线程不会等待，都会到这里执行insert
+         * 第一个进入的线程会等待(因为上面的for update)，其它线程会产生死锁异常，然后第一个进入线程会执行成功，返回
+         */
         lockViaInsert(connection, lockName);
+        getLogger().debug("Insert a row,Lock: '{}' is obtained by thread:{} ", lockName, Thread.currentThread().getName());
     }
 
     private boolean lockViaSelectForUpdate(Connection connection, String lockName) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(SELECT_FOR_UPDATE_SQL);
         ps.setString(1, lockName);
-        getLogger().debug("Lock '{}' is being obtained:{} ", lockName, Thread.currentThread().getName());
         ResultSet rs = null;
         try {
             rs = ps.executeQuery();
             if (rs.next()) {
                 // obtained lock, go
-                getLogger().debug("locked row for lock: '{}' being obtained by thread:{} ", lockName, Thread.currentThread().getName());
                 return true;
             }
         } finally {
@@ -62,7 +66,6 @@ public class ForUpdateLockImpl extends AbstractDBLock {
         try {
             if (ps.executeUpdate() == 1) {
                 // obtained lock, go
-                getLogger().debug("Inserting new lock row for lock: '{}' being obtained by thread: {}", lockName, Thread.currentThread().getName());
                 return true;
             }
             throw new MatrixInfoException("unknown error,updated rows is 0");

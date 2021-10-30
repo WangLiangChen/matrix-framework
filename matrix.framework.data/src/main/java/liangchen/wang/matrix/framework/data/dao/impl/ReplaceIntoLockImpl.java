@@ -13,14 +13,16 @@ import java.time.LocalDateTime;
 /**
  * @author LiangChen.Wang
  */
-@Repository("Gradf_Data_ReplaceIntoLock")
+@Repository("Matrix_Data_ReplaceIntoLock")
 public class ReplaceIntoLockImpl extends AbstractDBLock {
 
     private final String REPLACE_LOCK = StringUtil.INSTANCE.format("replace into {} values (?,?,?,?)", IDBLock.TABLE_NAME);
 
     @Override
     protected void executeLockSQL(final Connection connection, final String lockKey) throws SQLException {
+        getLogger().debug("Lock '{}' is being obtained by thread:{}", lockKey, Thread.currentThread().getName());
         lockViaReplaceInto(connection, lockKey, REPLACE_LOCK);
+        getLogger().debug("Lock '{}' is obtained by thread:{}", lockKey, Thread.currentThread().getName());
     }
 
     private boolean lockViaReplaceInto(Connection connection, String lockKey, String sql) throws SQLException {
@@ -31,7 +33,6 @@ public class ReplaceIntoLockImpl extends AbstractDBLock {
         ps.setObject(3, now);
         ps.setString(4, "");
         try {
-            getLogger().debug("Lock '{}' is being obtained: {}", lockKey, Thread.currentThread().getName());
             return ps.executeUpdate() >= 1;
         } finally {
             closeStatement(ps);

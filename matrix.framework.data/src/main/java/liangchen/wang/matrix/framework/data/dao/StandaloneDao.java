@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * @author Liangchen.Wang 2021-10-20 14:21
  */
-@Repository
 public class StandaloneDao extends AbstractDao {
 
     public int insert(RootEntity entity) {
