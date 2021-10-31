@@ -6,9 +6,7 @@ import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import liangchen.wang.matrix.framework.data.mybatis.MybatisStatementIdBuilder;
 import liangchen.wang.matrix.framework.data.pagination.PaginationResult;
 import liangchen.wang.matrix.framework.data.query.RootQuery;
-import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.List;
 

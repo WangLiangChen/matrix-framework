@@ -3,7 +3,6 @@ package liangchen.wang.matrix.framework.data.dao.impl;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.data.dao.AbstractDBLock;
 import liangchen.wang.matrix.framework.data.dao.IDBLock;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 /**
  * @author LiangChen.Wang
  */
-@Repository("Matrix_Data_ReplaceIntoLock")
 public class ReplaceIntoLockImpl extends AbstractDBLock {
 
     private final String REPLACE_LOCK = StringUtil.INSTANCE.format("replace into {} values (?,?,?,?)", IDBLock.TABLE_NAME);

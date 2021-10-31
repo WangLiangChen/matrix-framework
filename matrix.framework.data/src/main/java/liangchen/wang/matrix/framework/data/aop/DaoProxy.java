@@ -1,7 +1,6 @@
 package liangchen.wang.matrix.framework.data.aop;
 
 import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
-import org.apache.ibatis.reflection.ExceptionUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;

@@ -4,7 +4,6 @@ import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.data.dao.AbstractDBLock;
 import liangchen.wang.matrix.framework.data.dao.IDBLock;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,12 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-;
 
 /**
  * @author LiangChen.Wang
  */
-@Repository("Matrix_Data_ForUpdateLock")
 public class ForUpdateLockImpl extends AbstractDBLock {
     private final String SELECT_FOR_UPDATE_SQL = StringUtil.INSTANCE.format("select 0 from {} where lock_key=? for update", IDBLock.TABLE_NAME);
     private final String INSERT_SQL = StringUtil.INSTANCE.format("insert into {} values(?,?,?,?)", IDBLock.TABLE_NAME);

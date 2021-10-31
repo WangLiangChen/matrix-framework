@@ -1,18 +1,16 @@
 package liangchen.wang.matrix.framework.data.mybatis;
 
-import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.data.annotation.Query;
+import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
 import liangchen.wang.matrix.framework.data.dao.table.ColumnMeta;
 import liangchen.wang.matrix.framework.data.dao.table.TableMeta;
 import liangchen.wang.matrix.framework.data.dao.table.TableMetas;
-import liangchen.wang.matrix.framework.data.query.Between;
-import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
-import liangchen.wang.matrix.framework.data.query.RootQuery;
 import liangchen.wang.matrix.framework.data.query.AndOr;
+import liangchen.wang.matrix.framework.data.query.Between;
 import liangchen.wang.matrix.framework.data.query.Operator;
-import org.apache.ibatis.builder.StaticSqlSource;
+import liangchen.wang.matrix.framework.data.query.RootQuery;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -24,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

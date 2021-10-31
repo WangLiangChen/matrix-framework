@@ -2,7 +2,6 @@ package liangchen.wang.matrix.framework.data.query;
 
 
 import liangchen.wang.matrix.framework.data.dao.entity.RootEntity;
-import liangchen.wang.matrix.framework.data.query.Operator;
 import liangchen.wang.matrix.framework.data.pagination.PaginationParameter;
 
 import javax.persistence.Transient;

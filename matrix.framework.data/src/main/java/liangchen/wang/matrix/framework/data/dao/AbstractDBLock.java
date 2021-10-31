@@ -108,8 +108,8 @@ public abstract class AbstractDBLock implements IDBLock {
         }
         // 循环执行SQL，执行成功获取到锁则加入到当前线程；获取不到锁则在此等待。
         loopExecuteLockSQL(connection, lockKey);
-        logger.debug("Lock '{}' is given to: {}", lockKey, Thread.currentThread().getName());
         getLockOwnerThreads().add(lockKey);
+        logger.debug("Lock '{}' is given to: {}", lockKey, Thread.currentThread().getName());
         return true;
     }
 
@@ -133,6 +133,7 @@ public abstract class AbstractDBLock implements IDBLock {
         for (int count = 0; count < retryCount; count++) {
             try {
                 executeLockSQL(connection, lockKey);
+                return;
             } catch (SQLException e) {
                 // 插入冲突异常，死锁异常或者锁定超时异常
                 lastException = e;

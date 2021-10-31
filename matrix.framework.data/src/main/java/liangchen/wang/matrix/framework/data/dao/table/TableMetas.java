@@ -1,6 +1,5 @@
 package liangchen.wang.matrix.framework.data.dao.table;
 
-import liangchen.wang.matrix.framework.commons.enumeration.Symbol;
 import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.commons.object.ClassUtil;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;

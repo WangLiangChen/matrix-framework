@@ -4,7 +4,6 @@ import liangchen.wang.matrix.framework.commons.exception.MatrixInfoException;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
 import liangchen.wang.matrix.framework.data.dao.AbstractDBLock;
 import liangchen.wang.matrix.framework.data.dao.IDBLock;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 /**
  * @author LiangChen.Wang
  */
-@Repository("Matrix_Data_UpdateLockLock")
 public class UpdateLockImpl extends AbstractDBLock {
 
     private final String UPDATE_SQL = StringUtil.INSTANCE.format("update {} set lock_datetime=? where lock_key=?", IDBLock.TABLE_NAME);

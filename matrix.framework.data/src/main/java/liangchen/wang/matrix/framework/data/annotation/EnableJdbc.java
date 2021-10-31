@@ -1,13 +1,12 @@
 package liangchen.wang.matrix.framework.data.annotation;
 
 import liangchen.wang.matrix.framework.commons.exception.AssertUtil;
-import liangchen.wang.matrix.framework.commons.exception.MatrixErrorException;
 import liangchen.wang.matrix.framework.commons.object.ClassUtil;
 import liangchen.wang.matrix.framework.commons.utils.PrettyPrinter;
 import liangchen.wang.matrix.framework.commons.utils.StringUtil;
+import liangchen.wang.matrix.framework.data.configuration.ComponentAutoConfiguration;
 import liangchen.wang.matrix.framework.data.configuration.JdbcAutoConfiguration;
 import liangchen.wang.matrix.framework.data.configuration.MybatisAutoConfiguration;
-import liangchen.wang.matrix.framework.data.dao.StandaloneDao;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceContext;
 import liangchen.wang.matrix.framework.data.datasource.MultiDataSourceRegister;
 import liangchen.wang.matrix.framework.data.datasource.dialect.AbstractDialect;
@@ -31,7 +30,6 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import javax.sql.DataSource;
 import java.lang.annotation.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -62,7 +60,7 @@ public @interface EnableJdbc {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc......");
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             instantiateDataSource();
-            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), StandaloneDao.class.getName()};
+            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
             DataStatus.INSTANCE.setJdbcEnabled(true);
             loaded = true;
