@@ -1,10 +1,10 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  liangchen.wang.matrix.framework.springboot.configuration.RootAutoConfiguration
+  wang.liangchen.matrix.framework.springboot.configuration.RootAutoConfiguration
 org.springframework.context.ApplicationContextInitializer=\
-  liangchen.wang.matrix.framework.springboot.monitor.StartProcessMonitor
+  wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
 org.springframework.boot.SpringApplicationRunListener=\
-  liangchen.wang.matrix.framework.springboot.monitor.StartProcessMonitor
+  wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
 org.springframework.boot.env.EnvironmentPostProcessor=\
-  liangchen.wang.matrix.framework.springboot.monitor.StartProcessMonitor
+  wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
 org.springframework.context.ApplicationListener=\
-  liangchen.wang.matrix.framework.springboot.monitor.StartProcessMonitor
+  wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor

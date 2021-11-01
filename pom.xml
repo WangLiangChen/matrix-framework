@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>liangchen.wang.matrix</groupId>
+    <groupId>wang.liangchen.matrix</groupId>
     <artifactId>matrix-framework</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
@@ -45,27 +45,27 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>liangchen.wang.matrix</groupId>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix.framework.commons</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
-                <groupId>liangchen.wang.matrix</groupId>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix.framework.springboot</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
-                <groupId>liangchen.wang.matrix</groupId>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix.framework.web</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
-                <groupId>liangchen.wang.matrix</groupId>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix.framework.data</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
-                <groupId>liangchen.wang.matrix</groupId>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix.framework.cloud</artifactId>
                 <version>${version.matrix}</version>
             </dependency>

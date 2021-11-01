@@ -1,2 +1,2 @@
 org.springframework.boot.SpringApplicationRunListener=\
-  liangchen.wang.matrix.framework.web.monitor.StartProcessMonitor
+  wang.liangchen.matrix.framework.web.monitor.StartProcessMonitor
