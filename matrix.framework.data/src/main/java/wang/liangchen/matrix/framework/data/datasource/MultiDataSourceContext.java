@@ -67,8 +67,6 @@ public enum MultiDataSourceContext {
         return cachedDataSources;
     }
 
-    /*********************** about context ***************************/
-
     public void set(String dataSourceName) {
         Deque<String> deque = context.get();
         deque.push(dataSourceName);

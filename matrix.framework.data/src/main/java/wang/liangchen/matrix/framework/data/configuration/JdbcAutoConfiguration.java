@@ -26,11 +26,9 @@ import java.lang.reflect.Method;
 public class JdbcAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
-    /**
-     * 注册数据源切换切面
-     */
     @Bean
     public MultiDataSourceBeanFactoryPointcutAdvisor multiDataSourceBeanFactoryPointcutAdvisor() {
+        // 注册数据源切换切面
         MultiDataSourceBeanFactoryPointcutAdvisor advisor = new MultiDataSourceBeanFactoryPointcutAdvisor();
         advisor.setOrder(Ordered.HIGHEST_PRECEDENCE);
         advisor.setAdvice((MethodInterceptor) methodInvocation -> {
@@ -51,11 +49,9 @@ public class JdbcAutoConfiguration {
         return advisor;
     }
 
-    /**
-     * 执行初始化SQL
-     */
     @Inject
     public void initSQL(javax.sql.DataSource dataSource) {
+        // 执行初始化SQL
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         try {
             // ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders("")

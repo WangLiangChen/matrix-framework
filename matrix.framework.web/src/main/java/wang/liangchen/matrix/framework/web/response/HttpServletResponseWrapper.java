@@ -113,6 +113,8 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
 
     /**
      * Return the status code as specified on the response.
+     *
+     * @return int
      */
     public int getStatusCode() {
         return this.statusCode;
@@ -120,6 +122,8 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
 
     /**
      * Return the cached response content as a byte array.
+     *
+     * @return byte[]
      */
     public byte[] getContentAsByteArray() {
         return this.content.toByteArray();
@@ -128,6 +132,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
     /**
      * Return an {@link InputStream} to the cached content.
      *
+     * @return inputStream
      * @since 4.2
      */
     public InputStream getContentInputStream() {
@@ -137,6 +142,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
     /**
      * Return the current size of the cached content.
      *
+     * @return int
      * @since 4.2
      */
     public int getContentSize() {
@@ -146,7 +152,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
     /**
      * Copy the complete cached body content to the response.
      *
-     * @since 4.2
+     * @throws IOException when body copy error
      */
     public void copyBodyToResponse() throws IOException {
         copyBodyToResponse(true);

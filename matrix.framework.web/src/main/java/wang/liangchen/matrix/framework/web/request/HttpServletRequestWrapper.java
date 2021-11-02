@@ -147,6 +147,8 @@ public final class HttpServletRequestWrapper extends javax.servlet.http.HttpServ
      * Return the cached request content as a byte array.
      * <p>
      * The returned array will never be larger than the content cache limit.
+     *
+     * @return byte[]
      */
     public byte[] getContentAsByteArray() {
         return this.cachedContent.toByteArray();

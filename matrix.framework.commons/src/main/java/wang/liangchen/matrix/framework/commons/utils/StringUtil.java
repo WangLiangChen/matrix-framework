@@ -39,10 +39,8 @@ public enum StringUtil {
         return !string.isEmpty();
     }
 
-    /**
-     * 按顺序替换{}或者{.*}
-     */
     public String format(String format, Object... args) {
+        // 按顺序替换{}或者{.*}
         if (isBlank(format)) {
             return format;
         }

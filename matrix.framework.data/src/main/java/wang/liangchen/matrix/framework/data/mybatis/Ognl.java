@@ -11,7 +11,7 @@ import static java.lang.reflect.Array.*;
 /**
  * @author LiangChen.Wang
  * 提供给mybatis判断使用
- * <if test="@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotBlank(tenantId)">
+ * {@code <if test="@liangchen.wang.gradf.framework.data.mybatis.Ognl@isNotBlank(tenantId)">}
  */
 public class Ognl {
     public static boolean isTrue(Boolean bool) {

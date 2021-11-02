@@ -165,10 +165,8 @@ public abstract class RootQuery extends PaginationParameter {
             return typeHandler;
         }
 
-        /**
-         * 无值，如is null；not null；
-         */
         protected Criterion(String field, String condition) {
+            // 无值，如is null；not null；
             super();
             this.field = field;
             this.condition = condition;
@@ -176,10 +174,8 @@ public abstract class RootQuery extends PaginationParameter {
             this.noValue = true;
         }
 
-        /**
-         * 单值，如=，！=
-         */
         protected Criterion(String field, String condition, Object value, String typeHandler) {
+            // 单值，如=，！=
             super();
             this.field = field;
             this.condition = condition;
@@ -196,10 +192,8 @@ public abstract class RootQuery extends PaginationParameter {
             this(field, condition, value, null);
         }
 
-        /**
-         * 两值，如between
-         */
         protected Criterion(String field, String condition, Object value, Object secondValue, String typeHandler) {
+            // 两值，如between
             super();
             this.field = field;
             this.condition = condition;
