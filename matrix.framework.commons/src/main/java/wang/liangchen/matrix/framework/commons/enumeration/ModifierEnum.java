@@ -1,8 +1,8 @@
 package wang.liangchen.matrix.framework.commons.enumeration;
 
 /**
- * @author wangliangchen
- * 参见 java.lang.reflect.Modifier
+ * @author liangchen.wang
+ * {@link java.lang.reflect.Modifier}
  */
 public enum ModifierEnum {
     /**

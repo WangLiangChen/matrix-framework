@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Liangchen.Wang 2021-08-23 10:31
- * 基于JDK8+的通用Builder
+ * Common Builder base on jdk8
  */
 public final class Builder<T> {
     private final Supplier<T> instance;

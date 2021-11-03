@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.commons.exception;
 
+import wang.liangchen.matrix.framework.commons.utils.StringUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,20 +23,20 @@ public class MatrixRuntimeException extends RuntimeException {
     public MatrixRuntimeException() {
     }
 
-    public MatrixRuntimeException(String message) {
-        super(message);
+    public MatrixRuntimeException(String message, Object... args) {
+        super(StringUtil.INSTANCE.format(message, args));
     }
 
-    public MatrixRuntimeException(String message, Throwable cause) {
-        super(message, cause);
+    public MatrixRuntimeException(Throwable cause, String message, Object... args) {
+        super(StringUtil.INSTANCE.format(message, args), cause);
     }
 
     public MatrixRuntimeException(Throwable cause) {
         super(cause);
     }
 
-    public MatrixRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public MatrixRuntimeException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String message, Object... args) {
+        super(StringUtil.INSTANCE.format(message, args), cause, enableSuppression, writableStackTrace);
     }
 
     public MatrixRuntimeException withCode(String code) {

@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.table;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.object.ClassUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.Query;
 

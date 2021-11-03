@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.annotation;
 
 import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
-import wang.liangchen.matrix.framework.commons.object.ClassUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.commons.utils.StringUtil;
 import wang.liangchen.matrix.framework.data.configuration.ComponentAutoConfiguration;

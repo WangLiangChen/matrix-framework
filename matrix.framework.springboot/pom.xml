@@ -14,6 +14,7 @@
         <version.inject>1</version.inject>
         <version.guice>5.0.1</version.guice>
         <version.spring.statemachine>2.2.1.RELEASE</version.spring.statemachine>
+        <version.shedlock>4.29.0</version.shedlock>
     </properties>
 
     <dependencyManagement>
@@ -32,6 +33,21 @@
                 <groupId>org.springframework.statemachine</groupId>
                 <artifactId>spring-statemachine-core</artifactId>
                 <version>${version.spring.statemachine}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${version.shedlock}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -56,6 +72,10 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
         </dependency>
     </dependencies>
 

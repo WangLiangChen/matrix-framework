@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.commons.object;
 
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.StringUtil;
 import net.sf.cglib.beans.BeanCopier;
 

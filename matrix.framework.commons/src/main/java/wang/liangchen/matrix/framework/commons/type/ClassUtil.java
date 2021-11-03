@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.object;
+package wang.liangchen.matrix.framework.commons.type;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 

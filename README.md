@@ -16,3 +16,4 @@ Matrix is a rapid development framework based on springboot,which is distributed
 6、启动时自动执行SQL
 7、内置序号生成器
 8、内置基于数据库的分布式锁
+9、内置基于shedlock的分布式调度
