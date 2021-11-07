@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 
-import wang.liangchen.matrix.framework.data.util.SqlBuilder;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
+import wang.liangchen.matrix.framework.data.util.SqlBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;

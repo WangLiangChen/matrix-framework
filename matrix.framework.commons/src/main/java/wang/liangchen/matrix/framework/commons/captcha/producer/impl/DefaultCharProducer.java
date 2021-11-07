@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.captcha.producer.impl;
 
-import liangchen.wang.gradf.framework.commons.captcha.Configurable;
-import liangchen.wang.gradf.framework.commons.captcha.producer.CharProducer;
+import wang.liangchen.matrix.framework.commons.captcha.Configurable;
+import wang.liangchen.matrix.framework.commons.captcha.producer.CharProducer;
 
 import java.util.Random;
 

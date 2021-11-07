@@ -1,12 +1,13 @@
 package wang.liangchen.matrix.framework.commons.captcha.producer.impl;
 
-import liangchen.wang.gradf.framework.commons.bytes.ByteOutputStream;
-import liangchen.wang.gradf.framework.commons.captcha.Configurable;
-import liangchen.wang.gradf.framework.commons.captcha.producer.IProducer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.CharRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.EffectorRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.NoiseRenderer;
-import liangchen.wang.gradf.framework.commons.exception.ErrorException;
+
+import wang.liangchen.matrix.framework.commons.captcha.Configurable;
+import wang.liangchen.matrix.framework.commons.captcha.producer.IProducer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.CharRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.EffectorRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.NoiseRenderer;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.io.ByteOutputStream;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,7 @@ public class DefaultProducer extends Configurable implements IProducer {
         try {
             ImageIO.write(bufferedImage, formatName, outputStream);
         } catch (IOException e) {
-            throw new ErrorException(e);
+            throw new MatrixErrorException(e);
         }
         return outputStream;
     }

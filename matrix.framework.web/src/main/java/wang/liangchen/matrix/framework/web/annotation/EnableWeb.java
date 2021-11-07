@@ -1,14 +1,14 @@
 package wang.liangchen.matrix.framework.web.annotation;
 
-import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.web.configuration.WebFluxAutoConfiguration;
-import wang.liangchen.matrix.framework.web.configuration.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
+import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.web.configuration.WebFluxAutoConfiguration;
+import wang.liangchen.matrix.framework.web.configuration.WebMvcAutoConfiguration;
 
 import java.lang.annotation.*;
 

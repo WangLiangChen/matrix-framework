@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.context;
 
-import wang.liangchen.matrix.framework.commons.configuration.ConfigurationResolver;
 import org.apache.commons.configuration2.Configuration;
+import wang.liangchen.matrix.framework.commons.configuration.ConfigurationResolver;
 
 import java.net.URI;
 import java.net.URL;

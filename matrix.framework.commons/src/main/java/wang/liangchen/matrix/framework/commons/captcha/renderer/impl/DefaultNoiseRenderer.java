@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.commons.captcha.renderer.impl;
 
 
-import liangchen.wang.gradf.framework.commons.captcha.Configurable;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.NoiseRenderer;
+
+import wang.liangchen.matrix.framework.commons.captcha.Configurable;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.NoiseRenderer;
 
 import java.awt.*;
 import java.awt.geom.CubicCurve2D;

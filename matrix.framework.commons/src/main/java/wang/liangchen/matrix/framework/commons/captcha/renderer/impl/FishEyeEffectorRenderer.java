@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.captcha.renderer.impl;
 
 
-import liangchen.wang.gradf.framework.commons.captcha.renderer.EffectorRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.EffectorRenderer;
 
 import java.awt.image.BufferedImage;
 

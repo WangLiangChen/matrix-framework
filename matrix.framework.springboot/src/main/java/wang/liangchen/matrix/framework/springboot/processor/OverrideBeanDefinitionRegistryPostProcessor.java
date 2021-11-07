@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.springboot.processor;
 
 import com.alibaba.ttl.threadpool.TtlExecutors;
-import wang.liangchen.matrix.framework.springboot.annotation.OverrideBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -16,6 +15,7 @@ import org.springframework.core.type.MethodMetadata;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import wang.liangchen.matrix.framework.springboot.annotation.OverrideBean;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;

@@ -9,13 +9,14 @@
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <description>Matrix is a rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive</description>
+    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive
+    </description>
     <url>https://github.com/WangLiangChen/matrix-framework</url>
 
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
@@ -51,7 +52,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <version.matrix>1.0.0-SNAPSHOT</version.matrix>
-        <version.springboot>2.5.5</version.springboot>
+        <version.springboot>2.5.6</version.springboot>
     </properties>
 
     <dependencyManagement>
@@ -92,7 +93,6 @@
     </dependencyManagement>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -101,33 +101,19 @@
                     <include>**/*.properties</include>
                     <include>**/META-INF/*</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/*.sql</include>
                     <include>**/*.xml</include>
                     <include>**/*.properties</include>
                     <include>**/META-INF/*</include>
+                    <include>**/*.sql</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>
@@ -186,16 +172,6 @@
                     <id>ossrh</id>
                     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
-                <!--
-                <snapshotRepository>
-                    <id>rdc-snapshots</id>
-                    <url>https://repo.rdc.aliyun.com/repository/137477-snapshot-bR7Cd4/</url>
-                </snapshotRepository>
-                <repository>
-                    <id>rdc-releases</id>
-                    <url>https://repo.rdc.aliyun.com/repository/137477-release-xkSv51/</url>
-                </repository>
-                -->
             </distributionManagement>
         </profile>
     </profiles>

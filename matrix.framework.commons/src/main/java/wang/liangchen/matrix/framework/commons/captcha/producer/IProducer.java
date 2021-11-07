@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.commons.captcha.producer;
 
 
-import liangchen.wang.gradf.framework.commons.bytes.ByteOutputStream;
+
+import wang.liangchen.matrix.framework.commons.io.ByteOutputStream;
 
 import java.awt.image.BufferedImage;
 

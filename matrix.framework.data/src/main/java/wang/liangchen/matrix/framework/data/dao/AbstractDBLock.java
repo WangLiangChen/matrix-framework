@@ -1,11 +1,11 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.utils.StringUtil;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;

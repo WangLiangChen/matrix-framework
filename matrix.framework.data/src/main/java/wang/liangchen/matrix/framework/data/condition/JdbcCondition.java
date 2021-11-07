@@ -1,9 +1,9 @@
 package wang.liangchen.matrix.framework.data.condition;
 
-import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.ConfigurationCondition;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
 
 /**
  * @author LiangChen.Wang

@@ -1,5 +1,14 @@
 package wang.liangchen.matrix.framework.data.mybatis;
 
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.scripting.LanguageDriver;
+import org.apache.ibatis.session.Configuration;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.data.annotation.Query;
@@ -11,15 +20,6 @@ import wang.liangchen.matrix.framework.data.query.AndOr;
 import wang.liangchen.matrix.framework.data.query.Between;
 import wang.liangchen.matrix.framework.data.query.Operator;
 import wang.liangchen.matrix.framework.data.query.RootQuery;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.session.Configuration;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.util.*;

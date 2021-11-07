@@ -1,10 +1,10 @@
 package wang.liangchen.matrix.framework.data.datasource;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

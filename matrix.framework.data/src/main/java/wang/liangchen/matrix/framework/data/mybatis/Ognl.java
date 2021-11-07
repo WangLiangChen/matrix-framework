@@ -2,11 +2,10 @@ package wang.liangchen.matrix.framework.data.mybatis;
 
 import wang.liangchen.matrix.framework.commons.object.NullValue;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-import static java.lang.reflect.Array.*;
+import static java.lang.reflect.Array.getLength;
 
 /**
  * @author LiangChen.Wang

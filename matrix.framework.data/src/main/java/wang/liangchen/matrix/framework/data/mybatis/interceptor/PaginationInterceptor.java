@@ -1,9 +1,5 @@
 package wang.liangchen.matrix.framework.data.mybatis.interceptor;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
-import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
-import wang.liangchen.matrix.framework.data.query.RootQuery;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -16,6 +12,10 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
+import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
+import wang.liangchen.matrix.framework.data.query.RootQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

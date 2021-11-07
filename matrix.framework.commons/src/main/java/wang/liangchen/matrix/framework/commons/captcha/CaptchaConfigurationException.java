@@ -1,11 +1,12 @@
 package wang.liangchen.matrix.framework.commons.captcha;
 
-import liangchen.wang.gradf.framework.commons.exception.GradfException;
+
+import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
 
 /**
  * @author LiangChen.Wang 2019/7/3 16:40
  */
-public class CaptchaConfigurationException extends GradfException {
+public class CaptchaConfigurationException extends MatrixRuntimeException {
     public CaptchaConfigurationException(String message, Object... args) {
         super(String.format(message.replaceAll("\\{}", "\\%s"), args));
     }

@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.springboot.processor;
 
-import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
+import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 
 /**
  * 该类的方法会特别早的执行

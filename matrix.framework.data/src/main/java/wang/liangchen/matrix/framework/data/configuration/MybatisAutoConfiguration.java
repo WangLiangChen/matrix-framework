@@ -1,13 +1,6 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
 import com.google.common.base.Splitter;
-import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.utils.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.commons.utils.StringUtil;
-import wang.liangchen.matrix.framework.data.mybatis.interceptor.PaginationInterceptor;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,6 +21,13 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
+import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.utils.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.commons.utils.StringUtil;
+import wang.liangchen.matrix.framework.data.mybatis.interceptor.PaginationInterceptor;
+import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 
 import java.io.IOException;
 import java.net.URL;

@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.event;
 
-import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import org.springframework.context.ApplicationEvent;
+import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 
 /**
  * @author LiangChen.Wang

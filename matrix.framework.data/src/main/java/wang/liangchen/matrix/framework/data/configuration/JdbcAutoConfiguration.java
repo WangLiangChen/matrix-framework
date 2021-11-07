@@ -1,11 +1,5 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
-import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.data.annotation.DataSource;
-import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
-import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -15,6 +9,12 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.data.annotation.DataSource;
+import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class JdbcAutoConfiguration {
 
     @Bean
     public MultiDataSourceBeanFactoryPointcutAdvisor multiDataSourceBeanFactoryPointcutAdvisor() {
-        // 注册数据源切换切面
+        // 注册数据源切换切面 advisor=pointcut+advice
         MultiDataSourceBeanFactoryPointcutAdvisor advisor = new MultiDataSourceBeanFactoryPointcutAdvisor();
         advisor.setOrder(Ordered.HIGHEST_PRECEDENCE);
         advisor.setAdvice((MethodInterceptor) methodInvocation -> {

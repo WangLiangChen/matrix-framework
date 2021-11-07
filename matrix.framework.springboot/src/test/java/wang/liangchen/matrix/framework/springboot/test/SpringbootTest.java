@@ -1,8 +1,8 @@
 package wang.liangchen.matrix.framework.springboot.test;
 
-import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
 import javax.inject.Inject;
 

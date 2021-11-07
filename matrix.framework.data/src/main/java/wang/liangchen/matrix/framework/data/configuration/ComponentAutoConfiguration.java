@@ -1,9 +1,9 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
+import org.springframework.context.annotation.Bean;
 import wang.liangchen.matrix.framework.data.dao.IDBLock;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.impl.ForUpdateLockImpl;
-import org.springframework.context.annotation.Bean;
 
 public class ComponentAutoConfiguration {
 

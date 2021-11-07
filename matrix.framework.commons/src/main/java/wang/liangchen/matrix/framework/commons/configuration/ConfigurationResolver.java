@@ -1,16 +1,16 @@
 package wang.liangchen.matrix.framework.commons.configuration;
 
-import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.file.FileUtil;
-import wang.liangchen.matrix.framework.commons.network.URIUtil;
 import org.apache.commons.configuration2.*;
 import org.apache.commons.configuration2.builder.ReloadingFileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.FileBasedBuilderParameters;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.reloading.PeriodicReloadingTrigger;
+import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.file.FileUtil;
+import wang.liangchen.matrix.framework.commons.network.URIUtil;
 
 import java.net.URI;
 import java.net.URL;

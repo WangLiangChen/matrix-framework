@@ -1,14 +1,13 @@
 package wang.liangchen.matrix.framework.commons.captcha;
 
-
-import liangchen.wang.gradf.framework.commons.captcha.producer.CharProducer;
-import liangchen.wang.gradf.framework.commons.captcha.producer.impl.DefaultCharProducer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.CharRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.EffectorRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.NoiseRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.impl.DefaultCharRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.impl.DefaultNoiseRenderer;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.impl.FishEyeEffectorRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.producer.CharProducer;
+import wang.liangchen.matrix.framework.commons.captcha.producer.impl.DefaultCharProducer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.CharRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.EffectorRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.NoiseRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.impl.DefaultCharRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.impl.DefaultNoiseRenderer;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.impl.FishEyeEffectorRenderer;
 
 import java.awt.*;
 import java.lang.reflect.Field;

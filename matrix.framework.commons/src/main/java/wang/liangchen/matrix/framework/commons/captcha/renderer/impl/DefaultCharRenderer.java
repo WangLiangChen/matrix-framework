@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.commons.captcha.renderer.impl;
 
 
-import liangchen.wang.gradf.framework.commons.captcha.Configurable;
-import liangchen.wang.gradf.framework.commons.captcha.renderer.CharRenderer;
+
+import wang.liangchen.matrix.framework.commons.captcha.Configurable;
+import wang.liangchen.matrix.framework.commons.captcha.renderer.CharRenderer;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;

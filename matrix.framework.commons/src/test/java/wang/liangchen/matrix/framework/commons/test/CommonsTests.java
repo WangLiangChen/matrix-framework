@@ -1,8 +1,8 @@
 package wang.liangchen.matrix.framework.commons.test;
 
+import org.junit.jupiter.api.Test;
 import wang.liangchen.matrix.framework.commons.file.FileUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import org.junit.jupiter.api.Test;
 
 public class CommonsTests {
     @Test

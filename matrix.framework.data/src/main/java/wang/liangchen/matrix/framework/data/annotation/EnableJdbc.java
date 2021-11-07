@@ -1,18 +1,5 @@
 package wang.liangchen.matrix.framework.data.annotation;
 
-import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
-import wang.liangchen.matrix.framework.commons.type.ClassUtil;
-import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.commons.utils.StringUtil;
-import wang.liangchen.matrix.framework.data.configuration.ComponentAutoConfiguration;
-import wang.liangchen.matrix.framework.data.configuration.JdbcAutoConfiguration;
-import wang.liangchen.matrix.framework.data.configuration.MybatisAutoConfiguration;
-import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
-import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceRegister;
-import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
-import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
-import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 import org.apache.commons.configuration2.Configuration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -27,6 +14,19 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
+import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.commons.utils.StringUtil;
+import wang.liangchen.matrix.framework.data.configuration.ComponentAutoConfiguration;
+import wang.liangchen.matrix.framework.data.configuration.JdbcAutoConfiguration;
+import wang.liangchen.matrix.framework.data.configuration.MybatisAutoConfiguration;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceRegister;
+import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
+import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
+import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
+import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 
 import javax.sql.DataSource;
 import java.lang.annotation.*;
