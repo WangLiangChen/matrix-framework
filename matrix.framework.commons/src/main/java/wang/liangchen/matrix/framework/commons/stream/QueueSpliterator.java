@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @param <T>
  * @author LiangChen.Wang
  */
 public class QueueSpliterator<T> extends Spliterators.AbstractSpliterator<T> {

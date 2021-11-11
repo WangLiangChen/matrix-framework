@@ -92,9 +92,6 @@ public final class ByteOutputStream extends OutputStream {
         this.count = 0;
     }
 
-    /**
-     * @deprecated
-     */
     public byte[] toByteArray() {
         byte[] newBuf = new byte[this.count];
         System.arraycopy(this.buf, 0, newBuf, 0, this.count);

@@ -10,10 +10,10 @@ import java.util.Objects;
 
 /**
  * @author LiangChen.Wang
- * @date 18-12-18 上午10:31
- * XXX里含有List<T>使用下面两步
+ * {@code
+ * 如对象O里含有List<T>使用下面两步
  * Type listType = new ParameterizedTypeImpl(List.class, new Class[]{clazz});
- * Type type = new ParameterizedTypeImpl(XXX.class, new Type[]{listType});
+ * Type type = new ParameterizedTypeImpl(O.class, new Type[]{listType});}
  */
 public class ParameterizedType implements java.lang.reflect.ParameterizedType {
     private final Class raw;
@@ -40,25 +40,16 @@ public class ParameterizedType implements java.lang.reflect.ParameterizedType {
         }
     }
 
-    /**
-     * @return 泛型参数，如Map<String,Integer> 返回[String,Integer]
-     */
     @Override
     public Type[] getActualTypeArguments() {
         return args;
     }
 
-    /**
-     * @return 如List<?>返回List
-     */
     @Override
     public Type getRawType() {
         return raw;
     }
 
-    /**
-     * @return 返回所属类型. 如,当前类型为O<T>.I<S>, 则返回O<T>. 顶级类型将返回null
-     */
     @Override
     public Type getOwnerType() {
         return owner;

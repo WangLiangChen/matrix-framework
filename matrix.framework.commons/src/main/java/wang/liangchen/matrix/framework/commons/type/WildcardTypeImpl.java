@@ -5,8 +5,7 @@ import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 
 /**
- * @author LiangChen.Wang
- * @date 18-12-18 上午10:41
+ * @author LiangChen.Wang 18-12-18 上午10:41
  */
 public class WildcardTypeImpl implements WildcardType {
     private final Class[] upper;

@@ -22,7 +22,7 @@ import static reactor.core.scheduler.Schedulers.single;
  * @author Liangchen.Wang
  * 用于弥补body只能读取一次的不足
  */
-@SuppressWarnings("NullableProblems")
+@SuppressWarnings({"NullableProblems", "unchecked"})
 public final class ServerHttpResponseDecorator extends org.springframework.http.server.reactive.ServerHttpResponseDecorator {
     public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
         super(delegate);

@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author LiangChen.Wang
- * @date 18-12-18 上午11:05
  */
 public abstract class TypeToken<T> {
     private final Type type;

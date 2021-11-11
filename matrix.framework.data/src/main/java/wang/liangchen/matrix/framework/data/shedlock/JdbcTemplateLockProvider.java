@@ -185,10 +185,8 @@ public class JdbcTemplateLockProvider extends StorageBasedLockProvider {
                 return this;
             }
 
-            /**
-             * Value stored in 'locked_by' column. Please use only for debugging purposes.
-             */
             public Builder withLockedByValue(String lockedBy) {
+                // Value stored in 'locked_by' column. Please use only for debugging purposes.
                 this.lockedByValue = lockedBy;
                 return this;
             }
