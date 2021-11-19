@@ -13,7 +13,10 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.springboot.annotation.OverrideBean;
 
@@ -62,11 +65,12 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
         使用 EnableAsync后，避免AsyncConfigurer出现 not eligible for getting processed by all BeanPostProcessors
         用这种方式注册的Bean，在BeanFactory的BeanDefinition集合中是不存在的，但通过getBean可以获取对象
          */
-        beanFactory.registerSingleton("asyncConfigurer", asyncConfigurer());
+        // beanFactory.registerSingleton("asyncConfigurer", asyncConfigurer());
+        // beanFactory.registerSingleton("schedulingConfigurer", schedulingConfigurer());
     }
 
     /*
-    使用TransmittableThreadLocal 必须用Ttl**包装一下
+    使用TransmittableThreadLocal,用Ttl**包装一下
     TtlRunnable和TtlCallable来包装Runnable和Callable。
     getTtlExecutor包装Executor
     getTtlExecutorService包装ExecutorService
@@ -95,6 +99,17 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
                 return (ex, method, params) -> logger.error("异步线程执行异常", ex);
             }
+        };
+    }
+
+    private SchedulingConfigurer schedulingConfigurer() {
+        return taskRegistrar -> {
+            ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+            int processors = Runtime.getRuntime().availableProcessors();
+            taskScheduler.setPoolSize(processors * 2);
+            taskScheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            taskScheduler.setThreadNamePrefix("taskScheduler-");
+            taskRegistrar.setTaskScheduler(taskScheduler);
         };
     }
 }
