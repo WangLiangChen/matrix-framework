@@ -7,5 +7,5 @@ public enum AesUtil {
     /**
      *
      */
-    INSTANCE;
+    INSTANCE
 }

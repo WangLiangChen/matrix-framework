@@ -7,8 +7,8 @@ import wang.liangchen.matrix.framework.commons.exception.AssertUtil;
  * @author LiangChen.Wang
  */
 public final class OrderBy {
-    private String orderBy;
-    private String direction;
+    private final String orderBy;
+    private final String direction;
 
     public static OrderBy newInstance(String orderby, OrderByDirection direction) {
         return new OrderBy(orderby, direction);

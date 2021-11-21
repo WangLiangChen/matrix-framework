@@ -27,8 +27,8 @@ public enum Symbol {
     PATH_SEPARATOR(System.getProperty("path.separator"), "路径分割符"),
     URI_SEPARATOR("/", "路径分割符");
 
-    private String symbol;
-    private String text;
+    private final String symbol;
+    private final String text;
 
     Symbol(String symbol, String text) {
         this.symbol = symbol;

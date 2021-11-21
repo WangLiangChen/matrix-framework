@@ -7,5 +7,5 @@ public enum ImageUtil {
     /**
      * instance
      */
-    INSTANCE;
+    INSTANCE
 }

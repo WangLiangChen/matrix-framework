@@ -54,15 +54,13 @@ public class CaptchaProperties extends Properties {
     public CharProducer getCharProducer() {
         String paramName = "char.producer";
         String paramValue = this.getProperty(paramName);
-        CharProducer charProducer = (CharProducer) getClassInstance(paramName, paramValue, new DefaultCharProducer());
-        return charProducer;
+        return (CharProducer) getClassInstance(paramName, paramValue, new DefaultCharProducer());
     }
 
     public CharRenderer getCharRenderer() {
         String paramName = "char.renderer";
         String paramValue = this.getProperty(paramName);
-        CharRenderer charRenderer = (CharRenderer) getClassInstance(paramName, paramValue, new DefaultCharRenderer());
-        return charRenderer;
+        return (CharRenderer) getClassInstance(paramName, paramValue, new DefaultCharRenderer());
     }
     //--字符相关配置结束
 
@@ -76,8 +74,7 @@ public class CaptchaProperties extends Properties {
     public EffectorRenderer getEffectorRenderer() {
         String paramName = "effector.renderer";
         String paramValue = this.getProperty(paramName);
-        EffectorRenderer effectorRenderer = (EffectorRenderer) getClassInstance(paramName, paramValue, new FishEyeEffectorRenderer());
-        return effectorRenderer;
+        return (EffectorRenderer) getClassInstance(paramName, paramValue, new FishEyeEffectorRenderer());
     }
     //--效果相关配置结束
 
@@ -91,8 +88,7 @@ public class CaptchaProperties extends Properties {
     public NoiseRenderer getNoiseRenderer() {
         String paramName = "noise.renderer";
         String paramValue = this.getProperty(paramName);
-        NoiseRenderer noiseRenderer = (NoiseRenderer) getClassInstance(paramName, paramValue, new DefaultNoiseRenderer());
-        return noiseRenderer;
+        return (NoiseRenderer) getClassInstance(paramName, paramValue, new DefaultNoiseRenderer());
     }
     //--噪点/干扰线相关配置结束
 
@@ -168,8 +164,7 @@ public class CaptchaProperties extends Properties {
     private Color createColorFromFieldValue(String paramName, String paramValue) {
         try {
             Field field = Class.forName("java.awt.Color").getField(paramValue);
-            Color color = (Color) field.get(null);
-            return color;
+            return (Color) field.get(null);
         } catch (NoSuchFieldException | ClassNotFoundException | IllegalAccessException e) {
             throw new CaptchaConfigurationException(e);
         }

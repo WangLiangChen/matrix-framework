@@ -9,7 +9,7 @@ import java.util.Map;
 
 public enum PrettyPrinter {
     INSTANCE;
-    private static ThreadLocal<Map<String, List<Payload>>> threadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, List<Payload>>> threadLocal = new ThreadLocal<>();
 
     public void buffer(String message, Object... args) {
         processMessage(message, args);
@@ -80,11 +80,11 @@ public enum PrettyPrinter {
         System.out.println();
     }
 
-    private class Payload {
-        private int lineNumber;
-        private String methodName;
-        private String message;
-        private LocalDateTime dateTime;
+    private static class Payload {
+        private final int lineNumber;
+        private final String methodName;
+        private final String message;
+        private final LocalDateTime dateTime;
 
         public Payload(int lineNumber, String methodName, String message, LocalDateTime dateTime) {
             this.lineNumber = lineNumber;

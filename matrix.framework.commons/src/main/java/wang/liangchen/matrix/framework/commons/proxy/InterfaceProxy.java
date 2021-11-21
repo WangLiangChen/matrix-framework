@@ -20,21 +20,21 @@ public class InterfaceProxy {
     }
 
     static class Handler<T> implements InvocationHandler {
-        private Class<T> interfaceClass;
+        private final Class<T> interfaceClass;
 
         public Handler(Class<T> interfaceClass) {
             this.interfaceClass = interfaceClass;
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public Object invoke(Object proxy, Method method, Object[] args)   {
             //在这里写方法实现
             return null;
         }
     }
 
     static class CglibProxy implements MethodInterceptor {
-        private Enhancer enhancer = new Enhancer();
+        private final Enhancer enhancer = new Enhancer();
 
         public Object getProxy(Class clazz) {
             enhancer.setSuperclass(clazz);

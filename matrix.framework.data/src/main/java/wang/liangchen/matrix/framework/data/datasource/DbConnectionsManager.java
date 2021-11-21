@@ -16,8 +16,8 @@ import java.sql.SQLException;
 public enum DbConnectionsManager {
     // instance
     INSTANCE;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private DataSource dataSource = BeanLoader.INSTANCE.getBean("dataSource");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final DataSource dataSource = BeanLoader.INSTANCE.getBean("dataSource");
 
     public Connection springManagedConnection() {
         try {

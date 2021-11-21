@@ -70,8 +70,8 @@ public enum HashUtil {
         AssertUtil.INSTANCE.notBlank(content, "content can not by blank");
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
-            byte[] secretByte = key.getBytes("utf-8");
-            byte[] dataBytes = content.getBytes("utf-8");
+            byte[] secretByte = key.getBytes(StandardCharsets.UTF_8);
+            byte[] dataBytes = content.getBytes(StandardCharsets.UTF_8);
 
             SecretKey secret = new SecretKeySpec(secretByte, "HMACSHA256");
             mac.init(secret);

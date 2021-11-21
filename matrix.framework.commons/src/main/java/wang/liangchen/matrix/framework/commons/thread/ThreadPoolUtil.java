@@ -24,8 +24,8 @@ public enum ThreadPoolUtil {
     }
 
     public ThreadFactory getThreadFactory(String threadName, boolean daemon) {
-        ThreadFactory threadFactory = new ThreadFactory() {
-            private AtomicInteger counter = new AtomicInteger();
+        return new ThreadFactory() {
+            private final AtomicInteger counter = new AtomicInteger();
 
             @Override
             public Thread newThread(Runnable runnable) {
@@ -35,6 +35,5 @@ public enum ThreadPoolUtil {
                 return thread;
             }
         };
-        return threadFactory;
     }
 }

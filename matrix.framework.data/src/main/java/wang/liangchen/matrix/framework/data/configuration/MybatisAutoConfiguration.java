@@ -43,7 +43,7 @@ public class MybatisAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private final static String AUTOSCAN_COFIG_FILE = "framework/autoscan.properties";
     private final static String DEFAULT_SCAN_PACKAGE = "wang.liangchen.matrix";
-    private static String scanPackages;
+    private static final String scanPackages;
 
     static {
         boolean exists = ConfigurationContext.INSTANCE.exists(AUTOSCAN_COFIG_FILE);

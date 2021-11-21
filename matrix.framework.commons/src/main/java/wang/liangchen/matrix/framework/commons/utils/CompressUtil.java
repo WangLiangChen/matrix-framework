@@ -19,8 +19,7 @@ public enum CompressUtil {
             GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
             InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            Stream<String> lines = bufferedReader.lines();
-            return lines;
+            return bufferedReader.lines();
         } catch (IOException e) {
             throw new MatrixErrorException(e);
         }

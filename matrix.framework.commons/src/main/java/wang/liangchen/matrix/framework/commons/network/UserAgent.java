@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
  * @author LiangChen.Wang 2020/11/18
  */
 public class UserAgent {
-    private Os os;
-    private Browser browser;
-    private String userAgent;
-    private static Set<UserAgent> set = new HashSet<>();
+    private final Os os;
+    private final Browser browser;
+    private final String userAgent;
+    private static final Set<UserAgent> set = new HashSet<>();
 
     private UserAgent(Os os, Browser browser, String userAgent) {
         this.os = os;
@@ -63,11 +63,11 @@ public class UserAgent {
     }
 
     public enum Os {
-        Mac, Linux, Windows, iOS, Android;
+        Mac, Linux, Windows, iOS, Android
     }
 
     public enum Browser {
-        Chrome, Firefox, Safari, Edge, IE, Webkit;
+        Chrome, Firefox, Safari, Edge, IE, Webkit
     }
 
     public static void main(String[] args) {

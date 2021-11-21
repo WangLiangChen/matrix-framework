@@ -7,8 +7,8 @@ import java.util.List;
  * @author LiangChen.Wang
  */
 public final class SqlBuilder {
-    private StringBuffer sql;
-    private List<Object> args;
+    private final StringBuffer sql;
+    private final List<Object> args;
     private List<Object[]> batchArgs;
     private SqlBuilder countSqlBuilder;
 

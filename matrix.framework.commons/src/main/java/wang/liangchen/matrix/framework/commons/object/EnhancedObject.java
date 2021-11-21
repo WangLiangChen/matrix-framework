@@ -16,7 +16,7 @@ public abstract class EnhancedObject implements Serializable, Cloneable {
     /**
      * 动态fields，用于动态扩展类的filed
      */
-    private transient Map<String, Object> extendedFields = new ConcurrentHashMap<>();
+    private final transient Map<String, Object> extendedFields = new ConcurrentHashMap<>();
 
 
     public int size() {

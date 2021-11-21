@@ -119,15 +119,15 @@ public abstract class RootQuery extends PaginationParameter {
     }
 
     public static class Criterion {
-        private String field;
-        private String condition;
+        private final String field;
+        private final String condition;
         private Object value;
         private Object secondValue;
         private boolean noValue;
         private boolean singleValue;
         private boolean betweenValue;
         private boolean listValue;
-        private String typeHandler;
+        private final String typeHandler;
 
         public String getField() {
             return field;

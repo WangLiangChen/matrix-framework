@@ -17,7 +17,7 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 @SuppressWarnings("NullableProblems")
 public class MultiDataSourceRegister implements ImportBeanDefinitionRegistrar {
-    private final String DATASOURCE_BEAN_NAME = "dataSource";
+    private final static String DATASOURCE_BEAN_NAME = "dataSource";
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata meta, BeanDefinitionRegistry registry) {

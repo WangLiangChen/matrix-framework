@@ -85,12 +85,10 @@ public enum BigDecimalUtil {
     }
 
     private BigDecimal calculate(Operator operator, BigDecimal v, int scale) {
-        switch (operator) {
-            case ABS:
-                return v.setScale(scale, RoundingMode.HALF_UP).abs();
-            default:
-                return new BigDecimal(0);
+        if (operator == Operator.ABS) {
+            return v.setScale(scale, RoundingMode.HALF_UP).abs();
         }
+        return new BigDecimal(0);
     }
 
     private BigDecimal calculate(Operator operator, BigDecimal v1, BigDecimal v2, int scale) {

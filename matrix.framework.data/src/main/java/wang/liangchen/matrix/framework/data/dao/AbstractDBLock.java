@@ -19,8 +19,8 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractDBLock implements IDBLock {
     private static final Logger logger = LoggerFactory.getLogger(AbstractDBLock.class);
-    private final int retryCount = 3;
-    private final long retryPeriod = 500L;
+    private final static int retryCount = 3;
+    private final static long retryPeriod = 500L;
     private final String DELETESQL = StringUtil.INSTANCE.format("delete from {} where lock_key=?", IDBLock.TABLE_NAME);
     // 持有锁的线程
     private final static TransmittableThreadLocal<Set<String>> lockOwnerThreads = TransmittableThreadLocal.withInitial(() -> new HashSet<>(16));

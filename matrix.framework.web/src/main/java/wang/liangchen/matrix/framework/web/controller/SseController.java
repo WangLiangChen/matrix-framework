@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 @RestController
 @RequestMapping("sse")
 public class SseController {
-    private DeferredResult<String> deferredResult = new DeferredResult<>();
+    private final DeferredResult<String> deferredResult = new DeferredResult<>();
 
     @GetMapping("/")
     public SseEmitter sse(String name, String group) {

@@ -19,6 +19,6 @@ public enum SignUtil {
 
     public String dictionarySort(Map<String, Object> source, String... excludeKeys) {
         List<String> excludeList = CollectionUtil.INSTANCE.array2List(excludeKeys);
-        return source.entrySet().stream().filter(e -> null != e.getValue() && !excludeList.contains(e.getKey())).sorted(Comparator.comparing(Map.Entry::getKey)).map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(Collectors.joining("&"));
+        return source.entrySet().stream().filter(e -> null != e.getValue() && !excludeList.contains(e.getKey())).sorted(Map.Entry.comparingByKey()).map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(Collectors.joining("&"));
     }
 }

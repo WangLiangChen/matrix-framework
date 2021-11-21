@@ -7,5 +7,5 @@ public enum DesUtil {
     /**
      *
      */
-    INSTANCE;
+    INSTANCE
 }

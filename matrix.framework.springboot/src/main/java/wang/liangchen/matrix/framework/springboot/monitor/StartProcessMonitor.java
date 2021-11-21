@@ -42,6 +42,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -72,10 +73,10 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         EmbeddedValueResolverAware,
         ApplicationEventPublisherAware,
         MessageSourceAware {
-    private final String DEFAULT_PACKAGES = "wang.liangchen.matrix";
-    private final String CONFIG_ROOT = "configRoot";
-    private final String EXCLUDE_SCAN_PACKAGES = "exclude.scan.packages";
-    private final Class<?>[] events = new Class[]{ApplicationStartingEvent.class,
+    private final static String DEFAULT_PACKAGES = "wang.liangchen.matrix";
+    private final static String CONFIG_ROOT = "configRoot";
+    private final static String EXCLUDE_SCAN_PACKAGES = "exclude.scan.packages";
+    private final static Class<?>[] events = new Class[]{ApplicationStartingEvent.class,
             ApplicationEnvironmentPreparedEvent.class,
             ApplicationContextInitializedEvent.class,
             ApplicationPreparedEvent.class,
@@ -148,13 +149,13 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     }
 
     @Override
-    public void started(ConfigurableApplicationContext context) {
+    public void started(ConfigurableApplicationContext context, Duration timeTaken) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
         PrettyPrinter.INSTANCE.flush();
     }
 
     @Override
-    public void running(ConfigurableApplicationContext context) {
+    public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
         PrettyPrinter.INSTANCE.flush();
     }

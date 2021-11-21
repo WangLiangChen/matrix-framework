@@ -20,7 +20,7 @@ public enum SseUtil {
     /**
      * 当前连接数
      */
-    private AtomicInteger count = new AtomicInteger(0);
+    private final AtomicInteger count = new AtomicInteger(0);
 
     /**
      * 使用map对象，便于根据标识flag来获取对应的SseEmitter

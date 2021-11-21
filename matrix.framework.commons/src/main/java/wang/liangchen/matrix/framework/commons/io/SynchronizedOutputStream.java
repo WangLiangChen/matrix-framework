@@ -7,8 +7,8 @@ import java.io.OutputStream;
  * @author Liangchen.Wang 2021-11-02 17:14
  */
 public class SynchronizedOutputStream extends OutputStream {
-    private OutputStream out;
-    private Object lock;
+    private final OutputStream out;
+    private final Object lock;
 
     SynchronizedOutputStream(OutputStream out) {
         this(out, out);

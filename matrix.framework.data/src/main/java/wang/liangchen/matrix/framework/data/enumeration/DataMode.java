@@ -16,8 +16,8 @@ public enum DataMode {
     RD((byte) 5, "读取/删除"),
     UD((byte) 3, "更新/删除"),
     RU((byte) 6, "读取/更新");
-    private Byte value;
-    private String text;
+    private final Byte value;
+    private final String text;
 
     DataMode(Byte privilege_value, String text) {
         this.value = privilege_value;

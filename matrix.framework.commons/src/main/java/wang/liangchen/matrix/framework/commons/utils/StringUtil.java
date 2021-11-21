@@ -13,9 +13,9 @@ public enum StringUtil {
      * instance
      */
     INSTANCE;
-    private final String FORMAT_REGEX = "\\{(.*?)}";
-    private final String FORMAT_REPLACEMENT = "\\%s";
-    private final Pattern nonNumberPattern = Pattern.compile("[^0-9]");
+    private final static String FORMAT_REGEX = "\\{(.*?)}";
+    private final static String FORMAT_REPLACEMENT = "\\%s";
+    private final static Pattern nonNumberPattern = Pattern.compile("[^0-9]");
 
     public boolean isNull(String string) {
         return null == string;
