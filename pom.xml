@@ -52,7 +52,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <version.matrix>1.0.0-SNAPSHOT</version.matrix>
-        <version.springboot>2.6.2</version.springboot>
+        <version.springboot>2.6.3</version.springboot>
     </properties>
 
     <dependencyManagement>

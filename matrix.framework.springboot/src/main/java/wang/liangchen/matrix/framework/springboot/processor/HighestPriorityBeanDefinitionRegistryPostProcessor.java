@@ -12,7 +12,6 @@ import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 
 /**
  * 该类的方法会特别早的执行
- * Bean动态注册
  * Spring通过BeanFactory管理bean，具体的实现是DefaultListableBeanFactory
  * 在这个类当中有一个注入bean的方法：registerBeanDefinition，使用BeanDefinitionBuilder可以构建一个BeanDefinition
  * 只要获取到ApplicationContext对象即可获取到BeanFacory
