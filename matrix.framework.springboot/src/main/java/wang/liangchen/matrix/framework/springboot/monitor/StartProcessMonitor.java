@@ -26,6 +26,8 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -54,6 +56,8 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("NullableProblems")
 @Component
+@EnableAsync
+@EnableScheduling
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StartProcessMonitor implements EnvironmentPostProcessor,
         ApplicationContextInitializer<ConfigurableApplicationContext>,

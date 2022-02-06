@@ -27,13 +27,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * 用注解的方式实现Bean被覆盖的效果
+ * 用注解的方式实现覆盖指定名称的Bean
+ * 实现线程池的初始化
  *
  * @author LiangChen.Wang 2020/9/15
  */
 @Component
-@EnableAsync
-@EnableScheduling
 public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger(OverrideBeanDefinitionRegistryPostProcessor.class);
 
@@ -53,14 +52,17 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             if (!methodMetadata.isAnnotated(OverrideBean.class.getName())) {
                 continue;
             }
-            MergedAnnotation<OverrideBean> overrideBeanNameMergedAnnotation = methodMetadata.getAnnotations().get(OverrideBean.class);
-            String value = overrideBeanNameMergedAnnotation.getString("value");
-            if (!registry.containsBeanDefinition(value)) {
+            MergedAnnotation<OverrideBean> overrideBeanAnnotation = methodMetadata.getAnnotations().get(OverrideBean.class);
+            String specifiedBeanName = overrideBeanAnnotation.getString("value");
+            if (!registry.containsBeanDefinition(specifiedBeanName)) {
                 continue;
             }
+            // 移除被替换的Bean
+            registry.removeBeanDefinition(specifiedBeanName);
+            // 移除自己
             registry.removeBeanDefinition(beanDefinitionName);
-            registry.removeBeanDefinition(value);
-            registry.registerBeanDefinition(value, beanDefinition);
+            // 用指定的名称重新注册自己
+            registry.registerBeanDefinition(specifiedBeanName, beanDefinition);
         }
     }
 
@@ -73,8 +75,9 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
         // 在TaskExecutionAutoConfiguration注册的ThreadPoolTaskExecutor
         ThreadPoolTaskExecutor defaultExecutor = beanFactory.getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME, ThreadPoolTaskExecutor.class);
         beanFactory.registerSingleton("asyncConfigurer", asyncConfigurer(defaultExecutor));
-        ThreadPoolTaskScheduler taskScheduler = beanFactory.getBean(ThreadPoolTaskScheduler.class);
-        beanFactory.registerSingleton("schedulingConfigurer", schedulingConfigurer(taskScheduler));
+        // 在TaskSchedulingAutoConfiguration注册的ThreadPoolTaskScheduler
+        ThreadPoolTaskScheduler defaultScheduler = beanFactory.getBean(ThreadPoolTaskScheduler.class);
+        beanFactory.registerSingleton("schedulingConfigurer", schedulingConfigurer(defaultScheduler));
     }
 
     /*
@@ -93,7 +96,6 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
                     return TtlExecutors.getTtlExecutor(defaultExecutor);
                 }
                 ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-                executor.initialize();
                 int processors = Runtime.getRuntime().availableProcessors();
                 executor.setCorePoolSize(processors + 2);
                 executor.setMaxPoolSize(processors * 16);
@@ -101,7 +103,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
                 executor.setThreadNamePrefix("async_");
                 executor.setWaitForTasksToCompleteOnShutdown(true);
                 executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-
+                executor.initialize();
                 //jvm退出时关闭task，解决使用tomcat的shutdown后进程依然存在的问题
                 Runtime.getRuntime().addShutdownHook(new Thread(executor::shutdown));
                 return TtlExecutors.getTtlExecutor(executor);
@@ -114,20 +116,20 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
         };
     }
 
-    private SchedulingConfigurer schedulingConfigurer(ThreadPoolTaskScheduler taskScheduler) {
+    private SchedulingConfigurer schedulingConfigurer(ThreadPoolTaskScheduler defaultScheduler) {
         return taskRegistrar -> {
-            if(null!=taskScheduler){
-                taskScheduler.setThreadNamePrefix("taskScheduler-");
-                taskRegistrar.setTaskScheduler(taskScheduler);
+            if (null != defaultScheduler) {
+                defaultScheduler.setThreadNamePrefix("taskScheduler-");
+                taskRegistrar.setTaskScheduler(defaultScheduler);
                 return;
             }
-            ThreadPoolTaskScheduler newTaskScheduler = new ThreadPoolTaskScheduler();
+            ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
             int processors = Runtime.getRuntime().availableProcessors();
-            newTaskScheduler.setPoolSize(processors * 2);
-            newTaskScheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-            newTaskScheduler.setThreadNamePrefix("taskScheduler-");
-            newTaskScheduler.initialize();
-            taskRegistrar.setTaskScheduler(newTaskScheduler);
+            taskScheduler.setPoolSize(processors * 2);
+            taskScheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            taskScheduler.setThreadNamePrefix("taskScheduler-");
+            taskScheduler.initialize();
+            taskRegistrar.setTaskScheduler(taskScheduler);
         };
     }
 }

@@ -8,3 +8,5 @@ org.springframework.boot.env.EnvironmentPostProcessor=\
   wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
 org.springframework.context.ApplicationListener=\
   wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
+org.springframework.boot.env.PropertySourceLoader=\
+  wang.liangchen.matrix.framework.springboot.env.JsonPropertySourceLoader

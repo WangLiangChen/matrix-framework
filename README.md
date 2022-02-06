@@ -7,8 +7,12 @@ A rapid development framework based on springboot,which is distributed, asynchro
 1、功能强大、性能良好且充分测试的工具类库
 
 # matrix.framework.springboot
+1、AopProxyAware，实现该接口的类可以将代理对象注入，用于解决类调用本类方法时，动态代理失效的问题
+2、OverrideBean，使用该注解，可以覆盖同名的Bean
+3、启动过程跟踪
+4、初始化包外配置
 
-1、使用注解覆盖重名的注入
+1、使用注解@OverrideBean覆盖重名的Bean
 
 # matrix.framework.web
 
