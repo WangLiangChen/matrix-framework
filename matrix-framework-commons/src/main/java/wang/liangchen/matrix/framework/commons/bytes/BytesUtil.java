@@ -8,9 +8,7 @@ import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -26,12 +24,25 @@ public enum BytesUtil {
     private final Kryo kryo = new Kryo();
 
     public byte[] toBytes(Object object) {
-        Assert.INSTANCE.notNull(object, "object can not by null");
+        Assert.INSTANCE.notNull(object, "object can not be null");
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ObjectOutputStream output = new ObjectOutputStream(outputStream);
+            output.writeObject(object);
+            output.flush();
+            byte[] bytes = outputStream.toByteArray();
+            return bytes;
+        } catch (IOException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    public byte[] toKryoBytes(Object object) {
+        Assert.INSTANCE.notNull(object, "object can not be null");
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Output output = new Output(outputStream);
             kryo.writeObject(output, object);
-            byte[] bytes = output.toBytes();
             output.flush();
+            byte[] bytes = output.toBytes();
             return bytes;
         } catch (IOException e) {
             throw new MatrixErrorException(e);
@@ -144,7 +155,18 @@ public enum BytesUtil {
         return new String(bytes, charset);
     }
 
-    public <T> T toObject(byte[] bytes, Class<T> clazz) {
+    public <T> T Object(byte[] bytes) {
+        Assert.INSTANCE.notEmpty(bytes, "bytes can not be null or empty");
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+            ObjectInputStream intput = new ObjectInputStream(inputStream);
+            Object object = intput.readObject();
+            return (T) object;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    public <T> T toKryoObject(byte[] bytes, Class<T> clazz) {
         Assert.INSTANCE.notEmpty(bytes, "bytes can not be null or empty");
         Assert.INSTANCE.notNull(clazz, "clazz can not bye null");
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {

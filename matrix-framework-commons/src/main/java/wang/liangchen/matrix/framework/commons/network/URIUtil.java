@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.commons.network;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.net.MalformedURLException;
@@ -21,23 +22,17 @@ public enum URIUtil {
     INSTANCE;
 
     public URI toURI(String uriString, String... more) {
+        Assert.INSTANCE.notBlank(uriString, "uriString can't be blank");
+        uriString = resolveURIString(uriString);
+        String moreString = resolveMore(more);
         try {
-            if (null == more || more.length == 0) {
-                return Paths.get(uriString).toUri();
-            }
-            return Paths.get(resolveFirst(uriString), resolveMore(resolveMore(more))).toUri();
+            return Paths.get(uriString, moreString).toUri();
         } catch (InvalidPathException ex) {
-            if (null == more || more.length == 0) {
-                return URI.create(resolveFirst(uriString));
-            }
-            return URI.create(resolveFirst(uriString)).resolve(resolveMore(more));
+            return URI.create(uriString).resolve(moreString);
         }
     }
 
     public URI expandURI(URI uri, String... more) {
-        if (null == more || more.length == 0) {
-            return uri;
-        }
         return uri.resolve(resolveMore(more));
     }
 
@@ -56,9 +51,6 @@ public enum URIUtil {
 
 
     public URL expendURL(URL url, String... more) {
-        if (null == more || more.length == 0) {
-            return url;
-        }
         try {
             return new URL(url, resolveMore(more));
         } catch (MalformedURLException e) {
@@ -75,17 +67,20 @@ public enum URIUtil {
         }
     }
 
-    private String resolveFirst(String uriString) {
+    private String resolveURIString(String uriString) {
         // 把 \\ 替换为 /
-        uriString = uriString.replaceAll("\\\\", Symbol.URI_SEPARATOR.getSymbol());
+        uriString = uriString.replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol());
         // 末尾加上 /
         return uriString.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? uriString : uriString.concat(Symbol.URI_SEPARATOR.getSymbol());
     }
 
     private String resolveMore(String... more) {
+        if (null == more || more.length == 0) {
+            return Symbol.BLANK.getSymbol();
+        }
         for (int i = 0; i < more.length; i++) {
             // 把 \\ 替换为 / 去除开头和结尾 /
-            more[i] = more[i].replaceAll("\\\\", Symbol.URI_SEPARATOR.getSymbol()).replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
+            more[i] = more[i].replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol()).replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
         }
         return Arrays.stream(more).collect(Collectors.joining(Symbol.URI_SEPARATOR.getSymbol()));
     }

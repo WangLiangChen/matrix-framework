@@ -25,6 +25,9 @@ public enum Symbol {
     FILE_SEPARATOR(System.getProperty("file.separator"), "文件分割符"),
     LINE_SEPARATOR(System.getProperty("line.separator"), "换行符"),
     PATH_SEPARATOR(System.getProperty("path.separator"), "路径分割符"),
+    DOUBLE_SLASH("//", "双斜杠"),
+    DOUBLE_BACKSLASH("\\\\", "双反斜杠"),
+    BACKSLASH("\\", "反斜杠"),
     URI_SEPARATOR("/", "路径分割符");
 
     private final String symbol;

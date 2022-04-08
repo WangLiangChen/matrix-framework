@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+/**
+ * @author Liangchen.Wang
+ */
 public enum CompressUtil {
     //
     INSTANCE;
