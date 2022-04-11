@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.commons.test;
 
 import org.junit.jupiter.api.Test;
-import wang.liangchen.matrix.framework.commons.batch.BatchProcessor;
 import wang.liangchen.matrix.framework.commons.network.URIUtil;
 
 import java.net.URI;

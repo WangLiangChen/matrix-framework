@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.digest;
+package wang.liangchen.matrix.framework.commons.encryption;
 
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author LiangChen.Wang
  */
-public enum HashUtil {
+public enum DigestUtil {
     /**
      * INSTANCE
      */
@@ -28,53 +28,38 @@ public enum HashUtil {
         return hashCodeBuilder.hashCode();
     }
 
-    public int hash(Object object) {
-        Assert.INSTANCE.notNull(object, "object can not be null");
-        int h = object.hashCode();
-        h ^= (h >>> 20) ^ (h >>> 12);
-        return h ^ (h >>> 7) ^ (h >>> 4);
-    }
-
     public int hashIndex(final Object object, int indexScope) {
         Assert.INSTANCE.notNull(object, "object can not be null");
         int number = indexScope & (indexScope - 1);
         Assert.INSTANCE.isTrue(number == 0, "indexScope must be a power of 2");
-        return hash(object) & (indexScope - 1);
+        return hashCode(object) & (indexScope - 1);
     }
 
-    public String digest(String content, String algorithm) {
-        Assert.INSTANCE.notBlank(algorithm, "content can not be blank");
-        Assert.INSTANCE.notBlank(algorithm, "algorithm can not be blank");
+    public String digest(String data, DigestAlgorithm algorithm) {
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notNull(algorithm, "algorithm can not be null");
         MessageDigest messageDigest;
         try {
-            messageDigest = MessageDigest.getInstance(algorithm);
+            messageDigest = MessageDigest.getInstance(algorithm.getAlgorithm());
         } catch (NoSuchAlgorithmException e) {
             throw new MatrixErrorException(e);
         }
-        messageDigest.update(content.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(data.getBytes(StandardCharsets.UTF_8));
         return BytesUtil.INSTANCE.toHexString(messageDigest.digest());
     }
 
 
-    public String md5Digest(String string) {
-        Assert.INSTANCE.notBlank(string, "string can not be blank");
-        return digest(string, "MD5");
-    }
-
-    public String md5Digest16(String string) {
-        return md5Digest(string).substring(8, 24);
-    }
-
-    public String sha256Digest(String key, String content) {
+    public String mac(String key, String data, MacAligorithm aligorithm) {
         Assert.INSTANCE.notBlank(key, "key can not be blank");
-        Assert.INSTANCE.notBlank(content, "content can not by blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notNull(aligorithm, "aligorithm can not be null");
         try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            byte[] secretByte = key.getBytes(StandardCharsets.UTF_8);
-            byte[] dataBytes = content.getBytes(StandardCharsets.UTF_8);
+            Mac mac = Mac.getInstance(aligorithm.getAlgorithm());
+            byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+            byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
 
-            SecretKey secret = new SecretKeySpec(secretByte, "HMACSHA256");
-            mac.init(secret);
+            SecretKey secretKey = new SecretKeySpec(keyBytes, aligorithm.getAlgorithm());
+            mac.init(secretKey);
 
             byte[] doFinal = mac.doFinal(dataBytes);
             return BytesUtil.INSTANCE.toHexString(doFinal);

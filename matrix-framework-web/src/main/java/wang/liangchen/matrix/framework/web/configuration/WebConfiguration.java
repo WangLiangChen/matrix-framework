@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import wang.liangchen.matrix.framework.commons.datetime.DateTimeUtil;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class WebConfiguration {
@@ -16,7 +15,7 @@ public class WebConfiguration {
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return jacksonObjectMapperBuilder -> {
             jacksonObjectMapperBuilder.serializerByType(Long.class, ToStringSerializer.instance);
-            jacksonObjectMapperBuilder.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DateTimeUtil.DEFAULT_FORMAT)));
+            jacksonObjectMapperBuilder.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DATETIME_FORMATTER));
         };
     }
 }

@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.secret;
+package wang.liangchen.matrix.framework.commons.encryption;
 
 /**
  * @author wangliangchen

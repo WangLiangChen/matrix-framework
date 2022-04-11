@@ -35,24 +35,13 @@ public final class ConfigurationResolver {
     private ConfigurationResolver() {
     }
 
-    public static ConfigurationResolver newInstance() {
-        return new ConfigurationResolver();
-    }
-
     public static ConfigurationResolver newInstance(URI baseUri) {
         return new ConfigurationResolver(baseUri);
     }
 
-    public static ConfigurationResolver newInstance(String baseUri) {
-        return new ConfigurationResolver(URIUtil.INSTANCE.toURI(baseUri));
-    }
-
-    public void setBaseUri(URI baseUri) {
-        this.baseUri = baseUri;
-    }
-
-    public void setBaseUri(String baseUri) {
-        this.baseUri = URIUtil.INSTANCE.toURI(baseUri);
+    public static ConfigurationResolver newInstance(String uriString) {
+        URI baseUri = URIUtil.INSTANCE.toURI(uriString);
+        return new ConfigurationResolver(baseUri);
     }
 
     public URI getBaseUri() {
@@ -65,6 +54,11 @@ public final class ConfigurationResolver {
 
     public URL getBaseUrl() {
         return URIUtil.INSTANCE.toURL(this.baseUri);
+    }
+
+    public String getBaseUrlString() {
+        URL url = URIUtil.INSTANCE.toURL(this.baseUri);
+        return url.toString();
     }
 
     public URI getURI(String relativePath) {
@@ -88,7 +82,7 @@ public final class ConfigurationResolver {
     }
 
     private Configuration resolve(String relativePath, TimeUnit timeUnit, long reloadPeriod) {
-        Assert.INSTANCE.notBlank(relativePath, "The name of configuration file can't be blank");
+        Assert.INSTANCE.notBlank(relativePath, "The relativePath of configuration file can't be blank");
         String extension = FileUtil.INSTANCE.extension(relativePath).toLowerCase();
         ReloadingFileBasedConfigurationBuilder<?> builder;
         switch (extension) {
@@ -106,7 +100,7 @@ public final class ConfigurationResolver {
                 builder = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class);
                 break;
             default:
-                throw new MatrixInfoException();
+                throw new MatrixInfoException("File extension not applicable : ", extension);
         }
         FileBasedBuilderParameters fileBasedBuilderParameters = new Parameters().fileBased();
         //.setListDelimiterHandler(new DefaultListDelimiterHandler(','));
