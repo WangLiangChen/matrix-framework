@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.encryption;
+package wang.liangchen.matrix.framework.commons.encryption.enums;
 
 /**
  * @author Liangchen.Wang 2022-04-11 16:42

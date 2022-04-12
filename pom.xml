@@ -40,7 +40,7 @@
 
     <modules>
         <module>matrix-framework-commons</module>
-        <module>matrix-framework-springboot</module>
+        <module>matrix-framework-core</module>
         <module>matrix-framework-data</module>
         <module>matrix-framework-web</module>
         <module>matrix-framework-spring-boot-autoconfigure</module>
@@ -72,7 +72,7 @@
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-springboot</artifactId>
+                <artifactId>matrix-framework-core</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>

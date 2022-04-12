@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>matrix-framework-springboot</artifactId>
+    <artifactId>matrix-framework-core</artifactId>
     <properties>
         <version.inject>1</version.inject>
         <version.spring.statemachine>2.2.1.RELEASE</version.spring.statemachine>

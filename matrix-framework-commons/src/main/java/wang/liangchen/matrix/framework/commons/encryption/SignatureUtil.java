@@ -1,8 +1,10 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.SignatureAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -19,16 +21,24 @@ import java.util.stream.Collectors;
  * @author Liangchen.Wang 2022-04-11 17:07
  */
 public enum SignatureUtil {
+    /**
+     * instance
+     */
     INSTANCE;
-    public String dictionarySort(Map<String, Object> source, String... excludeKeys) {
+
+    public String dictionarySort(Map<String, String> source, String... excludeKeys) {
         List<String> excludeList = CollectionUtil.INSTANCE.array2List(excludeKeys);
-        return source.entrySet().stream().filter(e -> null != e.getValue() && !excludeList.contains(e.getKey())).sorted(Map.Entry.comparingByKey()).map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(Collectors.joining("&"));
+        return source.entrySet().stream()
+                .filter(e -> !excludeList.contains(e.getKey()) || StringUtil.INSTANCE.isNotBlank(e.getValue()))
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(Collectors.joining("&"));
     }
+
     public String sign(SignatureAlgorithm algorithm, String privateKey, String data) {
         Assert.INSTANCE.notBlank(data, "参数data不能为空");
         Assert.INSTANCE.notBlank(privateKey, "参数privateKey不能为空");
         try {
-            PrivateKey priKey = getPrivateKeyFromPKCS8(algorithm, privateKey);
+            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyAlgorithm(), privateKey);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initSign(priKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));
@@ -44,7 +54,7 @@ public enum SignatureUtil {
         Assert.INSTANCE.notBlank(sign, "参数sign不能为空");
         Assert.INSTANCE.notBlank(publicKey, "参数publicKey不能为空");
         try {
-            PublicKey pubKey = getPublicKeyFromX509(algorithm, publicKey);
+            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyAlgorithm(), publicKey);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initVerify(pubKey);
 
@@ -56,27 +66,5 @@ public enum SignatureUtil {
         }
     }
 
-    private PrivateKey getPrivateKeyFromPKCS8(SignatureAlgorithm algorithm, String privateKey) {
-        Assert.INSTANCE.notNull(algorithm, "参数algorithm不能为空");
-        Assert.INSTANCE.notBlank(privateKey, "参数privateKey不能为null");
-        byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKey);
-        try {
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getKeyAlgorithm());
-            return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
-        } catch (Exception e) {
-            throw new MatrixErrorException(e);
-        }
-    }
 
-    private PublicKey getPublicKeyFromX509(SignatureAlgorithm algorithm, String publicKey) {
-        Assert.INSTANCE.notNull(algorithm, "参数algorithm不能为空");
-        Assert.INSTANCE.notBlank(publicKey, "参数publicKey不能为null");
-        byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKey);
-        try {
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getKeyAlgorithm());
-            return keyFactory.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
-        } catch (Exception e) {
-            throw new MatrixErrorException(e);
-        }
-    }
 }

@@ -3,6 +3,8 @@ package wang.liangchen.matrix.framework.commons.encryption;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
+import wang.liangchen.matrix.framework.commons.encryption.enums.MacAligorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
