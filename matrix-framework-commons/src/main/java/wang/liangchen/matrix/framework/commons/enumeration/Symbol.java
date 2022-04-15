@@ -19,6 +19,7 @@ public enum Symbol {
     VERTICAL("|", "竖线"),
     SEMICOLON(";", "分号"),
     HYPHEN("-", "连字号"),
+    QUESTION_MARK("?","问号"),
     UNDERLINE("_", "下划线"),
     STAR("*", "星号"),
     AT("@", "@"),

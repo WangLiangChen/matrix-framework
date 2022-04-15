@@ -28,6 +28,8 @@ public class StandaloneDao extends AbstractDao {
         return sqlSessionTemplate.insert(insertBatchId, entities);
     }
 
+
+
     public int deleteByQuery(RootQuery query) {
         if (null == query) {
             return 0;

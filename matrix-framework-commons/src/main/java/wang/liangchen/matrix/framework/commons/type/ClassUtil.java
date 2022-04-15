@@ -3,9 +3,12 @@ package wang.liangchen.matrix.framework.commons.type;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,14 +22,18 @@ public enum ClassUtil {
      */
     INSTANCE;
 
-    @SuppressWarnings("unchecked")
-    public <T> T instantiate(String className) {
+    public Class<?> forName(String className) {
         try {
-            Class<T> clazz = (Class<T>) Class.forName(className);
-            return instantiate(clazz);
+            Class<?> clazz = Class.forName(className);
+            return clazz;
         } catch (ClassNotFoundException e) {
             throw new MatrixErrorException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T instantiate(String className) {
+        return (T) instantiate(forName(className));
     }
 
     public <T> T instantiate(Class<T> clazz) {
@@ -35,10 +42,6 @@ public enum ClassUtil {
         } catch (Exception e) {
             throw new MatrixErrorException(e);
         }
-    }
-
-    public Set<Field> fields(final Class<?> clazz) {
-        return fields(clazz, null);
     }
 
     public Set<Field> fields(final Class<?> clazz, Predicate<Field> filter) {
@@ -50,6 +53,10 @@ public enum ClassUtil {
         return stream.filter(filter).collect(Collectors.toSet());
     }
 
+    public Set<Field> fields(final Class<?> clazz) {
+        return fields(clazz, null);
+    }
+
     public Set<Field> fields(final Class<?> clazz, boolean allFields) {
         return fields(clazz, allFields, null);
     }
@@ -58,7 +65,6 @@ public enum ClassUtil {
         if (!allFields) {
             return fields(clazz, filter);
         }
-
         Class<?> localClass = clazz;
         Set<Field> fields = new HashSet<>();
         while (Object.class != localClass) {

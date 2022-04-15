@@ -13,8 +13,16 @@ public enum CollectionUtil {
      */
     INSTANCE;
 
+    public Object[] emptyArray() {
+        return new Object[0];
+    }
+
     public boolean isEmpty(Collection<?> collection) {
         return ObjectUtil.INSTANCE.isEmpty(collection);
+    }
+
+    public boolean isNotEmpty(Collection<?> collection) {
+        return ObjectUtil.INSTANCE.isNotEmpty(collection);
     }
 
     public boolean isEmpty(Map<?, ?> map) {
@@ -23,6 +31,10 @@ public enum CollectionUtil {
 
     public <T> boolean isEmpty(T[] array) {
         return ObjectUtil.INSTANCE.isEmpty(array);
+    }
+
+    public <T> boolean isNotEmpty(T[] array) {
+        return ObjectUtil.INSTANCE.isNotEmpty(array);
     }
 
     public boolean isEmpty(Iterator<?> iterator) {

@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.pagination;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
-import wang.liangchen.matrix.framework.commons.json.JsonUtil;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.util.ArrayList;
@@ -94,6 +93,6 @@ public final class PaginationResult<E> {
 
     @Override
     public String toString() {
-        return JsonUtil.INSTANCE.toJsonString(this);
+        return null;
     }
 }

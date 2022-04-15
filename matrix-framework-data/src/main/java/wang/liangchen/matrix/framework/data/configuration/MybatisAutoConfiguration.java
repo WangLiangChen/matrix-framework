@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
-import com.google.common.base.Splitter;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,6 +21,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -102,9 +102,10 @@ public class MybatisAutoConfiguration {
 
         // 设置要扫描mapper.xml
         @SuppressWarnings("UnstableApiUsage")
-        Set<String> packages = Splitter.on(',').splitToStream(scanPackages).map(e -> e.replace('.', '/')).collect(Collectors.toSet());
+        String[] packages = scanPackages.split(Symbol.COMMA.getSymbol());
         Resource[] mapperLocations = new Resource[0];
         for (String pack : packages) {
+            pack = pack.replace('.', '/');
             try {
                 Resource[] mappers = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(pack).concat("/**/*.mapper.xml"));
                 mapperLocations = ArrayUtils.addAll(mapperLocations, mappers);

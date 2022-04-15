@@ -44,6 +44,18 @@ public final class ConfigurationResolver {
         return new ConfigurationResolver(baseUri);
     }
 
+    public static ConfigurationResolver newInstance() {
+        return new ConfigurationResolver();
+    }
+
+    public void setBaseUri(URI baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public void setBaseUriString(String uriString) {
+        this.baseUri = URIUtil.INSTANCE.toURI(uriString);
+    }
+
     public URI getBaseUri() {
         return baseUri;
     }

@@ -164,4 +164,12 @@ public enum StringUtil {
     public boolean isNumber(String str) {
         return isInteger(str) || isFloat(str);
     }
+
+    public String Path2Package(String path) {
+        return path.replace('/', '.').replace('\\', '.');
+    }
+
+    public String Package2Path(String pack) {
+        return pack.replace('.', '/');
+    }
 }

@@ -13,11 +13,11 @@ public enum ConfigurationContext {
     INSTANCE;
     private final ConfigurationResolver configurationResolver = ConfigurationResolver.newInstance();
 
-    public void setBaseUri(String baseUri) {
-        this.configurationResolver.setBaseUri(baseUri);
+    public void setBaseUriString(String uriString) {
+        this.configurationResolver.setBaseUriString(uriString);
     }
 
-    public void setBaseUri(URI baseUri) {
+    public void setBaseUriString(URI baseUri) {
         this.configurationResolver.setBaseUri(baseUri);
     }
 

@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.springboot.monitor;
 
-import com.google.common.base.Splitter;
 import org.apache.commons.configuration2.Configuration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
@@ -107,7 +106,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         springApplication.setBannerMode(Banner.Mode.OFF);
         PrettyPrinter.INSTANCE.buffer("set BannerMode=OFF");
         String configRoot = resolveConfigRoot();
-        ConfigurationContext.INSTANCE.setBaseUri(configRoot);
+        ConfigurationContext.INSTANCE.setBaseUriString(configRoot);
         PrettyPrinter.INSTANCE.buffer("set configRoot={}", configRoot);
         // 需要排除扫描的包
         Set<Object> allSources = springApplication.getAllSources();
@@ -400,11 +399,12 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         // 获取要排除扫描的包
         String excludeScanPackages = System.getProperty(EXCLUDE_SCAN_PACKAGES, Symbol.BLANK.getSymbol());
         System.clearProperty(EXCLUDE_SCAN_PACKAGES);
-        List<String> excludeScanList = Splitter.on(',').omitEmptyStrings().splitToList(excludeScanPackages);
-        if (CollectionUtil.INSTANCE.isNotEmpty(excludeScanList)) {
+
+        String[] excludeScanArray = excludeScanPackages.split(Symbol.COMMA.getSymbol());
+        if (CollectionUtil.INSTANCE.isNotEmpty(excludeScanArray)) {
             scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
                 String className = metadataReader.getClassMetadata().getClassName();
-                for (String p : excludeScanList) {
+                for (String p : excludeScanArray) {
                     return className.startsWith(p);
                 }
                 return false;
@@ -414,8 +414,8 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         Configuration configuration = ConfigurationContext.INSTANCE.resolve("framework/autoscan.properties");
         String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
-        List<String> autoScanList = Splitter.on(',').omitEmptyStrings().splitToList(autoScanPackages);
-        PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", autoScanList);
-        scanner.scan(autoScanList.toArray(new String[0]));
+        String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
+        PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", autoScanArray);
+        scanner.scan(autoScanArray);
     }
 }

@@ -3,6 +3,8 @@ package wang.liangchen.matrix.framework.commons.exception;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
+import java.util.Objects;
+
 /**
  * @author Liangchen.Wang 2021-08-19 20:23
  */
@@ -58,6 +60,19 @@ public enum Assert {
 
     public void notEmpty(Object object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
+            throw new MatrixInfoException(message, args);
+        }
+    }
+
+    public void equals(Object from, Object to, String message, Object... args) {
+        if (Objects.equals(from, to)) {
+            return;
+        }
+        throw new MatrixInfoException(message, args);
+    }
+
+    public void notEquals(Object from, Object to, String message, Object... args) {
+        if (Objects.equals(from, to)) {
             throw new MatrixInfoException(message, args);
         }
     }
