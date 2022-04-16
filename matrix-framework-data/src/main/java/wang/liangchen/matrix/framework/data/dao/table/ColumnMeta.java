@@ -8,20 +8,22 @@ import wang.liangchen.matrix.framework.data.annotation.Query;
 public class ColumnMeta {
     private final String columnName;
     private final boolean isId;
-    private final Query queryAnnotation;
+    private final boolean isUnique;
+    private final boolean isVersion;
     private final String fieldName;
     private final Class<?> fieldType;
 
-    private ColumnMeta(String columnName, boolean isId, Query queryAnnotation, String fieldName, Class<?> fieldType) {
+    private ColumnMeta(String columnName, boolean isId, boolean isUnique, boolean isVersion, String fieldName, Class<?> fieldType) {
         this.columnName = columnName;
         this.isId = isId;
-        this.queryAnnotation = queryAnnotation;
+        this.isUnique = isUnique;
+        this.isVersion = isVersion;
         this.fieldName = fieldName;
         this.fieldType = fieldType;
     }
 
-    public static ColumnMeta newInstance(String columnName, boolean isId, Query queryAnnotation, String fieldName, Class<?> fieldType) {
-        return new ColumnMeta(columnName, isId, queryAnnotation, fieldName, fieldType);
+    public static ColumnMeta newInstance(String columnName, boolean isId, boolean isUnique, boolean isVersion, String fieldName, Class<?> fieldType) {
+        return new ColumnMeta(columnName, isId, isUnique, isVersion, fieldName, fieldType);
     }
 
     public String getColumnName() {
@@ -36,8 +38,20 @@ public class ColumnMeta {
         return !isId;
     }
 
-    public Query getQueryAnnotation() {
-        return queryAnnotation;
+    public boolean isUnique() {
+        return isUnique;
+    }
+
+    public boolean isNotUnique() {
+        return !isUnique;
+    }
+
+    public boolean isVersion() {
+        return isVersion;
+    }
+
+    public boolean isNotVersion() {
+        return !isVersion;
     }
 
     public String getFieldName() {

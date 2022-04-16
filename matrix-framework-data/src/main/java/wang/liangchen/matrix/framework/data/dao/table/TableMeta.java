@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.table;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -8,18 +9,25 @@ import java.util.stream.Collectors;
  */
 public class TableMeta {
     private final String tableName;
-    private final Set<ColumnMeta> columnMetas;
-    private final Set<ColumnMeta> pkColumnMetas;
-    private final Set<ColumnMeta> NonPkColumnMetas;
+    private final Map<String, ColumnMeta> columnMetas;
+    private final Map<String, ColumnMeta> pkColumnMetas;
+    private final Map<String, ColumnMeta> nonPkColumnMetas;
 
-    private TableMeta(String tableName, Set<ColumnMeta> columnMetas) {
+    private TableMeta(String tableName, Map<String, ColumnMeta> columnMetas) {
         this.tableName = tableName;
         this.columnMetas = columnMetas;
-        this.pkColumnMetas = columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toSet());
-        this.NonPkColumnMetas = columnMetas.stream().filter(ColumnMeta::isNotId).collect(Collectors.toSet());
+        this.pkColumnMetas = columnMetas.entrySet().stream().filter(e -> e.getValue().isId()).collect(Collectors.toMap(
+                e -> e.getKey(),
+                e -> e.getValue()
+        ));
+
+        this.nonPkColumnMetas = columnMetas.entrySet().stream().filter(e -> e.getValue().isNotId()).collect(Collectors.toMap(
+                e -> e.getKey(),
+                e -> e.getValue()
+        ));
     }
 
-    public static TableMeta newInstance(String tableName, Set<ColumnMeta> columnMetas) {
+    public static TableMeta newInstance(String tableName,Map<String,ColumnMeta> columnMetas) {
         return new TableMeta(tableName, columnMetas);
     }
 
@@ -27,16 +35,16 @@ public class TableMeta {
         return tableName;
     }
 
-    public Set<ColumnMeta> getColumnMetas() {
+    public Map<String,ColumnMeta> getColumnMetas() {
         return columnMetas;
     }
 
 
-    public Set<ColumnMeta> getPkColumnMetas() {
+    public Map<String,ColumnMeta> getPkColumnMetas() {
         return pkColumnMetas;
     }
 
-    public Set<ColumnMeta> getNonPkColumnMetas() {
-        return NonPkColumnMetas;
+    public Map<String,ColumnMeta> getNonPkColumnMetas() {
+        return nonPkColumnMetas;
     }
 }

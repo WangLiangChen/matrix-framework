@@ -35,12 +35,12 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insert");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Set<ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            Map<String,ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            columnMetas.forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             sqlBuilder.append("</trim>values<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            columnMetas.forEach(columnMeta -> sqlBuilder.append("#{").append(columnMeta.getFieldName()).append("},"));
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append("#{").append(columnMeta.getFieldName()).append("},"));
             sqlBuilder.append("</trim></script>");
             String sql = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.INSERT, sql, entityClass, Integer.class);
@@ -55,14 +55,14 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insertBatch");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Set<ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            Map<String,ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            columnMetas.forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             sqlBuilder.append("</trim>values");
             sqlBuilder.append("<foreach collection=\"list\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            columnMetas.forEach(columnMeta -> sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append("},"));
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append("},"));
             sqlBuilder.append("</trim>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
@@ -113,7 +113,7 @@ public enum MybatisStatementIdBuilder {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
-            entityTableMeta.getNonPkColumnMetas().forEach(columnMeta -> {
+            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.").append(columnMeta.getFieldName()).append(")\">");
                 sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append("},");
                 sqlBuilder.append("</if>");
@@ -144,7 +144,7 @@ public enum MybatisStatementIdBuilder {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
-            entityTableMeta.getNonPkColumnMetas().forEach(columnMeta -> {
+            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(").append(columnMeta.getFieldName()).append(")\">");
                 sqlBuilder.append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("},");
                 sqlBuilder.append("</if>");
@@ -207,10 +207,10 @@ public enum MybatisStatementIdBuilder {
         return cacheKey;
     }
 
-    private StringBuilder findWhereSql(Set<ColumnMeta> pkColumnMetas) {
+    private StringBuilder findWhereSql(Map<String,ColumnMeta> pkColumnMetas) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        pkColumnMetas.forEach(columnMeta -> whereSql.append("and ").append(columnMeta.getColumnName())
+        pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ").append(columnMeta.getColumnName())
                 .append("=#{").append(columnMeta.getFieldName()).append("}"));
         whereSql.append("</where>");
         return whereSql;
@@ -220,9 +220,10 @@ public enum MybatisStatementIdBuilder {
         TableMeta queryTableMeta = TableMetas.INSTANCE.tableMeta(queryClass);
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        Set<ColumnMeta> columnMetas = queryTableMeta.getColumnMetas();
-        for (ColumnMeta columnMeta : columnMetas) {
-            Query queryAnnotation = columnMeta.getQueryAnnotation();
+        Map<String,ColumnMeta> columnMetas = queryTableMeta.getColumnMetas();
+        for (ColumnMeta columnMeta : columnMetas.values()) {
+            // Query queryAnnotation = columnMeta.getQueryAnnotation();
+            Query queryAnnotation = null;
             if (null == queryAnnotation) {
                 continue;
             }

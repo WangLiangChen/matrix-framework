@@ -3,12 +3,9 @@ package wang.liangchen.matrix.framework.commons.type;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,7 +41,7 @@ public enum ClassUtil {
         }
     }
 
-    public Set<Field> fields(final Class<?> clazz, Predicate<Field> filter) {
+    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> filter) {
         Field[] fields = clazz.getDeclaredFields();
         Stream<Field> stream = Arrays.stream(fields);
         if (null == filter) {
@@ -53,24 +50,26 @@ public enum ClassUtil {
         return stream.filter(filter).collect(Collectors.toSet());
     }
 
-    public Set<Field> fields(final Class<?> clazz) {
-        return fields(clazz, null);
-    }
-
-    public Set<Field> fields(final Class<?> clazz, boolean allFields) {
-        return fields(clazz, allFields, null);
-    }
-
-    public Set<Field> fields(final Class<?> clazz, boolean allFields, Predicate<Field> filter) {
-        if (!allFields) {
-            return fields(clazz, filter);
+    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> filter, boolean containSuperFields) {
+        if (!containSuperFields) {
+            return declaredFields(clazz, filter);
         }
-        Class<?> localClass = clazz;
+        Class<?> currentClass = clazz;
         Set<Field> fields = new HashSet<>();
-        while (Object.class != localClass) {
-            fields.addAll(fields(localClass, filter));
-            localClass = localClass.getSuperclass();
+        while (Object.class != currentClass) {
+            fields.addAll(declaredFields(currentClass, filter));
+            currentClass = currentClass.getSuperclass();
         }
         return fields;
     }
+
+    public Set<Field> declaredFields(final Class<?> clazz) {
+        return declaredFields(clazz, null);
+    }
+
+    public Set<Field> declaredFields(final Class<?> clazz, boolean containSuperFields) {
+        return declaredFields(clazz, null, containSuperFields);
+    }
+
+
 }
