@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.pagination;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,19 +14,35 @@ public class PaginationParameter extends EnhancedObject {
     /**
      * 分页页号
      */
+    @Transient
     private transient Integer page;
     /**
      * 分页记录偏移(MySql)
      */
+    @Transient
     private transient Integer offset;
     /**
      * 行数
      */
+    @Transient
     private transient Integer rows;
     /**
      * 排序
      */
+    @Transient
     private transient List<OrderBy> orderBy;
+    /**
+     * 是否拼接distinct
+     */
+    @Transient
+    private transient Boolean distinct;
+    /**
+     * 是否拼接for update
+     */
+    @Transient
+    private transient Boolean forUpdate;
+    @Transient
+    private transient List<String> resultColumns;
 
     public void initPagination() {
         this.page = null == this.page ? 1 : this.page;
@@ -54,6 +71,20 @@ public class PaginationParameter extends EnhancedObject {
             return;
         }
         orderBy.add(index, new OrderBy(orderby, direction));
+    }
+
+    public void addResultColumn(String resultColumn) {
+        addResultColumn(resultColumn, 0);
+    }
+
+    public void addResultColumn(String resultColumn, Integer index) {
+        Assert.INSTANCE.notBlank(resultColumn, "参数resultColumn不能为空");
+        resultColumns = resultColumns == null ? new ArrayList<>() : resultColumns;
+        if (null == index) {
+            resultColumns.add(resultColumn);
+            return;
+        }
+        resultColumns.add(index, resultColumn);
     }
 
     public Integer getPage() {
@@ -99,5 +130,29 @@ public class PaginationParameter extends EnhancedObject {
 
     public void setRows(Integer rows) {
         this.rows = rows;
+    }
+
+    public Boolean getDistinct() {
+        return distinct;
+    }
+
+    public Boolean getForUpdate() {
+        return forUpdate;
+    }
+
+    public void setDistinct(Boolean distinct) {
+        this.distinct = distinct;
+    }
+
+    public void setForUpdate(Boolean forUpdate) {
+        this.forUpdate = forUpdate;
+    }
+
+    public List<String> getResultColumns() {
+        return resultColumns;
+    }
+
+    public void setResultColumns(List<String> resultColumns) {
+        this.resultColumns = resultColumns;
     }
 }

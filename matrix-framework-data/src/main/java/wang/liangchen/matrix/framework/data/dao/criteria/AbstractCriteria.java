@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
 import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
-import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 import wang.liangchen.matrix.framework.data.query.Operator;
 
 import java.util.ArrayList;
@@ -39,40 +38,23 @@ public abstract class AbstractCriteria<T> {
         return this;
     }
 
-    protected AbstractCriteria<T> forUpdate() {
-        return this;
-    }
-
-    protected AbstractCriteria<T> orderBy(EntityGetter<T> column, OrderByDirection orderByDirection) {
-        return this;
-    }
-
-    protected AbstractCriteria<T> pageSize(int pageSize) {
-        return this;
-    }
-
-    protected AbstractCriteria<T> pageNumber(int pageNumber) {
-        return this;
-    }
-
-
-    public List<CriteriaMeta> getCRITERIAMETAS() {
+    protected List<CriteriaMeta> getCRITERIAMETAS() {
         return CRITERIAMETAS;
     }
 
-    public List<AbstractCriteria<T>> getORS() {
+    protected List<AbstractCriteria<T>> getORS() {
         return ORS;
     }
 
-    public List<AbstractCriteria<T>> getANDS() {
+    protected List<AbstractCriteria<T>> getANDS() {
         return ANDS;
     }
 
-    public Class<T> getEntityClass() {
+    protected Class<T> getEntityClass() {
         return entityClass;
     }
 
-    public TableMeta getTableMeta() {
+    protected TableMeta getTableMeta() {
         return tableMeta;
     }
 }

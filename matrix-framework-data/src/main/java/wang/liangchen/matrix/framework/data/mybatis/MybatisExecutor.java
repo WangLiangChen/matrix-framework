@@ -14,7 +14,7 @@ import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.data.annotation.Query;
-import wang.liangchen.matrix.framework.data.dao.criteria.WhereSql;
+import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaParameter;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
@@ -194,27 +194,23 @@ public enum MybatisExecutor {
         return cacheKey;
     }
 
-    public int count(final SqlSessionTemplate sqlSessionTemplate, final WhereSql whereSql) {
-        TableMeta tableMeta = whereSql.getTableMeta();
-        String whereSqlString = whereSql.getSql();
-        String whereMd5 = DigestUtil.INSTANCE.digest(whereSqlString, DigestAlgorithm.MD5);
-        String statementId = String.format("%s.%s.%s", tableMeta.getEntityClass(), "count", whereMd5);
+    public int count(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
+        TableMeta tableMeta = criteriaParameter.getTableMeta();
+        String statementId = String.format("%s.%s", tableMeta.getEntityClass(), "count");
 
         statementCache.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             // 根据mysql文档，count(0)和count(*)没有实现及性能上的差别,但count(*)符合标准语法
             // count(column)只计数非null
-            sqlBuilder.append("<script>select count(*) from ").append(tableMeta.getTableName());
-            sqlBuilder.append("<where>");
-            sqlBuilder.append(whereSqlString);
-            sqlBuilder.append("</where>");
+            sqlBuilder.append("<script>select count(*) from ${tableName} ");
+            sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), Map.class, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class);
             String sql = sqlBuilder.toString();
             logger.debug("create countId:{},sql:{}", statementId, sql);
             return sql;
         });
-        return sqlSessionTemplate.selectOne(statementId, whereSql.getValues());
+        return sqlSessionTemplate.selectOne(statementId, criteriaParameter);
     }
 
     public String listId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootQuery> queryClass, Class<? extends RootEntity> entityClass) {

@@ -3,8 +3,8 @@ package wang.liangchen.matrix.framework.data.dao;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaParameter;
 import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaResolver;
-import wang.liangchen.matrix.framework.data.dao.criteria.WhereSql;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
@@ -88,8 +88,8 @@ public class StandaloneDao extends AbstractDao {
     }
 
     public int count(Criteria criteria) {
-        WhereSql whereSql = CriteriaResolver.INSTANCE.resolve(criteria);
-        return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, whereSql);
+        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
+        return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
     }
 
     public <E extends RootEntity> PaginationResult<E> pagination(Class<E> entityClass, RootQuery query, String... columns) {

@@ -12,13 +12,7 @@ public class MainTests {
                         .equals(Staff::getStaff_name, SqlValue.of("def"))
                         .AND(SubCriteria.of(Staff.class).equals(Staff::getStaff_id, SqlValue.of(789L))
                                 .equals(Staff::getStaff_name, SqlValue.of("ghi"))))
-                .resultColumns(Staff::getStaff_id, Staff::getStaff_name);
-        ;
-
-        WhereSql resolve = CriteriaResolver.INSTANCE.resolve(builder);
-        System.out.println(resolve.getSql());
-        System.out.println(resolve.getValues());
-        System.out.println(resolve.getResultColumns());
+                .resultFields(Staff::getStaff_id, Staff::getStaff_name);
 
     }
 }

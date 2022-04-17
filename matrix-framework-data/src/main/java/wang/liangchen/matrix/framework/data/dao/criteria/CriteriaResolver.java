@@ -4,11 +4,11 @@ import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
+import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 import wang.liangchen.matrix.framework.data.query.Operator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -21,25 +21,42 @@ public enum CriteriaResolver {
     private final static String AND = " and ";
     private final static String OR = " or ";
 
-    public WhereSql resolve(Criteria criteria) {
+    public CriteriaParameter resolve(Criteria criteria) {
+        CriteriaParameter criteriaParameter = new CriteriaParameter();
+        criteriaParameter.setTableMeta(criteria.getTableMeta());
+
         StringBuilder sqlBuilder = new StringBuilder();
         Map<String, Object> values = new HashMap<>();
         resovle(criteria, sqlBuilder, values, new AtomicInteger(0));
-        String resultColumns = resolveResultColumns(criteria);
-        return WhereSql.newInstance(criteria.getTableMeta(), sqlBuilder.toString(), values, resultColumns);
+        criteriaParameter.setWhereSql(sqlBuilder.toString());
+        criteriaParameter.setWhereSqlValues(values);
+        populateResultColumns(criteria, criteriaParameter);
+        return criteriaParameter;
     }
 
-    private String resolveResultColumns(Criteria criteria) {
-        EntityGetter[] resultColumns = criteria.getResultColumns();
-        if (CollectionUtil.INSTANCE.isEmpty(resultColumns)) {
-            return Symbol.STAR.getSymbol();
+    private void populateResultColumns(Criteria criteria, CriteriaParameter criteriaParameter) {
+        EntityGetter[] resultFields = criteria.getResultFields();
+        if (CollectionUtil.INSTANCE.isEmpty(resultFields)) {
+            criteriaParameter.addResultColumn(Symbol.STAR.getSymbol());
+            return;
         }
         Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        return Arrays.stream(resultColumns).map(e -> {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(e);
+        for (EntityGetter resultField : resultFields) {
+            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
             ColumnMeta columnMeta = columnMetas.get(fieldName);
-            return columnMeta.getColumnName();
-        }).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+            String columnName = columnMeta.getColumnName();
+            criteriaParameter.addResultColumn(columnName);
+        }
+    }
+
+    private void populateOrderBy(Criteria criteria, CriteriaParameter criteriaParameter) {
+        Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
+        Map<EntityGetter, OrderByDirection> orderByFields = criteria.getOrderBy();
+        orderByFields.forEach((k, v) -> {
+            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(k);
+            String columnName = columnMetas.get(fieldName).getColumnName();
+            criteriaParameter.addOrderBy(columnName, v);
+        });
     }
 
 
@@ -65,7 +82,7 @@ public enum CriteriaResolver {
                     }
                     placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
                     values.put(placeholder, sqlValue.getValue());
-                    placeholders.add(String.format("#{%s}", placeholder));
+                    placeholders.add(String.format("#{whereSqlValues.%s}", placeholder));
                 }
 
                 if (innerCounter++ > 0) {
