@@ -29,9 +29,9 @@
     <sql id="CriteriasCondition">
         <if test="null!=criterias and criterias.size()>0">
             and
-            <foreach collection="criterias" item="criteria" open="(" separator="or " close=")">
-                <if test="criteria.valid">
-                    <foreach collection="criteria.criterions" item="criterion" open="(" separator="and" close=")">
+            <foreach collection="criterias" item="abstractCriteria" open="(" separator="or " close=")">
+                <if test="abstractCriteria.valid">
+                    <foreach collection="abstractCriteria.criterions" item="criterion" open="(" separator="and" close=")">
                         <choose>
                             <when test="criterion.noValue">
                                 ${criterion.field} ${criterion.condition}

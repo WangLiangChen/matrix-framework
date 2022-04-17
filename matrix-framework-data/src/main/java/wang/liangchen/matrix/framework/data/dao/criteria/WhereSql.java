@@ -1,22 +1,28 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
-import java.util.List;
+import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
+import wang.liangchen.matrix.framework.data.pagination.PaginationParameter;
+
 import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2022-04-16 22:40
  */
-public class WhereSql {
+public class WhereSql extends PaginationParameter {
+    private final TableMeta tableMeta;
     private final String sql;
-    private Map<String, Object> values;
+    private final Map<String, Object> values;
+    private final String resultColumns;
 
-    private WhereSql(String sql, Map<String, Object> values) {
+    private WhereSql(TableMeta tableMeta, String sql, Map<String, Object> values, String resultColumns) {
+        this.tableMeta = tableMeta;
         this.sql = sql;
         this.values = values;
+        this.resultColumns = resultColumns;
     }
 
-    public static WhereSql newInstance(String sql, Map<String, Object> values) {
-        return new WhereSql(sql, values);
+    public static WhereSql newInstance(TableMeta tableMeta, String sql, Map<String, Object> values, String resultColumns) {
+        return new WhereSql(tableMeta, sql, values, resultColumns);
     }
 
     public String getSql() {
@@ -25,5 +31,13 @@ public class WhereSql {
 
     public Map<String, Object> getValues() {
         return values;
+    }
+
+    public String getResultColumns() {
+        return resultColumns;
+    }
+
+    public TableMeta getTableMeta() {
+        return tableMeta;
     }
 }

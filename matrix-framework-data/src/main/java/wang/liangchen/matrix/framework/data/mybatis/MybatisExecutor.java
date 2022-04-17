@@ -9,9 +9,12 @@ import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.encryption.DigestUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.data.annotation.Query;
+import wang.liangchen.matrix.framework.data.dao.criteria.WhereSql;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
@@ -25,9 +28,12 @@ import javax.persistence.Table;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum MybatisStatementIdBuilder {
+public enum MybatisExecutor {
+    /**
+     * instance
+     */
     INSTANCE;
-    public final Logger logger = LoggerFactory.getLogger(MybatisStatementIdBuilder.class);
+    public final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
     private final static Map<String, String> statementCache = new ConcurrentHashMap<>(128);
 
     public String insertId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootEntity> entityClass) {
@@ -35,7 +41,7 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insert");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Map<String,ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
@@ -55,7 +61,7 @@ public enum MybatisStatementIdBuilder {
         String cacheKey = String.format("%s.%s", entityClassName, "insertBatch");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Map<String,ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
@@ -188,6 +194,29 @@ public enum MybatisStatementIdBuilder {
         return cacheKey;
     }
 
+    public int count(final SqlSessionTemplate sqlSessionTemplate, final WhereSql whereSql) {
+        TableMeta tableMeta = whereSql.getTableMeta();
+        String whereSqlString = whereSql.getSql();
+        String whereMd5 = DigestUtil.INSTANCE.digest(whereSqlString, DigestAlgorithm.MD5);
+        String statementId = String.format("%s.%s.%s", tableMeta.getEntityClass(), "count", whereMd5);
+
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            StringBuilder sqlBuilder = new StringBuilder();
+            // 根据mysql文档，count(0)和count(*)没有实现及性能上的差别,但count(*)符合标准语法
+            // count(column)只计数非null
+            sqlBuilder.append("<script>select count(*) from ").append(tableMeta.getTableName());
+            sqlBuilder.append("<where>");
+            sqlBuilder.append(whereSqlString);
+            sqlBuilder.append("</where>");
+            sqlBuilder.append("</script>");
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), Map.class, Integer.class);
+            String sql = sqlBuilder.toString();
+            logger.debug("create countId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.selectOne(statementId, whereSql.getValues());
+    }
+
     public String listId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootQuery> queryClass, Class<? extends RootEntity> entityClass) {
         String cacheKey = String.format("%s.%s", entityClass.getName(), "list");
         statementCache.computeIfAbsent(cacheKey, statementId -> {
@@ -207,7 +236,7 @@ public enum MybatisStatementIdBuilder {
         return cacheKey;
     }
 
-    private StringBuilder findWhereSql(Map<String,ColumnMeta> pkColumnMetas) {
+    private StringBuilder findWhereSql(Map<String, ColumnMeta> pkColumnMetas) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
         pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ").append(columnMeta.getColumnName())
@@ -220,7 +249,7 @@ public enum MybatisStatementIdBuilder {
         TableMeta queryTableMeta = TableMetas.INSTANCE.tableMeta(queryClass);
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        Map<String,ColumnMeta> columnMetas = queryTableMeta.getColumnMetas();
+        Map<String, ColumnMeta> columnMetas = queryTableMeta.getColumnMetas();
         for (ColumnMeta columnMeta : columnMetas.values()) {
             // Query queryAnnotation = columnMeta.getQueryAnnotation();
             Query queryAnnotation = null;

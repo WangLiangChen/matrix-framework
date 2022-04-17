@@ -64,7 +64,7 @@ public enum TableMetas {
             ColumnMeta columnMeta = resolveColumnMeta(field);
             columnMetas.put(columnMeta.getFieldName(), columnMeta);
         }
-        return TableMeta.newInstance(tableName, columnMetas);
+        return TableMeta.newInstance(entityClass, tableName, columnMetas);
     }
 
 }

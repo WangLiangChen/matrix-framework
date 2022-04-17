@@ -2,8 +2,11 @@ package wang.liangchen.matrix.framework.data.dao;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaResolver;
+import wang.liangchen.matrix.framework.data.dao.criteria.WhereSql;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.mybatis.MybatisStatementIdBuilder;
+import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 import wang.liangchen.matrix.framework.data.query.RootQuery;
 
@@ -17,17 +20,16 @@ public class StandaloneDao extends AbstractDao {
 
     public int insert(RootEntity entity) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
-        String insertId = MybatisStatementIdBuilder.INSTANCE.insertId(sqlSessionTemplate, entity.getClass());
+        String insertId = MybatisExecutor.INSTANCE.insertId(sqlSessionTemplate, entity.getClass());
         return sqlSessionTemplate.insert(insertId, entity);
     }
 
     public int insertBatch(List<? extends RootEntity> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
         RootEntity entity = entities.get(0);
-        String insertBatchId = MybatisStatementIdBuilder.INSTANCE.insertBatchId(sqlSessionTemplate, entity.getClass());
+        String insertBatchId = MybatisExecutor.INSTANCE.insertBatchId(sqlSessionTemplate, entity.getClass());
         return sqlSessionTemplate.insert(insertBatchId, entities);
     }
-
 
 
     public int deleteByQuery(RootQuery query) {
@@ -35,20 +37,20 @@ public class StandaloneDao extends AbstractDao {
             return 0;
         }
         Assert.INSTANCE.notNull(query, "query can not be null");
-        String deleteByQueryId = MybatisStatementIdBuilder.INSTANCE.deleteByQueryId(sqlSessionTemplate, query.getClass());
+        String deleteByQueryId = MybatisExecutor.INSTANCE.deleteByQueryId(sqlSessionTemplate, query.getClass());
         return sqlSessionTemplate.delete(deleteByQueryId, query);
     }
 
     public int delete(RootEntity entity) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
-        String deleteId = MybatisStatementIdBuilder.INSTANCE.deleteId(sqlSessionTemplate, entity.getClass());
+        String deleteId = MybatisExecutor.INSTANCE.deleteId(sqlSessionTemplate, entity.getClass());
         return sqlSessionTemplate.delete(deleteId, entity);
     }
 
     public int updateByQuery(RootEntity entity, RootQuery query) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
         Assert.INSTANCE.notNull(query, "query can not be null");
-        String updateByQueryId = MybatisStatementIdBuilder.INSTANCE.updateByQueryId(sqlSessionTemplate, entity.getClass(), query.getClass());
+        String updateByQueryId = MybatisExecutor.INSTANCE.updateByQueryId(sqlSessionTemplate, entity.getClass(), query.getClass());
         query.setEntity(entity);
         int rows = sqlSessionTemplate.update(updateByQueryId, query);
         query.setEntity(null);
@@ -57,7 +59,7 @@ public class StandaloneDao extends AbstractDao {
 
     public int update(RootEntity entity) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
-        String updateId = MybatisStatementIdBuilder.INSTANCE.updateId(sqlSessionTemplate, entity.getClass());
+        String updateId = MybatisExecutor.INSTANCE.updateId(sqlSessionTemplate, entity.getClass());
         return sqlSessionTemplate.update(updateId, entity);
     }
 
@@ -70,7 +72,7 @@ public class StandaloneDao extends AbstractDao {
         } else {
             query.setColumns(columns);
         }
-        String listId = MybatisStatementIdBuilder.INSTANCE.listId(sqlSessionTemplate, query.getClass(), entityClass);
+        String listId = MybatisExecutor.INSTANCE.listId(sqlSessionTemplate, query.getClass(), entityClass);
         List<E> list = sqlSessionTemplate.selectList(listId, query);
         // 清除query的returnFields字段，以免影响缓存Key
         query.setColumns(null);
@@ -81,8 +83,13 @@ public class StandaloneDao extends AbstractDao {
         if (null == query) {
             return 0;
         }
-        String countId = MybatisStatementIdBuilder.INSTANCE.countId(sqlSessionTemplate, query.getClass());
+        String countId = MybatisExecutor.INSTANCE.countId(sqlSessionTemplate, query.getClass());
         return sqlSessionTemplate.selectOne(countId, query);
+    }
+
+    public int count(Criteria criteria) {
+        WhereSql whereSql = CriteriaResolver.INSTANCE.resolve(criteria);
+        return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, whereSql);
     }
 
     public <E extends RootEntity> PaginationResult<E> pagination(Class<E> entityClass, RootQuery query, String... columns) {

@@ -12,6 +12,7 @@
     <artifactId>matrix-framework-commons</artifactId>
 
     <properties>
+        <version.commons.beanutils>1.9.4</version.commons.beanutils>
         <version.commons.configuration2>2.7</version.commons.configuration2>
         <version.commons.io>2.11.0</version.commons.io>
         <version.commons.exec>1.3</version.commons.exec>
@@ -25,6 +26,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${version.commons.beanutils}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
@@ -83,6 +89,10 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

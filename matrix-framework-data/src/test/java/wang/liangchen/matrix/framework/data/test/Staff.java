@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.data.test;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDate;
 
 /**
  * @author Liangchen.Wang 2022-04-15 22:18
@@ -11,6 +12,7 @@ public class Staff {
     @Id
     private Long staff_id;
     private String staff_name;
+    private LocalDate staffBirthday;
 
     public Long getStaff_id() {
         return staff_id;
@@ -26,5 +28,13 @@ public class Staff {
 
     public void setStaff_name(String staff_name) {
         this.staff_name = staff_name;
+    }
+
+    public LocalDate getStaffBirthday() {
+        return staffBirthday;
+    }
+
+    public void setStaffBirthday(LocalDate staffBirthday) {
+        this.staffBirthday = staffBirthday;
     }
 }
