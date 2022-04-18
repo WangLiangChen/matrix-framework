@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.commons.test;
 
 import org.junit.jupiter.api.Test;
-import wang.liangchen.matrix.framework.commons.configuration.ConfigurationResolver;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.commons.function.SerializableConsumer;
 

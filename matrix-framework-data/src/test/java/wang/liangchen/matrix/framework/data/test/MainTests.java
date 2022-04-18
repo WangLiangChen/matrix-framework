@@ -1,7 +1,9 @@
 package wang.liangchen.matrix.framework.data.test;
 
 import org.junit.jupiter.api.Test;
-import wang.liangchen.matrix.framework.data.dao.criteria.*;
+import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.SqlValue;
+import wang.liangchen.matrix.framework.data.dao.criteria.SubCriteria;
 
 public class MainTests {
     @Test

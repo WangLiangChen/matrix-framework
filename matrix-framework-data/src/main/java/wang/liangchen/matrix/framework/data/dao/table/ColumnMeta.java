@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.data.dao.table;
 
-import wang.liangchen.matrix.framework.data.annotation.Query;
-
 /**
  * @author Liangchen.Wang 2021-10-22 9:37
  */

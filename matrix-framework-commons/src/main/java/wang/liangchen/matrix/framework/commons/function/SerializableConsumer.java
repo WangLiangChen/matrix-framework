@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.function;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
