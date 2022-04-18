@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.data.test;
 
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.time.LocalDate;
@@ -8,7 +10,7 @@ import java.time.LocalDate;
  * @author Liangchen.Wang 2022-04-15 22:18
  */
 @Entity(name = "staff")
-public class Staff {
+public class Staff extends RootEntity {
     @Id
     private Long staff_id;
     private String staff_name;

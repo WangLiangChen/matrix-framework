@@ -18,17 +18,14 @@ import java.util.List;
  */
 public class StandaloneDao extends AbstractDao {
 
-    public int insert(RootEntity entity) {
+    public <E extends RootEntity> int insert(E entity) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
-        String insertId = MybatisExecutor.INSTANCE.insertId(sqlSessionTemplate, entity.getClass());
-        return sqlSessionTemplate.insert(insertId, entity);
+        return MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entity);
     }
 
-    public int insertBatch(List<? extends RootEntity> entities) {
+    public <E extends RootEntity> int insert(List<E> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
-        RootEntity entity = entities.get(0);
-        String insertBatchId = MybatisExecutor.INSTANCE.insertBatchId(sqlSessionTemplate, entity.getClass());
-        return sqlSessionTemplate.insert(insertBatchId, entities);
+        return MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entities);
     }
 
 
@@ -92,6 +89,11 @@ public class StandaloneDao extends AbstractDao {
         return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
     }
 
+    public <E extends RootEntity> List<E> list(Criteria criteria) {
+        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
+        return MybatisExecutor.INSTANCE.list(sqlSessionTemplate, criteriaParameter);
+    }
+
     public <E extends RootEntity> PaginationResult<E> pagination(Class<E> entityClass, RootQuery query, String... columns) {
         int count = count(query);
         PaginationResult<E> paginationResult = PaginationResult.newInstance();
@@ -106,4 +108,6 @@ public class StandaloneDao extends AbstractDao {
         paginationResult.setDatas(datas);
         return paginationResult;
     }
+
+
 }

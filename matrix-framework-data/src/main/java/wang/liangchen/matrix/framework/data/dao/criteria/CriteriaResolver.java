@@ -9,6 +9,7 @@ import wang.liangchen.matrix.framework.data.query.Operator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -31,22 +32,34 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(sqlBuilder.toString());
         criteriaParameter.setWhereSqlValues(values);
         populateResultColumns(criteria, criteriaParameter);
+        populateOrderBy(criteria, criteriaParameter);
+        populatePagination(criteria, criteriaParameter);
         return criteriaParameter;
     }
 
+    private void populatePagination(Criteria criteria, CriteriaParameter criteriaParameter) {
+        criteriaParameter.setForUpdate(criteria.getForUpdate());
+        criteriaParameter.setPage(criteria.getPageNumber());
+        criteriaParameter.setRows(criteria.getPageSize());
+        criteriaParameter.setDistinct(criteria.getDistinct());
+    }
+
     private void populateResultColumns(Criteria criteria, CriteriaParameter criteriaParameter) {
-        EntityGetter[] resultFields = criteria.getResultFields();
-        if (CollectionUtil.INSTANCE.isEmpty(resultFields)) {
-            criteriaParameter.addResultColumn(Symbol.STAR.getSymbol());
-            return;
-        }
         Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        for (EntityGetter resultField : resultFields) {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
-            ColumnMeta columnMeta = columnMetas.get(fieldName);
-            String columnName = columnMeta.getColumnName();
-            criteriaParameter.addResultColumn(columnName);
+        EntityGetter[] resultFields = criteria.getResultFields();
+        if (!CollectionUtil.INSTANCE.isEmpty(resultFields)) {
+            Set<String> fieldNames = Arrays.stream(resultFields).map(resultField -> LambdaUtil.INSTANCE.getReferencedFieldName(resultField)).collect(Collectors.toSet());
+            columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
         }
+        columnMetas.forEach((fieldName, columnMeta) -> {
+            String columnName = columnMeta.getColumnName();
+            // 列名 as 成 实体属性名
+            if (Objects.equals(columnName, fieldName)) {
+                criteriaParameter.addResultColumn(columnName);
+            } else {
+                criteriaParameter.addResultColumn(String.format("%s as %s", columnName, fieldName));
+            }
+        });
     }
 
     private void populateOrderBy(Criteria criteria, CriteriaParameter criteriaParameter) {

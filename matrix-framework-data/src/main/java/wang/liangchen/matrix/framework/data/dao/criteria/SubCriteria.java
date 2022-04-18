@@ -1,14 +1,16 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class SubCriteria<T> extends AbstractCriteria<T> {
+public abstract class SubCriteria<T extends RootEntity> extends AbstractCriteria<T> {
     private SubCriteria(Class<T> entityClass) {
         super(entityClass);
     }
 
-    public static <T> SubCriteria<T> of(Class<T> entityClass) {
+    public static <T extends RootEntity> SubCriteria<T> of(Class<T> entityClass) {
         return new SubCriteria<T>(entityClass) {
         };
     }

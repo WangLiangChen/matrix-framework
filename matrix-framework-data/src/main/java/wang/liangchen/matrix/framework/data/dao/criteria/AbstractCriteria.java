@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
 import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
 import wang.liangchen.matrix.framework.data.query.Operator;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class AbstractCriteria<T> {
+public abstract class AbstractCriteria<T extends RootEntity> {
     private final List<CriteriaMeta> CRITERIAMETAS = new ArrayList<>();
     private final List<AbstractCriteria<T>> ORS = new ArrayList<>();
     private final List<AbstractCriteria<T>> ANDS = new ArrayList<>();

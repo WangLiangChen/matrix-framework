@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
 import wang.liangchen.matrix.framework.data.pagination.PaginationParameter;
 
@@ -8,11 +9,13 @@ import java.util.Map;
 /**
  * @author Liangchen.Wang 2022-04-17 23:14
  */
-public class CriteriaParameter extends PaginationParameter {
+public class CriteriaParameter<E extends RootEntity> extends PaginationParameter {
     private TableMeta tableMeta;
     private String tableName;
     private String whereSql;
     private Map<String, Object> whereSqlValues;
+
+    private E entity;
 
     public TableMeta getTableMeta() {
         return tableMeta;
@@ -43,4 +46,11 @@ public class CriteriaParameter extends PaginationParameter {
         return tableName;
     }
 
+    public E getEntity() {
+        return entity;
+    }
+
+    public void setEntity(E entity) {
+        this.entity = entity;
+    }
 }

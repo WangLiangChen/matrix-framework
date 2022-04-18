@@ -36,6 +36,195 @@ public enum MybatisExecutor {
     public final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
     private final static Map<String, String> statementCache = new ConcurrentHashMap<>(128);
 
+    public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
+        Class<?> entityClass = entity.getClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "insert");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
+            sqlBuilder.append("</trim>values<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append("#{").append(columnMeta.getFieldName()).append("},"));
+            sqlBuilder.append("</trim></script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sql, entityClass, Integer.class);
+            logger.debug("create insertId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.insert(statementId, entity);
+    }
+
+    public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final List<E> entities) {
+        E entity = entities.get(0);
+        Class<? extends RootEntity> entityClass = entity.getClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "insertBatch");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>insert into ").append(entityTableMeta.getTableName()).append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
+            sqlBuilder.append("</trim>values");
+            sqlBuilder.append("<foreach collection=\"list\" item=\"item\" separator=\",\">");
+            sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            columnMetas.values().forEach(columnMeta -> sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append("},"));
+            sqlBuilder.append("</trim>");
+            sqlBuilder.append("</foreach>");
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sql, List.class, Integer.class);
+            logger.debug("create insertBatchId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.insert(statementId, entities);
+    }
+
+    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
+        Class<? extends RootEntity> entityClass = entity.getClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "delete");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>delete from ").append(entityTableMeta.getTableName());
+            sqlBuilder.append(findWhereSql(entityTableMeta.getPkColumnMetas()));
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sql, entityClass, Integer.class);
+            logger.debug("create deleteId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.delete(statementId, entity);
+    }
+
+    public int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
+        TableMeta tableMeta = criteriaParameter.getTableMeta();
+        String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBatch");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>delete from ${tableName}");
+            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sql, CriteriaParameter.class, Integer.class);
+            logger.debug("create deleteBatchId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.delete(statementId, criteriaParameter);
+    }
+
+    public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, E entity) {
+        Class<? extends RootEntity> entityClass = entity.getClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "update");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
+            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
+                sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(").append(columnMeta.getFieldName()).append(")\">");
+                sqlBuilder.append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("},");
+                sqlBuilder.append("</if>");
+            });
+
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(extendedFields)\">");
+            sqlBuilder.append("<foreach collection=\"extendedFields.keys\" item=\"key\" separator=\",\">");
+            sqlBuilder.append("<choose>");
+            sqlBuilder.append("<when test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNullValue(extendedFields[key])\">${key} = null</when>");
+            sqlBuilder.append("<otherwise>${key} = #{extendedFields.${key}}</otherwise>");
+            sqlBuilder.append("</choose>");
+            sqlBuilder.append("</foreach>");
+            sqlBuilder.append("</if>");
+            sqlBuilder.append("</set>");
+            sqlBuilder.append(findWhereSql(entityTableMeta.getPkColumnMetas()));
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sql, entityClass, Integer.class);
+            logger.debug("create updateId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.update(statementId, entity);
+    }
+
+    public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, E entity,CriteriaParameter criteriaParameter) {
+        Class<? extends RootEntity> entityClass = entity.getClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "update");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>update ").append(entityTableMeta.getTableName()).append("<set>");
+            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
+                sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.").append(columnMeta.getFieldName()).append(")\">");
+                sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append("},");
+                sqlBuilder.append("</if>");
+            });
+
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.extendedFields)\">");
+            sqlBuilder.append("<foreach collection=\"entity.extendedFields.keys\" item=\"key\" separator=\",\">");
+            sqlBuilder.append("<choose>");
+            sqlBuilder.append("<when test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNullValue(extendedFields[key])\">${key} = null</when>");
+            sqlBuilder.append("<otherwise>${key} = #{extendedFields.${key}}</otherwise>");
+            sqlBuilder.append("</choose>");
+            sqlBuilder.append("</foreach>");
+            sqlBuilder.append("</if>");
+            sqlBuilder.append("</set>");
+            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sql, Map.class, Integer.class);
+            logger.debug("create updateBatchId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        Map<String,Object> parameter = new HashMap<String,Object>(){{
+            put("entity",entity);
+            put("criteriaParameter",criteriaParameter);
+        }};
+        return sqlSessionTemplate.update(statementId,parameter);
+    }
+
+
+    public int count(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
+        TableMeta tableMeta = criteriaParameter.getTableMeta();
+        String statementId = String.format("%s.%s", tableMeta.getEntityClass(), "count");
+
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            StringBuilder sqlBuilder = new StringBuilder();
+            // 根据mysql文档，count(0)和count(*)没有实现及性能上的差别,但count(*)符合标准语法
+            // count(column)只计数非null
+            sqlBuilder.append("<script>select count(*) from ${tableName} ");
+            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("</script>");
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class);
+            String sql = sqlBuilder.toString();
+            logger.debug("create countId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.selectOne(statementId, criteriaParameter);
+    }
+
+    public <E extends RootEntity> List<E> list(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
+        TableMeta tableMeta = criteriaParameter.getTableMeta();
+        Class<?> entityClass = tableMeta.getEntityClass();
+        String statementId = String.format("%s.%s", entityClass.getName(), "list");
+        statementCache.computeIfAbsent(statementId, cacheKey -> {
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("<script>select ");
+            sqlBuilder.append("<if test=\"true==distinct\">").append(" distinct ").append("</if>");
+            sqlBuilder.append("<trim suffixOverrides=\",\"><foreach collection=\"resultColumns\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim> from ${tableName}");
+            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
+            sqlBuilder.append("<if test=\"null!=offset and null!=rows\">limit #{offset},#{rows}</if>");
+            sqlBuilder.append("</script>");
+            String sql = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sql, CriteriaParameter.class, entityClass);
+            logger.debug("create listId:{},sql:{}", statementId, sql);
+            return sql;
+        });
+        return sqlSessionTemplate.selectList(statementId, criteriaParameter);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public String insertId(final SqlSessionTemplate sqlSessionTemplate, final Class<? extends RootEntity> entityClass) {
         String entityClassName = entityClass.getName();
         String cacheKey = String.format("%s.%s", entityClassName, "insert");
@@ -55,6 +244,7 @@ public enum MybatisExecutor {
         });
         return cacheKey;
     }
+
 
     public <E extends RootEntity> String insertBatchId(final SqlSessionTemplate sqlSessionTemplate, final Class<E> entityClass) {
         String entityClassName = entityClass.getName();
@@ -194,24 +384,6 @@ public enum MybatisExecutor {
         return cacheKey;
     }
 
-    public int count(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
-        TableMeta tableMeta = criteriaParameter.getTableMeta();
-        String statementId = String.format("%s.%s", tableMeta.getEntityClass(), "count");
-
-        statementCache.computeIfAbsent(statementId, cacheKey -> {
-            StringBuilder sqlBuilder = new StringBuilder();
-            // 根据mysql文档，count(0)和count(*)没有实现及性能上的差别,但count(*)符合标准语法
-            // count(column)只计数非null
-            sqlBuilder.append("<script>select count(*) from ${tableName} ");
-            sqlBuilder.append("<where>${whereSql}</where>");
-            sqlBuilder.append("</script>");
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class);
-            String sql = sqlBuilder.toString();
-            logger.debug("create countId:{},sql:{}", statementId, sql);
-            return sql;
-        });
-        return sqlSessionTemplate.selectOne(statementId, criteriaParameter);
-    }
 
     public String listId(final SqlSessionTemplate sqlSessionTemplate, Class<? extends RootQuery> queryClass, Class<? extends RootEntity> entityClass) {
         String cacheKey = String.format("%s.%s", entityClass.getName(), "list");
