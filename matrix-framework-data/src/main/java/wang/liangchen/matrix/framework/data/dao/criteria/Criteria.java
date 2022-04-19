@@ -81,7 +81,7 @@ public abstract class Criteria<T extends RootEntity> extends AbstractCriteria<T>
         return resultFields;
     }
 
-    public Boolean getDistinct() {
+    protected Boolean getDistinct() {
         return distinct;
     }
 
@@ -102,7 +102,7 @@ public abstract class Criteria<T extends RootEntity> extends AbstractCriteria<T>
     }
 
 
-    public Long getVersion() {
+    protected Long getVersion() {
         return version;
     }
 }

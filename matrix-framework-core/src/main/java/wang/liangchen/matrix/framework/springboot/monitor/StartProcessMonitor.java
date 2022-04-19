@@ -327,39 +327,52 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     private String resolveConfigRoot() {
         String configRoot = System.getenv(CONFIG_ROOT);
         if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-            PrettyPrinter.INSTANCE.buffer("'configRoot' in the 'System.getenv' is :{}", configRoot);
+            PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getenv' : {}", configRoot);
+            PrettyPrinter.INSTANCE.flush();
             return configRoot;
         }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' in the 'System.getenv' does not exist");
+        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getenv'");
+
         configRoot = System.getProperty(CONFIG_ROOT);
         if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-            PrettyPrinter.INSTANCE.buffer("'configRoot' in the 'System.getProperty' is :{}", configRoot);
+            PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getProperty' : {}", configRoot);
+            PrettyPrinter.INSTANCE.flush();
             return configRoot;
         }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' in the 'System.getProperty' does not exist");
-        Resource resource = new ClassPathResource("root.properties", Thread.currentThread().getContextClassLoader());
-        if (!resource.exists()) {
-            PrettyPrinter.INSTANCE.flush();
-            throw new MatrixInfoException("'root.properties' does not exist in the class path");
+        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getProperty'");
+
+        Resource resource = new ClassPathResource("matrix-framework/root.properties", Thread.currentThread().getContextClassLoader());
+        if (resource.exists()) {
+            Properties properties = new Properties();
+            try (InputStream in = resource.getInputStream()) {
+                properties.load(in);
+            } catch (IOException e) {
+                PrettyPrinter.INSTANCE.flush();
+                throw new MatrixErrorException("An error occurred when looking for 'root.properties' file:" + e.getMessage());
+            }
+            configRoot = properties.getProperty(CONFIG_ROOT);
+            if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
+                PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'root.properties': {}", configRoot);
+                PrettyPrinter.INSTANCE.flush();
+                return configRoot;
+            }
         }
-        Properties properties = new Properties();
-        try (InputStream in = resource.getInputStream()) {
-            properties.load(in);
+        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'root.properties'");
+
+        resource = new ClassPathResource(Symbol.BLANK.getSymbol());
+        try {
+            configRoot = resource.getURI().toString();
         } catch (IOException e) {
             PrettyPrinter.INSTANCE.flush();
-            throw new MatrixErrorException("An error occurred when looking for 'root.properties' file:" + e.getMessage());
+            throw new MatrixErrorException("An error occurred:" + e.getMessage());
         }
-        configRoot = properties.getProperty(CONFIG_ROOT);
-        if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-            PrettyPrinter.INSTANCE.buffer("'configRoot' in the 'root.properties' is :{}", configRoot);
-            return configRoot;
-        }
+        PrettyPrinter.INSTANCE.buffer("'configRoot' is found': {}", configRoot);
         PrettyPrinter.INSTANCE.flush();
-        throw new MatrixInfoException("'configRoot' in the 'root.properties' does not exist");
+        return configRoot;
     }
 
     private void handleLogger(Properties defaultProperties) {
-        final String LOGGER_ROOT = "framework/logger.properties";
+        final String LOGGER_ROOT = "matrix-framework/logger.properties";
         final String LOGGING_CONFIG = "logging.config";
         final String CONFIG_FILE = "config.file";
         Configuration configuration = ConfigurationContext.INSTANCE.resolve(LOGGER_ROOT);
@@ -410,7 +423,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             });
         }
         // 获取自动扫描配置
-        Configuration configuration = ConfigurationContext.INSTANCE.resolve("framework/autoscan.properties");
+        Configuration configuration = ConfigurationContext.INSTANCE.resolve("matrix-framework/autoscan.properties");
         String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());

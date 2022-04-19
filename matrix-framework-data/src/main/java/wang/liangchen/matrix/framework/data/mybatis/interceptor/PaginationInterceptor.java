@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
-import wang.liangchen.matrix.framework.data.query.RootQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,14 +58,14 @@ public class PaginationInterceptor implements Interceptor {
         logger.info("mybatis构造分页计数SQL:{}", countSql);
         // 获取方法参数
         Object parameterObject = statementHandler.getParameterHandler().getParameterObject();
-        RootQuery rootQuery = (RootQuery) parameterObject;
+
 
         // 用户获取取或设置statementHandler原本不可访问的属性
         MetaObject metaObject = this.getMetaObject(statementHandler);
         int count = executeCountSql(connection, metaObject, countSql);
-        rootQuery.setTotalRecords(count);
 
-        String paginationSql = dialect.resolvePaginationSql(targetSql, rootQuery);
+
+        String paginationSql = dialect.resolvePaginationSql(targetSql);
         logger.info("mybatis构造分页SQL:{}", targetSql);
         // ClassUtil.INSTANCE.setDeclaredFieldValue(boundSql, FIELD_SQL, pagingSql);
         metaObject.setValue("delegate.boundSql.sql", paginationSql);
@@ -86,14 +85,7 @@ public class PaginationInterceptor implements Interceptor {
         StatementHandler statementHandler = (StatementHandler) target;
         // 获取方法参数
         Object parameterObject = statementHandler.getParameterHandler().getParameterObject();
-        if (!(parameterObject instanceof RootQuery)) {
-            return target;
-        }
-        RootQuery rootQuery = (RootQuery) parameterObject;
-        Boolean autoPagination = rootQuery.getAutoPagination();
-        if (null == autoPagination || !autoPagination) {
-            return target;
-        }
+
         return Plugin.wrap(target, this);
     }
 

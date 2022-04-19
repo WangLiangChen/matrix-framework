@@ -1,12 +1,6 @@
 package wang.liangchen.matrix.framework.data.datasource.dialect;
 
 
-import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.data.pagination.OrderBy;
-import wang.liangchen.matrix.framework.data.query.RootQuery;
-
-import java.util.List;
-
 /**
  * @author LiangChen.Wang
  */
@@ -27,27 +21,8 @@ public final class MySQLDialect extends AbstractDialect {
     }
 
     @Override
-    public String resolvePaginationSql(String targetSql, RootQuery rootQuery) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(targetSql);
-        //构造排序
-        List<OrderBy> orderByList = rootQuery.getOrderBy();
-        if (!CollectionUtil.INSTANCE.isEmpty(orderByList)) {
-            sb.append(" order by ");
-            for (OrderBy orderBy : orderByList) {
-                sb.append(orderBy.getOrderBy()).append(" ").append(orderBy.getDirection()).append(",");
-            }
-            //去掉末尾的逗号
-            sb.setLength(sb.length() - 1);
-        }
-        //构造分页
-        Integer offset = rootQuery.getOffset();
-        offset = null == offset ? 0 : offset;
-        Integer rows = rootQuery.getRows();
-        if (null != rows && rows > 0) {
-            sb.append(" limit ").append(offset).append(" , ").append(rows);
-        }
-        return sb.toString();
+    public String resolvePaginationSql(String targetSql) {
+        return targetSql;
     }
 
     @Override

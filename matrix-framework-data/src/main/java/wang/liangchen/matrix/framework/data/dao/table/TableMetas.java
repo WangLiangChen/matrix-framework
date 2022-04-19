@@ -3,6 +3,8 @@ package wang.liangchen.matrix.framework.data.dao.table;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.data.annotation.ColumnDelete;
+import wang.liangchen.matrix.framework.data.annotation.ColumnState;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;
@@ -33,12 +35,16 @@ public enum TableMetas {
         boolean isUnique = null != uniqueAnnotation;
         Version versionAnnotation = field.getAnnotation(Version.class);
         boolean isVersion = null != versionAnnotation;
+        ColumnDelete columnDeleteAnnotation = field.getAnnotation(ColumnDelete.class);
+        String deleteValue = null == columnDeleteAnnotation ? null : columnDeleteAnnotation.value();
+        ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
+        boolean isState = null != columnStateAnnotation;
         Column columnAnnotation = field.getAnnotation(Column.class);
         String fieldName = field.getName();
         if (null != columnAnnotation) {
-            return ColumnMeta.newInstance(columnAnnotation.name(), isId, isUnique, isVersion, fieldName, field.getType());
+            return ColumnMeta.newInstance(fieldName, field.getType(), columnAnnotation.name(), isId, isUnique, isVersion, isState, deleteValue);
         }
-        return ColumnMeta.newInstance(StringUtil.INSTANCE.camelCase2underline(fieldName), isId, isUnique, isVersion, fieldName, field.getType());
+        return ColumnMeta.newInstance(fieldName, field.getType(), StringUtil.INSTANCE.camelCase2underline(fieldName), isId, isUnique, isVersion, isState, deleteValue);
     }
 
 
@@ -56,7 +62,8 @@ public enum TableMetas {
             throw new MatrixInfoException("Entity class has no entity or table annotation:{}", entityClass.getName());
         }
         // 排除transient修饰的列
-        Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass, field -> !Modifier.isTransient(field.getModifiers()) && null == field.getAnnotation(Transient.class), true);
+
+        Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass, field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && null == field.getAnnotation(Transient.class), true);
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {
             ColumnMeta columnMeta = resolveColumnMeta(field);

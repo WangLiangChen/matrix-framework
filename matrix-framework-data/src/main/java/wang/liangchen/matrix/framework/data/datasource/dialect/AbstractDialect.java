@@ -3,7 +3,6 @@ package wang.liangchen.matrix.framework.data.datasource.dialect;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.data.query.RootQuery;
 
 /**
  * @author LiangChen.Wang
@@ -13,7 +12,7 @@ public abstract class AbstractDialect implements IDialect {
 
     public abstract String resolveCountSql(String targetSql);
 
-    public abstract String resolvePaginationSql(String targetSql, RootQuery rootQuery);
+    public abstract String resolvePaginationSql(String targetSql);
 
     public abstract String setHibernateDialectClass();
 

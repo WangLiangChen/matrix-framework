@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+
 /**
  * @author Liangchen.Wang 2022-04-16 21:42
  */
@@ -15,7 +17,7 @@ public abstract class SqlValue<T> {
         };
     }
 
-    public static <E> SqlValue<EntityGetter<E>> of(EntityGetter<E> value) {
+    public static <E extends RootEntity> SqlValue<EntityGetter<E>> of(EntityGetter<E> value) {
         return new SqlValue(value) {
         };
     }

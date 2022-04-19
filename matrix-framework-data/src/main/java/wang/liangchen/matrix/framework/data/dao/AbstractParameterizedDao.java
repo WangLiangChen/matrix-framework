@@ -2,9 +2,11 @@ package wang.liangchen.matrix.framework.data.dao;
 
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.SubCriteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
-import wang.liangchen.matrix.framework.data.query.RootQuery;
 
 import javax.inject.Inject;
 import java.lang.reflect.ParameterizedType;
@@ -14,12 +16,11 @@ import java.util.List;
 /**
  * @author Liangchen.Wang 2021-10-19 18:35
  */
-public abstract class AbstractParameterizedDao<E extends RootEntity, Q extends RootQuery> extends AbstractDao {
+public abstract class AbstractParameterizedDao<E extends RootEntity> extends AbstractDao {
     private final Class<E> entityClass;
-    //private final Class<Q> queryClass;
     @Inject
     private StandaloneDao standaloneDao;
-    private final static String EXCEPTION = "Type must be ParameterizedType '<E extends RootEntity, Q extends RootQuery>'";
+    private final static String EXCEPTION = "Type must be ParameterizedType '<E extends RootEntity>'";
 
     @SuppressWarnings({"unchecked"})
     public AbstractParameterizedDao() {
@@ -28,46 +29,47 @@ public abstract class AbstractParameterizedDao<E extends RootEntity, Q extends R
             throw new MatrixInfoException(EXCEPTION);
         }
         Type[] argTypes = ((ParameterizedType) thisType).getActualTypeArguments();
-        if (argTypes.length < 2) {
+        if (argTypes.length < 1) {
             throw new MatrixInfoException(EXCEPTION);
         }
         entityClass = (Class<E>) argTypes[0];
-        //queryClass = (Class<Q>) argTypes[1];
     }
 
-    public int insert(RootEntity entity) {
+    public int insert(E entity) {
         return standaloneDao.insert(entity);
     }
 
-    public int insertBatch(List<? extends RootEntity> entities) {
-        return standaloneDao.insertBatch(entities);
+    public int insert(List<E> entities) {
+        return standaloneDao.insert(entities);
     }
 
-    public int deleteByQuery(RootQuery query) {
-        return standaloneDao.deleteByQuery(query);
-    }
-
-    public int delete(RootEntity entity) {
+    public int delete(E entity) {
         return standaloneDao.delete(entity);
     }
 
-    public int updateByQuery(RootEntity entity, RootQuery query) {
-        return standaloneDao.updateByQuery(entity, query);
+    public int delete(SubCriteria<E> subCriteria) {
+        return standaloneDao.delete(subCriteria);
     }
 
-    public int update(RootEntity entity) {
+    public int update(E entity) {
         return standaloneDao.update(entity);
     }
 
-    public List<E> list(RootQuery query, String... columns) {
-        return standaloneDao.list(entityClass, query, columns);
+    public int update(UpdateCriteria<E> updateCriteria) {
+        return standaloneDao.update(updateCriteria);
     }
 
-    public int count(RootQuery query) {
-        return standaloneDao.count(query);
+
+    public List<E> list(Criteria<E> criteria) {
+        return standaloneDao.list(criteria);
+
     }
 
-    public PaginationResult<E> pagination(RootQuery query, String... columns) {
-        return standaloneDao.pagination(entityClass, query, columns);
+    public int count(Criteria<E> criteria) {
+        return standaloneDao.count(criteria);
+    }
+
+    public PaginationResult<E> pagination(Criteria<E> criteria) {
+        return standaloneDao.pagination(criteria);
     }
 }

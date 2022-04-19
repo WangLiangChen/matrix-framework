@@ -1,11 +1,7 @@
 package wang.liangchen.matrix.framework.data.mybatis;
 
 import wang.liangchen.matrix.framework.commons.object.NullValue;
-
-import java.util.Collection;
-import java.util.Map;
-
-import static java.lang.reflect.Array.getLength;
+import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 /**
  * @author LiangChen.Wang
@@ -26,21 +22,7 @@ public class Ognl {
     }
 
     public static boolean isEmpty(Object object) {
-        if (object == null) {
-            return true;
-        }
-
-        if (object instanceof String) {
-            return ((String) object).length() == 0;
-        } else if (object instanceof Collection) {
-            return ((Collection<?>) object).isEmpty();
-        } else if (object.getClass().isArray()) {
-            return getLength(object) == 0;
-        } else if (object instanceof Map) {
-            return ((Map<?, ?>) object).isEmpty();
-        } else {
-            return false;
-        }
+        return ObjectUtil.INSTANCE.isEmpty(object);
     }
 
     public static boolean isNotEmpty(Object o) {

@@ -3,9 +3,9 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
-import wang.liangchen.matrix.framework.data.query.Operator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,19 +22,43 @@ public enum CriteriaResolver {
     private final static String AND = " and ";
     private final static String OR = " or ";
 
-    public CriteriaParameter resolve(Criteria criteria) {
+    public CriteriaParameter resolve(AbstractCriteria abstractCriteria) {
         CriteriaParameter criteriaParameter = new CriteriaParameter();
-        criteriaParameter.setTableMeta(criteria.getTableMeta());
+        criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
         StringBuilder sqlBuilder = new StringBuilder();
         Map<String, Object> values = new HashMap<>();
-        resovle(criteria, sqlBuilder, values, new AtomicInteger(0));
+        resovle(abstractCriteria, sqlBuilder, values, new AtomicInteger(0));
         criteriaParameter.setWhereSql(sqlBuilder.toString());
         criteriaParameter.setWhereSqlValues(values);
-        populateResultColumns(criteria, criteriaParameter);
-        populateOrderBy(criteria, criteriaParameter);
-        populatePagination(criteria, criteriaParameter);
+
+        if (abstractCriteria instanceof Criteria) {
+            Criteria criteria = (Criteria) abstractCriteria;
+            populateResultColumns(criteria, criteriaParameter);
+            populateOrderBy(criteria, criteriaParameter);
+            populatePagination(criteria, criteriaParameter);
+        }
+
+        if (abstractCriteria instanceof UpdateCriteria) {
+            UpdateCriteria updateCriteria = (UpdateCriteria) abstractCriteria;
+            populateForceUpdate(updateCriteria, criteriaParameter);
+        }
         return criteriaParameter;
+    }
+
+    private void populateForceUpdate(UpdateCriteria updateCriteria, CriteriaParameter criteriaParameter) {
+        Map<EntityGetter<?>, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
+        if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
+            return;
+        }
+        Map<String, ColumnMeta> columnMetas = updateCriteria.getTableMeta().getColumnMetas();
+        RootEntity entity = updateCriteria.getEntity();
+        criteriaParameter.setEntity(entity);
+        forceUpdateColumns.forEach((column, value) -> {
+            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
+            String columnName = columnMetas.get(fieldName).getColumnName();
+            entity.addForceUpdateColumn(columnName, value);
+        });
     }
 
     private void populatePagination(Criteria criteria, CriteriaParameter criteriaParameter) {

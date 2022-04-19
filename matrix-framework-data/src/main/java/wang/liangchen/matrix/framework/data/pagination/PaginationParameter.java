@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
 import wang.liangchen.matrix.framework.commons.exception.Assert;
-import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
+import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
 
 import javax.persistence.Transient;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author LiangChen.Wang
  */
-public class PaginationParameter extends EnhancedObject {
+public class PaginationParameter extends EnhancedMap {
     /**
      * 分页页号
      */
@@ -30,7 +30,7 @@ public class PaginationParameter extends EnhancedObject {
      * 排序
      */
     @Transient
-    private transient List<OrderBy> orderBy;
+    private transient List<OrderBy> orderBys;
     /**
      * 是否拼接distinct
      */
@@ -49,42 +49,45 @@ public class PaginationParameter extends EnhancedObject {
         this.rows = null == this.rows ? 10 : this.rows;
     }
 
-    public List<OrderBy> getOrderBy() {
-        return orderBy;
-    }
-
-    public void setOrderBy(List<OrderBy> orderBy) {
-        Assert.INSTANCE.notEmpty(orderBy, "参数orderBy不能为空");
-        this.orderBy = orderBy;
-    }
-
-    public void addOrderBy(String orderby, OrderByDirection direction) {
-        addOrderBy(orderby, direction, 0);
-    }
-
     public void addOrderBy(String orderby, OrderByDirection direction, Integer index) {
         Assert.INSTANCE.notBlank(orderby, "参数orderby不能为空");
         Assert.INSTANCE.notNull(direction, "参数direction不能为空");
-        orderBy = orderBy == null ? new ArrayList<>(1) : orderBy;
+        if (null == orderBys) {
+            orderBys = new ArrayList<>();
+        }
         if (null == index) {
-            orderBy.add(new OrderBy(orderby, direction));
+            orderBys.add(new OrderBy(orderby, direction));
             return;
         }
-        orderBy.add(index, new OrderBy(orderby, direction));
+        orderBys.add(index, new OrderBy(orderby, direction));
+    }
+
+    public void addOrderBy(String orderby, OrderByDirection direction) {
+        addOrderBy(orderby, direction, null);
+    }
+
+    public void addOrderBys(List<OrderBy> orderBys) {
+        Assert.INSTANCE.notEmpty(orderBys, "orderBys can not be empty");
+        if (null == this.orderBys) {
+            this.orderBys = new ArrayList<>();
+        }
+        this.orderBys.addAll(orderBys);
     }
 
     public void addResultColumn(String resultColumn) {
-        addResultColumn(resultColumn, 0);
+        Assert.INSTANCE.notBlank(resultColumn, "参数resultColumn不能为空");
+        if (null == resultColumns) {
+            resultColumns = new ArrayList<>();
+        }
+        resultColumns.add(resultColumn);
     }
 
-    public void addResultColumn(String resultColumn, Integer index) {
-        Assert.INSTANCE.notBlank(resultColumn, "参数resultColumn不能为空");
-        resultColumns = resultColumns == null ? new ArrayList<>() : resultColumns;
-        if (null == index) {
-            resultColumns.add(resultColumn);
-            return;
+    public void addResultColumns(List<String> resultColumns) {
+        Assert.INSTANCE.notEmpty(resultColumns, "resultColumns can not be empty");
+        if (null == this.resultColumns) {
+            this.resultColumns = new ArrayList<>();
         }
-        resultColumns.add(index, resultColumn);
+        this.resultColumns.addAll(resultColumns);
     }
 
     public Integer getPage() {
@@ -152,7 +155,8 @@ public class PaginationParameter extends EnhancedObject {
         return resultColumns;
     }
 
-    public void setResultColumns(List<String> resultColumns) {
-        this.resultColumns = resultColumns;
+    public List<OrderBy> getOrderBys() {
+        return orderBys;
     }
+
 }

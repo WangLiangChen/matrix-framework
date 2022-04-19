@@ -44,7 +44,7 @@ import java.util.*;
 @SuppressWarnings("NullableProblems")
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector {
-        private final String JDBC_CONFIG_FILE = "framework/jdbc.properties";
+        private final String JDBC_CONFIG_FILE = "matrix-framework/jdbc.properties";
         private final Object[] requiredKeys = new String[]{"dialect", "datasource", "host", "port", "database", "username", "password"};
         private final String DIALECT_ITEM = "dialect", URL_ITEM = "url", EXTRA_ITEM = "extra";
         private static volatile boolean loaded = false;

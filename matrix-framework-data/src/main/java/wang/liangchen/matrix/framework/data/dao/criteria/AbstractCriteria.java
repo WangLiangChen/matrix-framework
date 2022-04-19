@@ -3,7 +3,6 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
 import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
-import wang.liangchen.matrix.framework.data.query.Operator;
 
 import java.util.ArrayList;
 import java.util.List;

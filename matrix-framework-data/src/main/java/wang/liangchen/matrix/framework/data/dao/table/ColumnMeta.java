@@ -4,24 +4,38 @@ package wang.liangchen.matrix.framework.data.dao.table;
  * @author Liangchen.Wang 2021-10-22 9:37
  */
 public class ColumnMeta {
+    private final String fieldName;
+    private final Class<?> fieldType;
     private final String columnName;
     private final boolean isId;
     private final boolean isUnique;
     private final boolean isVersion;
-    private final String fieldName;
-    private final Class<?> fieldType;
+    private final String deleteValue;
+    private final boolean isState;
 
-    private ColumnMeta(String columnName, boolean isId, boolean isUnique, boolean isVersion, String fieldName, Class<?> fieldType) {
+    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, boolean isState, String deleteValue) {
+        this.fieldName = fieldName;
+        this.fieldType = fieldType;
         this.columnName = columnName;
+
         this.isId = isId;
         this.isUnique = isUnique;
         this.isVersion = isVersion;
-        this.fieldName = fieldName;
-        this.fieldType = fieldType;
+        this.isState = isState;
+
+        this.deleteValue = deleteValue;
     }
 
-    public static ColumnMeta newInstance(String columnName, boolean isId, boolean isUnique, boolean isVersion, String fieldName, Class<?> fieldType) {
-        return new ColumnMeta(columnName, isId, isUnique, isVersion, fieldName, fieldType);
+    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, boolean isState, String deleteValue) {
+        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, isState, deleteValue);
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public Class<?> getFieldType() {
+        return fieldType;
     }
 
     public String getColumnName() {
@@ -52,11 +66,15 @@ public class ColumnMeta {
         return !isVersion;
     }
 
-    public String getFieldName() {
-        return fieldName;
+    public boolean isState() {
+        return isState;
     }
 
-    public Class<?> getFieldType() {
-        return fieldType;
+    public boolean isNotState() {
+        return !isState;
+    }
+
+    public String getDeleteValue() {
+        return deleteValue;
     }
 }

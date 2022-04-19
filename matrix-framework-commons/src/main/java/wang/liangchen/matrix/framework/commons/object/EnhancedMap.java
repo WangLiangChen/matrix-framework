@@ -9,22 +9,23 @@ import java.util.*;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
+ * 不能实现Map接口，否则该类子类的属性将会被隐藏
  */
-public class EnhancedMap implements Map<String, Object>, Cloneable, Serializable {
+public class EnhancedMap implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
-    private final Map<String, Object> map;
+    private final transient Map<String, Object> extendedFields;
 
     public EnhancedMap() {
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
-    public EnhancedMap(Map<String, Object> map) {
-        if (map == null) {
+    public EnhancedMap(Map<String, Object> extendedFields) {
+        if (extendedFields == null) {
             throw new IllegalArgumentException("map is null.");
         }
-        this.map = map;
+        this.extendedFields = extendedFields;
     }
 
     public EnhancedMap(boolean ordered) {
@@ -37,58 +38,59 @@ public class EnhancedMap implements Map<String, Object>, Cloneable, Serializable
 
     public EnhancedMap(int initialCapacity, boolean ordered) {
         if (ordered) {
-            map = new LinkedHashMap<>(initialCapacity);
+            extendedFields = new LinkedHashMap<>(initialCapacity);
         } else {
-            map = new HashMap<>(initialCapacity);
+            extendedFields = new HashMap<>(initialCapacity);
         }
     }
 
-    @Override
+
     public int size() {
-        return map.size();
+        return extendedFields.size();
     }
 
-    @Override
+
     public boolean isEmpty() {
-        return map.isEmpty();
+        return extendedFields.isEmpty();
     }
 
-    @Override
+
     public boolean containsKey(Object key) {
-        boolean contain = map.containsKey(key);
+        boolean contain = extendedFields.containsKey(key);
         if (contain) {
             return true;
         }
         if (key instanceof Number || key instanceof Character || key instanceof Boolean || key instanceof UUID) {
-            contain = map.containsKey(String.valueOf(key));
+            contain = extendedFields.containsKey(String.valueOf(key));
         }
         return contain;
     }
 
-    @Override
+
     public boolean containsValue(Object object) {
-        return map.containsValue(object);
+        return extendedFields.containsValue(object);
     }
 
-    @Override
+
     public Object get(Object key) {
-        Object object = map.get(key);
+        Object object = extendedFields.get(key);
         if (object == null) {
             if (key instanceof Number || key instanceof Character || key instanceof Boolean || key instanceof UUID) {
-                object = map.get(String.valueOf(key));
+                object = extendedFields.get(String.valueOf(key));
             }
         }
         return object;
     }
 
-    @Override
+
     public Object getOrDefault(Object key, Object defaultValue) {
         Object object;
         return ((object = get(key)) != null) ? object : defaultValue;
     }
+
     @SuppressWarnings("unchecked")
     public EnhancedMap getEnhancedMap(String key) {
-        Object object = map.get(key);
+        Object object = extendedFields.get(key);
         if (object instanceof EnhancedMap) {
             return (EnhancedMap) object;
         }
@@ -98,9 +100,10 @@ public class EnhancedMap implements Map<String, Object>, Cloneable, Serializable
         }
         throw new MatrixInfoException("object must be Map or EnhancedMap");
     }
+
     @SuppressWarnings("unchecked")
     public EnhancedList getEnhancedList(String key) {
-        Object object = map.get(key);
+        Object object = extendedFields.get(key);
         if (object instanceof EnhancedList) {
             return (EnhancedList) object;
         }
@@ -112,7 +115,7 @@ public class EnhancedMap implements Map<String, Object>, Cloneable, Serializable
     }
 
     public <T> T getObject(String key) {
-        Object object = map.get(key);
+        Object object = extendedFields.get(key);
         return ObjectUtil.INSTANCE.cast(object);
     }
 
@@ -260,86 +263,101 @@ public class EnhancedMap implements Map<String, Object>, Cloneable, Serializable
         return String.valueOf(object);
     }
 
-    @Override
+
     public Object put(String key, Object object) {
-        return map.put(key, object);
+        return extendedFields.put(key, object);
     }
 
     public EnhancedMap fluentPut(String key, Object object) {
-        map.put(key, object);
+        extendedFields.put(key, object);
         return this;
     }
 
-    @Override
+
     public void putAll(Map<? extends String, ?> m) {
-        map.putAll(m);
+        extendedFields.putAll(m);
     }
 
     public EnhancedMap fluentPutAll(Map<? extends String, ?> m) {
-        map.putAll(m);
+        extendedFields.putAll(m);
         return this;
     }
 
-    @Override
+
     public void clear() {
-        map.clear();
+        extendedFields.clear();
     }
 
     public EnhancedMap fluentClear() {
-        map.clear();
+        extendedFields.clear();
         return this;
     }
 
-    @Override
+
     public Object remove(Object key) {
-        return map.remove(key);
+        return extendedFields.remove(key);
     }
 
     public EnhancedMap fluentRemove(Object key) {
-        map.remove(key);
+        extendedFields.remove(key);
         return this;
     }
 
-    @Override
+
     public Set<String> keySet() {
-        return map.keySet();
+        return extendedFields.keySet();
     }
 
-    @Override
+
     public Collection<Object> values() {
-        return map.values();
+        return extendedFields.values();
     }
 
-    @Override
+
     public Set<Map.Entry<String, Object>> entrySet() {
-        return map.entrySet();
+        return extendedFields.entrySet();
     }
 
-    @Override
+
     public EnhancedMap clone() {
-        return new EnhancedMap(map instanceof LinkedHashMap ? new LinkedHashMap<>(map) : new HashMap<>(map));
+        return new EnhancedMap(extendedFields instanceof LinkedHashMap ? new LinkedHashMap<>(extendedFields) : new HashMap<>(extendedFields));
     }
 
-    @Override
+
     public boolean equals(Object object) {
         if (this == object) {
             return true;
         }
 
         if (object instanceof EnhancedMap) {
-            return this.map.equals(((EnhancedMap) object).map);
+            return this.extendedFields.equals(((EnhancedMap) object).extendedFields);
         }
 
-        return this.map.equals(object);
+        return this.extendedFields.equals(object);
     }
 
-    @Override
+
     public int hashCode() {
-        return this.map.hashCode();
+        return this.extendedFields.hashCode();
     }
 
     public Map<String, Object> getNativeMap() {
-        return this.map;
+        return this.extendedFields;
     }
 
+    public void addExtendedField(String key, Object value) {
+        this.extendedFields.put(key, value);
+    }
+
+    public void addExtendedFields(Map<String, Object> extendedFields) {
+        this.extendedFields.putAll(extendedFields);
+    }
+
+    public void removeExtendedField(String key) {
+        this.extendedFields.remove(key);
+    }
+
+    public Map<String, Object> getExtendedFields() {
+        return extendedFields;
+    }
 }

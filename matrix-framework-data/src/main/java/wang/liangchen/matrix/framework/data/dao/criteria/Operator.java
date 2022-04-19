@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.query;
+package wang.liangchen.matrix.framework.data.dao.criteria;
 
 /**
  * @author .LiangChen.Wang
