@@ -38,7 +38,7 @@ import java.util.Properties;
  */
 public class MybatisAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-    private final static String AUTOSCAN_COFIG_FILE = "matrix-framework/autoscan.properties";
+    private final static String AUTOSCAN_COFIG_FILE = "autoscan.properties";
     private final static String DEFAULT_SCAN_PACKAGE = "wang.liangchen.matrix";
     private static final String scanPackages;
 
@@ -83,7 +83,7 @@ public class MybatisAutoConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
-        URL url = ConfigurationContext.INSTANCE.getURL("matrix-framework/mybatis-config.xml");
+        URL url = ConfigurationContext.INSTANCE.getURL("mybatis-config.xml");
         Resource configLocation = new UrlResource(url);
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);

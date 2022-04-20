@@ -10,14 +10,17 @@ import java.net.URL;
  * @author Liangchen.Wang
  */
 public enum ConfigurationContext {
+    /**
+     * instance;
+     */
     INSTANCE;
     private final ConfigurationResolver configurationResolver = ConfigurationResolver.newInstance();
 
-    public void setBaseUriString(String uriString) {
+    public void setBaseUri(String uriString) {
         this.configurationResolver.setBaseUriString(uriString);
     }
 
-    public void setBaseUriString(URI baseUri) {
+    public void setBaseUri(URI baseUri) {
         this.configurationResolver.setBaseUri(baseUri);
     }
 

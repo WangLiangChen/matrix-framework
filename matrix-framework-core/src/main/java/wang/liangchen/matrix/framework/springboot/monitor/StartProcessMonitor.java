@@ -77,7 +77,10 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         MessageSourceAware {
     private final static String DEFAULT_PACKAGES = "wang.liangchen.matrix";
     private final static String CONFIG_ROOT = "configRoot";
-    private final static String EXCLUDE_SCAN_PACKAGES = "exclude.scan.packages";
+    private final static String CONFIG_DIRECTORY = "matrix-framework";
+    private static Set<String> excludeScanPackages;
+
+
     private final static Class<?>[] events = new Class[]{ApplicationStartingEvent.class,
             ApplicationEnvironmentPreparedEvent.class,
             ApplicationContextInitializedEvent.class,
@@ -100,19 +103,21 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     private boolean isRunning;
 
     public StartProcessMonitor(SpringApplication springApplication, String[] args) {
+        System.out.println(Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> System Starting <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol());
+        // 注册一个最后的关闭钩子
+        SpringApplication.getShutdownHandlers().add(() -> System.out.println(Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> System Closed <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol()));
+
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
         PrettyPrinter.INSTANCE.buffer("args are:{}", Arrays.asList(args).toString());
         springApplication.setBannerMode(Banner.Mode.OFF);
         PrettyPrinter.INSTANCE.buffer("set BannerMode=OFF");
-        String configRoot = resolveConfigRoot();
-        ConfigurationContext.INSTANCE.setBaseUriString(configRoot);
-        PrettyPrinter.INSTANCE.buffer("set configRoot={}", configRoot);
-        // 需要排除扫描的包
+
+        // 需要排除主动扫描的包,防止wang.liangchen.matrix包被重复扫描
+        // 因为在使用到这个值的地方，跟当前对象不是一个对象，所以用类变量传递
         Set<Object> allSources = springApplication.getAllSources();
-        String excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName()).filter(e -> e.startsWith(DEFAULT_PACKAGES)).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
-        // 因为在使用到这个值的地方，跟当前对象不是一个对象，所以通过这种方式传递
-        System.setProperty(EXCLUDE_SCAN_PACKAGES, excludeScanPackages);
-        PrettyPrinter.INSTANCE.buffer("set exclude.scan.packages={}", excludeScanPackages);
+        excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName())
+                .filter(e -> e.startsWith(DEFAULT_PACKAGES)).collect(Collectors.toSet());
+        PrettyPrinter.INSTANCE.buffer("set excludeScanPackages={}", excludeScanPackages);
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -128,12 +133,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
-        Properties defaultProperties = new Properties();
-        handleLogger(defaultProperties);
-        populateDefaultProperties(defaultProperties);
-        PrettyPrinter.INSTANCE.buffer("populateDefaultProperties");
-        // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
-        environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -153,12 +152,14 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void started(ConfigurableApplicationContext context, Duration timeTaken) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
+        PrettyPrinter.INSTANCE.buffer("duration:" + timeTaken.getSeconds());
         PrettyPrinter.INSTANCE.flush();
     }
 
     @Override
     public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
+        PrettyPrinter.INSTANCE.buffer("duration:" + timeTaken.getSeconds());
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -178,6 +179,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void run(String... args) {
         PrettyPrinter.INSTANCE.buffer("Overrided from CommandLineRunner");
+        PrettyPrinter.INSTANCE.buffer("args:" + Arrays.asList(args));
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -191,12 +193,38 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
+        // 初始化BeanLoader
         BeanLoader.INSTANCE.setApplicationContext(applicationContext);
         PrettyPrinter.INSTANCE.buffer("Initialize BeanLoader");
+
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        String[] activeProfiles = environment.getActiveProfiles();
+        PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));
+
+        // 初始化配置
+        String configRoot = resolveConfigRoot();
+        configRoot = String.format("%s%s%s", configRoot, Symbol.URI_SEPARATOR.getSymbol(), CONFIG_DIRECTORY);
+        if (activeProfiles.length > 0) {
+            configRoot = String.format("%s%s%s", configRoot, Symbol.HYPHEN.getSymbol(), activeProfiles[0]);
+        }
+        ConfigurationContext.INSTANCE.setBaseUri(configRoot);
+        PrettyPrinter.INSTANCE.buffer("set configRoot={}", configRoot);
+
+        // 覆盖DefaultProperties
+        Properties defaultProperties = new Properties();
+        populateDefaultProperties(defaultProperties);
+        PrettyPrinter.INSTANCE.buffer("populateDefaultProperties");
+        // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
+        environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
+
+        // logger
+        handleLogger(defaultProperties);
+
         // 注册一个优先级非常高的BeanFactoryPostProcessor
         applicationContext.getBeanFactory().registerSingleton("highestPriorityBeanDefinitionRegistryPostProcessor", new HighestPriorityBeanDefinitionRegistryPostProcessor());
         PrettyPrinter.INSTANCE.buffer("register HighestPriorityBeanDefinitionRegistryPostProcessor");
-        hanldeAutoScan(applicationContext);
+        // sacan package
+        hanldeScanPackages(applicationContext);
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -211,9 +239,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         if (event instanceof ApplicationReadyEvent) {
             if (isRunning) {
                 // 系统启动完成
-                System.out.println("------------------------------------> System Started <------------------------------------");
-                // 注册一个最后的关闭钩子
-                SpringApplication.getShutdownHandlers().add(() -> System.out.println("------------------------------------> System Closed <------------------------------------"));
+                System.out.println(Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> System Started <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol());
             }
         }
     }
@@ -222,6 +248,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     public void start() {
         this.isRunning = true;
         PrettyPrinter.INSTANCE.buffer("Overrided from Lifecycle");
+        PrettyPrinter.INSTANCE.buffer("set running=true");
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -229,6 +256,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     public void stop() {
         this.isRunning = false;
         PrettyPrinter.INSTANCE.buffer("Overrided from Lifecycle");
+        PrettyPrinter.INSTANCE.buffer("set running=false");
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -328,7 +356,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         String configRoot = System.getenv(CONFIG_ROOT);
         if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
             PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getenv' : {}", configRoot);
-            PrettyPrinter.INSTANCE.flush();
             return configRoot;
         }
         PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getenv'");
@@ -336,12 +363,11 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         configRoot = System.getProperty(CONFIG_ROOT);
         if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
             PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getProperty' : {}", configRoot);
-            PrettyPrinter.INSTANCE.flush();
             return configRoot;
         }
         PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getProperty'");
 
-        Resource resource = new ClassPathResource("matrix-framework/root.properties", Thread.currentThread().getContextClassLoader());
+        Resource resource = new ClassPathResource(String.format("%s%s%s", CONFIG_DIRECTORY, Symbol.URI_SEPARATOR.getSymbol(), "root.properties"), Thread.currentThread().getContextClassLoader());
         if (resource.exists()) {
             Properties properties = new Properties();
             try (InputStream in = resource.getInputStream()) {
@@ -353,7 +379,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             configRoot = properties.getProperty(CONFIG_ROOT);
             if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
                 PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'root.properties': {}", configRoot);
-                PrettyPrinter.INSTANCE.flush();
                 return configRoot;
             }
         }
@@ -367,12 +392,11 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             throw new MatrixErrorException("An error occurred:" + e.getMessage());
         }
         PrettyPrinter.INSTANCE.buffer("'configRoot' is found': {}", configRoot);
-        PrettyPrinter.INSTANCE.flush();
         return configRoot;
     }
 
     private void handleLogger(Properties defaultProperties) {
-        final String LOGGER_ROOT = "matrix-framework/logger.properties";
+        final String LOGGER_ROOT = "logger.properties";
         final String LOGGING_CONFIG = "logging.config";
         final String CONFIG_FILE = "config.file";
         Configuration configuration = ConfigurationContext.INSTANCE.resolve(LOGGER_ROOT);
@@ -397,33 +421,31 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         // defaultProperties.setProperty("spring.jpa.properties.javax.persistence.validation.mode", "none");
         // defaultProperties.setProperty("spring.data.jpa.repositories.enabled", "false");
         // defaultProperties.setProperty(" spring.data.jpa.repositories.bootstrap-mode", "default");
+
+        // 设置排除的AutoConfiguration
         for (int i = 0; i < excludeAutoConfigure.length; i++) {
             defaultProperties.setProperty(StringUtil.INSTANCE.format("spring.autoconfigure.exclude[{}]", i), excludeAutoConfigure[i]);
         }
     }
 
-    private void hanldeAutoScan(ConfigurableApplicationContext applicationContext) {
+    private void hanldeScanPackages(ConfigurableApplicationContext applicationContext) {
         // 处理自动扫描和排除扫描项目
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) beanFactory;
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
         // 获取要排除扫描的包
-        String excludeScanPackages = System.getProperty(EXCLUDE_SCAN_PACKAGES, Symbol.BLANK.getSymbol());
-        System.clearProperty(EXCLUDE_SCAN_PACKAGES);
-
-        String[] excludeScanArray = excludeScanPackages.split(Symbol.COMMA.getSymbol());
-        if (CollectionUtil.INSTANCE.isNotEmpty(excludeScanArray)) {
+        if (CollectionUtil.INSTANCE.isNotEmpty(excludeScanPackages)) {
             scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
                 String className = metadataReader.getClassMetadata().getClassName();
-                for (String p : excludeScanArray) {
-                    return className.startsWith(p);
+                for (String excludeScanPackage : excludeScanPackages) {
+                    return className.startsWith(excludeScanPackage);
                 }
                 return false;
             });
         }
-        // 获取自动扫描配置
-        Configuration configuration = ConfigurationContext.INSTANCE.resolve("matrix-framework/autoscan.properties");
+        // 获取扫描配置
+        Configuration configuration = ConfigurationContext.INSTANCE.resolve("autoscan.properties");
         String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
