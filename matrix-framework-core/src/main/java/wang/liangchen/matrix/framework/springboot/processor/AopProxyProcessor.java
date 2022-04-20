@@ -6,6 +6,7 @@ import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
  * 2、AopContext.currentProxy();使用此方法需要启动注解@EnableAspectJAutoProxy(proxyTargetClass = true,exposeProxy = true)
  */
 @Component
-public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextAware, Ordered {
     private ApplicationContext applicationContext;
 
     @Override
@@ -42,6 +43,16 @@ public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextA
         //如果不是代理对象，则获取代理对象后注入
         proxyAware.setAopProxy(applicationContext.getBean(beanName));
         return bean;
+    }
+
+    /**
+     * 提升优先级 尽早初始化 防止出现 is not eligible for getting processed by...
+     *
+     * @return
+     */
+    @Override
+    public int getOrder() {
+        return 0;
     }
 
     public interface AopProxyAware extends Aware {

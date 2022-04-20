@@ -25,6 +25,8 @@ import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceRegister;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
+import wang.liangchen.matrix.framework.data.datasource.dialect.OracleDialect;
+import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect;
 import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
 import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 
@@ -88,12 +90,21 @@ public @interface EnableJdbc {
                 ConfigurationPropertySource source = new MapConfigurationPropertySource(properties);
                 Binder binder = new Binder(source.withAliases(aliases));
                 DataSourceProperties dataSourceProperties = binder.bind(ConfigurationPropertyName.EMPTY, Bindable.of(DataSourceProperties.class)).get();
+
                 AbstractDialect dialect = ClassUtil.INSTANCE.instantiate(properties.getProperty(DIALECT_ITEM));
                 if (StringUtil.INSTANCE.isBlank(properties.getProperty(URL_ITEM))) {
                     String query, url = null;
                     if (dialect instanceof MySQLDialect) {
-                        query = "serverTimezone=GMT%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
+                        query = "serverTimezone=UTC%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
                         url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
+                    }
+                    if(dialect instanceof PostgreSQLDialect){
+                        query = "";
+                        url = String.format("jdbc:postgresql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
+                    }
+                    if(dialect instanceof OracleDialect){
+                        query = "";
+                        url = String.format("jdbc:oracle:thin://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
                     dataSourceProperties.setUrl(url);
                 }

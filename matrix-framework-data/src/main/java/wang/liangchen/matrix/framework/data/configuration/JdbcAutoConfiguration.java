@@ -27,7 +27,7 @@ public class JdbcAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     @Bean
-    public static MultiDataSourceBeanFactoryPointcutAdvisor multiDataSourceBeanFactoryPointcutAdvisor() {
+    public MultiDataSourceBeanFactoryPointcutAdvisor multiDataSourceBeanFactoryPointcutAdvisor() {
         // 注册数据源切换切面 advisor=pointcut+advice
         MultiDataSourceBeanFactoryPointcutAdvisor advisor = new MultiDataSourceBeanFactoryPointcutAdvisor();
         advisor.setOrder(Ordered.HIGHEST_PRECEDENCE);
