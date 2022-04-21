@@ -5,26 +5,26 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 /**
  * @author Liangchen.Wang 2022-04-16 21:29
  */
-public class CriteriaMeta<T extends RootEntity> {
+public class CriteriaMeta<E extends RootEntity> {
     private final Operator operator;
-    private final EntityGetter<T> column;
+    private final EntityGetter<E> column;
     private final SqlValue[] sqlValues;
 
-    private CriteriaMeta(Operator operator, EntityGetter<T> column, SqlValue[] sqlValues) {
+    private CriteriaMeta(Operator operator, EntityGetter<E> column, SqlValue[] sqlValues) {
         this.operator = operator;
         this.column = column;
         this.sqlValues = sqlValues;
     }
 
-    public static <T extends RootEntity> CriteriaMeta getInstance(Operator operator, EntityGetter<T> column, SqlValue... sqlValues) {
-        return new CriteriaMeta<T>(operator, column, sqlValues);
+    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, SqlValue... sqlValues) {
+        return new CriteriaMeta<>(operator, column, sqlValues);
     }
 
     public Operator getOperator() {
         return operator;
     }
 
-    public EntityGetter<T> getColumn() {
+    public EntityGetter<E> getColumn() {
         return column;
     }
 

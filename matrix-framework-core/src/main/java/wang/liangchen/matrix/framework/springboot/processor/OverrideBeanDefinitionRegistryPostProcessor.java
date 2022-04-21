@@ -32,6 +32,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger(OverrideBeanDefinitionRegistryPostProcessor.class);
+    private final static String ASYNCCONFIGURER_BEANNAME = "asyncConfigurer";
+    private final static String SCHEDULINGCONFIGURER_BEANNAME = "schedulingConfigurer";
+    private final static String ASYNC_THREAD_PREFIX = "async-";
+    private final static String TASKSCHEDULER_THREAD_PREFIX = "taskScheduler-";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -71,10 +75,10 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
          */
         // 在TaskExecutionAutoConfiguration注册的ThreadPoolTaskExecutor
         ThreadPoolTaskExecutor defaultExecutor = beanFactory.getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME, ThreadPoolTaskExecutor.class);
-        beanFactory.registerSingleton("asyncConfigurer", asyncConfigurer(defaultExecutor));
+        beanFactory.registerSingleton(ASYNCCONFIGURER_BEANNAME, asyncConfigurer(defaultExecutor));
         // 在TaskSchedulingAutoConfiguration注册的ThreadPoolTaskScheduler
         ThreadPoolTaskScheduler defaultScheduler = beanFactory.getBean(ThreadPoolTaskScheduler.class);
-        beanFactory.registerSingleton("schedulingConfigurer", schedulingConfigurer(defaultScheduler));
+        beanFactory.registerSingleton(SCHEDULINGCONFIGURER_BEANNAME, schedulingConfigurer(defaultScheduler));
     }
 
     /*
@@ -89,7 +93,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             @Override
             public Executor getAsyncExecutor() {
                 if (null != defaultExecutor) {
-                    defaultExecutor.setThreadNamePrefix("async_");
+                    defaultExecutor.setThreadNamePrefix(ASYNC_THREAD_PREFIX);
                     return TtlExecutors.getTtlExecutor(defaultExecutor);
                 }
                 ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -97,7 +101,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
                 executor.setCorePoolSize(processors + 2);
                 executor.setMaxPoolSize(processors * 16);
                 executor.setQueueCapacity(processors * 16);
-                executor.setThreadNamePrefix("async_");
+                executor.setThreadNamePrefix(ASYNC_THREAD_PREFIX);
                 executor.setWaitForTasksToCompleteOnShutdown(true);
                 executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
                 executor.initialize();
@@ -108,7 +112,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
 
             @Override
             public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-                return (ex, method, params) -> logger.error("异步线程执行异常", ex);
+                return (ex, method, params) -> logger.error("Async thread run exception", ex);
             }
         };
     }
@@ -116,7 +120,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
     private SchedulingConfigurer schedulingConfigurer(ThreadPoolTaskScheduler defaultScheduler) {
         return taskRegistrar -> {
             if (null != defaultScheduler) {
-                defaultScheduler.setThreadNamePrefix("taskScheduler-");
+                defaultScheduler.setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
                 taskRegistrar.setTaskScheduler(defaultScheduler);
                 return;
             }
@@ -124,7 +128,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             int processors = Runtime.getRuntime().availableProcessors();
             taskScheduler.setPoolSize(processors * 2);
             taskScheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-            taskScheduler.setThreadNamePrefix("taskScheduler-");
+            taskScheduler.setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
             taskScheduler.initialize();
             taskRegistrar.setTaskScheduler(taskScheduler);
         };

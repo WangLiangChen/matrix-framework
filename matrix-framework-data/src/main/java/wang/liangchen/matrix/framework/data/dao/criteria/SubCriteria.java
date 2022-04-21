@@ -5,28 +5,28 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class SubCriteria<T extends RootEntity> extends AbstractCriteria<T> {
-    private SubCriteria(Class<T> entityClass) {
+public abstract class SubCriteria<E extends RootEntity> extends AbstractCriteria<E> {
+    private SubCriteria(Class<E> entityClass) {
         super(entityClass);
     }
 
-    public static <T extends RootEntity> SubCriteria<T> of(Class<T> entityClass) {
-        return new SubCriteria<T>(entityClass) {
+    public static <E extends RootEntity> SubCriteria<E> of(Class<E> entityClass) {
+        return new SubCriteria<E>(entityClass) {
         };
     }
 
     @Override
-    public SubCriteria<T> equals(EntityGetter<T> column, SqlValue sqlValue) {
-        return (SubCriteria<T>) super.equals(column, sqlValue);
+    public SubCriteria<E> equals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super.equals(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<T> OR(SubCriteria<T> subCriteria) {
-        return (SubCriteria<T>) super.OR(subCriteria);
+    public SubCriteria<E> OR(SubCriteria<E> subCriteria) {
+        return (SubCriteria<E>) super.OR(subCriteria);
     }
 
     @Override
-    public SubCriteria<T> AND(SubCriteria<T> subCriteria) {
-        return (SubCriteria<T>) super.AND(subCriteria);
+    public SubCriteria<E> AND(SubCriteria<E> subCriteria) {
+        return (SubCriteria<E>) super.AND(subCriteria);
     }
 }

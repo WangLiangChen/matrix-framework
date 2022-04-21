@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public enum PrettyPrinter {
+    /**
+     * instance
+     */
     INSTANCE;
     private static final ThreadLocal<Map<String, List<Payload>>> threadLocal = new ThreadLocal<>();
 

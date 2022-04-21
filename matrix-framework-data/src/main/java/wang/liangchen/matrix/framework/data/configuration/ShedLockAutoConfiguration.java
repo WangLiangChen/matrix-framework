@@ -9,7 +9,6 @@ import wang.liangchen.matrix.framework.data.shedlock.JdbcTemplateLockProvider;
  * @author LiangChen.Wang
  */
 public class ShedLockAutoConfiguration {
-
     @Bean
     public LockProvider jdbcTemplateLockProvider(JdbcTemplate jdbcTemplate) {
         return new JdbcTemplateLockProvider(

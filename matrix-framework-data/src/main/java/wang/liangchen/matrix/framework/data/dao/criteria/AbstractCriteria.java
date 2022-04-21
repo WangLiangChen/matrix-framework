@@ -1,8 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
-import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,47 +8,47 @@ import java.util.List;
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class AbstractCriteria<T extends RootEntity> {
-    private final List<CriteriaMeta> CRITERIAMETAS = new ArrayList<>();
-    private final List<AbstractCriteria<T>> ORS = new ArrayList<>();
-    private final List<AbstractCriteria<T>> ANDS = new ArrayList<>();
+public abstract class AbstractCriteria<E extends RootEntity> {
+    private final List<CriteriaMeta<E>> CRITERIAMETAS = new ArrayList<>();
+    private final List<AbstractCriteria<E>> ORS = new ArrayList<>();
+    private final List<AbstractCriteria<E>> ANDS = new ArrayList<>();
 
-    private final Class<T> entityClass;
+    private final Class<E> entityClass;
     private final TableMeta tableMeta;
 
-    protected AbstractCriteria(Class<T> entityClass) {
+    protected AbstractCriteria(Class<E> entityClass) {
         this.entityClass = entityClass;
         tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
     }
 
-    protected AbstractCriteria<T> equals(EntityGetter<T> column, SqlValue sqlValue) {
+    protected AbstractCriteria<E> equals(EntityGetter<E> column, SqlValue sqlValue) {
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, column, sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<T> OR(SubCriteria<T> subCriteria) {
+    protected AbstractCriteria<E> OR(SubCriteria<E> subCriteria) {
         ORS.add(subCriteria);
         return this;
     }
 
-    protected AbstractCriteria<T> AND(SubCriteria<T> subCriteria) {
+    protected AbstractCriteria<E> AND(SubCriteria<E> subCriteria) {
         ANDS.add(subCriteria);
         return this;
     }
 
-    protected List<CriteriaMeta> getCRITERIAMETAS() {
+    protected List<CriteriaMeta<E>> getCRITERIAMETAS() {
         return CRITERIAMETAS;
     }
 
-    protected List<AbstractCriteria<T>> getORS() {
+    protected List<AbstractCriteria<E>> getORS() {
         return ORS;
     }
 
-    protected List<AbstractCriteria<T>> getANDS() {
+    protected List<AbstractCriteria<E>> getANDS() {
         return ANDS;
     }
 
-    protected Class<T> getEntityClass() {
+    protected Class<E> getEntityClass() {
         return entityClass;
     }
 

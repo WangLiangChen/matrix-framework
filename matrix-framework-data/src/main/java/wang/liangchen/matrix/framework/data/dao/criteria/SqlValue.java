@@ -5,26 +5,25 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 /**
  * @author Liangchen.Wang 2022-04-16 21:42
  */
-public abstract class SqlValue<T> {
-    private final T value;
+public abstract class SqlValue {
+    private final Object value;
 
-    protected SqlValue(T value) {
+    protected SqlValue(Object value) {
         this.value = value;
     }
 
-    public static <T> SqlValue of(T value) {
+    public static SqlValue of(Object value) {
         return new SqlValue(value) {
         };
     }
 
-    public static <E extends RootEntity> SqlValue<EntityGetter<E>> of(EntityGetter<E> value) {
+    public static <E extends RootEntity> SqlValue of(EntityGetter<E> value) {
         return new SqlValue(value) {
         };
     }
 
-    public T getValue() {
+    public Object getValue() {
         return value;
     }
-
 
 }

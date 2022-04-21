@@ -14,7 +14,9 @@ import java.sql.SQLException;
  * @author LiangChen.Wang 2021/6/9
  */
 public enum DbConnectionsManager {
-    // instance
+    /**
+     * instance
+     */
     INSTANCE;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final DataSource dataSource = BeanLoader.INSTANCE.getBean("dataSource");

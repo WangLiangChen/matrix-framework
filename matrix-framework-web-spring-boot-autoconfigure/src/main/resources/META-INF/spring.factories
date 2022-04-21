@@ -1,0 +1,2 @@
+org.springframework.boot.SpringApplicationRunListener=\
+  wang.liangchen.matrix.framework.web.monitor.WebStartProcessMonitor

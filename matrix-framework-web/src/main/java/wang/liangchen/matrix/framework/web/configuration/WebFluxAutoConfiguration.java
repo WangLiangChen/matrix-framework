@@ -30,7 +30,6 @@ import wang.liangchen.matrix.framework.web.response.ResponseBodyResultHandler;
 //@EnableWebFlux
 @AutoConfigureBefore(org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration.class)
 public class WebFluxAutoConfiguration implements WebFluxConfigurer {
-
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ErrorWebExceptionHandler errorWebExceptionHandler() {

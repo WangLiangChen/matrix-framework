@@ -2,10 +2,10 @@ package wang.liangchen.matrix.framework.data.dao.entity;
 
 
 import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
+import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.EntityGetter;
-import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
-import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
-import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
+import wang.liangchen.matrix.framework.data.dao.criteria.TableMeta;
+import wang.liangchen.matrix.framework.data.dao.criteria.TableMetas;
 
 import javax.persistence.Transient;
 import java.util.HashMap;

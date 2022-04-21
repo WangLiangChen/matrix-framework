@@ -22,8 +22,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
@@ -43,20 +43,22 @@ public class MybatisAutoConfiguration {
     private static final String scanPackages;
 
     static {
-        boolean exists = ConfigurationContext.INSTANCE.exists(AUTOSCAN_COFIG_FILE);
-        Assert.INSTANCE.isTrue(exists, "Configuration file:{} does not exists", AUTOSCAN_COFIG_FILE);
-        Configuration configuration = ConfigurationContext.INSTANCE.resolve(AUTOSCAN_COFIG_FILE);
-        String mybatis = configuration.getString("mybatis");
-        if (StringUtil.INSTANCE.isBlank(mybatis)) {
-            scanPackages = DEFAULT_SCAN_PACKAGE;
-        } else {
-            scanPackages = String.format("%s,%s", DEFAULT_SCAN_PACKAGE, mybatis);
+        try {
+            Configuration configuration = ConfigurationContext.INSTANCE.resolve(AUTOSCAN_COFIG_FILE);
+            String mybatis = configuration.getString("mybatis");
+            if (StringUtil.INSTANCE.isBlank(mybatis)) {
+                scanPackages = DEFAULT_SCAN_PACKAGE;
+            } else {
+                scanPackages = String.format("%s,%s", DEFAULT_SCAN_PACKAGE, mybatis);
+            }
+        } catch (Exception e) {
+            throw new MatrixInfoException(e, "Configuration file:{}", AUTOSCAN_COFIG_FILE);
         }
     }
 
     /*
-    MapperScannerConfigurer 是 BeanFactoryPostProcessor 的一个实现，这类Bean会特别早的被初始化。会导致其所在的Configuration类过早初始化
-    静态方法不需要依赖所在类的实例即可运行，用这种方式防止MybatisAutoConfiguration过早实例化
+    MapperScannerConfigurer 是 BeanFactoryPostProcessor 的一个实现，这类Bean会特别早的被初始化。会导致其所在的Configuration，也就是本类过早初始化
+    静态方法不需要依赖所在类的实例即可运行，用这种方式防止本类过早实例化
     static关键字一般有且仅用于@Bean方法返回为BeanPostProcessor、BeanFactoryPostProcessor等类型的方法
     https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/core.html#beans
     Also, be particularly careful with BeanPostProcessor and BeanFactoryPostProcessor definitions through @Bean. Those should usually be declared as static @Bean methods, not triggering the instantiation of their containing configuration class. Otherwise, @Autowired and @Value do not work on the configuration class itself, since it is being created as a bean instance too early.
@@ -107,6 +109,7 @@ public class MybatisAutoConfiguration {
                 Resource[] mappers = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(pack).concat("/**/*.mapper.xml"));
                 mapperLocations = ArrayUtils.addAll(mapperLocations, mappers);
             } catch (IOException e) {
+                PrettyPrinter.INSTANCE.flush();
                 throw new MatrixErrorException(e);
             }
         }

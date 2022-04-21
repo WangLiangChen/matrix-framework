@@ -9,12 +9,15 @@ import java.util.List;
 
 /**
  * Strategy to load '.json' files into a PropertySource.
+ *
  * @author Liangchen.Wang
  */
 public class JsonPropertySourceLoader implements PropertySourceLoader {
+    public final static String JSONFILE_EXTENSION = "json";
+
     @Override
     public String[] getFileExtensions() {
-        return new String[]{"json"};
+        return new String[]{JSONFILE_EXTENSION};
     }
 
     @Override

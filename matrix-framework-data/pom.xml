@@ -12,19 +12,13 @@
     <artifactId>matrix-framework-data</artifactId>
 
     <properties>
-        <version.mysql>8.0.26</version.mysql>
-        <version.mybatis>2.2.0</version.mybatis>
+        <version.mybatis>2.2.2</version.mybatis>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
             <artifactId>matrix-framework-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -38,11 +32,6 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${version.mybatis}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${version.mysql}</version>
         </dependency>
     </dependencies>
 </project>

@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 /**
  * @author LiangChen.Wang
+ * 锁定执行
  */
 public interface ILock {
 

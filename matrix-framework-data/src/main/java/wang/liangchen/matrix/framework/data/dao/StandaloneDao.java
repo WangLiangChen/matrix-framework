@@ -35,13 +35,13 @@ public class StandaloneDao extends AbstractDao {
     }
 
     public <E extends RootEntity> int update(UpdateCriteria<E> updateCriteria) {
-        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(updateCriteria);
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(updateCriteria);
         return MybatisExecutor.INSTANCE.update(sqlSessionTemplate, criteriaParameter);
     }
 
 
-    public int count(Criteria criteria) {
-        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
+    public <E extends RootEntity> int count(Criteria<E> criteria) {
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
     }
 

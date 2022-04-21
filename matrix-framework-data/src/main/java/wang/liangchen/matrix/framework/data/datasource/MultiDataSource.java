@@ -14,7 +14,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
     protected Object determineCurrentLookupKey() {
         String dataSourceName = MultiDataSourceContext.INSTANCE.get();
         if (null == dataSourceName || dataSourceName.length() == 0) {
-            dataSourceName = "primary";
+            dataSourceName = MultiDataSourceContext.INSTANCE.PRIMARY_DATASOURCE_NAME;
             MultiDataSourceContext.INSTANCE.set(dataSourceName);
         }
         logger.debug("Current DataSource: {}", dataSourceName);

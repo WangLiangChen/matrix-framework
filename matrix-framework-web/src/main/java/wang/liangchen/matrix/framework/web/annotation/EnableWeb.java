@@ -24,6 +24,7 @@ public @interface EnableWeb {
     WebType webType() default WebType.WEBFLUX;
 
     enum WebType {
+        // webType
         WEBFLUX, WEBMVC
     }
 
@@ -40,6 +41,7 @@ public @interface EnableWeb {
             WebType webType = attributes == null ? WebType.WEBFLUX : (WebType) attributes.get("webType");
             PrettyPrinter.INSTANCE.buffer("@EnableWeb:{}", webType.name());
             PrettyPrinter.INSTANCE.buffer("@EnableWeb matchs: {}", annotationMetadata.getClassName());
+
             String[] imports;
             switch (webType) {
                 case WEBMVC:

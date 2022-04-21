@@ -8,22 +8,22 @@ import java.util.Map;
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class UpdateCriteria<T extends RootEntity> extends AbstractCriteria<T> {
-    private T entity;
-    private Map<EntityGetter<T>, Object> forceUpdateColumns;
+public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
+    private E entity;
+    private Map<EntityGetter<E>, Object> forceUpdateColumns;
 
     @SuppressWarnings("unchecked")
-    private UpdateCriteria(T entity) {
-        super((Class<T>) entity.getClass());
+    private UpdateCriteria(E entity) {
+        super((Class<E>) entity.getClass());
         this.entity = entity;
     }
 
-    public static <T extends RootEntity> UpdateCriteria<T> of(T entity) {
-        return new UpdateCriteria<T>(entity) {
+    public static <E extends RootEntity> UpdateCriteria<E> of(E entity) {
+        return new UpdateCriteria<E>(entity) {
         };
     }
 
-    public UpdateCriteria<T> forceUpdate(EntityGetter<T> column, Object value) {
+    public UpdateCriteria<E> forceUpdate(EntityGetter<E> column, Object value) {
         if (null == forceUpdateColumns) {
             forceUpdateColumns = new HashMap<>();
         }
@@ -32,25 +32,25 @@ public abstract class UpdateCriteria<T extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<T> equals(EntityGetter<T> column, SqlValue sqlValue) {
-        return (UpdateCriteria<T>) super.equals(column, sqlValue);
+    public UpdateCriteria<E> equals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (UpdateCriteria<E>) super.equals(column, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<T> OR(SubCriteria<T> subCriteria) {
-        return (UpdateCriteria<T>) super.OR(subCriteria);
+    public UpdateCriteria<E> OR(SubCriteria<E> subCriteria) {
+        return (UpdateCriteria<E>) super.OR(subCriteria);
     }
 
     @Override
-    public UpdateCriteria<T> AND(SubCriteria<T> subCriteria) {
-        return (UpdateCriteria<T>) super.AND(subCriteria);
+    public UpdateCriteria<E> AND(SubCriteria<E> subCriteria) {
+        return (UpdateCriteria<E>) super.AND(subCriteria);
     }
 
-    protected T getEntity() {
+    protected E getEntity() {
         return entity;
     }
 
-    protected Map<EntityGetter<T>, Object> getForceUpdateColumns() {
+    protected Map<EntityGetter<E>, Object> getForceUpdateColumns() {
         return forceUpdateColumns;
     }
 }

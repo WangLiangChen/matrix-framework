@@ -11,12 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
-import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaParameter;
-import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
-import wang.liangchen.matrix.framework.data.dao.table.TableMeta;
-import wang.liangchen.matrix.framework.data.dao.table.TableMetas;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +30,7 @@ public enum MybatisExecutor {
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
         Assert.INSTANCE.notNull(entity, "entity can not be null");
-        Class<?> entityClass = entity.getClass();
+        Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
         statementCache.computeIfAbsent(statementId, cacheKey -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);

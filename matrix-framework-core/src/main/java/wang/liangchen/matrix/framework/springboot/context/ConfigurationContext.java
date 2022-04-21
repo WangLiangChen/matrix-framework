@@ -8,6 +8,8 @@ import java.net.URL;
 
 /**
  * @author Liangchen.Wang
+ * 配置文件上下文 适配外部配置处理器ConfigurationResolver
+ * 在Spring容器启动早期被初始化
  */
 public enum ConfigurationContext {
     /**
@@ -15,13 +17,8 @@ public enum ConfigurationContext {
      */
     INSTANCE;
     private final ConfigurationResolver configurationResolver = ConfigurationResolver.newInstance();
-
     public void setBaseUri(String uriString) {
         this.configurationResolver.setBaseUriString(uriString);
-    }
-
-    public void setBaseUri(URI baseUri) {
-        this.configurationResolver.setBaseUri(baseUri);
     }
 
     public Configuration resolve(String relativePath) {

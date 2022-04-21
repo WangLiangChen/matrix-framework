@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
  */
 @SuppressWarnings("NullableProblems")
 public class MultiDataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPointcutAdvisor {
-
     @Override
     public Pointcut getPointcut() {
         return new Pointcut() {

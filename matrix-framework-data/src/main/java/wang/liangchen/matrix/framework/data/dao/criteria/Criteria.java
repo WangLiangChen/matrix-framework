@@ -9,75 +9,76 @@ import java.util.Map;
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class Criteria<T extends RootEntity> extends AbstractCriteria<T> {
-    private EntityGetter<T>[] resultFields;
+public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E> {
+    private EntityGetter<E>[] resultFields;
     private Boolean forUpdate;
     private Integer pageSize;
     private Integer pageNumber;
     private Boolean distinct;
     private Long version;
-    private Map<EntityGetter<T>, OrderByDirection> orderBy = new HashMap<>();
+    private final Map<EntityGetter<E>, OrderByDirection> orderBy = new HashMap<>();
 
-    private Criteria(Class<T> entityClass) {
+    private Criteria(Class<E> entityClass) {
         super(entityClass);
     }
 
-    public static <T extends RootEntity> Criteria<T> of(Class<T> entityClass) {
-        return new Criteria<T>(entityClass) {
+    public static <E extends RootEntity> Criteria<E> of(Class<E> entityClass) {
+        return new Criteria<E>(entityClass) {
         };
     }
 
-    public Criteria<T> resultFields(EntityGetter<T>... resultFields) {
+    @SafeVarargs
+    public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
         this.resultFields = resultFields;
         return this;
     }
 
-    public Criteria<T> distinct() {
+    public Criteria<E> distinct() {
         this.distinct = true;
         return this;
     }
 
-    public Criteria<T> forUpdate() {
+    public Criteria<E> forUpdate() {
         this.forUpdate = true;
         return this;
     }
 
-    public Criteria<T> orderBy(EntityGetter<T> column, OrderByDirection orderByDirection) {
+    public Criteria<E> orderBy(EntityGetter<E> column, OrderByDirection orderByDirection) {
         orderBy.put(column, orderByDirection);
         return this;
     }
 
-    public Criteria<T> pageSize(int pageSize) {
+    public Criteria<E> pageSize(int pageSize) {
         this.pageSize = pageSize;
         return this;
     }
 
-    public Criteria<T> pageNumber(int pageNumber) {
+    public Criteria<E> pageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
         return this;
     }
 
-    public Criteria<T> version(long version) {
+    public Criteria<E> version(long version) {
         this.version = version;
         return this;
     }
 
     @Override
-    public Criteria<T> equals(EntityGetter<T> column, SqlValue sqlValue) {
-        return (Criteria<T>) super.equals(column, sqlValue);
+    public Criteria<E> equals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.equals(column, sqlValue);
     }
 
     @Override
-    public Criteria<T> OR(SubCriteria<T> subCriteria) {
-        return (Criteria<T>) super.OR(subCriteria);
+    public Criteria<E> OR(SubCriteria<E> subCriteria) {
+        return (Criteria<E>) super.OR(subCriteria);
     }
 
     @Override
-    public Criteria<T> AND(SubCriteria<T> subCriteria) {
-        return (Criteria<T>) super.AND(subCriteria);
+    public Criteria<E> AND(SubCriteria<E> subCriteria) {
+        return (Criteria<E>) super.AND(subCriteria);
     }
 
-    protected EntityGetter<T>[] getResultFields() {
+    protected EntityGetter<E>[] getResultFields() {
         return resultFields;
     }
 
@@ -97,7 +98,7 @@ public abstract class Criteria<T extends RootEntity> extends AbstractCriteria<T>
         return pageNumber;
     }
 
-    protected Map<EntityGetter<T>, OrderByDirection> getOrderBy() {
+    protected Map<EntityGetter<E>, OrderByDirection> getOrderBy() {
         return orderBy;
     }
 

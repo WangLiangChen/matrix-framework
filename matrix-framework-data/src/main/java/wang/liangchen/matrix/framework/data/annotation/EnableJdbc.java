@@ -15,6 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
@@ -47,8 +48,24 @@ import java.util.*;
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector {
         private final String JDBC_CONFIG_FILE = "jdbc.properties";
-        private final Object[] requiredKeys = new String[]{"dialect", "datasource", "host", "port", "database", "username", "password"};
         private final String DIALECT_ITEM = "dialect", URL_ITEM = "url", EXTRA_ITEM = "extra";
+        private final Set<String> requiredConfigItemsByHost = new HashSet<String>() {{
+            add("dialect");
+            add("datasource");
+            add("host");
+            add("port");
+            add("database");
+            add("username");
+            add("password");
+        }};
+        private final Set<String> requiredConfigItemsByUrl = new HashSet<String>() {{
+            add("dialect");
+            add("datasource");
+            add("url");
+            add("username");
+            add("password");
+        }};
+
         private static volatile boolean loaded = false;
 
         @Override
@@ -56,25 +73,29 @@ public @interface EnableJdbc {
             if (loaded) {
                 return new String[0];
             }
-            boolean exists = ConfigurationContext.INSTANCE.exists(JDBC_CONFIG_FILE);
-            Assert.INSTANCE.isTrue(exists, "Configuration file: {} is required,because @EnableJdbc is setted", JDBC_CONFIG_FILE);
-
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc......");
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
-            instantiateDataSource();
+            Configuration configuration;
+            try {
+                configuration = ConfigurationContext.INSTANCE.resolve(JDBC_CONFIG_FILE);
+            } catch (Exception e) {
+                PrettyPrinter.INSTANCE.flush();
+                throw new MatrixInfoException(e, "Configuration file: {} is required,because @EnableJdbc is setted", JDBC_CONFIG_FILE);
+            }
+            instantiateDataSource(configuration);
+            PrettyPrinter.INSTANCE.flush();
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
-            DataStatus.INSTANCE.setJdbcEnabled(true);
             loaded = true;
-            PrettyPrinter.INSTANCE.flush();
+            DataStatus.INSTANCE.setJdbcEnabled(true);
             return imports;
         }
 
-        private void instantiateDataSource() {
-            Configuration configuration = ConfigurationContext.INSTANCE.resolve(JDBC_CONFIG_FILE);
+        private void instantiateDataSource(Configuration configuration) {
             Iterator<String> keys = configuration.getKeys();
-            Map<String, Properties> dataSourcePropertiesMap = new LinkedHashMap<>();
+            Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();
             keys.forEachRemaining(key -> {
+                // primary.datasource
                 int firstDot = key.indexOf('.');
                 String dataSourceName = key.substring(0, firstDot);
                 Properties properties = dataSourcePropertiesMap.computeIfAbsent(dataSourceName, k -> new Properties());
@@ -83,10 +104,15 @@ public @interface EnableJdbc {
             });
             ConfigurationPropertyNameAliases aliases = new ConfigurationPropertyNameAliases("datasource", "type");
             dataSourcePropertiesMap.forEach((dataSourceName, properties) -> {
-                List<Object> requiredKeyList = Arrays.asList(requiredKeys);
-                requiredKeyList.retainAll(properties.keySet());
-                Assert.INSTANCE.isTrue(requiredKeys.length == requiredKeyList.size(), "DataSource: {}, configuration items :{} are required!", dataSourceName, requiredKeyList);
-
+                // 验证配置项
+                int length = requiredConfigItemsByHost.size();
+                requiredConfigItemsByHost.retainAll(properties.keySet());
+                if (length > requiredConfigItemsByHost.size()) {
+                    length = requiredConfigItemsByUrl.size();
+                    requiredConfigItemsByUrl.retainAll(properties.keySet());
+                    Assert.INSTANCE.isTrue(requiredConfigItemsByHost.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
+                }
+                // 转化以便于使用binder绑定到DataSourceProperties
                 ConfigurationPropertySource source = new MapConfigurationPropertySource(properties);
                 Binder binder = new Binder(source.withAliases(aliases));
                 DataSourceProperties dataSourceProperties = binder.bind(ConfigurationPropertyName.EMPTY, Bindable.of(DataSourceProperties.class)).get();
@@ -98,20 +124,22 @@ public @interface EnableJdbc {
                         query = "serverTimezone=UTC%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
                         url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
-                    if(dialect instanceof PostgreSQLDialect){
+                    if (dialect instanceof PostgreSQLDialect) {
                         query = "";
                         url = String.format("jdbc:postgresql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
-                    if(dialect instanceof OracleDialect){
+                    if (dialect instanceof OracleDialect) {
                         query = "";
                         url = String.format("jdbc:oracle:thin://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
+                    PrettyPrinter.INSTANCE.buffer("DataSource:{},url:{}", dataSourceName, url);
                     dataSourceProperties.setUrl(url);
                 }
                 dataSourceProperties.setBeanClassLoader(this.getClass().getClassLoader());
                 try {
                     dataSourceProperties.afterPropertiesSet();
                 } catch (Exception e) {
+                    PrettyPrinter.INSTANCE.flush();
                     throw new IllegalStateException("Can't init dataSource:" + dataSourceName, e);
                 }
                 DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();

@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * @author LiangChen.Wang
+ * 在spring容器启动早期即完成初始化
  */
 public enum BeanLoader {
     /**
@@ -60,7 +61,7 @@ public enum BeanLoader {
             if (bean.getClass().isAssignableFrom(clazz)) {
                 return (T) bean;
             } else {
-                throw new MatrixInfoException("Bean Name 重复");
+                throw new MatrixInfoException("Duplicate Bean Name");
             }
         }
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);

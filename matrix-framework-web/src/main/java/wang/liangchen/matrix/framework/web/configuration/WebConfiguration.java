@@ -9,6 +9,9 @@ import wang.liangchen.matrix.framework.commons.datetime.DateTimeUtil;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author Liangchen.Wang
+ */
 @Configuration
 public class WebConfiguration {
     @Bean

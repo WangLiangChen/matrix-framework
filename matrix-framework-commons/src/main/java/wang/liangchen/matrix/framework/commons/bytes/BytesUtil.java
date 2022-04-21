@@ -155,6 +155,7 @@ public enum BytesUtil {
         return new String(bytes, charset);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T Object(byte[] bytes) {
         Assert.INSTANCE.notEmpty(bytes, "bytes can not be null or empty");
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {

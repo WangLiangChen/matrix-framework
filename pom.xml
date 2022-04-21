@@ -42,9 +42,11 @@
         <module>matrix-framework-commons</module>
         <module>matrix-framework-core</module>
         <module>matrix-framework-data</module>
+        <module>matrix-framework-data-spring-boot-autoconfigure</module>
+        <module>matrix-framework-data-spring-boot-starter</module>
         <module>matrix-framework-web</module>
-        <module>matrix-framework-spring-boot-autoconfigure</module>
-        <module>matrix-framework-spring-boot-starter</module>
+        <module>matrix-framework-web-spring-boot-autoconfigure</module>
+        <module>matrix-framework-web-spring-boot-starter</module>
     </modules>
 
     <properties>
@@ -82,17 +84,27 @@
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-data-spring-boot-autoconfigure</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-spring-boot-autoconfigure</artifactId>
+                <artifactId>matrix-framework-web-spring-boot-autoconfigure</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-spring-boot-starter</artifactId>
+                <artifactId>matrix-framework-web-spring-boot-starter</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
         </dependencies>

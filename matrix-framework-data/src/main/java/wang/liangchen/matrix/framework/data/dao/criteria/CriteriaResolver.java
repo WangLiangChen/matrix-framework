@@ -4,7 +4,6 @@ import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.dao.table.ColumnMeta;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 
 import java.util.*;
@@ -22,8 +21,8 @@ public enum CriteriaResolver {
     private final static String AND = " and ";
     private final static String OR = " or ";
 
-    public CriteriaParameter resolve(AbstractCriteria abstractCriteria) {
-        CriteriaParameter criteriaParameter = new CriteriaParameter();
+    public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
+        CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
         criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
         StringBuilder sqlBuilder = new StringBuilder();
@@ -33,26 +32,26 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSqlValues(values);
 
         if (abstractCriteria instanceof Criteria) {
-            Criteria criteria = (Criteria) abstractCriteria;
+            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
         if (abstractCriteria instanceof UpdateCriteria) {
-            UpdateCriteria updateCriteria = (UpdateCriteria) abstractCriteria;
+            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
             populateForceUpdate(updateCriteria, criteriaParameter);
         }
         return criteriaParameter;
     }
 
-    private void populateForceUpdate(UpdateCriteria updateCriteria, CriteriaParameter criteriaParameter) {
-        Map<EntityGetter<?>, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
+    private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
+        Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
         if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
             return;
         }
         Map<String, ColumnMeta> columnMetas = updateCriteria.getTableMeta().getColumnMetas();
-        RootEntity entity = updateCriteria.getEntity();
+        E entity = updateCriteria.getEntity();
         criteriaParameter.setEntity(entity);
         forceUpdateColumns.forEach((column, value) -> {
             String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
@@ -61,16 +60,16 @@ public enum CriteriaResolver {
         });
     }
 
-    private void populatePagination(Criteria criteria, CriteriaParameter criteriaParameter) {
+    private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         criteriaParameter.setForUpdate(criteria.getForUpdate());
         criteriaParameter.setPage(criteria.getPageNumber());
         criteriaParameter.setRows(criteria.getPageSize());
         criteriaParameter.setDistinct(criteria.getDistinct());
     }
 
-    private void populateResultColumns(Criteria criteria, CriteriaParameter criteriaParameter) {
+    private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        EntityGetter[] resultFields = criteria.getResultFields();
+        EntityGetter<E>[] resultFields = criteria.getResultFields();
         if (!CollectionUtil.INSTANCE.isEmpty(resultFields)) {
             Set<String> fieldNames = Arrays.stream(resultFields).map(resultField -> LambdaUtil.INSTANCE.getReferencedFieldName(resultField)).collect(Collectors.toSet());
             columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
@@ -86,9 +85,9 @@ public enum CriteriaResolver {
         });
     }
 
-    private void populateOrderBy(Criteria criteria, CriteriaParameter criteriaParameter) {
+    private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        Map<EntityGetter, OrderByDirection> orderByFields = criteria.getOrderBy();
+        Map<EntityGetter<E>, OrderByDirection> orderByFields = criteria.getOrderBy();
         orderByFields.forEach((k, v) -> {
             String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(k);
             String columnName = columnMetas.get(fieldName).getColumnName();
@@ -97,8 +96,9 @@ public enum CriteriaResolver {
     }
 
 
-    private void resovle(AbstractCriteria abstractCriteria, StringBuilder sqlBuilder, Map<String, Object> values, AtomicInteger counter) {
-        List<CriteriaMeta> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
+    @SuppressWarnings("unchecked")
+    private <E extends RootEntity> void resovle(AbstractCriteria<E> abstractCriteria, StringBuilder sqlBuilder, Map<String, Object> values, AtomicInteger counter) {
+        List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
         if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
             String columnName;
             SqlValue[] sqlValues;
@@ -107,14 +107,14 @@ public enum CriteriaResolver {
             Operator operator;
             int innerCounter = 0;
             Map<String, ColumnMeta> columnMetas = abstractCriteria.getTableMeta().getColumnMetas();
-            for (CriteriaMeta criteriaMeta : CRITERIAMETAS) {
+            for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
                 columnName = columnName(criteriaMeta.getColumn(), columnMetas);
                 sqlValues = criteriaMeta.getSqlValues();
                 placeholders = new ArrayList<>();
                 for (SqlValue sqlValue : sqlValues) {
                     Object value = sqlValue.getValue();
                     if (value instanceof EntityGetter) {
-                        placeholders.add(columnName((EntityGetter) value, columnMetas));
+                        placeholders.add(columnName((EntityGetter<E>) value, columnMetas));
                         continue;
                     }
                     placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
@@ -130,11 +130,13 @@ public enum CriteriaResolver {
                     case EQUALS:
                         sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0));
                         break;
+                    default:
+                        break;
                 }
             }
         }
         // 处理ANDS
-        List<AbstractCriteria> ANDS = abstractCriteria.getANDS();
+        List<AbstractCriteria<E>> ANDS = abstractCriteria.getANDS();
         if (CollectionUtil.INSTANCE.isNotEmpty(ANDS)) {
             for (AbstractCriteria builder : ANDS) {
                 sqlBuilder.append(AND).append(Symbol.OPEN_PAREN.getSymbol());
@@ -143,17 +145,18 @@ public enum CriteriaResolver {
             }
         }
         // 处理ORS
-        List<AbstractCriteria> ORS = abstractCriteria.getORS();
+        List<AbstractCriteria<E>> ORS = abstractCriteria.getORS();
         if (CollectionUtil.INSTANCE.isNotEmpty(ORS)) {
-            for (AbstractCriteria builder : ORS) {
+            for (AbstractCriteria<E> innerAbstractCriteria : ORS) {
                 sqlBuilder.append(OR).append(Symbol.OPEN_PAREN.getSymbol());
-                resovle(builder, sqlBuilder, values, counter);
+                resovle(innerAbstractCriteria, sqlBuilder, values, counter);
                 sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
             }
         }
     }
 
-    private String columnName(EntityGetter column, final Map<String, ColumnMeta> columnMetas) {
+    private <E extends RootEntity> String columnName(EntityGetter<E> column, final Map<String, ColumnMeta> columnMetas) {
+
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
         ColumnMeta columnMeta = columnMetas.get(fieldName);
         return columnMeta.getColumnName();

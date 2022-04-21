@@ -449,7 +449,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
-        PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", autoScanArray);
+        PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", (Object[]) autoScanArray);
         scanner.scan(autoScanArray);
     }
 }
