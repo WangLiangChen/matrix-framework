@@ -26,6 +26,91 @@ public abstract class AbstractCriteria<E extends RootEntity> {
         return this;
     }
 
+    protected AbstractCriteria<E> notEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, column, sqlValue));
+        return this;
+    }
+
+    protected AbstractCriteria<E> greaterThan(EntityGetter<E> column, SqlValue sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, column, sqlValue));
+        return this;
+    }
+
+    protected AbstractCriteria<E> greaterThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, column, sqlValue));
+        return this;
+    }
+
+    protected AbstractCriteria<E> lessThan(EntityGetter<E> column, SqlValue sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, column, sqlValue));
+        return this;
+    }
+
+    protected AbstractCriteria<E> lessThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, column, sqlValue));
+        return this;
+    }
+
+    protected AbstractCriteria<E> isNull(EntityGetter<E> column) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNULL, column));
+        return this;
+    }
+
+    protected AbstractCriteria<E> isNotNull(EntityGetter<E> column) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNOTNULL, column));
+        return this;
+    }
+
+    protected AbstractCriteria<E> in(EntityGetter<E> column, SqlValue... values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, column, values));
+        return this;
+    }
+
+    protected AbstractCriteria<E> notIn(EntityGetter<E> column, SqlValue... values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
+        return this;
+    }
+
+    protected AbstractCriteria<E> between(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, column, valueMin, valueMax));
+        return this;
+    }
+
+    protected AbstractCriteria<E> notBetween(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, column, valueMin, valueMax));
+        return this;
+    }
+
+    protected AbstractCriteria<E> contains(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.CONTAINS, column, SqlValue.of(value)));
+        return this;
+    }
+
+    protected AbstractCriteria<E> notContains(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTCONTAINS, column, SqlValue.of(value)));
+        return this;
+    }
+
+    protected AbstractCriteria<E> startWith(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.STARTWITH, column, SqlValue.of(value)));
+        return this;
+    }
+
+    protected AbstractCriteria<E> notStartWith(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTSTARTWITH, column, SqlValue.of(value)));
+        return this;
+    }
+
+    protected AbstractCriteria<E> endWith(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ENDWITH, column, SqlValue.of(value)));
+        return this;
+    }
+
+    protected AbstractCriteria<E> notEndWith(EntityGetter<E> column, String value) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTENDWITH, column, SqlValue.of(value)));
+        return this;
+    }
+
     protected AbstractCriteria<E> OR(SubCriteria<E> subCriteria) {
         ORS.add(subCriteria);
         return this;

@@ -195,7 +195,7 @@ public enum MybatisExecutor {
 
     public int count(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
-        String statementId = String.format("%s.%s", tableMeta.getEntityClass(), "count");
+        String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "count");
 
         statementCache.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();

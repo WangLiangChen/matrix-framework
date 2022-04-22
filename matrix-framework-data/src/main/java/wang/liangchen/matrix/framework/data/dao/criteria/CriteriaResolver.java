@@ -46,7 +46,7 @@ public enum CriteriaResolver {
     }
 
     private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
-        Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
+        Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateFields();
         if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
             return;
         }
@@ -118,19 +118,42 @@ public enum CriteriaResolver {
                         continue;
                     }
                     placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
-                    values.put(placeholder, sqlValue.getValue());
+                    values.put(placeholder, value);
                     placeholders.add(String.format("#{whereSqlValues.%s}", placeholder));
                 }
-
                 if (innerCounter++ > 0) {
                     sqlBuilder.append(AND);
                 }
                 operator = criteriaMeta.getOperator();
                 switch (operator) {
-                    case EQUALS:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0));
+                    case IN:
+                    case NOTIN:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append(Symbol.OPEN_PAREN.getSymbol());
+                        sqlBuilder.append(placeholders.stream().collect(Collectors.joining(Symbol.COMMA.getSymbol())));
+                        sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
+                        break;
+                    case BETWEEN:
+                    case NOTBETWEEN:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0)).append(AND).append(placeholders.get(1));
+                        break;
+                    case ISNULL:
+                    case ISNOTNULL:
+                        sqlBuilder.append(columnName).append(operator.getOperator());
+                        break;
+                    case CONTAINS:
+                    case NOTCONTAINS:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'%").append(sqlValues[0].getValue()).append("%'");
+                        break;
+                    case STARTWITH:
+                    case NOTSTARTWITH:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'").append(sqlValues[0].getValue()).append("%'");
+                        break;
+                    case ENDWITH:
+                    case NOTENDWITH:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'%").append(sqlValues[0].getValue()).append("'");
                         break;
                     default:
+                        sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0));
                         break;
                 }
             }

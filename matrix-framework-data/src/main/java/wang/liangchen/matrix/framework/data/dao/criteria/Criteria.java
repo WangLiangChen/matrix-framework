@@ -69,8 +69,93 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     @Override
+    public Criteria<E> notEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.notEquals(column, sqlValue);
+    }
+
+    @Override
+    public Criteria<E> greaterThan(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.greaterThan(column, sqlValue);
+    }
+
+    @Override
+    public Criteria<E> greaterThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.greaterThanOrEquals(column, sqlValue);
+    }
+
+    @Override
+    public Criteria<E> lessThan(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.lessThan(column, sqlValue);
+    }
+
+    @Override
+    public Criteria<E> lessThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (Criteria<E>) super.lessThanOrEquals(column, sqlValue);
+    }
+
+    @Override
+    public Criteria<E> isNull(EntityGetter<E> column) {
+        return (Criteria<E>) super.isNull(column);
+    }
+
+    @Override
+    public Criteria<E> isNotNull(EntityGetter<E> column) {
+        return (Criteria<E>) super.isNotNull(column);
+    }
+
+    @Override
+    public Criteria<E> in(EntityGetter<E> column, SqlValue... values) {
+        return (Criteria<E>) super.in(column, values);
+    }
+
+    @Override
+    public Criteria<E> notIn(EntityGetter<E> column, SqlValue... values) {
+        return (Criteria<E>) super.notIn(column, values);
+    }
+
+    @Override
+    public Criteria<E> between(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        return (Criteria<E>) super.between(column, valueMin, valueMax);
+    }
+
+    @Override
+    public Criteria<E> notBetween(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        return (Criteria<E>) super.notBetween(column, valueMin, valueMax);
+    }
+
+    @Override
+    public Criteria<E> contains(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.contains(column, value);
+    }
+
+    @Override
+    public Criteria<E> notContains(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.notContains(column, value);
+    }
+
+    @Override
+    public Criteria<E> startWith(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.startWith(column, value);
+    }
+
+    @Override
+    public Criteria<E> notStartWith(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.notStartWith(column, value);
+    }
+
+    @Override
+    public Criteria<E> endWith(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.endWith(column, value);
+    }
+
+    @Override
+    public Criteria<E> notEndWith(EntityGetter<E> column, String value) {
+        return (Criteria<E>) super.notEndWith(column, value);
+    }
+
+    @Override
     public Criteria<E> OR(SubCriteria<E> subCriteria) {
-        return (Criteria<E>) super.OR(subCriteria);
+        return (Criteria<E>) (Criteria<E>) super.OR(subCriteria);
     }
 
     @Override

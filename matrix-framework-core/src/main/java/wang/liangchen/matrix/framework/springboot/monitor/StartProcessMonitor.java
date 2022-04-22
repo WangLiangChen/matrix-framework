@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.context.event.*;
 import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.boot.env.EnvironmentPostProcessorApplicationListener;
 import org.springframework.context.*;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.event.ContextClosedEvent;
@@ -74,7 +75,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         ResourceLoaderAware,
         EmbeddedValueResolverAware,
         ApplicationEventPublisherAware,
-        MessageSourceAware {
+        MessageSourceAware, Ordered {
     private final static String DEFAULT_PACKAGES = "wang.liangchen.matrix";
     private final static String CONFIG_ROOT = "configRoot";
     private final static String CONFIG_DIRECTORY = "matrix-framework";
@@ -186,21 +187,9 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         PrettyPrinter.INSTANCE.buffer("Overrided from EnvironmentPostProcessor");
-        PrettyPrinter.INSTANCE.flush();
-    }
-
-
-    @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
-        PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
-        // 初始化BeanLoader
-        BeanLoader.INSTANCE.setApplicationContext(applicationContext);
-        PrettyPrinter.INSTANCE.buffer("Initialize BeanLoader");
-
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        // 这里可以最早的获取到初始完成的environment,所以在此处理外置配置文件
         String[] activeProfiles = environment.getActiveProfiles();
         PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));
-
         // 初始化配置
         String configRoot = resolveConfigRoot();
         configRoot = String.format("%s%s%s", configRoot, Symbol.URI_SEPARATOR.getSymbol(), CONFIG_DIRECTORY);
@@ -214,11 +203,20 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         Properties defaultProperties = new Properties();
         populateDefaultProperties(defaultProperties);
         PrettyPrinter.INSTANCE.buffer("populateDefaultProperties");
-        // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
-        environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
-
         // logger
         handleLogger(defaultProperties);
+        // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
+        environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
+        PrettyPrinter.INSTANCE.flush();
+    }
+
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
+        // 初始化BeanLoader
+        BeanLoader.INSTANCE.setApplicationContext(applicationContext);
+        PrettyPrinter.INSTANCE.buffer("Initialize BeanLoader");
 
         // 注册一个优先级非常高的BeanFactoryPostProcessor
         applicationContext.getBeanFactory().registerSingleton("highestPriorityBeanDefinitionRegistryPostProcessor", new HighestPriorityBeanDefinitionRegistryPostProcessor());
@@ -233,6 +231,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         if (!CollectionUtil.INSTANCE.contains(events, event.getClass())) {
             return;
         }
+
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationListener");
         PrettyPrinter.INSTANCE.buffer("EventName:{}", event.getClass().getSimpleName());
         PrettyPrinter.INSTANCE.flush();
@@ -413,8 +412,8 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         }
         configFile = ConfigurationContext.INSTANCE.getURI(LOGGER_ROOT).resolve(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);
-        PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
+        PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);
     }
 
     private void populateDefaultProperties(Properties defaultProperties) {
@@ -451,5 +450,11 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
         PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", (Object[]) autoScanArray);
         scanner.scan(autoScanArray);
+    }
+
+    @Override
+    public int getOrder() {
+        // 排在它后面,用于获取到Environment,比如profile
+        return EnvironmentPostProcessorApplicationListener.DEFAULT_ORDER + 1;
     }
 }
