@@ -26,7 +26,7 @@ public class StandaloneDao extends AbstractDao {
     }
 
     public <E extends RootEntity> int delete(SubCriteria<E> subCriteria) {
-        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(subCriteria);
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(subCriteria);
         return MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
     }
 
@@ -46,17 +46,17 @@ public class StandaloneDao extends AbstractDao {
     }
 
     public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
-        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.list(sqlSessionTemplate, criteriaParameter);
     }
 
     public <E extends RootEntity> PaginationResult<E> pagination(Criteria<E> criteria) {
-        CriteriaParameter criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         int count = MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
         PaginationResult<E> paginationResult = PaginationResult.newInstance();
         paginationResult.setTotalRecords(count);
-        paginationResult.setPage(criteriaParameter.getPage());
-        paginationResult.setRows(criteriaParameter.getRows());
+        paginationResult.setPageNumber(criteriaParameter.getPageNumber());
+        paginationResult.setPageSize(criteriaParameter.getPageSize());
         if (0 == count) {
             paginationResult.setDatas(Collections.emptyList());
             return paginationResult;
@@ -65,6 +65,5 @@ public class StandaloneDao extends AbstractDao {
         paginationResult.setDatas(datas);
         return paginationResult;
     }
-
 
 }

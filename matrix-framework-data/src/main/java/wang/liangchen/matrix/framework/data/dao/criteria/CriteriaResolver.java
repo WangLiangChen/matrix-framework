@@ -62,8 +62,8 @@ public enum CriteriaResolver {
 
     private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         criteriaParameter.setForUpdate(criteria.getForUpdate());
-        criteriaParameter.setPage(criteria.getPageNumber());
-        criteriaParameter.setRows(criteria.getPageSize());
+        criteriaParameter.setPageNumber(criteria.getPageNumber());
+        criteriaParameter.setPageSize(criteria.getPageSize());
         criteriaParameter.setDistinct(criteria.getDistinct());
     }
 
@@ -161,7 +161,7 @@ public enum CriteriaResolver {
         // 处理ANDS
         List<AbstractCriteria<E>> ANDS = abstractCriteria.getANDS();
         if (CollectionUtil.INSTANCE.isNotEmpty(ANDS)) {
-            for (AbstractCriteria builder : ANDS) {
+            for (AbstractCriteria<E> builder : ANDS) {
                 sqlBuilder.append(AND).append(Symbol.OPEN_PAREN.getSymbol());
                 resovle(builder, sqlBuilder, values, counter);
                 sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());

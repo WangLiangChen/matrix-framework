@@ -21,7 +21,7 @@ public enum ObjectUtil {
      * instance
      */
     INSTANCE;
-    public Map<String, BeanCopier> beanCopiers = new ConcurrentHashMap<>();
+    public final static Map<String, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
 
     public boolean isNull(Object object) {
         return null == object;
@@ -349,18 +349,22 @@ public enum ObjectUtil {
     }
 
 
-    public void copyProperties(Object source, Object target) {
-        String copierKey = StringUtil.INSTANCE.format("{}-{}", source.getClass().getName(), target.getClass().getName());
-        BeanCopier copier = beanCopiers.computeIfAbsent(copierKey, key -> BeanCopier.create(source.getClass(), target.getClass(), false));
-        copier.copy(source, target, null);
+    public <T> T copyProperties(Object source, Class<T> targetClass) {
+        Class<?> sourceClass = source.getClass();
+        String copierCacheKey = String.format("%s-->%s", sourceClass.getName(), targetClass.getName());
+        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierCacheKey,
+                key -> BeanCopier.create(sourceClass, targetClass, false));
+        T target = ClassUtil.INSTANCE.instantiate(targetClass);
+        beanCopier.copy(source, target, null);
+        return target;
     }
 
-
-    public <T> T copyProperties(Object source, Class<T> targetClass) {
-        String copierKey = StringUtil.INSTANCE.format("{}-{}", source.getClass().getName(), targetClass.getName());
-        BeanCopier copier = beanCopiers.computeIfAbsent(copierKey, key -> BeanCopier.create(source.getClass(), targetClass, false));
-        T target = ClassUtil.INSTANCE.instantiate(targetClass);
-        copier.copy(source, target, null);
-        return target;
+    public void copyProperties(Object source, Object target) {
+        Class<?> sourceClass = source.getClass();
+        Class<?> targetClass = target.getClass();
+        String copierCacheKey = String.format("%s-->%s", sourceClass.getName(), targetClass.getName());
+        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierCacheKey,
+                key -> BeanCopier.create(sourceClass, targetClass, false));
+        beanCopier.copy(source, target, null);
     }
 }

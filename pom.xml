@@ -47,6 +47,7 @@
         <module>matrix-framework-web</module>
         <module>matrix-framework-web-spring-boot-autoconfigure</module>
         <module>matrix-framework-web-spring-boot-starter</module>
+        <module>matrix-framework-ddd</module>
     </modules>
 
     <properties>
@@ -105,6 +106,11 @@
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web-spring-boot-starter</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-ddd</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
         </dependencies>

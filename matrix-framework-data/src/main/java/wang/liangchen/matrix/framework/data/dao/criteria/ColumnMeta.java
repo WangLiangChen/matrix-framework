@@ -11,9 +11,8 @@ public class ColumnMeta {
     private final boolean isUnique;
     private final boolean isVersion;
     private final String deleteValue;
-    private final boolean isState;
 
-    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, boolean isState, String deleteValue) {
+    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String deleteValue) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.columnName = columnName;
@@ -21,13 +20,12 @@ public class ColumnMeta {
         this.isId = isId;
         this.isUnique = isUnique;
         this.isVersion = isVersion;
-        this.isState = isState;
 
         this.deleteValue = deleteValue;
     }
 
-    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, boolean isState, String deleteValue) {
-        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, isState, deleteValue);
+    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String deleteValue) {
+        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, deleteValue);
     }
 
     public String getFieldName() {
@@ -66,15 +64,8 @@ public class ColumnMeta {
         return !isVersion;
     }
 
-    public boolean isState() {
-        return isState;
-    }
-
-    public boolean isNotState() {
-        return !isState;
-    }
-
     public String getDeleteValue() {
         return deleteValue;
     }
+
 }

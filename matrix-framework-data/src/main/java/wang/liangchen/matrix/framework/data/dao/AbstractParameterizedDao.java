@@ -59,14 +59,12 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
         return standaloneDao.update(updateCriteria);
     }
 
+    public int count(Criteria<E> criteria) {
+        return standaloneDao.count(criteria);
+    }
 
     public List<E> list(Criteria<E> criteria) {
         return standaloneDao.list(criteria);
-
-    }
-
-    public int count(Criteria<E> criteria) {
-        return standaloneDao.count(criteria);
     }
 
     public PaginationResult<E> pagination(Criteria<E> criteria) {

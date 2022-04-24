@@ -19,15 +19,15 @@ public final class PaginationResult<E> {
 
     private List<E> datas;
     private Integer totalRecords;
-    private Integer page;
-    private Integer rows;
+    private Integer pageNumber;
+    private Integer pageSize;
 
     public List<E> getDatas() {
         return datas;
     }
 
     public void setDatas(List<E> datas) {
-        Assert.INSTANCE.notNull(datas, "参数datas不能为空");
+        Assert.INSTANCE.notNull(datas, "datas can not be null");
         this.datas = datas;
     }
 
@@ -36,63 +36,57 @@ public final class PaginationResult<E> {
     }
 
     public void setTotalRecords(Integer totalRecord) {
-        Assert.INSTANCE.notNull(totalRecord, "参数totalRecord不能为空");
+        Assert.INSTANCE.notNull(totalRecord, "totalRecord can not be null");
         this.totalRecords = totalRecord;
     }
 
-    public Integer getPage() {
-        return page;
+    public Integer getPageNumber() {
+        return pageNumber;
     }
 
-    public void setPage(Integer page) {
-        Assert.INSTANCE.notNull(page, "参数page不能为空");
-        this.page = page;
+    public void setPageNumber(Integer pageNumber) {
+        Assert.INSTANCE.notNull(pageNumber, "pageNumber can not be null");
+        this.pageNumber = pageNumber;
     }
 
-    public Integer getRows() {
-        return rows;
+    public Integer getPageSize() {
+        return pageSize;
     }
 
-    public void setRows(Integer rows) {
-        Assert.INSTANCE.notNull(rows, "参数rows不能为空");
-        this.rows = rows;
+    public void setPageSize(Integer pageSize) {
+        Assert.INSTANCE.notNull(pageSize, "pageSize can not be null");
+        this.pageSize = pageSize;
     }
 
-    public void circleDatas(Consumer<E> consumer) {
+    public void loopDatas(Consumer<E> consumer) {
         if (CollectionUtil.INSTANCE.isEmpty(datas) || null == consumer) {
             return;
         }
         datas.forEach(consumer);
     }
 
-    public <T> PaginationResult<T> copyTo(Class<T> clazz) {
-        return copyTo(clazz, null);
+    public <T> PaginationResult<T> copyTo(Class<T> targetClass) {
+        return copyTo(targetClass, null);
     }
 
-    public <T> PaginationResult<T> copyTo(Class<T> clazz, Consumer<T> consumer) {
-        Assert.INSTANCE.notNull(clazz, "参数clazz不能为空");
+    private <T> PaginationResult<T> copyTo(Class<T> targetClass, Consumer<T> consumer) {
         PaginationResult<T> paginationResult = new PaginationResult<>();
         paginationResult.setTotalRecords(this.totalRecords);
-        paginationResult.setPage(this.page);
-        paginationResult.setRows(this.rows);
+        paginationResult.setPageNumber(this.pageNumber);
+        paginationResult.setPageSize(this.pageSize);
         if (CollectionUtil.INSTANCE.isEmpty(datas)) {
             paginationResult.setDatas(Collections.emptyList());
             return paginationResult;
         }
-        List<T> ts = new ArrayList<>(datas.size());
-        datas.forEach(d -> {
-            T t = ObjectUtil.INSTANCE.copyProperties(d, clazz);
+        List<T> targetList = new ArrayList<>(datas.size());
+        datas.forEach(sourceObject -> {
+            T targetObject = ObjectUtil.INSTANCE.copyProperties(sourceObject, targetClass);
+            targetList.add(targetObject);
             if (null != consumer) {
-                consumer.accept(t);
+                consumer.accept(targetObject);
             }
-            ts.add(t);
         });
-        paginationResult.setDatas(ts);
+        paginationResult.setDatas(targetList);
         return paginationResult;
-    }
-
-    @Override
-    public String toString() {
-        return null;
     }
 }

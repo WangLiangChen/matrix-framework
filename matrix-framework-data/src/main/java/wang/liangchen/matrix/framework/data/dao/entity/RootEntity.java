@@ -13,6 +13,7 @@ import java.util.Map;
 
 /**
  * @author LiangChen.Wang
+ * 实体基础抽象类
  */
 public abstract class RootEntity extends EnhancedMap {
     @Transient

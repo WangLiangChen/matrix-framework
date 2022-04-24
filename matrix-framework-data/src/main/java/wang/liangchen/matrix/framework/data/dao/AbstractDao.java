@@ -20,6 +20,7 @@ import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2021-10-19 18:35
+ * spirng jdbc,mybatis and jpa
  */
 public abstract class AbstractDao {
     private final static Logger logger = LoggerFactory.getLogger(AbstractDao.class);
@@ -30,19 +31,27 @@ public abstract class AbstractDao {
     @PersistenceContext
     protected EntityManager entityManager;
 
-    protected <I> I getMapper(Class<I> type) {
+    protected <I> I getMybatisMapper(Class<I> type) {
         return this.sqlSessionTemplate.getMapper(type);
     }
 
-    protected int executeSql(SqlBuilder sqlBuilder) {
-        return jdbcTemplate.update(sqlBuilder.getSql(), sqlBuilder.getArgs());
+    public int executeSql(SqlBuilder sqlBuilder) {
+        List<Object[]> args = sqlBuilder.getArgs();
+        if (args.isEmpty()) {
+            return jdbcTemplate.update(sqlBuilder.getSql());
+        }
+        return jdbcTemplate.update(sqlBuilder.getSql(), args.get(0));
     }
 
-    protected int[] executeBatchSql(SqlBuilder sqlBuilder) {
-        return jdbcTemplate.batchUpdate(sqlBuilder.getSql(), sqlBuilder.getBatchArgs());
+    public int[] executeBatchSql(String... sql) {
+        return jdbcTemplate.batchUpdate(sql);
     }
 
-    protected <E> E queryForObject(Class<E> clazz, SqlBuilder sqlBuilder) {
+    public int[] executeBatchSql(SqlBuilder sqlBuilder) {
+        return jdbcTemplate.batchUpdate(sqlBuilder.getSql(), sqlBuilder.getArgs());
+    }
+
+    public <E> E queryForObject(Class<E> clazz, SqlBuilder sqlBuilder) {
         // queryForObject throw a DataAccessException while the ResultSet is empty
         try {
             if (ClassUtils.isPrimitiveOrWrapper(clazz) || String.class == clazz) {
@@ -54,22 +63,22 @@ public abstract class AbstractDao {
         }
     }
 
-    protected Map<String, Object> queryForMap(SqlBuilder sqlBuilder) {
+    public Map<String, Object> queryForMap(SqlBuilder sqlBuilder) {
         return jdbcTemplate.queryForMap(sqlBuilder.getSql(), sqlBuilder.getArgs());
     }
 
-    protected <E> List<E> queryForList(SqlBuilder sqlBuilder, Class<E> clazz) {
+    public <E> List<E> queryForList(SqlBuilder sqlBuilder, Class<E> clazz) {
         if (ClassUtils.isPrimitiveOrWrapper(clazz) || String.class == clazz) {
             return jdbcTemplate.queryForList(sqlBuilder.getSql(), clazz, sqlBuilder.getArgs());
         }
         return jdbcTemplate.query(sqlBuilder.getSql(), BeanPropertyRowMapper.newInstance(clazz), sqlBuilder.getArgs());
     }
 
-    protected List<Map<String, Object>> queryForList(SqlBuilder sqlBuilder) {
+    public List<Map<String, Object>> queryForList(SqlBuilder sqlBuilder) {
         return jdbcTemplate.queryForList(sqlBuilder.getSql(), sqlBuilder.getArgs());
     }
 
-    protected ResultSetMetaData queryForMetaData(SqlBuilder sqlBuilder) {
+    public ResultSetMetaData queryForMetaData(SqlBuilder sqlBuilder) {
         return jdbcTemplate.query(sqlBuilder.getSql(), ResultSet::getMetaData);
     }
 }

@@ -15,7 +15,7 @@ public class PaginationParameter extends EnhancedMap {
      * 分页页号
      */
     @Transient
-    private transient Integer page;
+    private transient Integer pageNumber;
     /**
      * 分页记录偏移(MySql)
      */
@@ -25,7 +25,7 @@ public class PaginationParameter extends EnhancedMap {
      * 行数
      */
     @Transient
-    private transient Integer rows;
+    private transient Integer pageSize;
     /**
      * 排序
      */
@@ -45,13 +45,13 @@ public class PaginationParameter extends EnhancedMap {
     private transient List<String> resultColumns;
 
     public void initPagination() {
-        this.page = null == this.page ? 1 : this.page;
-        this.rows = null == this.rows ? 10 : this.rows;
+        this.pageNumber = null == this.pageNumber ? 1 : this.pageNumber;
+        this.pageSize = null == this.pageSize ? 10 : this.pageSize;
     }
 
     public void addOrderBy(String orderby, OrderByDirection direction, Integer index) {
-        Assert.INSTANCE.notBlank(orderby, "参数orderby不能为空");
-        Assert.INSTANCE.notNull(direction, "参数direction不能为空");
+        Assert.INSTANCE.notBlank(orderby, "orderby can not be blank");
+        Assert.INSTANCE.notNull(direction, "direction can not be null");
         if (null == orderBys) {
             orderBys = new ArrayList<>();
         }
@@ -75,7 +75,7 @@ public class PaginationParameter extends EnhancedMap {
     }
 
     public void addResultColumn(String resultColumn) {
-        Assert.INSTANCE.notBlank(resultColumn, "参数resultColumn不能为空");
+        Assert.INSTANCE.notBlank(resultColumn, "resultColumn can not be blank");
         if (null == resultColumns) {
             resultColumns = new ArrayList<>();
         }
@@ -90,20 +90,20 @@ public class PaginationParameter extends EnhancedMap {
         this.resultColumns.addAll(resultColumns);
     }
 
-    public Integer getPage() {
-        if (null != page) {
-            page = page < 1 ? 1 : page;
-            return page;
+    public Integer getPageNumber() {
+        if (null != pageNumber) {
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            return pageNumber;
         }
-        if (null == offset || null == rows) {
+        if (null == offset || null == pageSize) {
             return 1;
         }
-        page = offset / rows + 1;
-        return page;
+        pageNumber = offset / pageSize + 1;
+        return pageNumber;
     }
 
-    public void setPage(Integer page) {
-        this.page = page;
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
     }
 
     public Integer getOffset() {
@@ -111,8 +111,8 @@ public class PaginationParameter extends EnhancedMap {
             offset = offset < 0 ? 0 : offset;
             return offset;
         }
-        if (null != page && null != rows) {
-            offset = (page - 1) * rows;
+        if (null != pageNumber && null != pageSize) {
+            offset = (pageNumber - 1) * pageSize;
         }
         return offset;
     }
@@ -121,18 +121,18 @@ public class PaginationParameter extends EnhancedMap {
         this.offset = offset;
     }
 
-    public Integer getRows() {
-        if (null == rows) {
+    public Integer getPageSize() {
+        if (null == pageSize) {
             return 10;
         }
-        if (rows < 1) {
+        if (pageSize < 1) {
             return 1;
         }
-        return rows;
+        return pageSize;
     }
 
-    public void setRows(Integer rows) {
-        this.rows = rows;
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 
     public Boolean getDistinct() {
