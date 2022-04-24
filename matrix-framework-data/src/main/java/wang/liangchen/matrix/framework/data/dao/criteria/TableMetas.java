@@ -10,7 +10,9 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootId;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -28,61 +30,65 @@ public enum TableMetas {
         return tableMetaCache.computeIfAbsent(entityClass, key -> resolveTableMeta(key));
     }
 
-    private List<ColumnMeta> resolveColumnMetas(Field field, boolean isRooIdField) {
-        List<ColumnMeta> fieldColumnMetas = new ArrayList<>();
+    private ColumnMeta resolveColumnMeta(Field field, boolean isRooIdField) {
+        boolean isId = isRooIdField || resolveColumnId(field);
+        return ColumnMeta.newInstance(field.getName(), field.getType(), resolveColumnName(field),
+                isId, resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnDelete(field));
+    }
+
+    private boolean resolveColumnId(Field field) {
         Id idAnnotation = field.getAnnotation(Id.class);
-        boolean isId = null != idAnnotation;
-        // 如果是RooId
-        if (isId && RootId.class.isAssignableFrom(field.getType())) {
-            List<ColumnMeta> idColumnMetas = new ArrayList<>();
-            Set<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
-            // 递归调用解析
-            for (Field idField : idFields) {
-                idColumnMetas.addAll(resolveColumnMetas(idField, true));
-            }
-        }
-        if (isRooIdField) {
-            isId = true;
-        }
+        return null != idAnnotation;
+    }
 
-        UniqueConstraint uniqueAnnotation = field.getAnnotation(UniqueConstraint.class);
-        boolean isUnique = null != uniqueAnnotation;
-        Version versionAnnotation = field.getAnnotation(Version.class);
-        boolean isVersion = null != versionAnnotation;
-        ColumnDelete columnDeleteAnnotation = field.getAnnotation(ColumnDelete.class);
-        String deleteValue = null == columnDeleteAnnotation ? null : columnDeleteAnnotation.value();
+    private String resolveColumnName(Field field) {
         Column columnAnnotation = field.getAnnotation(Column.class);
-        String fieldName = field.getName();
-        String columnName = null == columnAnnotation ? StringUtil.INSTANCE.camelCase2underline(fieldName) : columnAnnotation.name();
+        return null == columnAnnotation ? StringUtil.INSTANCE.camelCase2underline(field.getName()) : columnAnnotation.name();
+    }
 
-        fieldColumnMetas.add(ColumnMeta.newInstance(fieldName, field.getType(), columnName, isId, isUnique, isVersion, deleteValue));
-        return fieldColumnMetas;
+    public String resolveColumnDelete(Field field) {
+        ColumnDelete columnDeleteAnnotation = field.getAnnotation(ColumnDelete.class);
+        return null == columnDeleteAnnotation ? null : columnDeleteAnnotation.value();
+    }
+
+    private boolean resolveColumnVersion(Field field) {
+        Version versionAnnotation = field.getAnnotation(Version.class);
+        return null != versionAnnotation;
+    }
+
+    private boolean resolveColumnUnique(Field field) {
+        UniqueConstraint uniqueAnnotation = field.getAnnotation(UniqueConstraint.class);
+        return null != uniqueAnnotation;
+    }
+
+    private String resolveTableName(Class<? extends RootEntity> entityClass) {
+        Entity entity = entityClass.getAnnotation(Entity.class);
+        if (null != entity) {
+            return entity.name();
+        }
+        Table table = entityClass.getAnnotation(Table.class);
+        if (null != table) {
+            return table.name();
+        }
+        throw new MatrixInfoException("Entity class has no entity or table annotation:{}", entityClass.getName());
     }
 
 
     private TableMeta resolveTableMeta(Class<? extends RootEntity> entityClass) {
-        String tableName = null;
-        Entity entity = entityClass.getAnnotation(Entity.class);
-        if (null != entity) {
-            tableName = entity.name();
-        }
-        Table table = entityClass.getAnnotation(Table.class);
-        if (null != table) {
-            tableName = table.name();
-        }
-        if (StringUtil.INSTANCE.isBlank(tableName)) {
-            throw new MatrixInfoException("Entity class has no entity or table annotation:{}", entityClass.getName());
-        }
         // 排除transient修饰的列
         Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass, field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && null == field.getAnnotation(Transient.class), true);
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {
-            List<ColumnMeta> fieldColumnMetas = resolveColumnMetas(field, false);
-            for (ColumnMeta fieldColumnMeta : fieldColumnMetas) {
-                columnMetas.put(fieldColumnMeta.getFieldName(), fieldColumnMeta);
+            if (RootId.class.isAssignableFrom(field.getType())) {
+                Set<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
+                for (Field idField : idFields) {
+                    columnMetas.put(field.getName(), resolveColumnMeta(field, true));
+                }
+                continue;
             }
+            columnMetas.put(field.getName(), resolveColumnMeta(field, false));
         }
-        return TableMeta.newInstance(entityClass, tableName, columnMetas);
+        return TableMeta.newInstance(entityClass, resolveTableName(entityClass), columnMetas);
     }
 
 }

@@ -14,7 +14,6 @@ public class TableMeta {
     private final Map<String, ColumnMeta> pkColumnMetas = new HashMap<>();
     private final Map<String, ColumnMeta> nonPkColumnMetas = new HashMap<>();
     private final ColumnMeta columnDeleteMeta;
-    private final ColumnMeta columnStateMeta;
     private final ColumnMeta columnVersionMeta;
 
     private TableMeta(Class<?> entityClass, String tableName, Map<String, ColumnMeta> columnMetas) {
@@ -39,13 +38,9 @@ public class TableMeta {
             if (null == columnDeleteMeta && null != columnMeta.getDeleteValue()) {
                 columnDeleteMeta = columnMeta;
             }
-            if (null == columnStateMeta && columnMeta.isState()) {
-                columnStateMeta = columnMeta;
-            }
         }
         this.columnVersionMeta = columnVersionMeta;
         this.columnDeleteMeta = columnDeleteMeta;
-        this.columnStateMeta = columnStateMeta;
     }
 
     public static TableMeta newInstance(Class<?> entityClass, String tableName, Map<String, ColumnMeta> columnMetas) {
@@ -75,10 +70,6 @@ public class TableMeta {
 
     public ColumnMeta getColumnDeleteMeta() {
         return columnDeleteMeta;
-    }
-
-    public ColumnMeta getColumnStateMeta() {
-        return columnStateMeta;
     }
 
     public ColumnMeta getColumnVersionMeta() {
