@@ -81,4 +81,7 @@ public abstract class AbstractDao {
     public ResultSetMetaData queryForMetaData(SqlBuilder sqlBuilder) {
         return jdbcTemplate.query(sqlBuilder.getSql(), ResultSet::getMetaData);
     }
+    public void queryForDatabaseMetaData(String tableName){
+
+    }
 }

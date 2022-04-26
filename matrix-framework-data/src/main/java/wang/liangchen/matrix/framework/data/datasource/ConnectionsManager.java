@@ -13,7 +13,7 @@ import java.sql.SQLException;
 /**
  * @author LiangChen.Wang 2021/6/9
  */
-public enum DbConnectionsManager {
+public enum ConnectionsManager {
     /**
      * instance
      */
