@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.generator;
 
-import java.util.HashMap;
-import java.util.Map;
+import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
+
+import java.util.List;
 
 /**
  * @author Liangchen.Wang 2022-04-27 10:16
@@ -9,7 +10,16 @@ import java.util.Map;
 public class GeneratorProperties {
     private String output;
     private String basePackage;
-    private Map<String, EntityProperties> entityProperties = new HashMap<>();
+
+    private String tableName;
+    private String className;
+    private String subPackage;
+    private String columnVersion;
+    private String columnMarkDelete;
+    private String columnMarkDeleteValue;
+    private boolean camelCase;
+
+    private List<ColumnMeta> columnMetas;
 
     public String getOutput() {
         return output;
@@ -27,77 +37,67 @@ public class GeneratorProperties {
         this.basePackage = basePackage;
     }
 
-    public Map<String, EntityProperties> getEntityProperties() {
-        return entityProperties;
+    public String getTableName() {
+        return tableName;
     }
 
-    public void setEntityProperties(Map<String, EntityProperties> entityProperties) {
-        this.entityProperties = entityProperties;
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
-    static class EntityProperties {
-        private String table;
-        private String className;
-        private String subPackage;
-        private String columnVersion;
-        private String columnMarkDelete;
-        private String columnMarkDeleteValue;
-        private boolean camelCase;
+    public String getClassName() {
+        return className;
+    }
 
-        public String getTable() {
-            return table;
-        }
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
-        public void setTable(String table) {
-            this.table = table;
-        }
+    public String getSubPackage() {
+        return subPackage;
+    }
 
-        public String getClassName() {
-            return className;
-        }
+    public void setSubPackage(String subPackage) {
+        this.subPackage = subPackage;
+    }
 
-        public void setClassName(String className) {
-            this.className = className;
-        }
+    public String getColumnVersion() {
+        return columnVersion;
+    }
 
-        public String getSubPackage() {
-            return subPackage;
-        }
+    public void setColumnVersion(String columnVersion) {
+        this.columnVersion = columnVersion;
+    }
 
-        public void setSubPackage(String subPackage) {
-            this.subPackage = subPackage;
-        }
+    public String getColumnMarkDelete() {
+        return columnMarkDelete;
+    }
 
-        public String getColumnVersion() {
-            return columnVersion;
-        }
+    public void setColumnMarkDelete(String columnMarkDelete) {
+        this.columnMarkDelete = columnMarkDelete;
+    }
 
-        public void setColumnVersion(String columnVersion) {
-            this.columnVersion = columnVersion;
-        }
+    public String getColumnMarkDeleteValue() {
+        return columnMarkDeleteValue;
+    }
 
-        public String getColumnMarkDelete() {
-            return columnMarkDelete;
-        }
+    public void setColumnMarkDeleteValue(String columnMarkDeleteValue) {
+        this.columnMarkDeleteValue = columnMarkDeleteValue;
+    }
 
-        public void setColumnMarkDelete(String columnMarkDelete) {
-            this.columnMarkDelete = columnMarkDelete;
-        }
+    public boolean isCamelCase() {
+        return camelCase;
+    }
 
-        public String getColumnMarkDeleteValue() {
-            return columnMarkDeleteValue;
-        }
+    public void setCamelCase(boolean camelCase) {
+        this.camelCase = camelCase;
+    }
 
-        public void setColumnMarkDeleteValue(String columnMarkDeleteValue) {
-            this.columnMarkDeleteValue = columnMarkDeleteValue;
-        }
+    public List<ColumnMeta> getColumnMetas() {
+        return columnMetas;
+    }
 
-        public boolean isCamelCase() {
-            return camelCase;
-        }
-
-        public void setCamelCase(boolean camelCase) {
-            this.camelCase = camelCase;
-        }
+    public void setColumnMetas(List<ColumnMeta> columnMetas) {
+        this.columnMetas = columnMetas;
     }
 }

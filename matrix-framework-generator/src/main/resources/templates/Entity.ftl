@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity(name = "${tableName}")
 @Table(name = "${tableName}")
-public class ${entityName} extends RootEntity {
+public class ${className} extends RootEntity {
 <#list columnMetas as columnMeta>
     <#if columnMeta.id>
     @Id
@@ -20,7 +20,7 @@ public class ${entityName} extends RootEntity {
     @Version
     </#if>
     <#if columnMeta.markDeleteValue??>
-    @ColumnDelete("${columnMeta.markDeleteValue}")
+    @ColumnMarkDelete("${columnMeta.markDeleteValue}")
     </#if>
     @Column(name = "${columnMeta.columnName}")
     private ${columnMeta.fieldClassName} ${columnMeta.fieldName}

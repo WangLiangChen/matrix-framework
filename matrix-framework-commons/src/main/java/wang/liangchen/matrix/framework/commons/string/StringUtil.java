@@ -165,11 +165,11 @@ public enum StringUtil {
         return isInteger(str) || isFloat(str);
     }
 
-    public String Path2Package(String path) {
+    public String path2Package(String path) {
         return path.replace('/', '.').replace('\\', '.');
     }
 
-    public String Package2Path(String pack) {
+    public String package2Path(String pack) {
         return pack.replace('.', '/');
     }
 }
