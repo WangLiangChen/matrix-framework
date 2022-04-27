@@ -1,6 +1,6 @@
 package ${basePackage}.${subPackage};
 
-import wang.liangchen.matrix.framework.data.annotation.ColumnDelete;
+import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import javax.persistence.*;
@@ -19,8 +19,8 @@ public class ${entityName} extends RootEntity {
     <#if columnMeta.version>
     @Version
     </#if>
-    <#if columnMeta.deleteValue??>
-    @ColumnDelete("${columnMeta.deleteValue}")
+    <#if columnMeta.markDeleteValue??>
+    @ColumnDelete("${columnMeta.markDeleteValue}")
     </#if>
     @Column(name = "${columnMeta.columnName}")
     private ${columnMeta.fieldClassName} ${columnMeta.fieldName}

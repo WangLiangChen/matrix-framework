@@ -102,11 +102,11 @@ public enum MybatisExecutor {
                 sqlBuilder.append("</script>");
             } else {
                 // 通过扩展字段 增加deleteValue
-                entity.addExtendedField("deleteValue", columnDeleteMeta.getDeleteValue());
+                entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append("<script>");
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
-                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.deleteValue}");
+                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
                 sqlBuilder.append(findWhereSql(tableMeta.getPkColumnMetas()));
                 sqlBuilder.append("</script>");
             }
@@ -116,8 +116,8 @@ public enum MybatisExecutor {
             return sql;
         });
         int rows = sqlSessionTemplate.delete(statementId, entity);
-        // 使用后删除 deleteValue
-        entity.removeExtendedField("deleteValue");
+        // 使用后删除 markDeleteValue
+        entity.removeExtendedField("markDeleteValue");
         return rows;
     }
 
@@ -134,11 +134,11 @@ public enum MybatisExecutor {
                 sqlBuilder.append("</script>");
             } else {
                 // 通过扩展字段 增加deleteValue
-                criteriaParameter.addExtendedField("deleteValue", columnDeleteMeta.getDeleteValue());
+                criteriaParameter.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append("<script>");
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
-                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.deleteValue}");
+                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
                 sqlBuilder.append("<where>${whereSql}</where>");
                 sqlBuilder.append("</script>");
             }

@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
-import wang.liangchen.matrix.framework.data.annotation.ColumnDelete;
+import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.entity.RootId;
 
@@ -47,8 +47,8 @@ public enum TableMetas {
     }
 
     public String resolveColumnDelete(Field field) {
-        ColumnDelete columnDeleteAnnotation = field.getAnnotation(ColumnDelete.class);
-        return null == columnDeleteAnnotation ? null : columnDeleteAnnotation.value();
+        ColumnMarkDelete columnMarkDeleteAnnotation = field.getAnnotation(ColumnMarkDelete.class);
+        return null == columnMarkDeleteAnnotation ? null : columnMarkDeleteAnnotation.value();
     }
 
     private boolean resolveColumnVersion(Field field) {

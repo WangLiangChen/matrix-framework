@@ -11,6 +11,6 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ColumnDelete {
+public @interface ColumnMarkDelete {
     String value();
 }

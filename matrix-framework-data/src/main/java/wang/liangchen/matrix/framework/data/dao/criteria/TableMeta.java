@@ -35,7 +35,7 @@ public class TableMeta {
             if (null == columnVersionMeta && columnMeta.isVersion()) {
                 columnVersionMeta = columnMeta;
             }
-            if (null == columnDeleteMeta && null != columnMeta.getDeleteValue()) {
+            if (null == columnDeleteMeta && null != columnMeta.getMarkDeleteValue()) {
                 columnDeleteMeta = columnMeta;
             }
         }

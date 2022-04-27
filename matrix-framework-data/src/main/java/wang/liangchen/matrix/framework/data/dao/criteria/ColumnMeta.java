@@ -13,9 +13,9 @@ public class ColumnMeta {
     private final boolean id;
     private final boolean unique;
     private final boolean version;
-    private final String deleteValue;
+    private final String markDeleteValue;
 
-    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean id, boolean unique, boolean version, String deleteValue) {
+    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean id, boolean unique, boolean version, String markDeleteValue) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.fieldClassName = fieldType.getName().replace("java.lang", "");
@@ -26,10 +26,10 @@ public class ColumnMeta {
         this.unique = unique;
         this.version = version;
 
-        this.deleteValue = deleteValue;
+        this.markDeleteValue = markDeleteValue;
     }
 
-    private ColumnMeta(String fieldName, String fieldClassName, String columnName, boolean id, boolean unique, boolean version, String deleteValue) {
+    private ColumnMeta(String fieldName, String fieldClassName, String columnName, boolean id, boolean unique, boolean version, String markDeleteValue) {
         this.fieldName = fieldName;
         this.fieldType = ClassUtil.INSTANCE.forName(fieldClassName);
         this.fieldClassName = fieldClassName.replace("java.lang.", "");
@@ -39,15 +39,15 @@ public class ColumnMeta {
         this.unique = unique;
         this.version = version;
 
-        this.deleteValue = deleteValue;
+        this.markDeleteValue = markDeleteValue;
     }
 
-    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String deleteValue) {
-        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, deleteValue);
+    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
+        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, markDeleteValue);
     }
 
-    public static ColumnMeta newInstance(String fieldName, String fieldClassName, String columnName, boolean isId, boolean isUnique, boolean isVersion, String deleteValue) {
-        return new ColumnMeta(fieldName, fieldClassName, columnName, isId, isUnique, isVersion, deleteValue);
+    public static ColumnMeta newInstance(String fieldName, String fieldClassName, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
+        return new ColumnMeta(fieldName, fieldClassName, columnName, isId, isUnique, isVersion, markDeleteValue);
     }
 
     public String getFieldName() {
@@ -90,8 +90,8 @@ public class ColumnMeta {
         return !version;
     }
 
-    public String getDeleteValue() {
-        return deleteValue;
+    public String getMarkDeleteValue() {
+        return markDeleteValue;
     }
 
 
