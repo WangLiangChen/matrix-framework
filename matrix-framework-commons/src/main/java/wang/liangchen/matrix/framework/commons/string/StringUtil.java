@@ -16,9 +16,11 @@ public enum StringUtil {
     INSTANCE;
     private final static String FORMAT_REGEX = "\\{(.*?)}";
     private final static String FORMAT_REPLACEMENT = "\\%s";
+    private final static String DOT_REPLACEMENT = "\\.";
     private final static Pattern nonNumberPattern = Pattern.compile("[^0-9]");
     private final static Pattern integerPattern = Pattern.compile("[+-]?[0-9]+");
     private final static Pattern floatPattern = Pattern.compile("[+-]?[0-9]+(\\\\.[0-9]+)?([Ee][+-]?[0-9]+)?");
+
 
     public boolean isNull(String string) {
         return null == string;
@@ -166,10 +168,16 @@ public enum StringUtil {
     }
 
     public String path2Package(String path) {
+        if (null == path) {
+            return null;
+        }
         return path.replace('/', '.').replace('\\', '.');
     }
 
     public String package2Path(String pack) {
-        return pack.replace('.', '/');
+        if (null == pack) {
+            return null;
+        }
+        return pack.replaceAll(DOT_REPLACEMENT, Matcher.quoteReplacement(Symbol.FILE_SEPARATOR.getSymbol()));
     }
 }

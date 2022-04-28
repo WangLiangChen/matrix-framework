@@ -59,22 +59,36 @@ public class DomainGenerator {
     }
 
     private void createDomain(GeneratorProperties generatorProperties) {
+        GeneratorTemplate generatorTemplate = (GeneratorTemplate)generatorProperties;
+
+        generatorTemplate.setDomainPackage("domain");
         try {
-            Template template = freemarkerConfig.getTemplate("Entity.ftl");
             String pathName = new StringBuilder()
                     .append(generatorProperties.getOutput())
                     .append(Symbol.FILE_SEPARATOR.getSymbol())
+                    .append(generatorProperties.getSubPackage())
+                    .append(Symbol.FILE_SEPARATOR.getSymbol())
                     .append("domain").toString();
             Path path = Paths.get(pathName);
-            if(Files.notExists(path)){
+            if (Files.notExists(path)) {
                 Files.createDirectories(path);
             }
-            path = path.resolve(generatorProperties.getClassName() + ".java");
-            if(Files.exists(path)){
-                throw new MatrixInfoException("xxxxxxxxxxxxxxxxxx");
+            // Entity File
+            Path entityFilePath = path.resolve(generatorProperties.getEntityName() + ".java");
+            if (Files.exists(entityFilePath)) {
+                throw new MatrixInfoException("file:{} already exists", entityFilePath.toString());
             }
-            Files.createFile(path);
-            template.process(generatorProperties, new FileWriter(path.toFile()));
+            Files.createFile(entityFilePath);
+            Template template = freemarkerConfig.getTemplate("Entity.ftl");
+            template.process(generatorProperties, new FileWriter(entityFilePath.toFile()));
+            // DomainService File
+            Path domainServiceFilePath = path.resolve(generatorProperties.getEntityName() + "DomainService.java");
+            if (Files.exists(domainServiceFilePath)) {
+                throw new MatrixInfoException("file:{} already exists", domainServiceFilePath.toString());
+            }
+            Files.createFile(domainServiceFilePath);
+            template = freemarkerConfig.getTemplate("DomainService.ftl");
+            template.process(generatorProperties, new FileWriter(domainServiceFilePath.toFile()));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -84,6 +98,8 @@ public class DomainGenerator {
         XMLConfiguration generatorXml = (XMLConfiguration) ConfigurationContext.INSTANCE.resolve(GENERATOR_CONFIG_FILE);
         Document document = generatorXml.getDocument();
         Element element = document.getDocumentElement();
+        String author = element.getAttribute("author");
+        String basePackage = element.getAttribute("base-package");
         String output = element.getAttribute("output");
         if (StringUtil.INSTANCE.isBlank(output)) {
             output = new StringBuilder().append(Symbol.USER_DIR.getSymbol())
@@ -94,26 +110,28 @@ public class DomainGenerator {
                     .append(Symbol.FILE_SEPARATOR.getSymbol())
                     .append("java").toString();
         }
-        //TODO 处理路径
+        output = new StringBuilder(output)
+                .append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
 
-        String basePackage = element.getAttribute("base-package");
 
         NodeList nodes = document.getElementsByTagName("entity");
         int length = nodes.getLength();
-        String tableName, className, subPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
+        String tableName, entityName, subPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
         GeneratorProperties generatorProperties;
         List<GeneratorProperties> generatorPropertiesList = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
-            generatorProperties = new GeneratorProperties();
+            generatorProperties = new GeneratorTemplate();
+            generatorProperties.setAuthor(author);
             generatorProperties.setOutput(output);
             generatorProperties.setBasePackage(basePackage);
 
             tableName = generatorXml.getString(String.format("entity(%d).table-name", i));
             generatorProperties.setTableName(tableName);
-            className = generatorXml.getString(String.format("entity(%d).class-name", i));
-            generatorProperties.setClassName(className);
+            entityName = generatorXml.getString(String.format("entity(%d).entity-name", i));
+            generatorProperties.setEntityName(entityName);
             subPackage = generatorXml.getString(String.format("entity(%d).sub-package", i));
-            generatorProperties.setSubPackage(String.format("%s.domain", subPackage));
+            generatorProperties.setSubPackage(subPackage);
             columnVersion = generatorXml.getString(String.format("entity(%d).column-version", i));
             generatorProperties.setColumnVersion(columnVersion);
             columnMarkDelete = generatorXml.getString(String.format("entity(%d).column-markdelete", i));
@@ -138,7 +156,7 @@ public class DomainGenerator {
                 List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(),
                         generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(),
                         primaryKeyColumnNames, uniqueKeyColumnNames);
-                generatorProperties.setColumnMetas(columnMetas);
+                ((GeneratorTemplate) generatorProperties).setColumnMetas(columnMetas);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

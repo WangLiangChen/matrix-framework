@@ -1,14 +1,16 @@
-package ${basePackage}.${subPackage};
+package ${basePackage}.${subPackage}.${domainPackage};
 
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import javax.persistence.*;
 
-
+/**
+ * @author ${author}
+ */
 @Entity(name = "${tableName}")
 @Table(name = "${tableName}")
-public class ${className} extends RootEntity {
+public class ${entityName} extends RootEntity {
 <#list columnMetas as columnMeta>
     <#if columnMeta.id>
     @Id
@@ -23,7 +25,8 @@ public class ${className} extends RootEntity {
     @ColumnMarkDelete("${columnMeta.markDeleteValue}")
     </#if>
     @Column(name = "${columnMeta.columnName}")
-    private ${columnMeta.fieldClassName} ${columnMeta.fieldName}
+    private ${columnMeta.fieldClassName} ${columnMeta.fieldName};
+
 </#list>
 
 <#list columnMetas as columnMeta>

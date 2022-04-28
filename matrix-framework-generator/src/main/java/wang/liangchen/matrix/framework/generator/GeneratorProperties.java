@@ -1,25 +1,28 @@
 package wang.liangchen.matrix.framework.generator;
 
-import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
-
-import java.util.List;
-
 /**
  * @author Liangchen.Wang 2022-04-27 10:16
  */
 public class GeneratorProperties {
+    private String author;
     private String output;
     private String basePackage;
+    private String subPackage;
 
     private String tableName;
-    private String className;
-    private String subPackage;
+    private String entityName;
     private String columnVersion;
     private String columnMarkDelete;
     private String columnMarkDeleteValue;
     private boolean camelCase;
 
-    private List<ColumnMeta> columnMetas;
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     public String getOutput() {
         return output;
@@ -37,6 +40,14 @@ public class GeneratorProperties {
         this.basePackage = basePackage;
     }
 
+    public String getSubPackage() {
+        return subPackage;
+    }
+
+    public void setSubPackage(String subPackage) {
+        this.subPackage = subPackage;
+    }
+
     public String getTableName() {
         return tableName;
     }
@@ -45,20 +56,12 @@ public class GeneratorProperties {
         this.tableName = tableName;
     }
 
-    public String getClassName() {
-        return className;
+    public String getEntityName() {
+        return entityName;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getSubPackage() {
-        return subPackage;
-    }
-
-    public void setSubPackage(String subPackage) {
-        this.subPackage = subPackage;
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
 
     public String getColumnVersion() {
@@ -91,13 +94,5 @@ public class GeneratorProperties {
 
     public void setCamelCase(boolean camelCase) {
         this.camelCase = camelCase;
-    }
-
-    public List<ColumnMeta> getColumnMetas() {
-        return columnMetas;
-    }
-
-    public void setColumnMetas(List<ColumnMeta> columnMetas) {
-        this.columnMetas = columnMetas;
     }
 }
