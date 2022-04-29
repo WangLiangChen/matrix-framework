@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.ddd.event;
+package wang.liangchen.matrix.framework.ddd.domain;
 
 import java.time.Clock;
 import java.util.EventObject;

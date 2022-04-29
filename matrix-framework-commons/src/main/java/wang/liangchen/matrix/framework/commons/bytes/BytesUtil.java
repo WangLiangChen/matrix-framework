@@ -23,6 +23,20 @@ public enum BytesUtil {
     private final String[] hexDigits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
     private final Kryo kryo = new Kryo();
 
+    public byte[] toBytes(InputStream inputStream) {
+        byte[] buffer = new byte[4096];
+        int n;
+
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            while (-1 != (n = inputStream.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
     public byte[] toBytes(Object object) {
         Assert.INSTANCE.notNull(object, "object can not be null");
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

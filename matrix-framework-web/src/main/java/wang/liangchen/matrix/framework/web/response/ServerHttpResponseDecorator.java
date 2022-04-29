@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.web.response;
 
 import io.netty.buffer.UnpooledByteBufAllocator;
-import org.apache.commons.io.IOUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -10,6 +9,7 @@ import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.io.IOException;
@@ -46,8 +46,8 @@ public final class ServerHttpResponseDecorator extends org.springframework.http.
     }
 
     private DataBuffer copyDataBuffer(DataBuffer dataBuffer, Consumer<byte[]> consumer) {
-        try (InputStream in = dataBuffer.asInputStream()) {
-            byte[] bytes = IOUtils.toByteArray(in);
+        try (InputStream inputStream = dataBuffer.asInputStream()) {
+            byte[] bytes = BytesUtil.INSTANCE.toBytes(inputStream);
             consumer.accept(bytes);
             DataBufferUtils.release(dataBuffer);
             DataBufferFactory dataBufferFactory = new NettyDataBufferFactory(new UnpooledByteBufAllocator(false));

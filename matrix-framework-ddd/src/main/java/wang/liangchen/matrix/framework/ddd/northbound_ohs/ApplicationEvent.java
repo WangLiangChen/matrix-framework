@@ -1,4 +1,6 @@
-package wang.liangchen.matrix.framework.ddd.event;
+package wang.liangchen.matrix.framework.ddd.northbound_ohs;
+
+import wang.liangchen.matrix.framework.ddd.domain.DomainEvent;
 
 import java.time.Clock;
 
