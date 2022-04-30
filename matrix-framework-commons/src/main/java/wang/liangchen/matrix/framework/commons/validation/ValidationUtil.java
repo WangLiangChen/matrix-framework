@@ -1,11 +1,16 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,9 +36,12 @@ public enum ValidationUtil {
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
             return;
         }
+        StringBuilder stringBuilder = new StringBuilder();
         results.forEach(e -> {
-
+            stringBuilder.append("Field '").append(e.getPropertyPath().toString()).append("' ")
+                    .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol());
         });
+        throw new MatrixInfoException(stringBuilder.toString());
     }
 
 

@@ -26,7 +26,6 @@ public enum BytesUtil {
     public byte[] toBytes(InputStream inputStream) {
         byte[] buffer = new byte[4096];
         int n;
-
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             while (-1 != (n = inputStream.read(buffer))) {
                 output.write(buffer, 0, n);

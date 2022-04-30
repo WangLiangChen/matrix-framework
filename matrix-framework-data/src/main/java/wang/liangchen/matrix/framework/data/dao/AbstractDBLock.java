@@ -21,15 +21,14 @@ public abstract class AbstractDBLock implements IDBLock {
     private static final Logger logger = LoggerFactory.getLogger(AbstractDBLock.class);
     private final static int retryCount = 3;
     private final static long retryPeriod = 500L;
-    private final String DELETESQL = StringUtil.INSTANCE.format("delete from {} where lock_key=?", IDBLock.TABLE_NAME);
-    // 持有锁的线程
-    private final static TransmittableThreadLocal<Set<String>> lockOwnerThreads = TransmittableThreadLocal.withInitial(() -> new HashSet<>(16));
+    private final String DELETE_SQL = StringUtil.INSTANCE.format("delete from {} where lock_key=?", IDBLock.TABLE_NAME);
+    // 当前线程持有的锁
+    private final static TransmittableThreadLocal<Set<String>> currentThreadLocks = TransmittableThreadLocal.withInitial(() -> new HashSet<>(16));
 
     @Inject
     private DataSource dataSource;
 
     protected Logger getLogger() {
-
         return logger;
     }
 
@@ -203,12 +202,12 @@ public abstract class AbstractDBLock implements IDBLock {
     }
 
     private Set<String> getLockOwnerThreads() {
-        return lockOwnerThreads.get();
+        return currentThreadLocks.get();
     }
 
     private void deleteKey(String lockKey) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETESQL)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setString(1, lockKey);
             preparedStatement.executeUpdate();
         } catch (Exception e) {

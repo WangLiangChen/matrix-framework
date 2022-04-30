@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 public @interface BoundedContext {
     String name();
 
-    DomainType subDomain() default DomainType.Core;
+    DomainType domainType() default DomainType.Core;
 }

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * 标识聚合
+ * 标识聚合包
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
