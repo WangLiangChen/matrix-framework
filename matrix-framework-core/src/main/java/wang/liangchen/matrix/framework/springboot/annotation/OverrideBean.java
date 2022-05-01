@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * @author Liangchen.Wang
- * 用于覆盖context中同名的Bean
+ * 与@Bean同用,可以覆盖同名的bean
  */
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

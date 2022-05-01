@@ -4,7 +4,6 @@ import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor;
-import wang.liangchen.matrix.framework.data.annotation.DataSource;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceSwitchable;
 
 import java.lang.reflect.Method;
@@ -28,10 +27,10 @@ public class MultiDataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFacto
 
                     @Override
                     public boolean matches(Method method, Class<?> targetClass) {
-                        if (targetClass.getAnnotation(DataSource.class) != null) {
+                        if (method.getAnnotation(DataSourceSwitchable.class) != null) {
                             return true;
                         }
-                        return method.getAnnotation(DataSource.class) != null;
+                        return targetClass.getAnnotation(DataSourceSwitchable.class) != null;
                     }
 
                     @Override

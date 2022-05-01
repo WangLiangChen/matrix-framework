@@ -18,9 +18,9 @@ public class ReplaceIntoLockImpl extends AbstractDBLock {
 
     @Override
     protected void executeLockSQL(final Connection connection, final String lockKey) throws SQLException {
-        getLogger().debug("Lock '{}' is being obtained by thread:{}", lockKey, Thread.currentThread().getName());
+        getLogger().debug("Lock '{}' is being obtained", lockKey);
         lockViaReplaceInto(connection, lockKey, REPLACE_LOCK);
-        getLogger().debug("Lock '{}' is obtained by thread:{}", lockKey, Thread.currentThread().getName());
+        getLogger().debug("Lock '{}' is obtained", lockKey);
     }
 
     private boolean lockViaReplaceInto(Connection connection, String lockKey, String sql) throws SQLException {

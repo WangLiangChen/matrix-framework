@@ -4,9 +4,9 @@ import java.lang.annotation.*;
 
 /**
  * @author Liangchen.Wang 2022-04-19 9:06
- * 逻辑删除标识列
+ * 标识逻辑删除的属性
  * 使用该注解后，删除操作将会是逻辑删除
- * 删除的标识为该注解的value
+ * 删除的标识值为该注解的value
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

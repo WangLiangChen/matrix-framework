@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.util;
+package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import java.util.ArrayList;
 import java.util.List;

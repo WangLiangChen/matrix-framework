@@ -19,21 +19,15 @@ public class ForUpdateLockImpl extends AbstractDBLock {
     private final String SELECT_FOR_UPDATE_SQL = StringUtil.INSTANCE.format("select 0 from {} where lock_key=? for update", IDBLock.TABLE_NAME);
     private final String INSERT_SQL = StringUtil.INSTANCE.format("insert into {} values(?,?,?,?)", IDBLock.TABLE_NAME);
 
-
     @Override
     protected void executeLockSQL(final Connection connection, final String lockName) throws SQLException {
-        getLogger().debug("Lock '{}' is being obtained by thread:{} ", lockName, Thread.currentThread().getName());
+        getLogger().debug("Lock '{}' is being obtained", lockName);
         if (lockViaSelectForUpdate(connection, lockName)) {
-            getLogger().debug("Lock: '{}' is obtained by thread:{} ", lockName, Thread.currentThread().getName());
+            getLogger().debug("Lock: '{}' is obtained", lockName);
             return;
         }
-        /*
-         * 数据存在：第一个线程执行SQL成功，返回
-         * 数据不存在：所有的线程不会等待，都会到这里执行insert
-         * 第一个进入的线程会等待(因为上面的for update)，其它线程会产生死锁异常，然后第一个进入线程会执行成功，返回
-         */
         lockViaInsert(connection, lockName);
-        getLogger().debug("Insert a row,Lock: '{}' is obtained by thread:{} ", lockName, Thread.currentThread().getName());
+        getLogger().debug("Insert a row,Lock: '{}' is obtained", lockName);
     }
 
     private boolean lockViaSelectForUpdate(Connection connection, String lockName) throws SQLException {

@@ -8,7 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
-import wang.liangchen.matrix.framework.data.util.SqlBuilder;
+import wang.liangchen.matrix.framework.data.dao.criteria.SqlBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;

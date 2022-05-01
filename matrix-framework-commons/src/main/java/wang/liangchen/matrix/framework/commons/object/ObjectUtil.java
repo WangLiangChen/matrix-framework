@@ -21,7 +21,7 @@ public enum ObjectUtil {
      * instance
      */
     INSTANCE;
-    public final static Map<String, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
+    private final static Map<String, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
 
     public boolean isNull(Object object) {
         return null == object;

@@ -25,8 +25,10 @@ public @interface JdbcCondition {
 
         @Override
         public ConfigurationPhase getConfigurationPhase() {
-        /*强制在注册阶段判断条件，而不是在解析阶段,解决条件判断在Import之前的问题
-        解析阶段--shouldSkip---Import--注册阶段--shouldSkip*/
+            /**
+             * 强制在注册阶段处理条件，而不是在解析阶段,解决条件判断在Import之前的问题
+             * 解析阶段--shouldSkip---Import--注册阶段--shouldSkip
+             */
             return ConfigurationPhase.REGISTER_BEAN;
         }
     }

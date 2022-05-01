@@ -12,9 +12,9 @@
     <artifactId>matrix-framework-core</artifactId>
     <properties>
         <version.inject>1</version.inject>
-        <version.spring.statemachine>2.2.1.RELEASE</version.spring.statemachine>
-        <version.annotations>3.0.1u2</version.annotations>
-        <version.shedlock>4.29.0</version.shedlock>
+        <version.spring.statemachine>3.1.0</version.spring.statemachine>
+        <version.annotations>4.6.0</version.annotations>
+        <version.shedlock>4.34.0</version.shedlock>
     </properties>
 
     <dependencyManagement>
@@ -30,8 +30,8 @@
                 <version>${version.spring.statemachine}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
                 <version>${version.annotations}</version>
             </dependency>
             <dependency>
@@ -73,8 +73,8 @@
             <artifactId>shedlock-spring</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
         </dependency>
     </dependencies>
 
