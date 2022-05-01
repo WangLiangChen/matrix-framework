@@ -48,7 +48,7 @@ public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextA
     /**
      * 提升优先级 尽早初始化 防止出现 is not eligible for getting processed by...
      *
-     * @return
+     * @return order
      */
     @Override
     public int getOrder() {

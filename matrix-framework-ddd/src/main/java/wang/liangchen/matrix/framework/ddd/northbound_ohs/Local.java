@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * ApplicationService
- * 标识本地服务&应用服务
+ * 标识本地服务和应用服务
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

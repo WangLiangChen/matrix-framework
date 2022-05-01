@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Liangchen.Wang
- * Mybatis Statement Cache & Executor
+ * Mybatis Statement Cache And Executor
  */
 public enum MybatisExecutor {
     /**
