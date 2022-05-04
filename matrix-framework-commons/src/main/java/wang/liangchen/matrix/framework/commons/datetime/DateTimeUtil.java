@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.commons.datetime;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +56,10 @@ public enum DateTimeUtil {
 
     public String format(LocalDateTime localDateTime) {
         return localDateTime.format(DATETIME_FORMATTER);
+    }
+
+    public LocalDate dateString2LocalDate(String dateString) {
+        return LocalDate.parse(dateString, DATE_FORMATTER);
     }
 
 }

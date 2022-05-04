@@ -33,9 +33,8 @@ public class ${entityName} extends RootEntity {
     public ${columnMeta.fieldClassName} get${columnMeta.fieldName?cap_first}() {
         return this.${columnMeta.fieldName};
     }
-    public ${entityName} set${columnMeta.fieldName?cap_first}(${columnMeta.fieldClassName} ${columnMeta.fieldName}) {
+    public void set${columnMeta.fieldName?cap_first}(${columnMeta.fieldClassName} ${columnMeta.fieldName}) {
         this.${columnMeta.fieldName} = ${columnMeta.fieldName};
-        return this;
     }
 </#list>
 }

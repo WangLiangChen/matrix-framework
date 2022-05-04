@@ -21,7 +21,7 @@ public enum ObjectUtil {
      * instance
      */
     INSTANCE;
-    private final static Map<String, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
+    private final static Map<CopierId, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
 
     public boolean isNull(Object object) {
         return null == object;
@@ -351,8 +351,8 @@ public enum ObjectUtil {
 
     public <T> T copyProperties(Object source, Class<T> targetClass) {
         Class<?> sourceClass = source.getClass();
-        String copierCacheKey = String.format("%s-->%s", sourceClass.getName(), targetClass.getName());
-        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierCacheKey,
+        CopierId copierId = new CopierId(sourceClass, targetClass);
+        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
                 key -> BeanCopier.create(sourceClass, targetClass, false));
         T target = ClassUtil.INSTANCE.instantiate(targetClass);
         beanCopier.copy(source, target, null);
@@ -362,9 +362,27 @@ public enum ObjectUtil {
     public void copyProperties(Object source, Object target) {
         Class<?> sourceClass = source.getClass();
         Class<?> targetClass = target.getClass();
-        String copierCacheKey = String.format("%s-->%s", sourceClass.getName(), targetClass.getName());
-        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierCacheKey,
+        CopierId copierId = new CopierId(sourceClass, targetClass);
+        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
                 key -> BeanCopier.create(sourceClass, targetClass, false));
         beanCopier.copy(source, target, null);
+    }
+
+    class CopierId {
+        private final Class<?> sourceClass;
+        private final Class<?> targetClass;
+
+        CopierId(Class<?> sourceClass, Class<?> targetClass) {
+            this.sourceClass = sourceClass;
+            this.targetClass = targetClass;
+        }
+
+        public Class<?> getSourceClass() {
+            return sourceClass;
+        }
+
+        public Class<?> getTargetClass() {
+            return targetClass;
+        }
     }
 }

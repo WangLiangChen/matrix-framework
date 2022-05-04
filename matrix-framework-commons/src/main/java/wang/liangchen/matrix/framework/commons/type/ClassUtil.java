@@ -1,11 +1,14 @@
 package wang.liangchen.matrix.framework.commons.type;
 
+import com.esotericsoftware.reflectasm.ConstructorAccess;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,6 +21,7 @@ public enum ClassUtil {
      * instance
      */
     INSTANCE;
+    private static final Map<String, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
 
     public Class<?> forName(String className) {
         try {
@@ -34,11 +38,7 @@ public enum ClassUtil {
     }
 
     public <T> T instantiate(Class<T> clazz) {
-        try {
-            return clazz.getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new MatrixErrorException(e);
-        }
+        return constructorAccess(clazz).newInstance();
     }
 
     public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> filter) {
@@ -71,5 +71,12 @@ public enum ClassUtil {
         return declaredFields(clazz, null, containSuperFields);
     }
 
+    private <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
+        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> {
+            ConstructorAccess constructorAccess = ConstructorAccess.get(targetClass);
+            constructorAccess.newInstance();
+            return constructorAccess;
+        });
+    }
 
 }

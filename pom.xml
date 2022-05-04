@@ -56,6 +56,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <version.hibernate>7.0.4.Final</version.hibernate>
         <version.springboot>2.6.7</version.springboot>
         <version.matrix>1.0.0-SNAPSHOT</version.matrix>
     </properties>

@@ -4,6 +4,7 @@ package wang.liangchen.matrix.framework.data.util;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.lang.reflect.Constructor;
@@ -32,19 +33,6 @@ public enum EntityPrototypeUtil {
     }
 
     private RootEntity loadPrototype(String className) {
-        return entities.computeIfAbsent(className, key -> createInstance(className));
+        return entities.computeIfAbsent(className, key -> (RootEntity) ClassUtil.INSTANCE.instantiate(className));
     }
-
-    private RootEntity createInstance(String className) {
-        try {
-            Class<?> clazz = Class.forName(className);
-            Constructor<?> constructor = clazz.getConstructor();
-            return (RootEntity) constructor.newInstance();
-        } catch (ClassNotFoundException | NoSuchMethodException
-                 | InstantiationException | IllegalAccessException
-                 | InvocationTargetException e) {
-            throw new MatrixErrorException(e);
-        }
-    }
-
 }

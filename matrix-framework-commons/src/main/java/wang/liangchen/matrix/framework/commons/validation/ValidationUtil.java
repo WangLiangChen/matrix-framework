@@ -35,7 +35,7 @@ public enum ValidationUtil {
         }
         StringBuilder stringBuilder = new StringBuilder();
         results.forEach(e -> {
-            stringBuilder.append("Field '").append(e.getPropertyPath().toString()).append("' ")
+            stringBuilder.append(Symbol.LINE_SEPARATOR.getSymbol()).append("Field '").append(e.getPropertyPath().toString()).append("' ")
                     .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol());
         });
         throw new MatrixInfoException(stringBuilder.toString());
