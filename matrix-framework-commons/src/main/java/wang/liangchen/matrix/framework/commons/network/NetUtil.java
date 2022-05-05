@@ -20,8 +20,7 @@ public enum NetUtil {
     // instance;
     INSTANCE;
     private final InetAddress inetAddress;
-    private final String _255 = "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-    private final Pattern pattern = Pattern.compile("^(?:" + _255 + "\\.){3}" + _255 + "$");
+    private static final Pattern IPV4_PATTERN = Pattern.compile("^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$");
     /**
      * X-Forwarded-For：Squid服务代理
      * Proxy-Client-IP：apache服务代理
@@ -115,7 +114,7 @@ public enum NetUtil {
     }
 
     public boolean isIPv4(String ip) {
-        return pattern.matcher(ip).matches();
+        return IPV4_PATTERN.matcher(ip).matches();
     }
 
     public String ipFromHttpRequest(HttpServletRequest request) {
