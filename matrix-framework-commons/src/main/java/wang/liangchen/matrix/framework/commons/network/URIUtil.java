@@ -4,9 +4,9 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.nio.charset.Charset;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -83,6 +83,22 @@ public enum URIUtil {
             more[i] = more[i].replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol()).replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
         }
         return Arrays.stream(more).collect(Collectors.joining(Symbol.URI_SEPARATOR.getSymbol()));
+    }
+
+    public String urlEncode(String url, Charset charset) {
+        try {
+            return URLEncoder.encode(url, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    public String urlDecode(String url, Charset charset) {
+        try {
+            return URLDecoder.decode(url, charset.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new MatrixErrorException(e);
+        }
     }
 
 }

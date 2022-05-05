@@ -58,6 +58,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <version.hibernate>7.0.4.Final</version.hibernate>
         <version.springboot>2.6.7</version.springboot>
+        <version.servlet>4.0.1</version.servlet>
         <version.matrix>1.0.0-SNAPSHOT</version.matrix>
     </properties>
 
@@ -69,6 +70,12 @@
                 <version>${version.springboot}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${version.servlet}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>

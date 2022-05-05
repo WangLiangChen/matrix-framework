@@ -8,6 +8,7 @@ public enum Symbol {
      *
      */
     EQUAL("=", "等号"),
+    AND("&", "与"),
     BLANK("", "空串"),
     SPACE(" ", "空格"),
     TAB("   ", "TAB"),
