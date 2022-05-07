@@ -65,6 +65,15 @@ public enum NetUtil {
         return String.format("%d.%d.%d.%d", (longIp >> 24) & 0xFF, (longIp >> 16) & 0xFF, (longIp >> 8) & 0xFF, longIp & 0xFF);
     }
 
+    public long ipV4Lower16BitsToLong(String ip) {
+        String[] ips = ip.split(Symbol.DOT_REGEX.getSymbol());
+        int intIp = 0;
+        // 第三组地址左移8位变成16位
+        intIp |= Long.parseLong(ips[2]) << 8;
+        intIp |= Long.parseLong(ips[3]);
+        return intIp;
+    }
+
     public long ipV4ToLong(String ip) {
         int maskIndex = ip.lastIndexOf('/');
         String prefix, mask = null;
@@ -79,11 +88,10 @@ public enum NetUtil {
             mask = ip.substring(maskIndex + 1);
         }
         // 拆分split
-        String[] ipArray = prefix.split("\\.");
+        String[] ipArray = prefix.split(Symbol.DOT_REGEX.getSymbol());
         long longIp = 0;
         for (String innerIp : ipArray) {
-            longIp |= Long.parseLong(innerIp) << (index * 8);
-            index--;
+            longIp |= Long.parseLong(innerIp) << (8 * index--);
         }
         if (null == mask) {
             return longIp;
@@ -109,7 +117,8 @@ public enum NetUtil {
 
     public boolean isIPv4Private(String ip) {
         long longIp = ipV4ToLong(ip);
-        return (longIp >= ipV4ToLong("10.0.0.0") && longIp <= ipV4ToLong("10.255.255.255")) || (longIp >= ipV4ToLong("172.16.0.0") && longIp <= ipV4ToLong("172.31.255.255"))
+        return (longIp >= ipV4ToLong("10.0.0.0") && longIp <= ipV4ToLong("10.255.255.255"))
+                || (longIp >= ipV4ToLong("172.16.0.0") && longIp <= ipV4ToLong("172.31.255.255"))
                 || longIp >= ipV4ToLong("192.168.0.0") && longIp <= ipV4ToLong("192.168.255.255");
     }
 

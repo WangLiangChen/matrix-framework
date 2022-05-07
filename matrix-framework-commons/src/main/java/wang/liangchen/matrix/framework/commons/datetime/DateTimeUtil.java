@@ -1,9 +1,6 @@
 package wang.liangchen.matrix.framework.commons.datetime;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -23,9 +20,11 @@ public enum DateTimeUtil {
     public final static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_STRING);
     public final static DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(TIME_STRING);
 
-    // 系统默认时区 Asia/Shanghai
     public final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
-    public final static ZoneId UTC8_ZONE = ZoneId.of("UTC+08:00");
+    public final static ZoneId CN_ZONE = ZoneId.of("Asia/Shanghai");
+    public final static ZoneOffset DEFAULT_ZONE_OFFSET = ZonedDateTime.now(DEFAULT_ZONE).getOffset();
+    public final static ZoneOffset CN_ZONE_OFFSET = ZonedDateTime.now(CN_ZONE).getOffset();
+
 
     public LocalDateTime instant2LocalDateTime(Instant instant, ZoneId zoneId) {
         return LocalDateTime.ofInstant(instant, zoneId);
@@ -34,6 +33,15 @@ public enum DateTimeUtil {
     public LocalDateTime instant2LocalDateTime(Instant instant) {
         return LocalDateTime.ofInstant(instant, DEFAULT_ZONE);
     }
+
+    public Instant localDateTime2Instant(LocalDateTime localDateTime, ZoneOffset zoneOffset) {
+        return localDateTime.toInstant(zoneOffset);
+    }
+
+    public Instant localDateTime2Instant(LocalDateTime localDateTime) {
+        return localDateTime2Instant(localDateTime, DEFAULT_ZONE_OFFSET);
+    }
+
 
     public LocalDateTime ms2LocalDateTime(long ms, ZoneId zoneId) {
         Instant instant = Instant.ofEpochMilli(ms);
