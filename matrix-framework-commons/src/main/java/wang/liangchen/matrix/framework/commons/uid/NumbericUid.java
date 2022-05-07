@@ -56,9 +56,8 @@ public enum NumbericUid {
     static {
         // My daughter's birthday is base time
         LocalDateTime localDateTime = LocalDateTime.of(2014, 5, 24, 0, 0, 0, 0);
-        Instant instant = DateTimeUtil.INSTANCE.localDateTime2Instant(localDateTime);
         // 10MS
-        baseTimestamp = instant.toEpochMilli() / TIMEUNIT;
+        baseTimestamp = DateTimeUtil.INSTANCE.localDateTime2Ms(localDateTime) / TIMEUNIT;
 
         String privateIP = NetUtil.INSTANCE.getLocalHostAddress();
         nodeId = NetUtil.INSTANCE.ipV4Lower16BitsToLong(privateIP);

@@ -18,7 +18,7 @@ public class WebConfiguration {
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return jacksonObjectMapperBuilder -> {
             jacksonObjectMapperBuilder.serializerByType(Long.class, ToStringSerializer.instance);
-            jacksonObjectMapperBuilder.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DATETIME_FORMATTER));
+            jacksonObjectMapperBuilder.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));
         };
     }
 }
