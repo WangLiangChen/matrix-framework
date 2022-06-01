@@ -70,10 +70,4 @@ public class UserAgent {
         Chrome, Firefox, Safari, Edge, IE, Webkit
     }
 
-    public static void main(String[] args) {
-        Set<String> userAgents = UserAgent.byOs(Os.Windows, Os.Mac);
-        System.out.println(userAgents);
-        String userAgent = UserAgent.byOsRandom(Os.Windows, Os.Mac);
-        System.out.println(userAgent);
-    }
 }

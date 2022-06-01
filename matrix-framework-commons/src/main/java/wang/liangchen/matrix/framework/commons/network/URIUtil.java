@@ -23,40 +23,35 @@ public enum URIUtil {
 
     public URI toURI(String uriString, String... more) {
         Assert.INSTANCE.notBlank(uriString, "uriString can't be blank");
-        uriString = resolveURIString(uriString);
-        String moreString = resolveMore(more);
         try {
-            return Paths.get(uriString, moreString).toUri();
-        } catch (InvalidPathException ex) {
-            return URI.create(uriString).resolve(moreString);
-        }
-    }
-
-    public URI expandURI(URI uri, String... more) {
-        return uri.resolve(resolveMore(more));
-    }
-
-    public URL toURL(URI uri) {
-        try {
-            return uri.toURL();
-        } catch (MalformedURLException e) {
-            throw new MatrixErrorException(e);
+            return Paths.get(resolveURIString(uriString, more)).toUri();
+        } catch (InvalidPathException e) {
+            return URI.create(resolveURIString(uriString, more));
         }
     }
 
     public URL toURL(String urlString, String... more) {
-        URI uri = toURI(urlString, more);
-        return toURL(uri);
-    }
-
-
-    public URL expendURL(URL url, String... more) {
         try {
-            return new URL(url, resolveMore(more));
+            return toURI(urlString, more).toURL();
         } catch (MalformedURLException e) {
             throw new MatrixErrorException(e);
         }
     }
+
+    public URI expandURI(URI uri, String... more) {
+        Assert.INSTANCE.notNull(uri, "uri can not be null");
+        return URI.create(resolveURIString(uri.toString(), more));
+    }
+
+    public URL expendURL(URL url, String... more) {
+        Assert.INSTANCE.notNull(url, "url can not be null");
+        try {
+            return new URL(resolveURIString(url.toString(), more));
+        } catch (MalformedURLException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
 
     public boolean isAvailableURL(URL url) {
         try {
@@ -67,11 +62,18 @@ public enum URIUtil {
         }
     }
 
-    private String resolveURIString(String uriString) {
-        // 把 \\ 替换为 /
-        uriString = uriString.replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol());
+    private String resolveURIString(String uriString, String... more) {
+        // 把 windows路径中的 \\ 替换为 /
+        if (uriString.contains(Symbol.DOUBLE_BACKSLASH.getSymbol())) {
+            uriString = uriString.replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol());
+        }
         // 末尾加上 /
-        return uriString.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? uriString : uriString.concat(Symbol.URI_SEPARATOR.getSymbol());
+        uriString = uriString.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? uriString : uriString.concat(Symbol.URI_SEPARATOR.getSymbol());
+        if (null == more || more.length == 0) {
+            return uriString;
+        }
+        // 拼接 more
+        return uriString.concat(resolveMore(more));
     }
 
     private String resolveMore(String... more) {
@@ -79,8 +81,12 @@ public enum URIUtil {
             return Symbol.BLANK.getSymbol();
         }
         for (int i = 0; i < more.length; i++) {
-            // 把 \\ 替换为 / 去除开头和结尾 /
-            more[i] = more[i].replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol()).replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
+            // 把 \\ 替换为 /
+            if (more[i].contains(Symbol.DOUBLE_BACKSLASH.getSymbol())) {
+                more[i] = more[i].replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol());
+            }
+            // 去除开头和结尾 /
+            more[i] = more[i].replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
         }
         return Arrays.stream(more).collect(Collectors.joining(Symbol.URI_SEPARATOR.getSymbol()));
     }

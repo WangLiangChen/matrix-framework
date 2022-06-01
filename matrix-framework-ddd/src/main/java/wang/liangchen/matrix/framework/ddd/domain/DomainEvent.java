@@ -5,7 +5,8 @@ import java.util.EventObject;
 
 /**
  * @author Liangchen.Wang 2022-04-24 14:29
- * 领域事件
+ * Marker interface
+ * DomainEvent
  */
 public class DomainEvent extends EventObject {
 

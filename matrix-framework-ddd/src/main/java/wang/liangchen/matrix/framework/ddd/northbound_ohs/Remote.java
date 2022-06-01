@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
- * 标识远程服务
+ * Marker interface
+ * Remote Service
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

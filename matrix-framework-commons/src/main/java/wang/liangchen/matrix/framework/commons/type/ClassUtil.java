@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 /**
  * @author Liangchen.Wang 2021-09-30 15:22
  */
+@SuppressWarnings("unchecked")
 public enum ClassUtil {
     /**
      * instance
@@ -25,8 +26,7 @@ public enum ClassUtil {
 
     public Class<?> forName(String className) {
         try {
-            Class<?> clazz = Class.forName(className);
-            return clazz;
+            return Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new MatrixErrorException(e);
         }
@@ -73,7 +73,7 @@ public enum ClassUtil {
 
     private <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
         return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> {
-            ConstructorAccess constructorAccess = ConstructorAccess.get(targetClass);
+            ConstructorAccess<T> constructorAccess = ConstructorAccess.get(targetClass);
             constructorAccess.newInstance();
             return constructorAccess;
         });

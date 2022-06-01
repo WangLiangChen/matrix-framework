@@ -192,7 +192,8 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));
         // 初始化配置
         String configRoot = resolveConfigRoot();
-        configRoot = String.format("%s%s%s", configRoot, Symbol.URI_SEPARATOR.getSymbol(), CONFIG_DIRECTORY);
+        configRoot = configRoot.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? configRoot : configRoot.concat(Symbol.URI_SEPARATOR.getSymbol());
+        configRoot = configRoot.concat(CONFIG_DIRECTORY);
         if (activeProfiles.length > 0) {
             configRoot = String.format("%s%s%s", configRoot, Symbol.HYPHEN.getSymbol(), activeProfiles[0]);
         }
@@ -410,7 +411,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             PrettyPrinter.INSTANCE.flush();
             throw new MatrixInfoException("'config.file' does not exist in the file:" + LOGGER_ROOT);
         }
-        configFile = ConfigurationContext.INSTANCE.getURI(LOGGER_ROOT).resolve(configFile).toString();
+        configFile = ConfigurationContext.INSTANCE.getURI(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);

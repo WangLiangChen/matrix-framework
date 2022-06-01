@@ -26,59 +26,54 @@ public final class ConfigurationResolver {
     private final static String YAML = "yaml";
     private final static String JSON = "json";
 
+    private String baseUriString;
     private URI baseUri;
+    private URL baseUrl;
 
-    private ConfigurationResolver(URI baseUri) {
-        this.baseUri = baseUri;
+    private ConfigurationResolver(String baseUriString) {
+        this.baseUriString = baseUriString;
     }
 
     private ConfigurationResolver() {
     }
 
-    public static ConfigurationResolver newInstance(URI baseUri) {
-        return new ConfigurationResolver(baseUri);
-    }
-
-    public static ConfigurationResolver newInstance(String uriString) {
-        URI baseUri = URIUtil.INSTANCE.toURI(uriString);
-        return new ConfigurationResolver(baseUri);
+    public static ConfigurationResolver newInstance(String baseUriString) {
+        return new ConfigurationResolver(baseUriString);
     }
 
     public static ConfigurationResolver newInstance() {
         return new ConfigurationResolver();
     }
 
-    public void setBaseUri(URI baseUri) {
-        this.baseUri = baseUri;
-    }
-
-    public void setBaseUriString(String uriString) {
-        this.baseUri = URIUtil.INSTANCE.toURI(uriString);
-    }
-
-    public URI getBaseUri() {
-        return baseUri;
+    public void setBaseUriString(String baseUriString) {
+        this.baseUriString = baseUriString;
     }
 
     public String getBaseUriString() {
-        return baseUri.toString();
+        return baseUriString;
+    }
+
+    public URI getBaseUri() {
+        if (null == baseUri) {
+            baseUri = URIUtil.INSTANCE.toURI(baseUriString);
+        }
+        return baseUri;
     }
 
     public URL getBaseUrl() {
-        return URIUtil.INSTANCE.toURL(this.baseUri);
+        if (null == baseUrl) {
+            baseUrl = URIUtil.INSTANCE.toURL(baseUriString);
+        }
+        return baseUrl;
     }
 
-    public String getBaseUrlString() {
-        URL url = URIUtil.INSTANCE.toURL(this.baseUri);
-        return url.toString();
-    }
 
     public URI getURI(String relativePath) {
-        return URIUtil.INSTANCE.expandURI(this.baseUri, relativePath);
+        return URIUtil.INSTANCE.expandURI(this.getBaseUri(), relativePath);
     }
 
     public URL getURL(String relativePath) {
-        return URIUtil.INSTANCE.toURL(getURI(relativePath));
+        return URIUtil.INSTANCE.expendURL(this.getBaseUrl(), relativePath);
     }
 
     public String getURIString(String relativePath) {
@@ -116,6 +111,7 @@ public final class ConfigurationResolver {
         }
         FileBasedBuilderParameters fileBasedBuilderParameters = new Parameters().fileBased();
         //.setListDelimiterHandler(new DefaultListDelimiterHandler(','));
+
         URL url = getURL(relativePath);
         fileBasedBuilderParameters = fileBasedBuilderParameters.setURL(url);
         builder.configure(fileBasedBuilderParameters);

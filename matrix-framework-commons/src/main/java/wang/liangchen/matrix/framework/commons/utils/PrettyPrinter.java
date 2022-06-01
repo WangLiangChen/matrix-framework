@@ -71,7 +71,6 @@ public enum PrettyPrinter {
         for (int i = 0; i < size; i++) {
             Payload payload = payloads.get(i);
             if (0 == i) {
-                System.out.println(payload.getMessage());
                 continue;
             }
             Payload previous = payloads.get(i - 1);

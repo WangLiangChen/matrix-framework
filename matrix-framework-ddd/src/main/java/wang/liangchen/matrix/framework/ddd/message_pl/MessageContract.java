@@ -2,6 +2,8 @@ package wang.liangchen.matrix.framework.ddd.message_pl;
 
 /**
  * @author Liangchen.Wang
+ * Marker interface
+ * MessageContract And PublishLanguage
  * 标识消息契约
  * 用于两个限界上下文之间的模型转换
  * 为了保护领域模型，防腐层和开放主机服务操作的对象都不应该时各自的领域模型

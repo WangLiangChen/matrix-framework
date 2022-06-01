@@ -17,12 +17,17 @@ public enum ConfigurationContext {
      */
     INSTANCE;
     private final ConfigurationResolver configurationResolver = ConfigurationResolver.newInstance();
+
     public void setBaseUri(String uriString) {
         this.configurationResolver.setBaseUriString(uriString);
     }
 
     public Configuration resolve(String relativePath) {
         return this.configurationResolver.resolve(relativePath);
+    }
+
+    public URI getBaseURI() {
+        return this.configurationResolver.getBaseUri();
     }
 
     public URI getURI(String relativePath) {

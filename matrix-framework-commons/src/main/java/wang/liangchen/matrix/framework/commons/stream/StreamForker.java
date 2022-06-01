@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -137,18 +136,5 @@ public class StreamForker<T> {
             //接受到元素放入各个子流的队列中
             queues.forEach(q -> q.offer(t));
         }
-    }
-
-    public static void main(String[] args) {
-        List<String> list = Arrays.asList("test", "jiang", "an", "wei");
-        Results results = new StreamForker<>(list.stream())
-                .fork("test1", stringStream -> stringStream.sorted().filter(x -> x.equals("test")).findAny())
-                .fork("count", Stream::count)
-                .fork("join", stringStream -> stringStream.collect(Collectors.joining(",")))
-                .getResults();
-        Optional<String> test1 = results.get("test1");
-        System.out.println(test1.get());
-        System.out.println("" + results.get("count"));
-        System.out.println("" + results.get("join"));
     }
 }

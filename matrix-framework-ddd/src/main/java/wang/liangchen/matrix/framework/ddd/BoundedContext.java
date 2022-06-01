@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * 标识限界上下文
+ * Marker interface
+ * BoundedContext
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)

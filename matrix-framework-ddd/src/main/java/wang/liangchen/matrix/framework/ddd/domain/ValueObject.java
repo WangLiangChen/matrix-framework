@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * 标识值对象
+ * Marker interface
+ * ValueObject
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

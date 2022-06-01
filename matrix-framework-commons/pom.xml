@@ -21,6 +21,7 @@
         <version.kryo>4.0.2</version.kryo>
         <version.protostuff>1.7.4</version.protostuff>
         <version.disruptor>3.4.4</version.disruptor>
+        <version.asm>9.3</version.asm>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -58,6 +59,11 @@
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
                 <version>${version.cglib}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${version.asm}</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
@@ -123,6 +129,10 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>com.esotericsoftware</groupId>
