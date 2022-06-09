@@ -46,6 +46,7 @@ public enum Symbol {
     FILE_SEPARATOR(System.getProperty("file.separator"), "文件分割符"),
     LINE_SEPARATOR(System.getProperty("line.separator"), "换行符"),
     PATH_SEPARATOR(System.getProperty("path.separator"), "路径分割符"),
+    JAVA_CLASS_PATH(System.getProperty("java.class.path"), "Java Class Path"),
     USER_DIR(System.getProperty("user.dir"), "用户目录"),
     DOUBLE_SLASH("//", "双斜杠"),
     DOUBLE_BACKSLASH("\\\\", "双反斜杠"),

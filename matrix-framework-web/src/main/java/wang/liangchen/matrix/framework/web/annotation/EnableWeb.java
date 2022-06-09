@@ -29,13 +29,10 @@ public @interface EnableWeb {
     }
 
     class WebImportSelector implements ImportSelector {
-        private static boolean loaded = false;
+
 
         @Override
-        public String[] selectImports(AnnotationMetadata annotationMetadata) {
-            if (loaded) {
-                return new String[0];
-            }
+        public synchronized String[] selectImports(AnnotationMetadata annotationMetadata) {
             Class<?> annotationType = EnableWeb.class;
             AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(annotationType.getName(), false));
             WebType webType = attributes == null ? WebType.WEBFLUX : (WebType) attributes.get("webType");
@@ -54,7 +51,6 @@ public @interface EnableWeb {
                     imports = new String[0];
                     break;
             }
-            loaded = true;
             PrettyPrinter.INSTANCE.flush();
             return imports;
         }

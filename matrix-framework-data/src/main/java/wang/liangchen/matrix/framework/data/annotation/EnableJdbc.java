@@ -15,6 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
@@ -66,14 +67,8 @@ public @interface EnableJdbc {
             add("password");
         }};
 
-        private static volatile boolean loaded = false;
-
         @Override
-        public String[] selectImports(AnnotationMetadata annotationMetadata) {
-            if (loaded) {
-                return new String[0];
-            }
-            PrettyPrinter.INSTANCE.buffer("@EnableJdbc......");
+        public synchronized String[] selectImports(AnnotationMetadata annotationMetadata) {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             Configuration configuration;
             try {
@@ -86,7 +81,6 @@ public @interface EnableJdbc {
             PrettyPrinter.INSTANCE.flush();
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
-            loaded = true;
             DataStatus.INSTANCE.setJdbcEnabled(true);
             return imports;
         }
@@ -95,28 +89,17 @@ public @interface EnableJdbc {
             Iterator<String> keys = configuration.getKeys();
             Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();
             keys.forEachRemaining(key -> {
-                // primary.datasource
                 int firstDot = key.indexOf('.');
                 String dataSourceName = key.substring(0, firstDot);
                 Properties properties = dataSourcePropertiesMap.computeIfAbsent(dataSourceName, k -> new Properties());
-                String item = key.substring(firstDot + 1);
-                properties.put(item, configuration.getProperty(key));
+                String dataSourceItem = key.substring(firstDot + 1);
+                properties.put(dataSourceItem, configuration.getProperty(key));
             });
-            ConfigurationPropertyNameAliases aliases = new ConfigurationPropertyNameAliases("datasource", "type");
+            // 验证配置项
+            validateConfiguration(dataSourcePropertiesMap);
+            ConfigurationPropertyNameAliases propertyNameAliases = new ConfigurationPropertyNameAliases("datasource", "type");
             dataSourcePropertiesMap.forEach((dataSourceName, properties) -> {
-                // 验证配置项
-                int length = requiredConfigItemsByHost.size();
-                requiredConfigItemsByHost.retainAll(properties.keySet());
-                if (length > requiredConfigItemsByHost.size()) {
-                    length = requiredConfigItemsByUrl.size();
-                    requiredConfigItemsByUrl.retainAll(properties.keySet());
-                    Assert.INSTANCE.isTrue(requiredConfigItemsByHost.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
-                }
-                // 转化以便于使用binder绑定到DataSourceProperties
-                ConfigurationPropertySource source = new MapConfigurationPropertySource(properties);
-                Binder binder = new Binder(source.withAliases(aliases));
-                DataSourceProperties dataSourceProperties = binder.bind(ConfigurationPropertyName.EMPTY, Bindable.of(DataSourceProperties.class)).get();
-
+                // 按需默认构造url
                 AbstractDialect dialect = ClassUtil.INSTANCE.instantiate(properties.getProperty(DIALECT_ITEM));
                 if (StringUtil.INSTANCE.isBlank(properties.getProperty(URL_ITEM))) {
                     String query, url = null;
@@ -132,20 +115,37 @@ public @interface EnableJdbc {
                         query = "";
                         url = String.format("jdbc:oracle:thin://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
-                    PrettyPrinter.INSTANCE.buffer("DataSource:{},url:{}", dataSourceName, url);
-                    dataSourceProperties.setUrl(url);
+                    PrettyPrinter.INSTANCE.buffer("DataSource:{},default url:{}", dataSourceName, url);
+                    properties.setProperty(URL_ITEM, url);
                 }
+                // 转化以便于使用binder绑定到DataSourceProperties,然后创建数据源
+                ConfigurationPropertySource propertySource = new MapConfigurationPropertySource(properties);
+                Binder binder = new Binder(propertySource.withAliases(propertyNameAliases));
+                DataSourceProperties dataSourceProperties = binder.bind(ConfigurationPropertyName.EMPTY, Bindable.of(DataSourceProperties.class)).get();
                 dataSourceProperties.setBeanClassLoader(this.getClass().getClassLoader());
                 try {
                     dataSourceProperties.afterPropertiesSet();
                 } catch (Exception e) {
-                    PrettyPrinter.INSTANCE.flush();
-                    throw new IllegalStateException("Can't init dataSource:" + dataSourceName, e);
+                    throw new MatrixErrorException(e);
                 }
                 DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();
+                // 将其它配置绑定到dataSource
                 binder.bind(EXTRA_ITEM, Bindable.ofInstance(dataSource));
                 MultiDataSourceContext.INSTANCE.putDialect(dataSourceName, dialect);
                 MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource);
+            });
+        }
+
+        private void validateConfiguration(Map<String, Properties> dataSourcePropertiesMap) {
+            dataSourcePropertiesMap.forEach((dataSourceName, properties) -> {
+                // 验证配置的项
+                int length = requiredConfigItemsByHost.size();
+                requiredConfigItemsByHost.retainAll(properties.keySet());
+                if (length > requiredConfigItemsByHost.size()) {
+                    length = requiredConfigItemsByUrl.size();
+                    requiredConfigItemsByUrl.retainAll(properties.keySet());
+                    Assert.INSTANCE.isTrue(requiredConfigItemsByHost.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
+                }
             });
         }
     }

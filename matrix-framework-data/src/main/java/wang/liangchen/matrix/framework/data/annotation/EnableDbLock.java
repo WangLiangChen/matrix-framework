@@ -30,13 +30,8 @@ public @interface EnableDbLock {
     }
 
     class DbLockImportSelector implements ImportSelector {
-        private static volatile boolean loaded = false;
-
         @Override
-        public String[] selectImports(AnnotationMetadata annotationMetadata) {
-            if (loaded) {
-                return new String[0];
-            }
+        public synchronized String[] selectImports(AnnotationMetadata annotationMetadata) {
             Class<?> annotationType = EnableDbLock.class;
             AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(annotationType.getName(), false));
             DbLockMode dbLockMode = (DbLockMode) attributes.get("dbLockMode");
@@ -58,7 +53,6 @@ public @interface EnableDbLock {
                 default:
                     break;
             }
-            loaded = true;
             PrettyPrinter.INSTANCE.flush();
             return imports;
         }
