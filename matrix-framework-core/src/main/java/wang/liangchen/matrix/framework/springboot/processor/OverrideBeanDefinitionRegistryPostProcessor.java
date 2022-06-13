@@ -79,6 +79,7 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
         // 在TaskSchedulingAutoConfiguration注册的ThreadPoolTaskScheduler
         ThreadPoolTaskScheduler defaultScheduler = beanFactory.getBean(ThreadPoolTaskScheduler.class);
         beanFactory.registerSingleton(SCHEDULINGCONFIGURER_BEANNAME, schedulingConfigurer(defaultScheduler));
+        String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
     }
 
     /*

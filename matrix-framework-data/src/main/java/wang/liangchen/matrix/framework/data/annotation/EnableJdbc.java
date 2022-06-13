@@ -49,7 +49,7 @@ import java.util.*;
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector {
         private final String JDBC_CONFIG_FILE = "jdbc.properties";
-        private final String DIALECT_ITEM = "dialect", URL_ITEM = "url", EXTRA_ITEM = "extra";
+        private final String DIALECT_ITEM = "dialect", SCHEMA_ITEM = "schema", URL_ITEM = "url", EXTRA_ITEM = "extra";
         private final Set<String> requiredConfigItemsByHost = new HashSet<String>() {{
             add("dialect");
             add("datasource");
@@ -108,7 +108,11 @@ public @interface EnableJdbc {
                         url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
                     if (dialect instanceof PostgreSQLDialect) {
-                        query = "";
+                        query = "reWriteBatchedInserts=true&stringtype=unspecified&useUnicode=true&characterEncoding=UTF-8";
+                        String schema = properties.getProperty(SCHEMA_ITEM);
+                        if (StringUtil.INSTANCE.isNotBlank(schema)) {
+                            query = String.format("currentSchema=%s&%s", schema, query);
+                        }
                         url = String.format("jdbc:postgresql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
                     if (dialect instanceof OracleDialect) {

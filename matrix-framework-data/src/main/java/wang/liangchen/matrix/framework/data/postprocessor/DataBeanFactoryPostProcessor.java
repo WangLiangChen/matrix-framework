@@ -25,4 +25,5 @@ public class DataBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
         }
         throw new MatrixInfoException("Please use annotation '@EnableJdbc' to enable JDBC");
     }
+
 }

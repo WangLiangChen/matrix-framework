@@ -35,7 +35,7 @@ import java.util.List;
 public class DomainGenerator {
     private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
-    private final static String GENERATOR_CONFIG_FILE = "generator.xml";
+    private final static String GENERATOR_CONFIG_FILE = "codegenerator.xml";
     private final Configuration freemarkerConfig;
 
     @Inject
@@ -59,7 +59,7 @@ public class DomainGenerator {
     }
 
     private void createDomain(GeneratorProperties generatorProperties) {
-        GeneratorTemplate generatorTemplate = (GeneratorTemplate)generatorProperties;
+        GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
 
         generatorTemplate.setDomainPackage("domain");
         try {
@@ -192,13 +192,14 @@ public class DomainGenerator {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        String columnName, fieldName, jdbcTypeName, javaTypeName;
+        String columnName, fieldName, dataTypeName;
+        Class<?> javaType;
         ColumnMeta columnMeta;
         List<ColumnMeta> columnMetas = new ArrayList<>();
         for (int i = 1, j = resultSetMetaData.getColumnCount(); i <= j; i++) {
             columnName = resultSetMetaData.getColumnName(i);
-            jdbcTypeName = resultSetMetaData.getColumnTypeName(i);
-            javaTypeName = DatabaseUtil.INSTANCE.jdbcType2JavaType(jdbcTypeName);
+            dataTypeName = resultSetMetaData.getColumnClassName(i);
+            javaType = DatabaseUtil.INSTANCE.dataType2JavaType(dataTypeName);
             fieldName = columnName;
             if (underline2camelCase) {
                 fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
@@ -208,7 +209,7 @@ public class DomainGenerator {
             boolean isVersion = columnName.equals(versionColumn);
             String _deleteValue = columnName.equals(deleteColumn) ? markDeleteValue : null;
 
-            columnMeta = ColumnMeta.newInstance(fieldName, javaTypeName, columnName, isId, isUnique, isVersion, _deleteValue);
+            columnMeta = ColumnMeta.newInstance(fieldName, javaType, columnName, isId, isUnique, isVersion, _deleteValue);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();
