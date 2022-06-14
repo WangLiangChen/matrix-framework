@@ -9,6 +9,7 @@ public class GeneratorProperties {
     private String basePackage;
     private String subPackage;
 
+    private String datasource;
     private String tableName;
     private String entityName;
     private String columnVersion;
@@ -46,6 +47,14 @@ public class GeneratorProperties {
 
     public void setSubPackage(String subPackage) {
         this.subPackage = subPackage;
+    }
+
+    public String getDatasource() {
+        return datasource;
+    }
+
+    public void setDatasource(String datasource) {
+        this.datasource = datasource;
     }
 
     public String getTableName() {

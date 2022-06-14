@@ -24,12 +24,14 @@ public abstract class RootEntity extends EnhancedMap {
     protected RootEntity() {
         tableMeta = TableMetas.INSTANCE.tableMeta(this.getClass());
     }
+
     public <E extends RootEntity> void addForceUpdateColumn(String columnName, Object value) {
         if (null == forceUpdateColumns) {
             forceUpdateColumns = new HashMap<>();
         }
-        forceUpdateColumns.put(columnName,value);
+        forceUpdateColumns.put(columnName, value);
     }
+
     public <E extends RootEntity> void addForceUpdateField(EntityGetter<E> entityGetter, Object value) {
         if (null == forceUpdateColumns) {
             forceUpdateColumns = new HashMap<>();

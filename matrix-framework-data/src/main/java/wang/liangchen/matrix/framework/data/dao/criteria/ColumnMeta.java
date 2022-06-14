@@ -1,69 +1,106 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
-import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
+
+import java.math.BigDecimal;
+import java.sql.SQLXML;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2021-10-22 9:37
  */
 public class ColumnMeta {
-    private final String fieldName;
-    private final Class<?> fieldType;
-    private final String fieldClassName;
+    private static final String NON_IMPORT = "java.lang";
+    private static final String BYTE_ARRAY = "byte[]";
+
+    private static final Map<String, Class<?>> mapping = new HashMap<>();
     private final String columnName;
+    private final String dataTypeName;
+    private final String jdbcTypeName;
+
     private final boolean id;
     private final boolean unique;
     private final boolean version;
     private final String markDeleteValue;
+    private final String importPackage;
+    private final String modifier;
+    private final String fieldName;
+    private final Class<?> fieldType;
 
-    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean id, boolean unique, boolean version, String markDeleteValue) {
-        this.fieldName = fieldName;
-        this.fieldType = fieldType;
-        this.fieldClassName = fieldType.getName().replace("java.lang", "");
-        ;
-        this.columnName = columnName;
-
-        this.id = id;
-        this.unique = unique;
-        this.version = version;
-
-        this.markDeleteValue = markDeleteValue;
+    static {
+        populateMySQL();
+        populatePostgreSQL();
     }
 
-    private ColumnMeta(String fieldName, String fieldClassName, String columnName, boolean id, boolean unique, boolean version, String markDeleteValue) {
-        this.fieldName = fieldName;
-        this.fieldType = ClassUtil.INSTANCE.forName(fieldClassName);
-        this.fieldClassName = fieldClassName.replace("java.lang.", "");
+    private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
         this.columnName = columnName;
-
-        this.id = id;
-        this.unique = unique;
-        this.version = version;
-
+        this.dataTypeName = dataTypeName;
+        this.jdbcTypeName = jdbcTypeName;
+        this.id = isId;
+        this.unique = isUnique;
+        this.version = isVersion;
         this.markDeleteValue = markDeleteValue;
+
+        if (underline2camelCase) {
+            this.fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
+        } else {
+            this.fieldName = columnName;
+        }
+        this.fieldType = dataType2JavaType(dataTypeName);
+        if (ByteArray.class.isAssignableFrom(this.fieldType)) {
+            modifier = BYTE_ARRAY;
+        } else {
+            modifier = fieldType.getSimpleName();
+        }
+        String packageName = fieldType.getPackage().getName();
+        if (NON_IMPORT.equals(packageName)) {
+            importPackage = "";
+        } else {
+            importPackage = fieldType.getName();
+        }
+    }
+
+    public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
+                                         boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, markDeleteValue, underline2camelCase);
+    }
+
+    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
+        this.fieldName = fieldName;
+        this.fieldType = fieldType;
+        this.columnName = columnName;
+        this.id = isId;
+        this.unique = isUnique;
+        this.version = isVersion;
+        this.markDeleteValue = markDeleteValue;
+
+        this.dataTypeName = null;
+        this.jdbcTypeName = null;
+        this.importPackage = null;
+        this.modifier = null;
     }
 
     public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
         return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, markDeleteValue);
     }
 
-    public static ColumnMeta newInstance(String fieldName, String fieldClassName, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
-        return new ColumnMeta(fieldName, fieldClassName, columnName, isId, isUnique, isVersion, markDeleteValue);
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public Class<?> getFieldType() {
-        return fieldType;
-    }
-
-    public String getFieldClassName() {
-        return fieldClassName;
-    }
-
     public String getColumnName() {
         return columnName;
+    }
+
+    public String getDataTypeName() {
+        return dataTypeName;
+    }
+
+    public String getJdbcTypeName() {
+        return jdbcTypeName;
     }
 
     public boolean isId() {
@@ -78,21 +115,100 @@ public class ColumnMeta {
         return unique;
     }
 
-    public boolean isNotUnique() {
-        return !unique;
-    }
-
     public boolean isVersion() {
         return version;
-    }
-
-    public boolean isNotVersion() {
-        return !version;
     }
 
     public String getMarkDeleteValue() {
         return markDeleteValue;
     }
 
+    public String getImportPackage() {
+        return importPackage;
+    }
 
+    public String getModifier() {
+        return modifier;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public Class<?> getFieldType() {
+        return fieldType;
+    }
+
+    private Class<?> dataType2JavaType(String dataTypeName) {
+        Class<?> javaType = mapping.get(dataTypeName);
+        if (null != javaType) {
+            return javaType;
+        }
+        throw new MatrixInfoException("can't mapping dataType to javaType:{}", dataTypeName);
+    }
+
+    private static void populateMySQL() {
+        mapping.put("bit", Boolean.class);
+        mapping.put("varchar", String.class);
+        mapping.put("char", String.class);
+        mapping.put("longvarchar", String.class);
+        mapping.put("text", String.class);
+        mapping.put("mediumtext", String.class);
+        mapping.put("tinyint", Byte.class);
+        mapping.put("smallint", Short.class);
+        mapping.put("mediumint", Integer.class);
+        mapping.put("int", Integer.class);
+        mapping.put("integer", Integer.class);
+        mapping.put("bigint", Long.class);
+        mapping.put("", BigDecimal.class);
+        mapping.put("float", Float.class);
+        mapping.put("real", Float.class);
+        mapping.put("double", Double.class);
+        mapping.put("numeric", BigDecimal.class);
+        mapping.put("decimal", BigDecimal.class);
+        mapping.put("date", LocalDate.class);
+        mapping.put("tim1e", LocalTime.class);
+        mapping.put("datetime", LocalDateTime.class);
+        mapping.put("timestamp", Timestamp.class);
+    }
+
+    private static void populatePostgreSQL() {
+        mapping.put("bool", Boolean.class);
+        mapping.put("varchar", String.class);
+        mapping.put("text", String.class);
+        mapping.put("char", String.class);
+        mapping.put("bpchar", String.class);
+        mapping.put("name", String.class);
+        mapping.put("text", String.class);
+        mapping.put("int2", Short.class);
+        mapping.put("smallserial", Short.class);
+        mapping.put("int", Integer.class);
+        mapping.put("int4", Integer.class);
+        mapping.put("serial", Integer.class);
+        mapping.put("int8", Long.class);
+        mapping.put("bigserial", Long.class);
+        mapping.put("oid", Long.class);
+        mapping.put("numeric", BigDecimal.class);
+        mapping.put("float4", Float.class);
+        mapping.put("float8", Double.class);
+        mapping.put("money", Double.class);
+        mapping.put("date", LocalDateTime.class);
+        mapping.put("time", LocalTime.class);
+        mapping.put("timetz", LocalTime.class);
+        mapping.put("timestamp", Timestamp.class);
+        mapping.put("timestamptz", Timestamp.class);
+        mapping.put("xml", SQLXML.class);
+        mapping.put("bytea", ByteArray.class);
+        mapping.put("blob", ByteArray.class);
+        mapping.put("longblob", ByteArray.class);
+        mapping.put("mediumblob", ByteArray.class);
+        mapping.put("tinyblob", ByteArray.class);
+        mapping.put("clob", ByteArray.class);
+        mapping.put("varbinary", ByteArray.class);
+        mapping.put("binary", ByteArray.class);
+        mapping.put("longvarbinary", ByteArray.class);
+    }
+
+    interface ByteArray {
+    }
 }

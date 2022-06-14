@@ -15,7 +15,7 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
-import wang.liangchen.matrix.framework.data.util.DatabaseUtil;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 
 import javax.inject.Inject;
@@ -26,7 +26,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2022-04-26 8:47
@@ -35,6 +38,7 @@ import java.util.List;
 public class DomainGenerator {
     private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
+    private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "codegenerator.xml";
     private final Configuration freemarkerConfig;
 
@@ -47,48 +51,44 @@ public class DomainGenerator {
         this.freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     }
 
-
     public void build() {
         // 获取配置信息
         List<GeneratorProperties> generatorPropertiesList = resolveConfiguration();
-        // 填充数据库信息
+        // 填充数据表信息
         generatorPropertiesList.forEach(generatorProperties -> {
-            populateColumnMetas(generatorProperties);
+            String datasource = generatorProperties.getDatasource();
+            if (StringUtil.INSTANCE.isBlank(datasource) || MultiDataSourceContext.INSTANCE.PRIMARY_DATASOURCE_NAME.equals(datasource)) {
+                populateColumnMetas(generatorProperties);
+            } else {
+                // 切换数据源
+                MultiDataSourceContext.INSTANCE.set(datasource);
+                try {
+                    populateColumnMetas(generatorProperties);
+                } finally {
+                    MultiDataSourceContext.INSTANCE.clear();
+                }
+            }
             createDomain(generatorProperties);
         });
     }
 
     private void createDomain(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
-
         generatorTemplate.setDomainPackage("domain");
         try {
-            String pathName = new StringBuilder()
-                    .append(generatorProperties.getOutput())
-                    .append(Symbol.FILE_SEPARATOR.getSymbol())
-                    .append(generatorProperties.getSubPackage())
-                    .append(Symbol.FILE_SEPARATOR.getSymbol())
-                    .append("domain").toString();
+            String pathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol()).append(generatorProperties.getSubPackage()).append(Symbol.FILE_SEPARATOR.getSymbol()).append(generatorTemplate.getDomainPackage()).toString();
             Path path = Paths.get(pathName);
             if (Files.notExists(path)) {
                 Files.createDirectories(path);
             }
             // Entity File
-            Path entityFilePath = path.resolve(generatorProperties.getEntityName() + ".java");
+            Path entityFilePath = path.resolve(generatorProperties.getEntityName() + JAVA);
             if (Files.exists(entityFilePath)) {
                 throw new MatrixInfoException("file:{} already exists", entityFilePath.toString());
             }
             Files.createFile(entityFilePath);
             Template template = freemarkerConfig.getTemplate("Entity.ftl");
             template.process(generatorProperties, new FileWriter(entityFilePath.toFile()));
-            // DomainService File
-            Path domainServiceFilePath = path.resolve(generatorProperties.getEntityName() + "DomainService.java");
-            if (Files.exists(domainServiceFilePath)) {
-                throw new MatrixInfoException("file:{} already exists", domainServiceFilePath.toString());
-            }
-            Files.createFile(domainServiceFilePath);
-            template = freemarkerConfig.getTemplate("DomainService.ftl");
-            template.process(generatorProperties, new FileWriter(domainServiceFilePath.toFile()));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -102,22 +102,14 @@ public class DomainGenerator {
         String basePackage = element.getAttribute("base-package");
         String output = element.getAttribute("output");
         if (StringUtil.INSTANCE.isBlank(output)) {
-            output = new StringBuilder().append(Symbol.USER_DIR.getSymbol())
-                    .append(Symbol.FILE_SEPARATOR.getSymbol())
-                    .append("src")
-                    .append(Symbol.FILE_SEPARATOR.getSymbol())
-                    .append("main")
-                    .append(Symbol.FILE_SEPARATOR.getSymbol())
-                    .append("java").toString();
+            output = new StringBuilder().append(Symbol.USER_DIR.getSymbol()).append(Symbol.FILE_SEPARATOR.getSymbol()).append("src").append(Symbol.FILE_SEPARATOR.getSymbol()).append("main").append(Symbol.FILE_SEPARATOR.getSymbol()).append("java").toString();
         }
-        output = new StringBuilder(output)
-                .append(Symbol.FILE_SEPARATOR.getSymbol())
-                .append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
+        output = new StringBuilder(output).append(Symbol.FILE_SEPARATOR.getSymbol()).append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
 
 
         NodeList nodes = document.getElementsByTagName("entity");
         int length = nodes.getLength();
-        String tableName, entityName, subPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
+        String datasource, tableName, entityName, subPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
         GeneratorProperties generatorProperties;
         List<GeneratorProperties> generatorPropertiesList = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
@@ -126,6 +118,8 @@ public class DomainGenerator {
             generatorProperties.setOutput(output);
             generatorProperties.setBasePackage(basePackage);
 
+            datasource = generatorXml.getString(String.format("entity(%d).datasource", i));
+            generatorProperties.setDatasource(datasource);
             tableName = generatorXml.getString(String.format("entity(%d).table-name", i));
             generatorProperties.setTableName(tableName);
             entityName = generatorXml.getString(String.format("entity(%d).entity-name", i));
@@ -153,10 +147,13 @@ public class DomainGenerator {
                 List<String> primaryKeyColumnNames = primaryKeyColumnNames(databaseMetaData, tableName);
                 List<String> uniqueKeyColumnNames = uniqueKeyColumnNames(databaseMetaData, tableName);
                 uniqueKeyColumnNames.removeAll(primaryKeyColumnNames);
-                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(),
-                        generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(),
-                        primaryKeyColumnNames, uniqueKeyColumnNames);
-                ((GeneratorTemplate) generatorProperties).setColumnMetas(columnMetas);
+
+                Set<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(), generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(), primaryKeyColumnNames, uniqueKeyColumnNames);
+                GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
+                generatorTemplate.getColumnMetas().addAll(columnMetas);
+                // 构造imports
+                Set<String> imports = columnMetas.stream().map(ColumnMeta::getImportPackage).filter(StringUtil.INSTANCE::isNotBlank).collect(Collectors.toSet());
+                generatorTemplate.getImports().addAll(imports);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -188,28 +185,24 @@ public class DomainGenerator {
 
     }
 
-    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
+    private Set<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        String columnName, fieldName, dataTypeName;
-        Class<?> javaType;
+        String columnName, dataTypeName, jdbcTypeName;
         ColumnMeta columnMeta;
-        List<ColumnMeta> columnMetas = new ArrayList<>();
+        Set<ColumnMeta> columnMetas = new HashSet<>();
         for (int i = 1, j = resultSetMetaData.getColumnCount(); i <= j; i++) {
             columnName = resultSetMetaData.getColumnName(i);
-            dataTypeName = resultSetMetaData.getColumnClassName(i);
-            javaType = DatabaseUtil.INSTANCE.dataType2JavaType(dataTypeName);
-            fieldName = columnName;
-            if (underline2camelCase) {
-                fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
-            }
+            dataTypeName = resultSetMetaData.getColumnTypeName(i);
+            jdbcTypeName = resultSetMetaData.getColumnClassName(i);
+
             boolean isId = primaryKeyColumnNames.contains(columnName);
             boolean isUnique = uniqueKeyColumnNames.contains(columnName);
             boolean isVersion = columnName.equals(versionColumn);
             String _deleteValue = columnName.equals(deleteColumn) ? markDeleteValue : null;
 
-            columnMeta = ColumnMeta.newInstance(fieldName, javaType, columnName, isId, isUnique, isVersion, _deleteValue);
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, _deleteValue, underline2camelCase);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();

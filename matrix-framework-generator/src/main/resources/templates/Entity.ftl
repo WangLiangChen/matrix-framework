@@ -4,6 +4,9 @@ import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import javax.persistence.*;
+<#list imports as importPackage>
+import ${importPackage};
+</#list>
 
 /**
  * @author ${author}
@@ -16,7 +19,7 @@ public class ${entityName} extends RootEntity {
     @Id
     </#if>
     <#if columnMeta.unique>
-    @@UniqueConstraint
+    @UniqueConstraint
     </#if>
     <#if columnMeta.version>
     @Version
@@ -25,15 +28,15 @@ public class ${entityName} extends RootEntity {
     @ColumnMarkDelete("${columnMeta.markDeleteValue}")
     </#if>
     @Column(name = "${columnMeta.columnName}")
-    private ${columnMeta.fieldClassName} ${columnMeta.fieldName};
+    private ${columnMeta.modifier} ${columnMeta.fieldName};
 
 </#list>
 
 <#list columnMetas as columnMeta>
-    public ${columnMeta.fieldClassName} get${columnMeta.fieldName?cap_first}() {
+    public ${columnMeta.modifier} get${columnMeta.fieldName?cap_first}() {
         return this.${columnMeta.fieldName};
     }
-    public void set${columnMeta.fieldName?cap_first}(${columnMeta.fieldClassName} ${columnMeta.fieldName}) {
+    public void set${columnMeta.fieldName?cap_first}(${columnMeta.modifier} ${columnMeta.fieldName}) {
         this.${columnMeta.fieldName} = ${columnMeta.fieldName};
     }
 </#list>

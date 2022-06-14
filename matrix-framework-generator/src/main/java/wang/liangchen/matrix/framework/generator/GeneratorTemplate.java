@@ -2,14 +2,16 @@ package wang.liangchen.matrix.framework.generator;
 
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-04-28 9:51
  */
 public class GeneratorTemplate extends GeneratorProperties {
     private String domainPackage;
-    private List<ColumnMeta> columnMetas;
+    private Set<String> imports = new HashSet<>();
+    private Set<ColumnMeta> columnMetas = new HashSet<>();
 
     public String getDomainPackage() {
         return domainPackage;
@@ -19,11 +21,11 @@ public class GeneratorTemplate extends GeneratorProperties {
         this.domainPackage = domainPackage;
     }
 
-    public List<ColumnMeta> getColumnMetas() {
-        return columnMetas;
+    public Set<String> getImports() {
+        return imports;
     }
 
-    public void setColumnMetas(List<ColumnMeta> columnMetas) {
-        this.columnMetas = columnMetas;
+    public Set<ColumnMeta> getColumnMetas() {
+        return columnMetas;
     }
 }
