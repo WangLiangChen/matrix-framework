@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,17 +71,23 @@ public class DomainGenerator {
         });
     }
 
-    private void createDomain(GeneratorProperties generatorProperties) {
+    private void createDomain(GeneratorProperties generatorProperties){
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
         generatorTemplate.setDomainPackage("domain");
+        createEntity(generatorProperties);
+    }
+    private void createEntity(GeneratorProperties generatorProperties) {
+        GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
+        String entityPathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorProperties.getContextPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getDomainPackage()).toString();
         try {
-            String pathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol()).append(generatorProperties.getSubPackage()).append(Symbol.FILE_SEPARATOR.getSymbol()).append(generatorTemplate.getDomainPackage()).toString();
-            Path path = Paths.get(pathName);
-            if (Files.notExists(path)) {
-                Files.createDirectories(path);
+            Path entityPath = Paths.get(entityPathName);
+            if (Files.notExists(entityPath)) {
+                Files.createDirectories(entityPath);
             }
             // Entity File
-            Path entityFilePath = path.resolve(generatorProperties.getEntityName() + JAVA);
+            Path entityFilePath = entityPath.resolve(generatorProperties.getEntityName() + JAVA);
             if (Files.exists(entityFilePath)) {
                 throw new MatrixInfoException("file:{} already exists", entityFilePath.toString());
             }
@@ -102,14 +107,18 @@ public class DomainGenerator {
         String basePackage = element.getAttribute("base-package");
         String output = element.getAttribute("output");
         if (StringUtil.INSTANCE.isBlank(output)) {
-            output = new StringBuilder().append(Symbol.USER_DIR.getSymbol()).append(Symbol.FILE_SEPARATOR.getSymbol()).append("src").append(Symbol.FILE_SEPARATOR.getSymbol()).append("main").append(Symbol.FILE_SEPARATOR.getSymbol()).append("java").toString();
+            output = new StringBuilder().append(Symbol.USER_DIR.getSymbol()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                    .append("src").append(Symbol.FILE_SEPARATOR.getSymbol())
+                    .append("main").append(Symbol.FILE_SEPARATOR.getSymbol())
+                    .append("java").toString();
         }
-        output = new StringBuilder(output).append(Symbol.FILE_SEPARATOR.getSymbol()).append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
+        output = new StringBuilder(output).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
 
 
         NodeList nodes = document.getElementsByTagName("entity");
         int length = nodes.getLength();
-        String datasource, tableName, entityName, subPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
+        String datasource, tableName, entityName, contextPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
         GeneratorProperties generatorProperties;
         List<GeneratorProperties> generatorPropertiesList = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
@@ -124,8 +133,8 @@ public class DomainGenerator {
             generatorProperties.setTableName(tableName);
             entityName = generatorXml.getString(String.format("entity(%d).entity-name", i));
             generatorProperties.setEntityName(entityName);
-            subPackage = generatorXml.getString(String.format("entity(%d).sub-package", i));
-            generatorProperties.setSubPackage(subPackage);
+            contextPackage = generatorXml.getString(String.format("entity(%d).context-package", i));
+            generatorProperties.setContextPackage(contextPackage);
             columnVersion = generatorXml.getString(String.format("entity(%d).column-version", i));
             generatorProperties.setColumnVersion(columnVersion);
             columnMarkDelete = generatorXml.getString(String.format("entity(%d).column-markdelete", i));
@@ -143,12 +152,13 @@ public class DomainGenerator {
         String tableName = generatorProperties.getTableName();
         ConnectionsManager.INSTANCE.executeInNonManagedConnection((connection) -> {
             try {
+                // 查询主键唯一键等信息
                 DatabaseMetaData databaseMetaData = connection.getMetaData();
                 List<String> primaryKeyColumnNames = primaryKeyColumnNames(databaseMetaData, tableName);
                 List<String> uniqueKeyColumnNames = uniqueKeyColumnNames(databaseMetaData, tableName);
                 uniqueKeyColumnNames.removeAll(primaryKeyColumnNames);
 
-                Set<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(), generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(), primaryKeyColumnNames, uniqueKeyColumnNames);
+                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(), generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(), primaryKeyColumnNames, uniqueKeyColumnNames);
                 GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
                 generatorTemplate.getColumnMetas().addAll(columnMetas);
                 // 构造imports
@@ -185,13 +195,13 @@ public class DomainGenerator {
 
     }
 
-    private Set<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
+    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
         String columnName, dataTypeName, jdbcTypeName;
         ColumnMeta columnMeta;
-        Set<ColumnMeta> columnMetas = new HashSet<>();
+        List<ColumnMeta> columnMetas = new ArrayList<>();
         for (int i = 1, j = resultSetMetaData.getColumnCount(); i <= j; i++) {
             columnName = resultSetMetaData.getColumnName(i);
             dataTypeName = resultSetMetaData.getColumnTypeName(i);

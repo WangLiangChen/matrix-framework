@@ -2,7 +2,9 @@ package wang.liangchen.matrix.framework.generator;
 
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -11,7 +13,7 @@ import java.util.Set;
 public class GeneratorTemplate extends GeneratorProperties {
     private String domainPackage;
     private Set<String> imports = new HashSet<>();
-    private Set<ColumnMeta> columnMetas = new HashSet<>();
+    private List<ColumnMeta> columnMetas = new ArrayList<>();
 
     public String getDomainPackage() {
         return domainPackage;
@@ -25,7 +27,7 @@ public class GeneratorTemplate extends GeneratorProperties {
         return imports;
     }
 
-    public Set<ColumnMeta> getColumnMetas() {
+    public List<ColumnMeta> getColumnMetas() {
         return columnMetas;
     }
 }

@@ -11,6 +11,7 @@ import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 import javax.inject.Inject;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,39 +36,48 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
         entityClass = (Class<E>) argTypes[0];
     }
 
-    public int insert(E entity) {
+    @Override
+    public <E extends RootEntity> int insert(E entity) {
         return standaloneDao.insert(entity);
     }
 
-    public int insert(List<E> entities) {
+    @Override
+    public <E extends RootEntity> int insert(Collection<E> entities) {
         return standaloneDao.insert(entities);
     }
 
-    public int delete(E entity) {
+    @Override
+    public <E extends RootEntity> int delete(E entity) {
         return standaloneDao.delete(entity);
     }
 
-    public int delete(SubCriteria<E> subCriteria) {
+    @Override
+    public <E extends RootEntity> int delete(SubCriteria<E> subCriteria) {
         return standaloneDao.delete(subCriteria);
     }
 
-    public int update(E entity) {
+    @Override
+    public <E extends RootEntity> int update(E entity) {
         return standaloneDao.update(entity);
     }
 
-    public int update(UpdateCriteria<E> updateCriteria) {
+    @Override
+    public <E extends RootEntity> int update(UpdateCriteria<E> updateCriteria) {
         return standaloneDao.update(updateCriteria);
     }
 
-    public int count(Criteria<E> criteria) {
+    @Override
+    public <E extends RootEntity> int count(Criteria<E> criteria) {
         return standaloneDao.count(criteria);
     }
 
-    public List<E> list(Criteria<E> criteria) {
+    @Override
+    public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
         return standaloneDao.list(criteria);
     }
 
-    public PaginationResult<E> pagination(Criteria<E> criteria) {
+    @Override
+    public <E extends RootEntity> PaginationResult<E> pagination(Criteria<E> criteria) {
         return standaloneDao.pagination(criteria);
     }
 }

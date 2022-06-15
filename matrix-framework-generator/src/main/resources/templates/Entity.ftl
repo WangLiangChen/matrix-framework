@@ -1,4 +1,4 @@
-package ${basePackage}.${subPackage}.${domainPackage};
+package ${basePackage}.${contextPackage}.${domainPackage};
 
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;

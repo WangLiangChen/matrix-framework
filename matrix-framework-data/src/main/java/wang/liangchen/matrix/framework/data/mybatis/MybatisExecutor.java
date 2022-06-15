@@ -14,10 +14,7 @@ import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -58,9 +55,9 @@ public enum MybatisExecutor {
         return sqlSessionTemplate.insert(statementId, entity);
     }
 
-    public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final List<E> entities) {
+    public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
-        E entity = entities.get(0);
+        E entity = entities.stream().findFirst().get();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBatch");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {

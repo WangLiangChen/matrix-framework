@@ -7,7 +7,7 @@ public class GeneratorProperties {
     private String author;
     private String output;
     private String basePackage;
-    private String subPackage;
+    private String contextPackage;
 
     private String datasource;
     private String tableName;
@@ -41,12 +41,12 @@ public class GeneratorProperties {
         this.basePackage = basePackage;
     }
 
-    public String getSubPackage() {
-        return subPackage;
+    public String getContextPackage() {
+        return contextPackage;
     }
 
-    public void setSubPackage(String subPackage) {
-        this.subPackage = subPackage;
+    public void setContextPackage(String contextPackage) {
+        this.contextPackage = contextPackage;
     }
 
     public String getDatasource() {

@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Liangchen.Wang 2021-10-19 18:35
  * spirng jdbc,mybatis and jpa
  */
-public abstract class AbstractDao {
+public abstract class AbstractDao implements IDao{
     private final static Logger logger = LoggerFactory.getLogger(AbstractDao.class);
     @Inject
     protected JdbcTemplate jdbcTemplate;
@@ -80,8 +80,5 @@ public abstract class AbstractDao {
 
     public ResultSetMetaData queryForMetaData(SqlBuilder sqlBuilder) {
         return jdbcTemplate.query(sqlBuilder.getSql(), ResultSet::getMetaData);
-    }
-    public void queryForDatabaseMetaData(String tableName){
-
     }
 }

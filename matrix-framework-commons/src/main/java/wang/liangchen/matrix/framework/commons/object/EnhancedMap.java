@@ -360,4 +360,5 @@ public class EnhancedMap implements Cloneable, Serializable {
     public Map<String, Object> getExtendedFields() {
         return extendedFields;
     }
+
 }
