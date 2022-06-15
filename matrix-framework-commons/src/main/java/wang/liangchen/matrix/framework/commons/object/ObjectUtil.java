@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.commons.object;
 
 import net.sf.cglib.beans.BeanCopier;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -9,9 +10,12 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2021-09-30 15:22
@@ -81,11 +85,11 @@ public enum ObjectUtil {
         if (object == null) {
             return null;
         }
-        if (object instanceof Number) {
-            return ((Number) object).byteValue();
-        }
         if (object instanceof BigDecimal) {
             return NumberUtil.INSTANCE.decimalToByte((BigDecimal) object);
+        }
+        if (object instanceof Number) {
+            return ((Number) object).byteValue();
         }
         if (object instanceof Boolean) {
             return (Boolean) object ? (byte) 1 : (byte) 0;
@@ -132,7 +136,7 @@ public enum ObjectUtil {
             return ((Number) object).shortValue();
         }
         if (object instanceof Boolean) {
-            return ((Boolean) object).booleanValue() ? (short) 1 : (short) 0;
+            return (Boolean) object ? (short) 1 : (short) 0;
         }
         if (object instanceof String) {
             String string = String.valueOf(object);
@@ -156,7 +160,7 @@ public enum ObjectUtil {
             return ((Number) object).intValue();
         }
         if (object instanceof Boolean) {
-            return ((Boolean) object).booleanValue() ? 1 : 0;
+            return (Boolean) object ? 1 : 0;
         }
         if (object instanceof String) {
             String string = String.valueOf(object);
@@ -180,7 +184,7 @@ public enum ObjectUtil {
             return ((Number) object).longValue();
         }
         if (object instanceof Boolean) {
-            return ((Boolean) object).booleanValue() ? 1L : 0L;
+            return (Boolean) object ? 1L : 0L;
         }
         if (object instanceof String) {
             String string = String.valueOf(object);
@@ -207,7 +211,7 @@ public enum ObjectUtil {
                 return null;
             }
         }
-        if (object instanceof Map && ((Map) object).size() == 0) {
+        if (object instanceof Map && ((Map<?, ?>) object).size() == 0) {
             return null;
         }
         if (object instanceof BigDecimal) {
@@ -348,6 +352,32 @@ public enum ObjectUtil {
         throw new MatrixInfoException("can not cast to byte[], object : " + object);
     }
 
+    public <T> List<T> copyProperties(Collection<?> sources, Class<T> targetClass) {
+        return copyProperties(sources, targetClass, null);
+    }
+
+    public <T> List<T> copyProperties(Collection<?> sources, Class<T> targetClass, Consumer<T> consumer) {
+        if (CollectionUtil.INSTANCE.isEmpty(sources)) {
+            return new ArrayList<>(0);
+        }
+        BeanCopier beanCopier = null;
+        List<T> targets = new ArrayList<>(sources.size());
+        for (Object source : sources) {
+            if (null == beanCopier) {
+                Class<?> sourceClass = source.getClass();
+                CopierId copierId = new CopierId(sourceClass, targetClass);
+                beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
+                        key -> BeanCopier.create(sourceClass, targetClass, false));
+            }
+            T target = ClassUtil.INSTANCE.instantiate(targetClass);
+            beanCopier.copy(source, target, null);
+            if (null != consumer) {
+                consumer.accept(target);
+            }
+            targets.add(target);
+        }
+        return targets;
+    }
 
     public <T> T copyProperties(Object source, Class<T> targetClass) {
         Class<?> sourceClass = source.getClass();
@@ -368,7 +398,7 @@ public enum ObjectUtil {
         beanCopier.copy(source, target, null);
     }
 
-    class CopierId {
+    static class CopierId {
         private final Class<?> sourceClass;
         private final Class<?> targetClass;
 

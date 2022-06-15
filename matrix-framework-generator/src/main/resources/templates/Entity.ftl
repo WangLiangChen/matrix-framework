@@ -1,5 +1,6 @@
 package ${basePackage}.${contextPackage}.${domainPackage};
 
+import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
@@ -29,8 +30,15 @@ public class ${entityName} extends RootEntity {
     </#if>
     @Column(name = "${columnMeta.columnName}")
     private ${columnMeta.modifier} ${columnMeta.fieldName};
-
 </#list>
+
+    public static ${entityName} valueOf(Object source) {
+        return ObjectUtil.INSTANCE.copyProperties(source, ${entityName}.class);
+    }
+
+    public static AuthorizationAllowlist newInstance() {
+        return ClassUtil.INSTANCE.instantiate(AuthorizationAllowlist.class);
+    }
 
 <#list columnMetas as columnMeta>
     public ${columnMeta.modifier} get${columnMeta.fieldName?cap_first}() {

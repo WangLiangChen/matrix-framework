@@ -36,6 +36,7 @@ public class EnhancedMap implements Cloneable, Serializable {
         this(initialCapacity, false);
     }
 
+
     public EnhancedMap(int initialCapacity, boolean ordered) {
         if (ordered) {
             extendedFields = new LinkedHashMap<>(initialCapacity);

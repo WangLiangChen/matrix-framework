@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
 
-import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
+import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.EntityGetter;
 import wang.liangchen.matrix.framework.data.dao.criteria.TableMeta;
@@ -15,7 +15,7 @@ import java.util.Map;
  * @author LiangChen.Wang
  * 实体基础抽象类
  */
-public abstract class RootEntity extends EnhancedMap {
+public abstract class RootEntity extends EnhancedObject {
     @Transient
     private transient Map<String, Object> forceUpdateColumns;
     @Transient
@@ -25,7 +25,7 @@ public abstract class RootEntity extends EnhancedMap {
         tableMeta = TableMetas.INSTANCE.tableMeta(this.getClass());
     }
 
-    public <E extends RootEntity> void addForceUpdateColumn(String columnName, Object value) {
+    public void addForceUpdateColumn(String columnName, Object value) {
         if (null == forceUpdateColumns) {
             forceUpdateColumns = new HashMap<>();
         }

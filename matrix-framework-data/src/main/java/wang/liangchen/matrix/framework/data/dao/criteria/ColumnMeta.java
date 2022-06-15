@@ -192,10 +192,10 @@ public class ColumnMeta {
         mapping.put("float4", Float.class);
         mapping.put("float8", Double.class);
         mapping.put("money", Double.class);
-        mapping.put("date", LocalDateTime.class);
+        mapping.put("date", LocalDate.class);
         mapping.put("time", LocalTime.class);
         mapping.put("timetz", LocalTime.class);
-        mapping.put("timestamp", Timestamp.class);
+        mapping.put("timestamp", LocalDateTime.class);
         mapping.put("timestamptz", Timestamp.class);
         mapping.put("xml", SQLXML.class);
         mapping.put("bytea", ByteArray.class);
