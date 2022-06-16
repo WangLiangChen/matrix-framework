@@ -135,8 +135,7 @@ public @interface EnableJdbc {
                 DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();
                 // 将其它配置绑定到dataSource
                 binder.bind(EXTRA_ITEM, Bindable.ofInstance(dataSource));
-                MultiDataSourceContext.INSTANCE.putDialect(dataSourceName, dialect);
-                MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource);
+                MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource,dialect);
             });
         }
 
