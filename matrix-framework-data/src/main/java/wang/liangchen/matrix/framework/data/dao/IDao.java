@@ -68,6 +68,9 @@ public interface IDao {
      */
     <E extends RootEntity> int update(UpdateCriteria<E> updateCriteria);
 
+
+    <E extends RootEntity> E select(Criteria<E> criteria);
+
     <E extends RootEntity> int count(Criteria<E> criteria);
 
     <E extends RootEntity> List<E> list(Criteria<E> criteria);

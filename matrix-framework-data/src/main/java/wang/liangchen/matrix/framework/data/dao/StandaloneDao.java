@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao;
 
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
@@ -17,38 +18,59 @@ public class StandaloneDao extends AbstractDao {
     public <E extends RootEntity> int insert(E entity) {
         return MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entity);
     }
+
     @Override
     public <E extends RootEntity> int insert(Collection<E> entities) {
         return MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entities);
     }
+
     @Override
     public <E extends RootEntity> int delete(E entity) {
         return MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, entity);
     }
+
     @Override
     public <E extends RootEntity> int delete(SubCriteria<E> subCriteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(subCriteria);
         return MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
     }
+
     @Override
     public <E extends RootEntity> int update(E entity) {
         return MybatisExecutor.INSTANCE.update(sqlSessionTemplate, entity);
     }
+
     @Override
     public <E extends RootEntity> int update(UpdateCriteria<E> updateCriteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(updateCriteria);
         return MybatisExecutor.INSTANCE.update(sqlSessionTemplate, criteriaParameter);
     }
+
+    @Override
+    public <E extends RootEntity> E select(Criteria<E> criteria) {
+        List<E> list = list(criteria);
+        if (list.isEmpty()) {
+            return null;
+        }
+        int size = list.size();
+        if (1 == size) {
+            return list.get(0);
+        }
+        throw new MatrixInfoException("Expected one result (or null) to be returned by select(), but found: {}", size);
+    }
+
     @Override
     public <E extends RootEntity> int count(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
     }
+
     @Override
     public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.list(sqlSessionTemplate, criteriaParameter);
     }
+
     @Override
     public <E extends RootEntity> PaginationResult<E> pagination(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);

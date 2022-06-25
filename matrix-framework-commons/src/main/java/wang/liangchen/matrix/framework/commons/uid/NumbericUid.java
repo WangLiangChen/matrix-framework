@@ -18,7 +18,9 @@ import java.util.concurrent.TimeUnit;
  * +------------------------------------------------------------------------+
  */
 public enum NumbericUid {
-    //
+    /**
+     * instance
+     */
     INSTANCE;
     private final static byte timeBits = 39;
     private final static byte sequenceBits = 8;

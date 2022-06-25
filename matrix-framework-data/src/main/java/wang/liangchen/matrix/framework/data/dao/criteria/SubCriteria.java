@@ -16,102 +16,102 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractCriteria
     }
 
     @Override
-    public SubCriteria<E> equals(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.equals(column, sqlValue);
+    public SubCriteria<E> _equals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._equals(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> notEquals(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.notEquals(column, sqlValue);
+    public SubCriteria<E> _notEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._notEquals(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> greaterThan(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.greaterThan(column, sqlValue);
+    public SubCriteria<E> _greaterThan(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._greaterThan(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> greaterThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.greaterThanOrEquals(column, sqlValue);
+    public SubCriteria<E> _greaterThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._greaterThanOrEquals(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> lessThan(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.lessThan(column, sqlValue);
+    public SubCriteria<E> _lessThan(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._lessThan(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> lessThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
-        return (SubCriteria<E>) super.lessThanOrEquals(column, sqlValue);
+    public SubCriteria<E> _lessThanOrEquals(EntityGetter<E> column, SqlValue sqlValue) {
+        return (SubCriteria<E>) super._lessThanOrEquals(column, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> isNull(EntityGetter<E> column) {
-        return (SubCriteria<E>) super.isNull(column);
+    public SubCriteria<E> _isNull(EntityGetter<E> column) {
+        return (SubCriteria<E>) super._isNull(column);
     }
 
     @Override
-    public SubCriteria<E> isNotNull(EntityGetter<E> column) {
-        return (SubCriteria<E>) super.isNotNull(column);
+    public SubCriteria<E> _isNotNull(EntityGetter<E> column) {
+        return (SubCriteria<E>) super._isNotNull(column);
     }
 
     @Override
-    public SubCriteria<E> in(EntityGetter<E> column, SqlValue... values) {
-        return (SubCriteria<E>) super.in(column, values);
+    public SubCriteria<E> _in(EntityGetter<E> column, SqlValue... values) {
+        return (SubCriteria<E>) super._in(column, values);
     }
 
     @Override
-    public SubCriteria<E> notIn(EntityGetter<E> column, SqlValue... values) {
-        return (SubCriteria<E>) super.notIn(column, values);
+    public SubCriteria<E> _notIn(EntityGetter<E> column, SqlValue... values) {
+        return (SubCriteria<E>) super._notIn(column, values);
     }
 
     @Override
-    public SubCriteria<E> between(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
-        return (SubCriteria<E>) super.between(column, valueMin, valueMax);
+    public SubCriteria<E> _between(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        return (SubCriteria<E>) super._between(column, valueMin, valueMax);
     }
 
     @Override
-    public SubCriteria<E> notBetween(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
-        return (SubCriteria<E>) super.notBetween(column, valueMin, valueMax);
+    public SubCriteria<E> _notBetween(EntityGetter<E> column, SqlValue valueMin, SqlValue valueMax) {
+        return (SubCriteria<E>) super._notBetween(column, valueMin, valueMax);
     }
 
     @Override
-    public SubCriteria<E> contains(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.contains(column, value);
+    public SubCriteria<E> _contains(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._contains(column, value);
     }
 
     @Override
-    public SubCriteria<E> notContains(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.notContains(column, value);
+    public SubCriteria<E> _notContains(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._notContains(column, value);
     }
 
     @Override
-    public SubCriteria<E> startWith(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.startWith(column, value);
+    public SubCriteria<E> _startWith(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._startWith(column, value);
     }
 
     @Override
-    public SubCriteria<E> notStartWith(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.notStartWith(column, value);
+    public SubCriteria<E> _notStartWith(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._notStartWith(column, value);
     }
 
     @Override
-    public SubCriteria<E> endWith(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.endWith(column, value);
+    public SubCriteria<E> _endWith(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._endWith(column, value);
     }
 
     @Override
-    public SubCriteria<E> notEndWith(EntityGetter<E> column, String value) {
-        return (SubCriteria<E>) super.notEndWith(column, value);
+    public SubCriteria<E> _notEndWith(EntityGetter<E> column, String value) {
+        return (SubCriteria<E>) super._notEndWith(column, value);
     }
 
     @Override
-    public SubCriteria<E> OR(SubCriteria<E> subCriteria) {
-        return (SubCriteria<E>) super.OR(subCriteria);
+    public SubCriteria<E> _OR(SubCriteria<E> subCriteria) {
+        return (SubCriteria<E>) super._OR(subCriteria);
     }
 
     @Override
-    public SubCriteria<E> AND(SubCriteria<E> subCriteria) {
-        return (SubCriteria<E>) super.AND(subCriteria);
+    public SubCriteria<E> _AND(SubCriteria<E> subCriteria) {
+        return (SubCriteria<E>) super._AND(subCriteria);
     }
 }

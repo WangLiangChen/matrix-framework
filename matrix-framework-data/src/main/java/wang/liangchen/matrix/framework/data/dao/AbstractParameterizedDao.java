@@ -67,6 +67,11 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
     }
 
     @Override
+    public <E extends RootEntity> E select(Criteria<E> criteria) {
+        return standaloneDao.select(criteria);
+    }
+
+    @Override
     public <E extends RootEntity> int count(Criteria<E> criteria) {
         return standaloneDao.count(criteria);
     }

@@ -26,6 +26,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
@@ -134,6 +136,8 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
+        // 设置默认的配置根路径 classpath
+        environment.getSystemProperties().put("spring.config.import","matrix://".concat(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX));
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -187,6 +191,10 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         PrettyPrinter.INSTANCE.buffer("Overrided from EnvironmentPostProcessor");
+        String configRoot1 = MatrixConfigDataLoader.configRoot;
+        System.out.println();
+
+
         // 这里可以最早的获取到初始完成的environment,所以在此处理外置配置文件
         String[] activeProfiles = environment.getActiveProfiles();
         PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));

@@ -8,3 +8,8 @@ org.springframework.context.ApplicationListener=\
   wang.liangchen.matrix.framework.springboot.monitor.StartProcessMonitor
 org.springframework.boot.env.PropertySourceLoader=\
   wang.liangchen.matrix.framework.springboot.env.JsonPropertySourceLoader
+
+org.springframework.boot.context.config.ConfigDataLocationResolver=\
+  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLocationResolver
+org.springframework.boot.context.config.ConfigDataLoader=\
+  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader

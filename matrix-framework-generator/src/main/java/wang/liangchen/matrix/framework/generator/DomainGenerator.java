@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
@@ -71,11 +72,12 @@ public class DomainGenerator {
         });
     }
 
-    private void createDomain(GeneratorProperties generatorProperties){
+    private void createDomain(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
         generatorTemplate.setDomainPackage("domain");
         createEntity(generatorProperties);
     }
+
     private void createEntity(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
         String entityPathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
@@ -212,7 +214,7 @@ public class DomainGenerator {
             boolean isVersion = columnName.equals(versionColumn);
             String _deleteValue = columnName.equals(deleteColumn) ? markDeleteValue : null;
 
-            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, _deleteValue, underline2camelCase);
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, IdStrategy.NONE, isUnique, isVersion, _deleteValue, underline2camelCase);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();

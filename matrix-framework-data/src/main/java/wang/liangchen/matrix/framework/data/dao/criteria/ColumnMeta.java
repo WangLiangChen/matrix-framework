@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 
 import java.math.BigDecimal;
 import java.sql.SQLXML;
@@ -26,6 +27,7 @@ public class ColumnMeta {
     private final String jdbcTypeName;
 
     private final boolean id;
+    private final IdStrategy idStrategy;
     private final boolean unique;
     private final boolean version;
     private final String markDeleteValue;
@@ -39,11 +41,12 @@ public class ColumnMeta {
         populatePostgreSQL();
     }
 
-    private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
+    private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
         this.columnName = columnName;
         this.dataTypeName = dataTypeName;
         this.jdbcTypeName = jdbcTypeName;
         this.id = isId;
+        this.idStrategy = idStrategy;
         this.unique = isUnique;
         this.version = isVersion;
         this.markDeleteValue = markDeleteValue;
@@ -68,15 +71,16 @@ public class ColumnMeta {
     }
 
     public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
-                                         boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
-        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, markDeleteValue, underline2camelCase);
+                                         boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, idStrategy, isUnique, isVersion, markDeleteValue, underline2camelCase);
     }
 
-    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
+    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.columnName = columnName;
         this.id = isId;
+        this.idStrategy = idStrategy;
         this.unique = isUnique;
         this.version = isVersion;
         this.markDeleteValue = markDeleteValue;
@@ -87,8 +91,8 @@ public class ColumnMeta {
         this.modifier = null;
     }
 
-    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, boolean isUnique, boolean isVersion, String markDeleteValue) {
-        return new ColumnMeta(fieldName, fieldType, columnName, isId, isUnique, isVersion, markDeleteValue);
+    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue) {
+        return new ColumnMeta(fieldName, fieldType, columnName, isId, idStrategy, isUnique, isVersion, markDeleteValue);
     }
 
     public String getColumnName() {
@@ -109,6 +113,10 @@ public class ColumnMeta {
 
     public boolean isNotId() {
         return !id;
+    }
+
+    public IdStrategy getIdStrategy() {
+        return idStrategy;
     }
 
     public boolean isUnique() {

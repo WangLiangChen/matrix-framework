@@ -4,6 +4,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
+import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.dao.entity.RootId;
 
@@ -25,20 +26,29 @@ public enum TableMetas {
     INSTANCE;
     private final Map<Class<? extends RootEntity>, TableMeta> tableMetaCache = new ConcurrentHashMap<>(128);
 
-    @SuppressWarnings("unchecked")
     public TableMeta tableMeta(final Class<? extends RootEntity> entityClass) {
-        return tableMetaCache.computeIfAbsent(entityClass, key -> resolveTableMeta(key));
+        return tableMetaCache.computeIfAbsent(entityClass, this::resolveTableMeta);
     }
 
-    private ColumnMeta resolveColumnMeta(Field field, boolean isRooIdField) {
-        boolean isId = isRooIdField || resolveColumnId(field);
+    private ColumnMeta resolveColumnMeta(Field field, boolean isRootIdField) {
+        IdStrategy idStrategy = resolveColumnId(field);
+        boolean isId = isRootIdField || idStrategy != IdStrategy.NONE;
         return ColumnMeta.newInstance(field.getName(), field.getType(), resolveColumnName(field),
-                isId, resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnDelete(field));
+                isId, idStrategy, resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnDelete(field));
     }
 
-    private boolean resolveColumnId(Field field) {
+    private IdStrategy resolveColumnId(Field field) {
+        wang.liangchen.matrix.framework.data.annotation.Id matrixIdAnnotation = field.getAnnotation(wang.liangchen.matrix.framework.data.annotation.Id.class);
+        if (null != matrixIdAnnotation) {
+            IdStrategy idStrategy = matrixIdAnnotation.value();
+            return IdStrategy.NONE == idStrategy ? IdStrategy.AUTO_INCREMENT : idStrategy;
+        }
         Id idAnnotation = field.getAnnotation(Id.class);
-        return null != idAnnotation;
+        if (null != idAnnotation) {
+            //Default Strategy
+            return IdStrategy.AUTO_INCREMENT;
+        }
+        return IdStrategy.NONE;
     }
 
     private String resolveColumnName(Field field) {
@@ -82,7 +92,7 @@ public enum TableMetas {
             if (RootId.class.isAssignableFrom(field.getType())) {
                 Set<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
                 for (Field idField : idFields) {
-                    columnMetas.put(field.getName(), resolveColumnMeta(field, true));
+                    columnMetas.put(idField.getName(), resolveColumnMeta(idField, true));
                 }
                 continue;
             }

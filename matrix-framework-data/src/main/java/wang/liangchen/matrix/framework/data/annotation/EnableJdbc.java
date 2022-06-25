@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.data.annotation;
 
-import org.apache.commons.configuration2.Configuration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -8,15 +7,18 @@ import org.springframework.boot.context.properties.source.ConfigurationPropertyN
 import org.springframework.boot.context.properties.source.ConfigurationPropertyNameAliases;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.AutoProxyRegistrar;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.type.AnnotationMetadata;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
@@ -30,7 +32,7 @@ import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
 import wang.liangchen.matrix.framework.data.datasource.dialect.OracleDialect;
 import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect;
 import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
+import wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader;
 
 import javax.sql.DataSource;
 import java.lang.annotation.*;
@@ -47,7 +49,8 @@ import java.util.*;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @SuppressWarnings("NullableProblems")
 public @interface EnableJdbc {
-    class JdbcImportSelector implements ImportSelector {
+    class JdbcImportSelector implements ImportSelector, EnvironmentAware {
+        private ConfigurableEnvironment environment;
         private final String JDBC_CONFIG_FILE = "jdbc.properties";
         private final String DIALECT_ITEM = "dialect", SCHEMA_ITEM = "schema", URL_ITEM = "url", EXTRA_ITEM = "extra";
         private final Set<String> requiredConfigItemsByHost = new HashSet<String>() {{
@@ -67,17 +70,11 @@ public @interface EnableJdbc {
             add("password");
         }};
 
+
         @Override
         public synchronized String[] selectImports(AnnotationMetadata annotationMetadata) {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
-            Configuration configuration;
-            try {
-                configuration = ConfigurationContext.INSTANCE.resolve(JDBC_CONFIG_FILE);
-            } catch (Exception e) {
-                PrettyPrinter.INSTANCE.flush();
-                throw new MatrixInfoException(e, "Configuration file: {} is required,because @EnableJdbc is setted", JDBC_CONFIG_FILE);
-            }
-            instantiateDataSource(configuration);
+            instantiateDataSource();
             PrettyPrinter.INSTANCE.flush();
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
@@ -85,16 +82,18 @@ public @interface EnableJdbc {
             return imports;
         }
 
-        private void instantiateDataSource(Configuration configuration) {
-            Iterator<String> keys = configuration.getKeys();
+        private void instantiateDataSource() {
+            MapPropertySource jdbc = (MapPropertySource)environment.getPropertySources().get(MatrixConfigDataLoader.JDBC_PREFIX);
+            String[] propertyNames = jdbc.getPropertyNames();
+
             Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();
-            keys.forEachRemaining(key -> {
-                int firstDot = key.indexOf('.');
-                String dataSourceName = key.substring(0, firstDot);
+            for (String propertyName : propertyNames) {
+                int firstDot = propertyName.indexOf('.');
+                String dataSourceName = propertyName.substring(0, firstDot);
                 Properties properties = dataSourcePropertiesMap.computeIfAbsent(dataSourceName, k -> new Properties());
-                String dataSourceItem = key.substring(firstDot + 1);
-                properties.put(dataSourceItem, configuration.getProperty(key));
-            });
+                String dataSourceItem = propertyName.substring(firstDot + 1);
+                properties.put(dataSourceItem, jdbc.getProperty(propertyName));
+            }
             // 验证配置项
             validateConfiguration(dataSourcePropertiesMap);
             ConfigurationPropertyNameAliases propertyNameAliases = new ConfigurationPropertyNameAliases("datasource", "type");
@@ -150,6 +149,11 @@ public @interface EnableJdbc {
                     Assert.INSTANCE.isTrue(requiredConfigItemsByHost.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
                 }
             });
+        }
+
+        @Override
+        public void setEnvironment(Environment environment) {
+            this.environment = (ConfigurableEnvironment) environment;
         }
     }
 }

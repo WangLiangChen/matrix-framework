@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 
 import javax.sql.DataSource;
@@ -73,7 +74,12 @@ public enum MultiDataSourceContext {
     public String get() {
         // 从队列中获取 但不出队
         Deque<String> deque = context.get();
-        return deque.peek();
+        String peekedDataSourceName = deque.peek();
+        // 队列为空,默认primary
+        if (StringUtil.INSTANCE.isBlank(peekedDataSourceName)) {
+            peekedDataSourceName = PRIMARY_DATASOURCE_NAME;
+        }
+        return peekedDataSourceName;
     }
 
     public void clear() {
