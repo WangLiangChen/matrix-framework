@@ -57,7 +57,7 @@ public enum MybatisExecutor {
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
-        E entity = entities.stream().findFirst().get();
+                E entity = entities.stream().findFirst().get();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBatch");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -245,7 +245,7 @@ public enum MybatisExecutor {
             sqlBuilder.append("from ").append(tableMeta.getTableName());
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
-            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBy)\"> order by <foreach collection=\"orderBy\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
             sqlBuilder.append("<if test=\"null!=offset and null!=rows\">limit #{offset},#{pageSize}</if>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();

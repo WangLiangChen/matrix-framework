@@ -11,8 +11,6 @@ import java.util.List;
  */
 public class MatrixConfigDataLocationResolver implements ConfigDataLocationResolver<MatrixConfigDataSource> {
     private static final String PREFIX = "matrix://";
-    public static final String MARTIX_CONFIG = "/matrix-framework";
-
 
     @Override
     public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
@@ -28,7 +26,7 @@ public class MatrixConfigDataLocationResolver implements ConfigDataLocationResol
     public List<MatrixConfigDataSource> resolveProfileSpecific(ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) throws ConfigDataLocationNotFoundException {
         List<String> activeProfiles = profiles.getActive();
         String profile = activeProfiles.isEmpty() ? Symbol.BLANK.getSymbol() : Symbol.HYPHEN.getSymbol().concat(activeProfiles.get(0));
-        String configRoot = String.format("%s%s%s", location.getNonPrefixedValue(PREFIX), MARTIX_CONFIG, profile);
+        String configRoot = String.format("%s%s%s", location.getNonPrefixedValue(PREFIX), ConfigContext.MARTIX_CONFIG, profile);
         return Collections.singletonList(new MatrixConfigDataSource(configRoot));
     }
 }

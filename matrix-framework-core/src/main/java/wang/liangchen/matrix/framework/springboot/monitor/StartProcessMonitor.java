@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.springboot.monitor;
 
-import org.apache.commons.configuration2.Configuration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -37,7 +36,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader;
+import wang.liangchen.matrix.framework.springboot.config.ConfigContext;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
@@ -137,7 +136,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
         // 设置默认的配置根路径 classpath
-        environment.getSystemProperties().put("spring.config.import","matrix://".concat(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX));
+        environment.getSystemProperties().put("spring.config.import", "matrix://".concat(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX));
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -191,10 +190,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         PrettyPrinter.INSTANCE.buffer("Overrided from EnvironmentPostProcessor");
-        String configRoot1 = MatrixConfigDataLoader.configRoot;
-        System.out.println();
-
-
         // 这里可以最早的获取到初始完成的environment,所以在此处理外置配置文件
         String[] activeProfiles = environment.getActiveProfiles();
         PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));
@@ -213,7 +208,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         populateDefaultProperties(defaultProperties);
         PrettyPrinter.INSTANCE.buffer("populateDefaultProperties");
         // logger
-        handleLogger(defaultProperties);
+        handleLogger(environment, defaultProperties);
         // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
         environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
         PrettyPrinter.INSTANCE.flush();
@@ -403,23 +398,21 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         return configRoot;
     }
 
-    private void handleLogger(Properties defaultProperties) {
-        final String LOGGER_ROOT = "logger.properties";
+    private void handleLogger(ConfigurableEnvironment environment, Properties defaultProperties) {
         final String LOGGING_CONFIG = "logging.config";
         final String CONFIG_FILE = "config.file";
-        Configuration configuration = ConfigurationContext.INSTANCE.resolve(LOGGER_ROOT);
         /*配置默认属性
         使用外置Tomcat时,Tomcat会设置环境变量logging.config
         在org.springframework.boot.logging.LoggingApplicationListener#initializeSystem中
         String logConfig = environment.getProperty(CONFIG_PROPERTY);是在 systemProperties 的 PropertySource 中拿到了日志的配置
         下面覆盖这个配置
         */
-        String configFile = configuration.getString(CONFIG_FILE);
+        String configFile = environment.getProperty(CONFIG_FILE);
         if (StringUtil.INSTANCE.isBlank(configFile)) {
             PrettyPrinter.INSTANCE.flush();
-            throw new MatrixInfoException("'config.file' does not exist in the file:" + LOGGER_ROOT);
+            throw new MatrixInfoException("'config.file' does not exist.");
         }
-        configFile = ConfigurationContext.INSTANCE.getURI(configFile).toString();
+        configFile = ConfigContext.INSTANCE.getConfigRoot().concat(Symbol.URI_SEPARATOR.getSymbol()).concat(configFile);
         System.setProperty(LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);
@@ -453,8 +446,8 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             });
         }
         // 获取扫描配置
-        Configuration configuration = ConfigurationContext.INSTANCE.resolve("autoscan.properties");
-        String autoScanPackages = configuration.getString("packages", Symbol.BLANK.getSymbol());
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        String autoScanPackages = environment.getProperty("packages", Symbol.BLANK.getSymbol());
         autoScanPackages = String.format("%s,%s", DEFAULT_PACKAGES, autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
         PrettyPrinter.INSTANCE.buffer("set auto.scan.packages={}", (Object[]) autoScanArray);
