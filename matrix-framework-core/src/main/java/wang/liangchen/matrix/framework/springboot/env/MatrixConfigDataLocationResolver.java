@@ -1,7 +1,6 @@
-package wang.liangchen.matrix.framework.springboot.config;
+package wang.liangchen.matrix.framework.springboot.env;
 
 import org.springframework.boot.context.config.*;
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +24,6 @@ public class MatrixConfigDataLocationResolver implements ConfigDataLocationResol
     @Override
     public List<MatrixConfigDataSource> resolveProfileSpecific(ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) throws ConfigDataLocationNotFoundException {
         List<String> activeProfiles = profiles.getActive();
-        String profile = activeProfiles.isEmpty() ? Symbol.BLANK.getSymbol() : Symbol.HYPHEN.getSymbol().concat(activeProfiles.get(0));
-        String configRoot = String.format("%s%s%s", location.getNonPrefixedValue(PREFIX), ConfigContext.MARTIX_CONFIG, profile);
-        return Collections.singletonList(new MatrixConfigDataSource(configRoot));
+        return Collections.singletonList(new MatrixConfigDataSource(location.getNonPrefixedValue(PREFIX), activeProfiles));
     }
 }

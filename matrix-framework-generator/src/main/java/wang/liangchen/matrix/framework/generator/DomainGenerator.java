@@ -4,11 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.configuration2.XMLConfiguration;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -17,7 +13,6 @@ import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 
 import javax.inject.Inject;
 import java.io.FileWriter;
@@ -27,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -102,7 +98,7 @@ public class DomainGenerator {
     }
 
     private List<GeneratorProperties> resolveConfiguration() {
-        XMLConfiguration generatorXml = (XMLConfiguration) ConfigurationContext.INSTANCE.resolve(GENERATOR_CONFIG_FILE);
+        /*XMLConfiguration generatorXml = (XMLConfiguration) ConfigurationContext.INSTANCE.resolve(GENERATOR_CONFIG_FILE);
         Document document = generatorXml.getDocument();
         Element element = document.getDocumentElement();
         String author = element.getAttribute("author");
@@ -147,7 +143,8 @@ public class DomainGenerator {
             generatorProperties.setCamelCase(camelCase);
             generatorPropertiesList.add(generatorProperties);
         }
-        return generatorPropertiesList;
+        return generatorPropertiesList;*/
+        return Collections.emptyList();
     }
 
     private void populateColumnMetas(GeneratorProperties generatorProperties) {

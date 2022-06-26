@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.MacAligorithm;
@@ -24,18 +23,18 @@ public enum DigestUtil {
      */
     INSTANCE;
 
-    public int hashCode(Object... objects) {
+   /* public int hashCode(Object... objects) {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
         hashCodeBuilder.append(objects);
         return hashCodeBuilder.hashCode();
-    }
+    }*/
 
-    public int hashIndex(final Object object, int indexScope) {
+   /* public int hashIndex(final Object object, int indexScope) {
         Assert.INSTANCE.notNull(object, "object can not be null");
         int number = indexScope & (indexScope - 1);
         Assert.INSTANCE.isTrue(number == 0, "indexScope must be a power of 2");
         return hashCode(object) & (indexScope - 1);
-    }
+    }*/
 
     public String digest(String data, DigestAlgorithm algorithm) {
         Assert.INSTANCE.notBlank(data, "data can not be blank");

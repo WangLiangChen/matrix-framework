@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.springboot.monitor;
+package wang.liangchen.matrix.framework.springboot.env;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
@@ -22,8 +22,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -32,19 +30,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.springboot.config.ConfigContext;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
@@ -78,8 +71,6 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         ApplicationEventPublisherAware,
         MessageSourceAware, Ordered {
     private final static String DEFAULT_PACKAGES = "wang.liangchen.matrix";
-    private final static String CONFIG_ROOT = "configRoot";
-    private final static String CONFIG_DIRECTORY = "matrix-framework";
     private static Set<String> excludeScanPackages;
 
 
@@ -193,15 +184,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         // 这里可以最早的获取到初始完成的environment,所以在此处理外置配置文件
         String[] activeProfiles = environment.getActiveProfiles();
         PrettyPrinter.INSTANCE.buffer("activeProfiles:{}", Arrays.asList(activeProfiles));
-        // 初始化配置
-        String configRoot = resolveConfigRoot();
-        configRoot = configRoot.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? configRoot : configRoot.concat(Symbol.URI_SEPARATOR.getSymbol());
-        configRoot = configRoot.concat(CONFIG_DIRECTORY);
-        if (activeProfiles.length > 0) {
-            configRoot = String.format("%s%s%s", configRoot, Symbol.HYPHEN.getSymbol(), activeProfiles[0]);
-        }
-        ConfigurationContext.INSTANCE.setBaseUri(configRoot);
-        PrettyPrinter.INSTANCE.buffer("set configRoot={}", configRoot);
+        EnvironmentContext.INSTANCE.setEnvironment(environment);
 
         // 覆盖DefaultProperties
         Properties defaultProperties = new Properties();
@@ -355,48 +338,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
         PrettyPrinter.INSTANCE.flush();
     }
 
-    private String resolveConfigRoot() {
-        String configRoot = System.getenv(CONFIG_ROOT);
-        if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-            PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getenv' : {}", configRoot);
-            return configRoot;
-        }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getenv'");
 
-        configRoot = System.getProperty(CONFIG_ROOT);
-        if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-            PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getProperty' : {}", configRoot);
-            return configRoot;
-        }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getProperty'");
-
-        Resource resource = new ClassPathResource(String.format("%s%s%s", CONFIG_DIRECTORY, Symbol.URI_SEPARATOR.getSymbol(), "root.properties"), Thread.currentThread().getContextClassLoader());
-        if (resource.exists()) {
-            Properties properties = new Properties();
-            try (InputStream in = resource.getInputStream()) {
-                properties.load(in);
-            } catch (IOException e) {
-                PrettyPrinter.INSTANCE.flush();
-                throw new MatrixErrorException("An error occurred when looking for 'root.properties' file:" + e.getMessage());
-            }
-            configRoot = properties.getProperty(CONFIG_ROOT);
-            if (StringUtil.INSTANCE.isNotBlank(configRoot)) {
-                PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'root.properties': {}", configRoot);
-                return configRoot;
-            }
-        }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'root.properties'");
-
-        resource = new ClassPathResource(Symbol.BLANK.getSymbol());
-        try {
-            configRoot = resource.getURI().toString();
-        } catch (IOException e) {
-            PrettyPrinter.INSTANCE.flush();
-            throw new MatrixErrorException("An error occurred:" + e.getMessage());
-        }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' is found': {}", configRoot);
-        return configRoot;
-    }
 
     private void handleLogger(ConfigurableEnvironment environment, Properties defaultProperties) {
         final String LOGGING_CONFIG = "logging.config";
@@ -412,7 +354,7 @@ public class StartProcessMonitor implements EnvironmentPostProcessor,
             PrettyPrinter.INSTANCE.flush();
             throw new MatrixInfoException("'config.file' does not exist.");
         }
-        configFile = ConfigContext.INSTANCE.getConfigRoot().concat(Symbol.URI_SEPARATOR.getSymbol()).concat(configFile);
+        configFile = EnvironmentContext.INSTANCE.getConfigRoot().concat(Symbol.URI_SEPARATOR.getSymbol()).concat(configFile);
         System.setProperty(LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);

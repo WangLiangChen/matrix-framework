@@ -13,9 +13,7 @@
 
     <properties>
         <version.el>3.0.0</version.el>
-        <version.commons.configuration2>2.7</version.commons.configuration2>
         <version.commons.exec>1.3</version.commons.exec>
-        <version.commons.beanutils>1.9.4</version.commons.beanutils>
         <version.transmittable-threadlocal>2.12.2</version.transmittable-threadlocal>
         <version.cglib>3.3.0</version.cglib>
         <version.kryo>4.0.2</version.kryo>
@@ -34,16 +32,6 @@
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.el</artifactId>
                 <version>${version.el}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-configuration2</artifactId>
-                <version>${version.commons.configuration2}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${version.commons.beanutils}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -105,14 +93,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-configuration2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

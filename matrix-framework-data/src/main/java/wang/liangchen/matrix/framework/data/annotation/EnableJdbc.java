@@ -32,7 +32,7 @@ import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
 import wang.liangchen.matrix.framework.data.datasource.dialect.OracleDialect;
 import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect;
 import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
-import wang.liangchen.matrix.framework.springboot.config.ConfigContext;
+import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import javax.sql.DataSource;
 import java.lang.annotation.*;
@@ -83,7 +83,7 @@ public @interface EnableJdbc {
         }
 
         private void instantiateDataSource() {
-            MapPropertySource jdbc = (MapPropertySource)environment.getPropertySources().get(ConfigContext.JDBC_PREFIX);
+            MapPropertySource jdbc = (MapPropertySource)environment.getPropertySources().get(EnvironmentContext.JDBC_PREFIX);
             String[] propertyNames = jdbc.getPropertyNames();
 
             Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();

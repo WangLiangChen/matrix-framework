@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.reflection.MetaObject;
@@ -15,23 +13,21 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.springboot.context.ConfigurationContext;
+import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
+import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Liangchen.Wang 2021-10-20 11:37
@@ -43,16 +39,12 @@ public class MybatisAutoConfiguration {
     private static final String scanPackages;
 
     static {
-        try {
-            Configuration configuration = ConfigurationContext.INSTANCE.resolve(AUTOSCAN_COFIG_FILE);
-            String mybatis = configuration.getString("mybatis");
-            if (StringUtil.INSTANCE.isBlank(mybatis)) {
-                scanPackages = DEFAULT_SCAN_PACKAGE;
-            } else {
-                scanPackages = String.format("%s,%s", DEFAULT_SCAN_PACKAGE, mybatis);
-            }
-        } catch (Exception e) {
-            throw new MatrixInfoException(e, "Configuration file:{}", AUTOSCAN_COFIG_FILE);
+        Environment environment = BeanLoader.INSTANCE.getBean(Environment.class);
+        String mybatis = environment.getProperty("mybatis");
+        if (StringUtil.INSTANCE.isBlank(mybatis)) {
+            scanPackages = DEFAULT_SCAN_PACKAGE;
+        } else {
+            scanPackages = String.format("%s,%s", DEFAULT_SCAN_PACKAGE, mybatis);
         }
     }
 
@@ -85,8 +77,7 @@ public class MybatisAutoConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
-        URL url = ConfigurationContext.INSTANCE.getURL("mybatis-config.xml");
-        Resource configLocation = new UrlResource(url);
+        Resource configLocation =resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getLocation("/mybatis-config.xml"));
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
         } else {
@@ -102,12 +93,12 @@ public class MybatisAutoConfiguration {
         // 设置要扫描mapper.xml
         @SuppressWarnings("UnstableApiUsage")
         String[] packages = scanPackages.split(Symbol.COMMA.getSymbol());
-        Resource[] mapperLocations = new Resource[0];
+        List<Resource> mapperLocations = new ArrayList<>();
         for (String pack : packages) {
             pack = pack.replace('.', '/');
             try {
                 Resource[] mappers = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(pack).concat("/**/*.mapper.xml"));
-                mapperLocations = ArrayUtils.addAll(mapperLocations, mappers);
+                mapperLocations.addAll(Arrays.asList(mappers));
             } catch (IOException e) {
                 PrettyPrinter.INSTANCE.flush();
                 throw new MatrixErrorException(e);
@@ -121,7 +112,7 @@ public class MybatisAutoConfiguration {
         for (Resource resource : mapperLocations) {
             PrettyPrinter.INSTANCE.buffer(resource.toString());
         }
-        sqlSessionFactoryBean.setMapperLocations(mapperLocations);
+        sqlSessionFactoryBean.setMapperLocations(mapperLocations.toArray(new Resource[0]));
 
         // add plugins interceptors
         if (CollectionUtil.INSTANCE.isNotEmpty(interceptors)) {
