@@ -4,8 +4,14 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.springframework.boot.env.PropertiesPropertySourceLoader;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
@@ -13,6 +19,7 @@ import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
+import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import javax.inject.Inject;
 import java.io.FileWriter;
@@ -35,7 +42,9 @@ public class DomainGenerator {
     private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
-    private final static String GENERATOR_CONFIG_FILE = "codegenerator.xml";
+    private final static String GENERATOR_CONFIG_FILE = "/codegenerator.xml";
+    private static final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+    private static final PropertiesPropertySourceLoader propertiesPropertySourceLoader = new PropertiesPropertySourceLoader();
     private final Configuration freemarkerConfig;
 
     @Inject
@@ -98,6 +107,17 @@ public class DomainGenerator {
     }
 
     private List<GeneratorProperties> resolveConfiguration() {
+        String location = EnvironmentContext.INSTANCE.getLocation(GENERATOR_CONFIG_FILE);
+        Resource resource = resourcePatternResolver.getResource(location);
+        List<PropertySource<?>> propertySources;
+        try {
+            propertySources = propertiesPropertySourceLoader.load("CodeTemplate", resource);
+        } catch (IOException e) {
+            throw new MatrixErrorException(e);
+        }
+        System.out.println();
+
+
         /*XMLConfiguration generatorXml = (XMLConfiguration) ConfigurationContext.INSTANCE.resolve(GENERATOR_CONFIG_FILE);
         Document document = generatorXml.getDocument();
         Element element = document.getDocumentElement();

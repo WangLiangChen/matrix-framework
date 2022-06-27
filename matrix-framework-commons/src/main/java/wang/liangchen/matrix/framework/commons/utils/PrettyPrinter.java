@@ -16,28 +16,15 @@ public enum PrettyPrinter {
     INSTANCE;
     private static final ThreadLocal<Map<String, List<Payload>>> threadLocal = new ThreadLocal<>();
 
-    public void buffer(String message, Object... args) {
+    public PrettyPrinter buffer(String message, Object... args) {
         processMessage(message, args);
+        return this;
     }
 
     public void flush() {
         processMessage(null);
         threadLocal.remove();
     }
-
-    private StackTraceElement stackTraceElement() {
-        StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
-        String className;
-        for (StackTraceElement stackTraceElement : stackTraceElements) {
-            className = stackTraceElement.getClassName();
-            if ("java.lang.Thread".equals(className) || PrettyPrinter.class.getName().equals(className)) {
-                continue;
-            }
-            return stackTraceElement;
-        }
-        return null;
-    }
-
 
     private void processMessage(String message, Object... args) {
         StackTraceElement stackTraceElement = stackTraceElement();
@@ -71,6 +58,7 @@ public enum PrettyPrinter {
         for (int i = 0; i < size; i++) {
             Payload payload = payloads.get(i);
             if (0 == i) {
+                System.out.println(payload.getMessage());
                 continue;
             }
             Payload previous = payloads.get(i - 1);
@@ -82,6 +70,19 @@ public enum PrettyPrinter {
         payloads.clear();
         System.out.printf("▲ ------ %s------%n", className);
         System.out.println();
+    }
+
+    private StackTraceElement stackTraceElement() {
+        StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
+        String className;
+        for (StackTraceElement stackTraceElement : stackTraceElements) {
+            className = stackTraceElement.getClassName();
+            if ("java.lang.Thread".equals(className) || PrettyPrinter.class.getName().equals(className)) {
+                continue;
+            }
+            return stackTraceElement;
+        }
+        return null;
     }
 
     private static class Payload {

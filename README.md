@@ -7,11 +7,11 @@ A rapid development framework based on springboot,which is distributed, asynchro
 # matrix-framework-core
 ## 启动过程日志增强
 ## 配置文件外置、支持远程文件、支持profile
-配置文件根路径优先级：
+配置文件根路径configRoot优先级：
 * System.getenv中的configRoot
 * System.getProperty中的configRoot
-* classpath即开发环境src/main/resources下的root.properties中的configRoot配置项
-* classpath即开发环境src/main/resources
+* classpath
+* 在bootstrap 或 application 中指定 spring.config.import=matrix://file://d:
 配置文件路径为：${configRoot}/matrix-framework-${profile}/
 ## 编程式安全获取Bean
 在容器启动早期完成初始化，足够安全

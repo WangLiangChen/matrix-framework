@@ -102,17 +102,22 @@ public enum EnvironmentContext {
     List<PropertySource<?>> loadPropertySources(MatrixConfigDataSource matrixConfigDataSource) {
         // 已经加载过
         if (null != this.configRoot) {
+            PrettyPrinter.INSTANCE.buffer("configRoot is loaded:{}", this.configRoot);
             return Collections.emptyList();
         }
         this.activeProfiles = matrixConfigDataSource.getActiveProfiles();
+        PrettyPrinter.INSTANCE.buffer("activeProfiles is: {}", activeProfiles);
         String profile = this.activeProfiles.isEmpty() ? CONFIG_DIRECTORY
                 : CONFIG_DIRECTORY.concat(Symbol.HYPHEN.getSymbol()).concat(this.activeProfiles.get(0));
+        PrettyPrinter.INSTANCE.buffer("actived config directory: {}", profile);
         String resolvedConfigRoot = resolveConfigRoot();
         if (null != resolvedConfigRoot) {
             return resolvePropertySources(resolvedConfigRoot, profile, true);
         }
-        return resolvePropertySources(matrixConfigDataSource.getConfigRoot(), profile, false);
 
+        List<PropertySource<?>> propertySources = resolvePropertySources(matrixConfigDataSource.getConfigRoot(), profile, false);
+        PrettyPrinter.INSTANCE.flush();
+        return propertySources;
     }
 
     private List<PropertySource<?>> resolvePropertySources(String configRoot, String profile, boolean mandatory) {
@@ -139,6 +144,7 @@ public enum EnvironmentContext {
         if (mandatory) {
             this.configRoot = configRoot;
             this.configRootURI = URI.create(this.configRoot);
+            PrettyPrinter.INSTANCE.buffer("resolved configRoot is :{}", configRoot);
             return;
         }
         for (Resource[] resources : allResources) {
@@ -146,6 +152,7 @@ public enum EnvironmentContext {
                 String uri = resource.getURI().toString();
                 this.configRoot = uri.substring(0, uri.lastIndexOf('/'));
                 this.configRootURI = URI.create(this.configRoot);
+                PrettyPrinter.INSTANCE.buffer("configRoot from 'spring.config.import' is :{}", this.configRoot);
                 return;
             }
         }
