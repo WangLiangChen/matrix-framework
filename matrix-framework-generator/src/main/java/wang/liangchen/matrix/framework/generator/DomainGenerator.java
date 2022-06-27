@@ -4,12 +4,14 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.springframework.boot.env.PropertiesPropertySourceLoader;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
@@ -22,6 +24,8 @@ import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +33,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,7 +47,6 @@ public class DomainGenerator {
     private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "/codegenerator.xml";
     private static final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-    private static final PropertiesPropertySourceLoader propertiesPropertySourceLoader = new PropertiesPropertySourceLoader();
     private final Configuration freemarkerConfig;
 
     @Inject
@@ -109,17 +111,14 @@ public class DomainGenerator {
     private List<GeneratorProperties> resolveConfiguration() {
         String location = EnvironmentContext.INSTANCE.getLocation(GENERATOR_CONFIG_FILE);
         Resource resource = resourcePatternResolver.getResource(location);
-        List<PropertySource<?>> propertySources;
+        Document document;
         try {
-            propertySources = propertiesPropertySourceLoader.load("CodeTemplate", resource);
-        } catch (IOException e) {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            document = documentBuilder.parse(resource.getURI().toString());
+        } catch (Exception e) {
             throw new MatrixErrorException(e);
         }
-        System.out.println();
 
-
-        /*XMLConfiguration generatorXml = (XMLConfiguration) ConfigurationContext.INSTANCE.resolve(GENERATOR_CONFIG_FILE);
-        Document document = generatorXml.getDocument();
         Element element = document.getDocumentElement();
         String author = element.getAttribute("author");
         String basePackage = element.getAttribute("base-package");
@@ -133,38 +132,56 @@ public class DomainGenerator {
         output = new StringBuilder(output).append(Symbol.FILE_SEPARATOR.getSymbol())
                 .append(StringUtil.INSTANCE.package2Path(basePackage)).toString();
 
-
         NodeList nodes = document.getElementsByTagName("entity");
         int length = nodes.getLength();
-        String datasource, tableName, entityName, contextPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
+        // String datasource, tableName, entityName, contextPackage, columnVersion, columnMarkDelete, columnMarkDeleteValue;
         GeneratorProperties generatorProperties;
         List<GeneratorProperties> generatorPropertiesList = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
+            Node node = nodes.item(i);
+            String nodeName = node.getNodeName();
+            if (!"entity".equals(nodeName)) {
+                continue;
+            }
             generatorProperties = new GeneratorTemplate();
             generatorProperties.setAuthor(author);
             generatorProperties.setOutput(output);
             generatorProperties.setBasePackage(basePackage);
 
-            datasource = generatorXml.getString(String.format("entity(%d).datasource", i));
-            generatorProperties.setDatasource(datasource);
-            tableName = generatorXml.getString(String.format("entity(%d).table-name", i));
-            generatorProperties.setTableName(tableName);
-            entityName = generatorXml.getString(String.format("entity(%d).entity-name", i));
-            generatorProperties.setEntityName(entityName);
-            contextPackage = generatorXml.getString(String.format("entity(%d).context-package", i));
-            generatorProperties.setContextPackage(contextPackage);
-            columnVersion = generatorXml.getString(String.format("entity(%d).column-version", i));
-            generatorProperties.setColumnVersion(columnVersion);
-            columnMarkDelete = generatorXml.getString(String.format("entity(%d).column-markdelete", i));
-            generatorProperties.setColumnMarkDelete(columnMarkDelete);
-            columnMarkDeleteValue = generatorXml.getString(String.format("entity(%d).column-markdelete[@value]", i));
-            generatorProperties.setColumnMarkDeleteValue(columnMarkDeleteValue);
-            boolean camelCase = generatorXml.getBoolean(String.format("entity(%d).camel-case", i), Boolean.FALSE);
-            generatorProperties.setCamelCase(camelCase);
+            NodeList childNodes = node.getChildNodes();
+            for (int j = 0; j < childNodes.getLength(); j++) {
+                node = childNodes.item(j);
+                nodeName = node.getNodeName();
+                switch (nodeName) {
+                    case "datasource":
+                        generatorProperties.setDatasource(node.getTextContent());
+                        break;
+                    case "table-name":
+                        generatorProperties.setTableName(node.getTextContent());
+                        break;
+                    case "entity-name":
+                        generatorProperties.setEntityName(node.getTextContent());
+                        break;
+                    case "context-package":
+                        generatorProperties.setContextPackage(node.getTextContent());
+                        break;
+                    case "column-version":
+                        generatorProperties.setColumnVersion(node.getTextContent());
+                        break;
+                    case "column-markdelete":
+                        generatorProperties.setColumnMarkDelete(node.getTextContent());
+                        generatorProperties.setColumnMarkDeleteValue(node.getAttributes().getNamedItem("value").getTextContent());
+                        break;
+                    case "camel-case":
+                        generatorProperties.setCamelCase(Boolean.parseBoolean(node.getTextContent()));
+                        break;
+
+                }
+            }
             generatorPropertiesList.add(generatorProperties);
         }
-        return generatorPropertiesList;*/
-        return Collections.emptyList();
+        return generatorPropertiesList;
+
     }
 
     private void populateColumnMetas(GeneratorProperties generatorProperties) {
