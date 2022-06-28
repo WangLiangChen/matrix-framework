@@ -4,6 +4,8 @@ import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
+import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 
 import java.util.*;
@@ -23,6 +25,9 @@ public enum CriteriaResolver {
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
         CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
+        // 从线程上下文设置数据库类型
+        AbstractDialect dialect = MultiDataSourceContext.INSTANCE.getDialect();
+        criteriaParameter.setDataSourceType(dialect.getDataSourceType());
         criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
         StringBuilder sqlBuilder = new StringBuilder();

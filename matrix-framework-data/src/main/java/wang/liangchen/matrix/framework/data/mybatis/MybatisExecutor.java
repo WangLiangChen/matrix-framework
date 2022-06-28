@@ -247,8 +247,14 @@ public enum MybatisExecutor {
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
             sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
             sqlBuilder.append("<if test=\"null!=offset and null!=rows\">");
-            // sqlBuilder.append("limit #{offset},#{rows}");
+            sqlBuilder.append("<choose>");
+            sqlBuilder.append("<when test=\"'PostgreSQL'== dataSourceType\">");
             sqlBuilder.append("limit #{rows} offset #{offset}");
+            sqlBuilder.append("</when>");
+            sqlBuilder.append("<otherwise>");
+            sqlBuilder.append("limit #{offset},#{rows}");
+            sqlBuilder.append("</otherwise>");
+            sqlBuilder.append("</choose>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();

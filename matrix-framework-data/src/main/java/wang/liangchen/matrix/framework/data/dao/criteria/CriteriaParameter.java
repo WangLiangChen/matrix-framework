@@ -17,6 +17,14 @@ public class CriteriaParameter<E extends RootEntity> extends PaginationParameter
 
     private E entity;
 
+    public String getDataSourceType() {
+        return dataSourceType;
+    }
+
+    public void setDataSourceType(String dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
+
     public TableMeta getTableMeta() {
         return tableMeta;
     }
