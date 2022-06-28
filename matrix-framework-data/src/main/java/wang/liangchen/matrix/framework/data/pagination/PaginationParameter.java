@@ -26,6 +26,8 @@ public class PaginationParameter extends EnhancedMap {
      */
     @Transient
     private transient Integer pageSize;
+    @Transient
+    private transient Integer rows;
     /**
      * 排序
      */
@@ -129,6 +131,10 @@ public class PaginationParameter extends EnhancedMap {
             return 1;
         }
         return pageSize;
+    }
+
+    public Integer getRows() {
+        return getPageSize();
     }
 
     public void setPageSize(Integer pageSize) {

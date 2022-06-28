@@ -82,10 +82,9 @@ public class PaginationInterceptor implements Interceptor {
         if (!(target instanceof RoutingStatementHandler)) {
             return target;
         }
-        StatementHandler statementHandler = (StatementHandler) target;
+        //StatementHandler statementHandler = (StatementHandler) target;
         // 获取方法参数
-        Object parameterObject = statementHandler.getParameterHandler().getParameterObject();
-
+        //Object parameterObject = statementHandler.getParameterHandler().getParameterObject();
         return Plugin.wrap(target, this);
     }
 

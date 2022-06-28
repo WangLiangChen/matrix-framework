@@ -7,7 +7,10 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
  * @author LiangChen.Wang
  */
 public final class PostgreSQLDialect extends AbstractDialect {
-    private static final String HIBERNATE_DIALECT_CLASS = "org.hibernate.dialect.PostgreSQL95Dialect";
+
+    public PostgreSQLDialect() {
+        super("PostgreSQL");
+    }
 
     @Override
     public String resolveCountSql(String targetSql) {
@@ -19,9 +22,5 @@ public final class PostgreSQLDialect extends AbstractDialect {
         return targetSql;
     }
 
-    @Override
-    public String setHibernateDialectClass() {
-        return HIBERNATE_DIALECT_CLASS;
-    }
 
 }

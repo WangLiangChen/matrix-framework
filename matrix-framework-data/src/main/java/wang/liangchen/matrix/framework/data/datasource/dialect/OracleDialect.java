@@ -1,17 +1,18 @@
 package wang.liangchen.matrix.framework.data.datasource.dialect;
 
 
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
-
 /**
  * @author LiangChen.Wang
  */
 public final class OracleDialect extends AbstractDialect {
-    private static final String HIBERNATE_DIALECT_CLASS = "org.hibernate.dialect.Oracle12cDialect";
+
+    public OracleDialect() {
+        super("Oracle");
+    }
 
     @Override
     public String resolveCountSql(String targetSql) {
-       return StringUtil.INSTANCE.blankString();
+       return targetSql;
     }
 
     @Override
@@ -19,9 +20,5 @@ public final class OracleDialect extends AbstractDialect {
         return targetSql;
     }
 
-    @Override
-    public String setHibernateDialectClass() {
-        return HIBERNATE_DIALECT_CLASS;
-    }
 
 }

@@ -246,7 +246,10 @@ public enum MybatisExecutor {
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
             sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
-            sqlBuilder.append("<if test=\"null!=offset and null!=rows\">limit #{offset},#{pageSize}</if>");
+            sqlBuilder.append("<if test=\"null!=offset and null!=rows\">");
+            // sqlBuilder.append("limit #{offset},#{rows}");
+            sqlBuilder.append("limit #{rows} offset #{offset}");
+            sqlBuilder.append("</if>");
             sqlBuilder.append("</script>");
             String sql = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sql, CriteriaParameter.class, entityClass);
