@@ -9,7 +9,7 @@ import wang.liangchen.matrix.framework.web.response.FormattedResponse;
  */
 @RestControllerAdvice
 public class ExceptionHandlers {
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Throwable.class)
     public FormattedResponse exceptionHandler(Exception ex) {
         return FormattedResponse.exception(ex);
     }

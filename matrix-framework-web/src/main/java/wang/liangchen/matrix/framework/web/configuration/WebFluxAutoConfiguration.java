@@ -41,7 +41,6 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
             if (ex instanceof ResponseStatusException) {
                 ResponseStatusException responseStatusException = (ResponseStatusException) ex;
                 if (responseStatusException.getStatus() == HttpStatus.NOT_FOUND) {
-
                     dataString = FormattedResponse.failure().code(HttpStatus.NOT_FOUND.name()).message("Resource not found:{}", exchange.getRequest().getPath()).toString();
                 }
             }

@@ -37,8 +37,8 @@ public class ${entityName} extends RootEntity {
         return ObjectUtil.INSTANCE.copyProperties(source, ${entityName}.class);
     }
 
-    public static AuthorizationAllowlist newInstance() {
-        return ClassUtil.INSTANCE.instantiate(AuthorizationAllowlist.class);
+    public static ${entityName} newInstance() {
+        return ClassUtil.INSTANCE.instantiate(${entityName}.class);
     }
 
 <#list columnMetas as columnMeta>

@@ -23,7 +23,6 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
  * 2、使用FilterRegistrationBean、ServletRegistrationBean
  * 3、使用@Bean自动添加，添加后默认的过滤路径为 /*，使用FilterRegistrationBean来进行Filter的注册，filterRegistration.setEnabled(false);，就可以取消Filter的自动注册行为。
  */
-//@EnableWebMvc
 @AutoConfigureBefore(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
     //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
@@ -54,7 +53,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 ServletOutputStream outputStream = response.getOutputStream();
                 int statusCode = responseWrapper.getStatusCode();
                 if (SC_NOT_FOUND == statusCode) {
-                    outputStream.write(FormattedResponse.failure().message("'{}' does not exist").toString().getBytes());
+                    outputStream.write(FormattedResponse.failure().code(String.valueOf(SC_NOT_FOUND)).message("request does not exist: {}", requestURI).toString().getBytes());
                     outputStream.flush();
                     return;
                 }

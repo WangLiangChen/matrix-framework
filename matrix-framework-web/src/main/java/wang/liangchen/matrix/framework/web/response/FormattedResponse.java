@@ -10,65 +10,79 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixPromptException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Liangchen.Wang
  */
 public final class FormattedResponse implements Serializable {
     private final static Logger logger = LoggerFactory.getLogger(FormattedResponse.class);
-    private final static String MESSAGE = "System error, please contact the administrator!";
+    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private final static String MESSAGE = "System Error!";
 
-    private boolean success;
+    private boolean success = false;
     /**
      * 业务代码/错误代码
      */
-    private String code;
+    private String code = StringUtil.INSTANCE.blankString();
     /**
      * 提示信息/前端提示信息Key
      */
-    private String message;
+    private String message = StringUtil.INSTANCE.blankString();
     /**
      * 一般为异常堆栈信息
      */
-    private String debug;
+    private String debug = StringUtil.INSTANCE.blankString();
+    /**
+     * 前端传递的requestId，原样返回
+     * 用于标识同一个请求
+     */
+    private String requestId = StringUtil.INSTANCE.blankString();
     /**
      * 错误数据/业务数据
      */
-    private Object payload;
+    private Object payload = new HashMap<String, String>(0);
 
     public static FormattedResponse exception(Throwable throwable) {
         FormattedResponse failure = failure().message(MESSAGE);
         if (throwable instanceof MatrixRuntimeException) {
             MatrixRuntimeException ex = (MatrixRuntimeException) throwable;
-            failure.code(ex.getCode()).payload(ex.getPayload());
+            String exCode = ex.getCode();
+            if (null != exCode) {
+                failure.code(exCode);
+            }
+            Map<String, Object> exPayload = ex.getPayload();
+            if (null != exPayload) {
+                failure.payload(exPayload);
+            }
         }
         if (throwable instanceof MatrixPromptException) {
             logger.debug(throwable.getMessage(), throwable);
             failure.message(throwable.getMessage());
             return failure;
         }
-        failure.debug(stackTraceString(throwable));
+        failure.debug(throwable.getMessage());
         if (throwable instanceof MatrixInfoException) {
             logger.info(throwable.getMessage(), throwable);
             return failure;
         }
-        if (throwable instanceof MatrixErrorException) {
-            logger.error(throwable.getMessage(), throwable);
-            return failure;
-        }
+        // MatrixErrorException or other Exception
+        logger.error(throwable.getMessage(), throwable);
         return failure;
     }
 
     public static FormattedResponse failure() {
-        FormattedResponse responseEntity = new FormattedResponse();
+        FormattedResponse responseEntity = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
         responseEntity.success = false;
         return responseEntity;
     }
 
     public static FormattedResponse success() {
-        FormattedResponse responseEntity = new FormattedResponse();
+        FormattedResponse responseEntity = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
         responseEntity.success = true;
         return responseEntity;
     }
@@ -85,6 +99,11 @@ public final class FormattedResponse implements Serializable {
 
     public FormattedResponse debug(String debug) {
         this.debug = debug;
+        return this;
+    }
+
+    public FormattedResponse requestId(String requestId) {
+        this.requestId = requestId;
         return this;
     }
 
@@ -110,13 +129,16 @@ public final class FormattedResponse implements Serializable {
         return debug;
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
     public Object getPayload() {
         return payload;
     }
 
     @Override
     public String toString() {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {

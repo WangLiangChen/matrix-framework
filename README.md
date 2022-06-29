@@ -83,3 +83,67 @@ try {
 3、自动封装异常(含404)为特定的格式 
 4、支持SSE
 
+# matrix-framework的使用
+## 新建maven项目引入springboot依赖
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>2.7.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+## 引入数据访问模块
+```xml
+<dependency>
+    <groupId>wang.liangchen.matrix</groupId>
+    <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+## 在src/main/resources目录创建matrix-framework目录用来放置如下文件
+1、jdbc.properties
+```properties
+#primary is required
+primary.dialect=wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect
+primary.datasource=com.zaxxer.hikari.HikariDataSource
+#primary.url=
+primary.host=127.0.0.1
+primary.port=5432
+primary.database=
+#primary.schema=
+primary.username=
+primary.password=
+#primary.extra.MaximumPoolSize=100
+#primary.extra.maximum-pool-size=100
+```
+2、autoscan.properties 内容为空
+3、logger.properties
+```properties
+config.file=logback.xml
+```
+4、logback.xml
+```xml
+<configuration scan="true" debug="false">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %caller{1} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+    <logger name="**************" level="DEBUG"/>
+    <logger name="wang.liangchen.matrix" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG"/>
+    <logger name="org.springframework.jdbc.core.StatementCreatorUtils" level="TRACE"/>
+</configuration>
+```

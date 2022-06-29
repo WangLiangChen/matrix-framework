@@ -355,6 +355,7 @@ public class StartProcessMonitor implements
         for (int i = 0; i < excludeAutoConfigure.length; i++) {
             defaultProperties.setProperty(StringUtil.INSTANCE.format("spring.autoconfigure.exclude[{}]", i), excludeAutoConfigure[i]);
         }
+        defaultProperties.setProperty("spring.jackson.mapper.propagate-transient-marker", "true");
     }
 
     private void hanldeScanPackages(ConfigurableApplicationContext applicationContext) {

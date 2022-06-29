@@ -46,7 +46,7 @@ public abstract class RootEntity extends EnhancedObject {
         return forceUpdateColumns;
     }
 
-    public TableMeta getTableMeta() {
+    public TableMeta obtainTableMeta() {
         return tableMeta;
     }
 }

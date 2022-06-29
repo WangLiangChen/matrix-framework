@@ -148,7 +148,7 @@ public class ColumnMeta {
     }
 
     private Class<?> dataType2JavaType(String dataTypeName) {
-        Class<?> javaType = mapping.get(dataTypeName);
+        Class<?> javaType = mapping.get(dataTypeName.toLowerCase());
         if (null != javaType) {
             return javaType;
         }

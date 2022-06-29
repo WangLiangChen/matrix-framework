@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class EnhancedObject implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
-    private final transient Map<String, Object> extendedFields = new HashMap<>();
+    private final Map<String, Object> extendedFields = new HashMap<>();
 
     public <E> E to(Class<E> targetClass) {
         return ObjectUtil.INSTANCE.copyProperties(this, targetClass);
