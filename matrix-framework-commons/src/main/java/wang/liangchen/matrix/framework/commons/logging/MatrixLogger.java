@@ -9,13 +9,13 @@ public interface MatrixLogger {
 
     boolean isTraceEnabled();
 
-    void error(String message, Throwable e);
+    void error(Throwable e, String message, Object... args);
 
-    void error(String message);
+    void error(String message, Object... args);
 
-    void debug(String message);
+    void debug(String message, Object... args);
 
-    void trace(String message);
+    void trace(String message, Object... args);
 
-    void warn(String message);
+    void warn(String message, Object... args);
 }

@@ -1,15 +1,14 @@
-package wang.liangchen.matrix.framework.commons.logging.log4j2;
+package wang.liangchen.matrix.framework.commons.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.spi.AbstractLogger;
-import wang.liangchen.matrix.framework.commons.logging.AbstractMatrixLogger;
-import wang.liangchen.matrix.framework.commons.logging.MatrixLogger;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:26
  */
-public class MatrixLog4j2Impl extends AbstractMatrixLogger implements MatrixLogger {
+class MatrixLog4j2Impl extends AbstractMatrixLogger implements MatrixLogger {
     private final MatrixLogger matrixLogger;
 
     public MatrixLog4j2Impl(String className) {
@@ -34,27 +33,27 @@ public class MatrixLog4j2Impl extends AbstractMatrixLogger implements MatrixLogg
     }
 
     @Override
-    public void error(String message, Throwable e) {
-        matrixLogger.error(message, e);
+    public void error(Throwable e,String message, Object ... args) {
+        matrixLogger.error(StringUtil.INSTANCE.format(message,args), e);
     }
 
     @Override
-    public void error(String message) {
-        matrixLogger.error(message);
+    public void error(String message,Object ... args) {
+        matrixLogger.error(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void debug(String message) {
-        matrixLogger.debug(message);
+    public void debug(String message,Object ... args) {
+        matrixLogger.debug(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void trace(String message) {
-        matrixLogger.trace(message);
+    public void trace(String message,Object ... args) {
+        matrixLogger.trace(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void warn(String message) {
-        matrixLogger.warn(message);
+    public void warn(String message,Object ... args) {
+        matrixLogger.warn(StringUtil.INSTANCE.format(message,args));
     }
 }

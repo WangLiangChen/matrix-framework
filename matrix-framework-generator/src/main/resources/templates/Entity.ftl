@@ -1,6 +1,7 @@
 package ${basePackage}.${contextPackage}.${domainPackage};
 
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
@@ -48,4 +49,16 @@ public class ${entityName} extends RootEntity {
         this.${columnMeta.fieldName} = ${columnMeta.fieldName};
     }
 </#list>
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("${entityName}{");
+<#list columnMetas as columnMeta>
+        builder.append("${columnMeta.fieldName} = ").append(${columnMeta.fieldName}).append(", ");
+</#list>
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("}");
+        return builder.toString();
+    }
 }

@@ -1,17 +1,16 @@
-package wang.liangchen.matrix.framework.commons.logging.slf4j;
+package wang.liangchen.matrix.framework.commons.logging;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
-import wang.liangchen.matrix.framework.commons.logging.AbstractMatrixLogger;
-import wang.liangchen.matrix.framework.commons.logging.MatrixLogger;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 11:43
  */
-public class MatrixSlf4jImpl extends AbstractMatrixLogger implements MatrixLogger {
+class MatrixSlf4jImpl extends AbstractMatrixLogger implements MatrixLogger {
 
     private MatrixLogger matrixLogger;
 
@@ -22,7 +21,7 @@ public class MatrixSlf4jImpl extends AbstractMatrixLogger implements MatrixLogge
             try {
                 // check for slf4j >= 1.6 method signature
                 nativeLogger.getClass().getMethod("log", Marker.class, String.class, int.class, String.class, Object[].class, Throwable.class);
-                matrixLogger = new Slf4JLocationAwareMatrixLoggerImpl((LocationAwareLogger) nativeLogger);
+                matrixLogger = new MatrixSlf4JLocationAwareLoggerImpl((LocationAwareLogger) nativeLogger);
                 return;
             } catch (SecurityException | NoSuchMethodException e) {
                 // fail-back to Slf4jLoggerImpl
@@ -43,27 +42,27 @@ public class MatrixSlf4jImpl extends AbstractMatrixLogger implements MatrixLogge
     }
 
     @Override
-    public void error(String message, Throwable e) {
-        matrixLogger.error(message, e);
+    public void error(Throwable e,String message, Object ... args) {
+        matrixLogger.error(StringUtil.INSTANCE.format(message,args), e);
     }
 
     @Override
-    public void error(String message) {
-        matrixLogger.error(message);
+    public void error(String message,Object ... args) {
+        matrixLogger.error(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void debug(String message) {
-        matrixLogger.debug(message);
+    public void debug(String message,Object ... args) {
+        matrixLogger.debug(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void trace(String message) {
-        matrixLogger.trace(message);
+    public void trace(String message,Object ... args) {
+        matrixLogger.trace(StringUtil.INSTANCE.format(message,args));
     }
 
     @Override
-    public void warn(String message) {
-        matrixLogger.warn(message);
+    public void warn(String message,Object ... args) {
+        matrixLogger.warn(StringUtil.INSTANCE.format(message,args));
     }
 }

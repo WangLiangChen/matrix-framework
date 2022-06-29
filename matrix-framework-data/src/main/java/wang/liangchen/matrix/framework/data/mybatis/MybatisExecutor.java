@@ -47,19 +47,20 @@ public enum MybatisExecutor {
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append("#{").append(columnMeta.getFieldName()).append("},"));
             sqlBuilder.append("</trim>");
             sqlBuilder.append("</script>");
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sql, entityClass, Integer.class);
-            logger.debug("create and cache insertId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class);
+            logger.debug("create and cache insertId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.insert(statementId, entity);
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
-                E entity = entities.stream().findFirst().get();
+        Iterator<E> iterator = entities.iterator();
+        E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
-        String statementId = String.format("%s.%s", entityClass.getName(), "insertBatch");
+        String statementId = String.format("%s.%s", entityClass.getName(), "insertBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
@@ -76,10 +77,10 @@ public enum MybatisExecutor {
             sqlBuilder.append("</trim>");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sql, List.class, Integer.class);
-            logger.debug("create and cache insertBatchId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, Collection.class, Integer.class);
+            logger.debug("create and cache insertBulkId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.insert(statementId, entities);
     }
@@ -92,25 +93,23 @@ public enum MybatisExecutor {
             TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
+            sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
-                sqlBuilder.append("<script>");
                 sqlBuilder.append("delete from ").append(tableMeta.getTableName());
-                sqlBuilder.append(findWhereSql(tableMeta.getPkColumnMetas()));
-                sqlBuilder.append("</script>");
+                sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
             } else {
                 // 通过扩展字段 增加deleteValue
                 entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
-                sqlBuilder.append("<script>");
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
-                sqlBuilder.append(findWhereSql(tableMeta.getPkColumnMetas()));
-                sqlBuilder.append("</script>");
+                sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
             }
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sql, entityClass, Integer.class);
-            logger.debug("create and cache deleteId:{},sql:{}", statementId, sql);
-            return sql;
+            sqlBuilder.append("</script>");
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class);
+            logger.debug("create and cache deleteId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         int rows = sqlSessionTemplate.delete(statementId, entity);
         // 使用后删除 markDeleteValue
@@ -120,29 +119,27 @@ public enum MybatisExecutor {
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
-        String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBatch");
+        String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
+            sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
-                sqlBuilder.append("<script>");
                 sqlBuilder.append("delete from ").append(tableMeta.getTableName());
                 sqlBuilder.append("<where>${whereSql}</where>");
-                sqlBuilder.append("</script>");
             } else {
                 // 通过扩展字段 增加deleteValue
                 criteriaParameter.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
-                sqlBuilder.append("<script>");
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
                 sqlBuilder.append("<where>${whereSql}</where>");
-                sqlBuilder.append("</script>");
             }
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sql, CriteriaParameter.class, Integer.class);
-            logger.debug("create and cache deleteBatchId:{},sql:{}", statementId, sql);
-            return sql;
+            sqlBuilder.append("</script>");
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class);
+            logger.debug("create and cache deleteBulkId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.delete(statementId, criteriaParameter);
     }
@@ -170,12 +167,12 @@ public enum MybatisExecutor {
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
-            sqlBuilder.append(findWhereSql(entityTableMeta.getPkColumnMetas()));
+            sqlBuilder.append(pkWhereSql(entityTableMeta.getPkColumnMetas()));
             sqlBuilder.append("</script>");
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sql, entityClass, Integer.class);
-            logger.debug("create and cache updateId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, entityClass, Integer.class);
+            logger.debug("create and cache updateId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.update(statementId, entity);
     }
@@ -183,7 +180,7 @@ public enum MybatisExecutor {
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         RootEntity entity = criteriaParameter.getEntity();
         Class<? extends RootEntity> entityClass = entity.getClass();
-        String statementId = String.format("%s.%s", entityClass.getName(), "updateBatch");
+        String statementId = String.format("%s.%s", entityClass.getName(), "updateBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
@@ -204,10 +201,10 @@ public enum MybatisExecutor {
             sqlBuilder.append("</set>");
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sql, UpdateCriteria.class, Integer.class);
-            logger.debug("create and cache updateBatchId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, UpdateCriteria.class, Integer.class);
+            logger.debug("create and cache updateBatchId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.update(statementId, criteriaParameter);
     }
@@ -218,16 +215,15 @@ public enum MybatisExecutor {
         String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "count");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
-            // 根据mysql文档，count(0)和count(*)没有实现及性能上的差别,但count(*)符合标准语法
-            // count(column)只计数非null
+            // 根据mysql文档，count(0)和count(*)没有性能上的差别,但count(*)符合标准语法; count(column)只计数非null
             sqlBuilder.append("<script>");
             sqlBuilder.append("select count(*) from ").append(tableMeta.getTableName());
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class);
-            String sql = sqlBuilder.toString();
-            logger.debug("create and cache countId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            logger.debug("create and cache countId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.selectOne(statementId, criteriaParameter);
     }
@@ -257,28 +253,29 @@ public enum MybatisExecutor {
             sqlBuilder.append("</choose>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</script>");
-            String sql = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sql, CriteriaParameter.class, entityClass);
-            logger.debug("create and cache listId:{},sql:{}", statementId, sql);
-            return sql;
+            String sqlScript = sqlBuilder.toString();
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sqlScript, CriteriaParameter.class, entityClass);
+            logger.debug("create and cache listId:{},sqlScript:{}", statementId, sqlScript);
+            return sqlScript;
         });
         return sqlSessionTemplate.selectList(statementId, criteriaParameter);
     }
 
-    private StringBuilder findWhereSql(Map<String, ColumnMeta> pkColumnMetas) {
+    private StringBuilder pkWhereSql(Map<String, ColumnMeta> pkColumnMetas) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ").append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("}"));
+        pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ")
+                .append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("}"));
         whereSql.append("</where>");
         return whereSql;
     }
 
-    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sql, Class<?> parameterType, Class<?> resultType) {
+    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType) {
         List<ResultMap> resultMaps = new ArrayList<>(1);
         Configuration configuration = sqlSessionTemplate.getConfiguration();
         resultMaps.add(new ResultMap.Builder(configuration, "defaultResultMap", resultType, Collections.emptyList()).build());
         LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
-        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, parameterType);
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlScript, parameterType);
         MappedStatement ms = new MappedStatement.Builder(configuration, mappedStatementId, sqlSource, sqlCommandType).resultMaps(resultMaps).build();
         configuration.addMappedStatement(ms);
     }

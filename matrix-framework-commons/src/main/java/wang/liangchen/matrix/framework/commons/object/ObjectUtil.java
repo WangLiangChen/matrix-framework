@@ -55,6 +55,9 @@ public enum ObjectUtil {
         if (object instanceof Collection) {
             return ((Collection<?>) object).isEmpty();
         }
+        if (object instanceof Iterable) {
+            return ((Iterable<?>) object).iterator().hasNext();
+        }
         Class<?> type = object.getClass();
         if (type.isArray()) {
             return Array.getLength(object) == 0;

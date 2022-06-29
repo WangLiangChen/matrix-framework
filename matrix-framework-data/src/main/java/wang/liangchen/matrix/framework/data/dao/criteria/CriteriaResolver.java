@@ -51,13 +51,13 @@ public enum CriteriaResolver {
     }
 
     private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
+        E entity = updateCriteria.getEntity();
+        criteriaParameter.setEntity(entity);
         Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateFields();
         if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
             return;
         }
         Map<String, ColumnMeta> columnMetas = updateCriteria.getTableMeta().getColumnMetas();
-        E entity = updateCriteria.getEntity();
-        criteriaParameter.setEntity(entity);
         forceUpdateColumns.forEach((column, value) -> {
             String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
             String columnName = columnMetas.get(fieldName).getColumnName();

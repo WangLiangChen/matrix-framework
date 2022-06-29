@@ -2,12 +2,6 @@ package wang.liangchen.matrix.framework.commons.logging;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.logging.jcl.MatrixJclImpl;
-import wang.liangchen.matrix.framework.commons.logging.jul.MatrixJulImpl;
-import wang.liangchen.matrix.framework.commons.logging.log4j2.MatrixLog4j2Impl;
-import wang.liangchen.matrix.framework.commons.logging.slf4j.MatrixSlf4jImpl;
-import wang.liangchen.matrix.framework.commons.logging.stdout.MatrixNoLoggingImpl;
-import wang.liangchen.matrix.framework.commons.logging.stdout.MatrixStdOutImpl;
 
 import java.lang.reflect.Constructor;
 

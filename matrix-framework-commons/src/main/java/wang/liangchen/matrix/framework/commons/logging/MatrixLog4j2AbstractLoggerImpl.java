@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.logging.log4j2;
+package wang.liangchen.matrix.framework.commons.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
@@ -7,13 +7,12 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.apache.logging.log4j.spi.AbstractLogger;
 import org.apache.logging.log4j.spi.ExtendedLoggerWrapper;
-import wang.liangchen.matrix.framework.commons.logging.MatrixLogger;
-import wang.liangchen.matrix.framework.commons.logging.MatrixLoggerFactory;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:28
  */
-public class MatrixLog4j2AbstractLoggerImpl implements MatrixLogger {
+class MatrixLog4j2AbstractLoggerImpl implements MatrixLogger {
     private static final Marker MARKER = MarkerManager.getMarker(MatrixLoggerFactory.MARKER);
     private static final String FQCN = MatrixLog4j2Impl.class.getName();
 
@@ -34,27 +33,27 @@ public class MatrixLog4j2AbstractLoggerImpl implements MatrixLogger {
     }
 
     @Override
-    public void error(String message, Throwable e) {
-        nativeLogger.logIfEnabled(FQCN, Level.ERROR, MARKER, (Message) new SimpleMessage(message), e);
+    public void error(Throwable e,String message,Object ... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.ERROR, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), e);
     }
 
     @Override
-    public void error(String message) {
+    public void error(String message,Object ... args) {
         error(message, null);
     }
 
     @Override
-    public void debug(String message) {
-        nativeLogger.logIfEnabled(FQCN, Level.DEBUG, MARKER, (Message) new SimpleMessage(message), null);
+    public void debug(String message,Object ... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.DEBUG, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
     }
 
     @Override
-    public void trace(String message) {
-        nativeLogger.logIfEnabled(FQCN, Level.TRACE, MARKER, (Message) new SimpleMessage(message), null);
+    public void trace(String message,Object ... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.TRACE, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
     }
 
     @Override
-    public void warn(String message) {
-        nativeLogger.logIfEnabled(FQCN, Level.WARN, MARKER, (Message) new SimpleMessage(message), null);
+    public void warn(String message,Object ... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.WARN, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
     }
 }
