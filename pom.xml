@@ -136,8 +136,10 @@
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
-                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                    <include>**/*.yml</include>
                     <include>**/*.properties</include>
+                    <include>**/*.xml</include>
                     <include>**/META-INF/*</include>
                 </includes>
                 <filtering>true</filtering>
@@ -145,10 +147,11 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                    <include>**/*.yml</include>
                     <include>**/*.properties</include>
+                    <include>**/*.xml</include>
                     <include>**/META-INF/*</include>
-                    <include>**/*.sql</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
