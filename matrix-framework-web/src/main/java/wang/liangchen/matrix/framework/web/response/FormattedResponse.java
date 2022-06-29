@@ -11,6 +11,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixPromptException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.web.context.WebContext;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,6 +48,12 @@ public final class FormattedResponse implements Serializable {
      */
     private Object payload = new HashMap<String, String>(0);
 
+    public static FormattedResponse newInstance() {
+        FormattedResponse formattedResponse = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
+        formattedResponse.requestId = WebContext.INSTANCE.getRequestId();
+        return formattedResponse;
+    }
+
     public static FormattedResponse exception(Throwable throwable) {
         FormattedResponse failure = failure().message(MESSAGE);
         if (throwable instanceof MatrixRuntimeException) {
@@ -76,13 +83,13 @@ public final class FormattedResponse implements Serializable {
     }
 
     public static FormattedResponse failure() {
-        FormattedResponse responseEntity = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
+        FormattedResponse responseEntity = newInstance();
         responseEntity.success = false;
         return responseEntity;
     }
 
     public static FormattedResponse success() {
-        FormattedResponse responseEntity = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
+        FormattedResponse responseEntity = newInstance();
         responseEntity.success = true;
         return responseEntity;
     }

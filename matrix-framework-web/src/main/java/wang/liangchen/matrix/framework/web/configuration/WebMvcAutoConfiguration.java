@@ -5,6 +5,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.web.context.WebContext;
 import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.HttpServletResponseWrapper;
@@ -45,6 +47,13 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                     filterChain.doFilter(servletRequest, servletResponse);
                     return;
                 }
+                String requestId = request.getHeader(WebContext.REQUEST_ID);
+                if (null == requestId) {
+                    requestId = request.getParameter(WebContext.REQUEST_ID);
+                }
+                requestId = null == requestId ? Symbol.BLANK.getSymbol() : requestId;
+                WebContext.INSTANCE.setRequestId(requestId);
+
                 HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request);
                 HttpServletResponse response = (HttpServletResponse) servletResponse;
                 HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
@@ -63,13 +72,14 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                     outputStream.flush();
                     return;
                 }
+                responseWrapper.setHeader(WebContext.REQUEST_ID, requestId);
                 outputStream.write(responseWrapper.getContentAsByteArray());
                 outputStream.flush();
             }
 
             @Override
             public void destroy() {
-
+                WebContext.INSTANCE.remove();
             }
         };
     }
