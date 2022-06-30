@@ -75,9 +75,9 @@ public enum CriteriaResolver {
     private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
         EntityGetter<E>[] resultFields = criteria.getResultFields();
-        if (!CollectionUtil.INSTANCE.isEmpty(resultFields)) {
-            Set<String> fieldNames = Arrays.stream(resultFields).map(resultField -> LambdaUtil.INSTANCE.getReferencedFieldName(resultField)).collect(Collectors.toSet());
-            columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        if (CollectionUtil.INSTANCE.isNotEmpty(resultFields)) {
+            Set<String> fieldNames = Arrays.stream(resultFields).map(LambdaUtil.INSTANCE::getReferencedFieldName).collect(Collectors.toSet());
+            columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
         columnMetas.forEach((fieldName, columnMeta) -> {
             String columnName = columnMeta.getColumnName();

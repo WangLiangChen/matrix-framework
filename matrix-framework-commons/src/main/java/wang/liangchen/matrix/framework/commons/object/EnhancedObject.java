@@ -11,7 +11,9 @@ import java.util.Map;
  * 不能实现Map接口，否则该类子类的属性将会被隐藏
  */
 public class EnhancedObject implements Cloneable, Serializable {
-    private static final long serialVersionUID = 1L;
+    /**
+     * 对象扩展属性 需要被序列化
+     */
     private final Map<String, Object> extendedFields = new HashMap<>();
 
     public <E> E to(Class<E> targetClass) {

@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +27,10 @@ public enum TableMetas {
      */
     INSTANCE;
     private final Map<Class<? extends RootEntity>, TableMeta> tableMetaCache = new ConcurrentHashMap<>(128);
+    private final Set<Class<?>> EXCLUDED_CLASSES = new HashSet<Class<?>>() {{
+        add(RootEntity.class);
+        add(EnhancedObject.class);
+    }};
 
     public TableMeta tableMeta(final Class<? extends RootEntity> entityClass) {
         return tableMetaCache.computeIfAbsent(entityClass, this::resolveTableMeta);
@@ -85,8 +91,12 @@ public enum TableMetas {
 
 
     private TableMeta resolveTableMeta(Class<? extends RootEntity> entityClass) {
-        // 排除transient修饰的列
-        Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass, field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && null == field.getAnnotation(Transient.class), true);
+        // 排除列
+        Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass,
+                clazz -> !EXCLUDED_CLASSES.contains(clazz),
+                field -> !Modifier.isTransient(field.getModifiers())
+                        && null == field.getAnnotation(Transient.class)
+                        && !Modifier.isStatic(field.getModifiers()));
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {
             if (RootId.class.isAssignableFrom(field.getType())) {

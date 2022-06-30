@@ -4,10 +4,7 @@ import com.esotericsoftware.reflectasm.ConstructorAccess;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,34 +38,24 @@ public enum ClassUtil {
         return constructorAccess(clazz).newInstance();
     }
 
-    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> filter) {
+    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> fieldFilter) {
         Field[] fields = clazz.getDeclaredFields();
         Stream<Field> stream = Arrays.stream(fields);
-        if (null == filter) {
+        if (null == fieldFilter) {
             return stream.collect(Collectors.toSet());
         }
-        return stream.filter(filter).collect(Collectors.toSet());
+        return stream.filter(fieldFilter).collect(Collectors.toSet());
     }
 
-    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> filter, boolean containSuperFields) {
-        if (!containSuperFields) {
-            return declaredFields(clazz, filter);
-        }
-        Class<?> currentClass = clazz;
+    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Class<?>> classFilter, Predicate<Field> fieldFilter) {
+        List<Class<?>> container = populateSuperClasses(clazz, classFilter);
         Set<Field> fields = new HashSet<>();
-        while (Object.class != currentClass) {
-            fields.addAll(declaredFields(currentClass, filter));
-            currentClass = currentClass.getSuperclass();
-        }
+        container.forEach(innerClass -> fields.addAll(declaredFields(clazz, fieldFilter)));
         return fields;
     }
 
     public Set<Field> declaredFields(final Class<?> clazz) {
         return declaredFields(clazz, null);
-    }
-
-    public Set<Field> declaredFields(final Class<?> clazz, boolean containSuperFields) {
-        return declaredFields(clazz, null, containSuperFields);
     }
 
     private <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
@@ -77,6 +64,19 @@ public enum ClassUtil {
             constructorAccess.newInstance();
             return constructorAccess;
         });
+    }
+
+    private List<Class<?>> populateSuperClasses(final Class<?> clazz, Predicate<Class<?>> classFilter) {
+        List<Class<?>> container = new ArrayList<>();
+        Class<?> currentClass = clazz;
+        while (Object.class != currentClass) {
+            container.add(currentClass);
+            currentClass = currentClass.getSuperclass();
+        }
+        if (null == classFilter) {
+            return container;
+        }
+        return container.stream().filter(classFilter).collect(Collectors.toList());
     }
 
 }
