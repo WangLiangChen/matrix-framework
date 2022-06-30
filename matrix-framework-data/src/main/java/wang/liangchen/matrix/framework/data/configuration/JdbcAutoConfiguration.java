@@ -12,7 +12,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.data.annotation.DataSourceSwitchable;
+import wang.liangchen.matrix.framework.data.annotation.DataSourceAssign;
 import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 
@@ -33,11 +33,11 @@ public class JdbcAutoConfiguration {
         advisor.setOrder(Ordered.HIGHEST_PRECEDENCE);
         advisor.setAdvice((MethodInterceptor) methodInvocation -> {
             Method method = methodInvocation.getMethod();
-            DataSourceSwitchable dataSourceSwitchable = method.getAnnotation(DataSourceSwitchable.class);
-            if (null == dataSourceSwitchable) {
-                dataSourceSwitchable = method.getDeclaringClass().getAnnotation(DataSourceSwitchable.class);
+            DataSourceAssign dataSourceAssign = method.getAnnotation(DataSourceAssign.class);
+            if (null == dataSourceAssign) {
+                dataSourceAssign = method.getDeclaringClass().getAnnotation(DataSourceAssign.class);
             }
-            String dataSourceName = dataSourceSwitchable.value();
+            String dataSourceName = dataSourceAssign.value();
             Assert.INSTANCE.isTrue(MultiDataSourceContext.INSTANCE.getDataSourceNames().contains(dataSourceName), "The annotated dataSource '{}' does not exist", dataSourceName);
             MultiDataSourceContext.INSTANCE.set(dataSourceName);
             try {

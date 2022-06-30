@@ -68,7 +68,7 @@ public enum MultiDataSourceContext {
         // 入队
         Deque<String> deque = context.get();
         deque.push(dataSourceName);
-        logger.debug("switched datasource to:{} , Nested data:{}", dataSourceName, deque);
+        logger.debug("switched datasource to: {} , Nested data: {}", dataSourceName, deque);
     }
 
     public String get() {
@@ -86,7 +86,7 @@ public enum MultiDataSourceContext {
         // 出栈 后进先出
         Deque<String> deque = context.get();
         String polledDataSourceName = deque.poll();
-        logger.debug("cleared datasource:{} , Nested data:{}", polledDataSourceName, deque);
+        logger.debug("cleared datasource: {} , Nested data: {}", polledDataSourceName, deque);
         if (null == polledDataSourceName) {
             // 栈空 清理当前线程
             remove();

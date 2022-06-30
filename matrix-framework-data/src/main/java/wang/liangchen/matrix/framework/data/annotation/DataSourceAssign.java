@@ -10,6 +10,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Inherited
 @Documented
-public @interface DataSourceSwitchable {
+public @interface DataSourceAssign {
     String value();
 }
