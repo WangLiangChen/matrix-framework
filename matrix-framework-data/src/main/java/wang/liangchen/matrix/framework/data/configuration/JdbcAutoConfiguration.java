@@ -28,6 +28,7 @@ public class JdbcAutoConfiguration {
 
     @Bean
     public MultiDataSourceBeanFactoryPointcutAdvisor multiDataSourceBeanFactoryPointcutAdvisor() {
+        // 启动时，所有的Advisor都会被AnnotationAwareAspectJAutoProxyCreator这个BeanPostProcessor解析处理
         // 注册数据源切换切面 advisor=pointcut+advice
         MultiDataSourceBeanFactoryPointcutAdvisor advisor = new MultiDataSourceBeanFactoryPointcutAdvisor();
         advisor.setOrder(Ordered.HIGHEST_PRECEDENCE);

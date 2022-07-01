@@ -140,6 +140,7 @@
                     <include>**/*.yml</include>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                    <include>**/*.sql</include>
                     <include>**/META-INF/*</include>
                 </includes>
                 <filtering>true</filtering>
@@ -151,6 +152,7 @@
                     <include>**/*.yml</include>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                    <include>**/*.sql</include>
                     <include>**/META-INF/*</include>
                 </includes>
                 <filtering>true</filtering>
