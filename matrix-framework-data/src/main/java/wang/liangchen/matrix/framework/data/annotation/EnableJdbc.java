@@ -146,7 +146,7 @@ public @interface EnableJdbc {
                 if (length > requiredConfigItemsByHost.size()) {
                     length = requiredConfigItemsByUrl.size();
                     requiredConfigItemsByUrl.retainAll(properties.keySet());
-                    Assert.INSTANCE.isTrue(requiredConfigItemsByHost.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
+                    Assert.INSTANCE.isTrue(requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
                 }
             });
         }

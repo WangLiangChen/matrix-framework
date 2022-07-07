@@ -50,7 +50,8 @@ public class JdbcAutoConfiguration {
         return advisor;
     }
 
-    @Inject
+    @Deprecated
+    // @Inject
     public void initSQL(javax.sql.DataSource dataSource) {
         // 执行初始化SQL
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
