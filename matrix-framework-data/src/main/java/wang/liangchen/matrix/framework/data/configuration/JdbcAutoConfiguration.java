@@ -16,7 +16,6 @@ import wang.liangchen.matrix.framework.data.annotation.DataSourceAssign;
 import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.reflect.Method;
 

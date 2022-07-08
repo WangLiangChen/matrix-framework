@@ -65,11 +65,11 @@ public final class PaginationResult<E> {
         datas.forEach(consumer);
     }
 
-    public <T> PaginationResult<T> copyTo(Class<T> targetClass) {
-        return copyTo(targetClass, null);
+    public <T> PaginationResult<T> to(Class<T> targetClass) {
+        return to(targetClass, null);
     }
 
-    private <T> PaginationResult<T> copyTo(Class<T> targetClass, Consumer<T> consumer) {
+    private <T> PaginationResult<T> to(Class<T> targetClass, Consumer<T> consumer) {
         PaginationResult<T> paginationResult = new PaginationResult<>();
         paginationResult.setTotalRecords(this.totalRecords);
         paginationResult.setPageNumber(this.pageNumber);
