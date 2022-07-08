@@ -38,23 +38,34 @@ public enum ClassUtil {
         return constructorAccess(clazz).newInstance();
     }
 
-    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Field> fieldFilter) {
+    public List<Field> declaredFields(final Class<?> clazz, Predicate<Field> fieldFilter) {
         Field[] fields = clazz.getDeclaredFields();
         Stream<Field> stream = Arrays.stream(fields);
         if (null == fieldFilter) {
-            return stream.collect(Collectors.toSet());
+            return stream.collect(Collectors.toList());
         }
-        return stream.filter(fieldFilter).collect(Collectors.toSet());
+        return stream.filter(fieldFilter).collect(Collectors.toList());
     }
 
-    public Set<Field> declaredFields(final Class<?> clazz, Predicate<Class<?>> classFilter, Predicate<Field> fieldFilter) {
+    public List<Field> declaredFields(final Class<?> clazz, Predicate<Class<?>> classFilter, Predicate<Field> fieldFilter) {
         List<Class<?>> container = populateSuperClasses(clazz, classFilter);
-        Set<Field> fields = new HashSet<>();
-        container.forEach(innerClass -> fields.addAll(declaredFields(clazz, fieldFilter)));
+        List<Field> fields = new ArrayList<>();
+        container.forEach(innerClass -> fields.addAll(declaredFields(innerClass, fieldFilter)));
+        // 去重
+        Iterator<Field> fieldIterator = fields.iterator();
+        Set<String> fieldNames = new HashSet<>();
+        while (fieldIterator.hasNext()) {
+            String name = fieldIterator.next().getName();
+            if (fieldNames.contains(name)) {
+                fieldIterator.remove();
+                break;
+            }
+            fieldNames.add(name);
+        }
         return fields;
     }
 
-    public Set<Field> declaredFields(final Class<?> clazz) {
+    public List<Field> declaredFields(final Class<?> clazz) {
         return declaredFields(clazz, null);
     }
 

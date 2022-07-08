@@ -12,10 +12,7 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootId;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -92,7 +89,7 @@ public enum TableMetas {
 
     private TableMeta resolveTableMeta(Class<? extends RootEntity> entityClass) {
         // 排除列
-        Set<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass,
+        List<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass,
                 clazz -> !EXCLUDED_CLASSES.contains(clazz),
                 field -> !Modifier.isTransient(field.getModifiers())
                         && null == field.getAnnotation(Transient.class)
@@ -100,7 +97,7 @@ public enum TableMetas {
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {
             if (RootId.class.isAssignableFrom(field.getType())) {
-                Set<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
+                List<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
                 for (Field idField : idFields) {
                     columnMetas.put(idField.getName(), resolveColumnMeta(idField, true));
                 }
