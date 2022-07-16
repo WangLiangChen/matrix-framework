@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.data.enumeration.DataMode;
 
 import javax.persistence.Column;
 import javax.persistence.Version;
@@ -11,35 +10,27 @@ import java.time.LocalDateTime;
  * @author Liangchen.Wang 2022-07-08 10:58
  */
 public class CommonEntity extends RootEntity {
-    @Column(name = "data_mode")
-    private Byte dataMode = DataMode.A.getValue();
+
     @Version
     @Column(name = "version")
     private Integer version = 0;
-    @Column(name = "sort")
-    private Integer sort=0;
     @Column(name = "owner")
-    private String owner= Symbol.BLANK.getSymbol();
+    private String owner = Symbol.BLANK.getSymbol();
     @Column(name = "creator")
-    private String creator= Symbol.BLANK.getSymbol();
+    private String creator = Symbol.BLANK.getSymbol();
     @Column(name = "create_datetime")
-    private LocalDateTime createDatetime=LocalDateTime.now();
+    private LocalDateTime createDatetime = LocalDateTime.now();
     @Column(name = "modifier")
-    private String modifier= Symbol.BLANK.getSymbol();
+    private String modifier = Symbol.BLANK.getSymbol();
     @Column(name = "modify_datetime")
-    private LocalDateTime modifyDatetime=LocalDateTime.now();
+    private LocalDateTime modifyDatetime = LocalDateTime.now();
     @Column(name = "summary")
-    private String summary= Symbol.BLANK.getSymbol();;
+    private String summary = Symbol.BLANK.getSymbol();
+    ;
     @Column(name = "state")
-    private String state= Symbol.BLANK.getSymbol();;
+    private String state = Symbol.BLANK.getSymbol();
+    ;
 
-    public Byte getDataMode() {
-        return dataMode;
-    }
-
-    public void setDataMode(Byte dataMode) {
-        this.dataMode = dataMode;
-    }
 
     public Integer getVersion() {
         return version;
@@ -49,13 +40,6 @@ public class CommonEntity extends RootEntity {
         this.version = version;
     }
 
-    public Integer getSort() {
-        return sort;
-    }
-
-    public void setSort(Integer sort) {
-        this.sort = sort;
-    }
 
     public String getOwner() {
         return owner;

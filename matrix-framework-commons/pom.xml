@@ -20,6 +20,7 @@
         <version.protostuff>1.7.4</version.protostuff>
         <version.disruptor>3.4.4</version.disruptor>
         <version.asm>9.3</version.asm>
+        <version.jose.jwt>9.23</version.jose.jwt>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -73,6 +74,11 @@
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${version.disruptor}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${version.jose.jwt}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -150,5 +156,9 @@
             <scope>provided</scope>
         </dependency>
         <!-- logging provided -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
     </dependencies>
 </project>
