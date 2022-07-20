@@ -21,7 +21,7 @@ import java.lang.annotation.*;
 @Import({EnableWeb.WebImportSelector.class})
 @SuppressWarnings("NullableProblems")
 public @interface EnableWeb {
-    WebType webType() default WebType.WEBFLUX;
+    WebType webType() default WebType.WEBMVC;
 
     enum WebType {
         // webType

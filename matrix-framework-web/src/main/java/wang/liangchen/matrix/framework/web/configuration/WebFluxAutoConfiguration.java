@@ -51,10 +51,10 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
 
     @Bean
     public WebFilter webFilter() {
-        return (exchange, chain) -> chain.filter(new ServerWebExchangeDecorator(exchange));
+        return (exchange, chain) ->  chain.filter(new ServerWebExchangeDecorator(exchange));
     }
 
-    public HandlerFilterFunction<?,?> handlerFilterFunction() {
+    public HandlerFilterFunction<?, ?> handlerFilterFunction() {
         return (request, handlerFunction) -> handlerFunction.handle(request);
     }
 

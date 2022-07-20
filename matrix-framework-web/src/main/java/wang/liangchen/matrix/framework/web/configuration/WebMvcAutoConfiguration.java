@@ -57,24 +57,31 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request);
                 HttpServletResponse response = (HttpServletResponse) servletResponse;
                 HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
-                filterChain.doFilter(requestWrapper, responseWrapper);
-
-                ServletOutputStream outputStream = response.getOutputStream();
-                int statusCode = responseWrapper.getStatusCode();
-                if (SC_NOT_FOUND == statusCode) {
-                    outputStream.write(FormattedResponse.failure().code(String.valueOf(SC_NOT_FOUND)).message("request does not exist: {}", requestURI).toString().getBytes());
-                    outputStream.flush();
-                    return;
-                }
-
-                if (0 == responseWrapper.getContentSize()) {
-                    outputStream.write(FormattedResponse.success().toString().getBytes());
-                    outputStream.flush();
-                    return;
-                }
+                // set requestId for response
                 responseWrapper.setHeader(WebContext.REQUEST_ID, requestId);
-                outputStream.write(responseWrapper.getContentAsByteArray());
-                outputStream.flush();
+                try (ServletOutputStream outputStream = response.getOutputStream()) {
+                    try {
+                        filterChain.doFilter(requestWrapper, responseWrapper);
+                    } catch (Exception e) {
+                        outputStream.write(FormattedResponse.exception(e).toString().getBytes());
+                        outputStream.flush();
+                        return;
+                    }
+                    int statusCode = responseWrapper.getStatusCode();
+                    if (SC_NOT_FOUND == statusCode) {
+                        outputStream.write(FormattedResponse.failure().code(String.valueOf(SC_NOT_FOUND)).message("request does not exist: {}", requestURI).toString().getBytes());
+                        outputStream.flush();
+                        return;
+                    }
+
+                    if (0 == responseWrapper.getContentSize()) {
+                        outputStream.write(FormattedResponse.success().toString().getBytes());
+                        outputStream.flush();
+                        return;
+                    }
+                    outputStream.write(responseWrapper.getContentAsByteArray());
+                    outputStream.flush();
+                }
             }
 
             @Override

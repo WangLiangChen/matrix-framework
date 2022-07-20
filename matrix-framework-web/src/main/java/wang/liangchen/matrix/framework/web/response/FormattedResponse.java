@@ -50,7 +50,10 @@ public final class FormattedResponse implements Serializable {
 
     public static FormattedResponse newInstance() {
         FormattedResponse formattedResponse = ClassUtil.INSTANCE.instantiate(FormattedResponse.class);
-        formattedResponse.requestId = WebContext.INSTANCE.getRequestId();
+        String requestId = WebContext.INSTANCE.getRequestId();
+        if (null != requestId) {
+            formattedResponse.requestId = requestId;
+        }
         return formattedResponse;
     }
 

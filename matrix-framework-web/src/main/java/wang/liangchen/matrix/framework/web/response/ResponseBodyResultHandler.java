@@ -57,14 +57,14 @@ public final class ResponseBodyResultHandler extends org.springframework.web.rea
 
         Object returnValue = result.getReturnValue();
         if (returnValue instanceof Mono) {
-            Mono<?> monoBody = ((Mono<?>) returnValue).map(this::wrapBody);
+            Mono<?> monoBody = ((Mono<?>) returnValue).map(body->wrapBody(body,exchange));
             return writeBody(monoBody, monoParameter, exchange);
         }
         if (returnValue instanceof Flux) {
-            Mono<?> monoBodys = ((Flux<?>) returnValue).collectList().map(this::wrapBody);
+            Mono<?> monoBodys = ((Flux<?>) returnValue).collectList().map(body->wrapBody(body,exchange));
             return writeBody(monoBodys, monoParameter, exchange);
         }
-        Mono<?> monoBody = Mono.just(wrapBody(returnValue));
+        Mono<?> monoBody = Mono.just(wrapBody(returnValue,exchange));
         return writeBody(monoBody, monoParameter, exchange);
     }
 
@@ -72,7 +72,7 @@ public final class ResponseBodyResultHandler extends org.springframework.web.rea
         return Mono.empty();
     }
 
-    private FormattedResponse wrapBody(Object body) {
+    private FormattedResponse wrapBody(Object body,ServerWebExchange exchange) {
         if (body instanceof FormattedResponse) {
             return (FormattedResponse) body;
         }
