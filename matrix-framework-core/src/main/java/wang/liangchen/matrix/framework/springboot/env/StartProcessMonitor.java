@@ -94,8 +94,7 @@ public class StartProcessMonitor implements
             WebMvcAutoConfiguration.class.getName(),
             WebFluxAutoConfiguration.class.getName(),
             "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
-            "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration",
-            "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
+            "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration"
     };
     private boolean isRunning;
 

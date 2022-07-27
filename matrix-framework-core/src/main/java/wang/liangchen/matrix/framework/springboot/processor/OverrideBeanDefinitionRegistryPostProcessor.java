@@ -55,11 +55,10 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             }
             MergedAnnotation<OverrideBean> overrideBeanAnnotation = methodMetadata.getAnnotations().get(OverrideBean.class);
             String specifiedBeanName = overrideBeanAnnotation.getString("value");
-            if (!registry.containsBeanDefinition(specifiedBeanName)) {
-                continue;
+            if (registry.containsBeanDefinition(specifiedBeanName)) {
+                // 移除被替换的Bean
+                registry.removeBeanDefinition(specifiedBeanName);
             }
-            // 移除被替换的Bean
-            registry.removeBeanDefinition(specifiedBeanName);
             // 移除自己
             registry.removeBeanDefinition(beanDefinitionName);
             // 用指定的名称重新注册自己
