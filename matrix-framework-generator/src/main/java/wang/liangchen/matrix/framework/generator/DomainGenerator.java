@@ -47,7 +47,6 @@ public class DomainGenerator {
     private static final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private final Configuration freemarkerConfig;
 
-    @Inject
     public DomainGenerator(StandaloneDao standaloneDao) {
         this.standaloneDao = standaloneDao;
         this.freemarkerConfig = new Configuration(Configuration.VERSION_2_3_31);
