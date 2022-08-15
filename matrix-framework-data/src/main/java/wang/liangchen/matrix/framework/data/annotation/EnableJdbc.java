@@ -51,7 +51,7 @@ import java.util.*;
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector, EnvironmentAware {
         private ConfigurableEnvironment environment;
-        private final String JDBC_CONFIG_FILE = "jdbc.properties";
+        // private final String JDBC_CONFIG_FILE = "jdbc.properties";
         private final String DIALECT_ITEM = "dialect", SCHEMA_ITEM = "schema", URL_ITEM = "url", EXTRA_ITEM = "extra";
         private final Set<String> requiredConfigItemsByHost = new HashSet<String>() {{
             add("dialect");
