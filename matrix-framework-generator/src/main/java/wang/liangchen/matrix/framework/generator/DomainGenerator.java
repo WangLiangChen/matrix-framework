@@ -22,7 +22,6 @@ import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
-import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileWriter;
