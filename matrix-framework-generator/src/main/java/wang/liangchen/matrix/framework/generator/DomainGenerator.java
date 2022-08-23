@@ -18,7 +18,7 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
-import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
+import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
@@ -182,7 +182,7 @@ public class DomainGenerator {
 
     private void populateColumnMetas(GeneratorProperties generatorProperties) {
         String tableName = generatorProperties.getTableName();
-        ConnectionsManager.INSTANCE.executeInNonManagedConnection((connection) -> {
+        ConnectionManager.INSTANCE.executeInNonManagedConnection((connection) -> {
             try {
                 // 查询主键唯一键等信息
                 DatabaseMetaData databaseMetaData = connection.getMetaData();

@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-import wang.liangchen.matrix.framework.web.sse.SseKey;
-import wang.liangchen.matrix.framework.web.sse.SseUtil;
-
-import java.util.concurrent.Callable;
+import wang.liangchen.matrix.framework.web.push.PushUtil;
+import wang.liangchen.matrix.framework.web.push.PusherKey;
 
 /**
  * Server Side Event
@@ -19,24 +17,17 @@ import java.util.concurrent.Callable;
  * 异步异常拦截 CallableProcessingInterceptor/DeferredResultProcessingInterceptor/AsyncHandlerInterceptor
  */
 @RestController
-@RequestMapping("sse")
-public class SseController {
-    private final DeferredResult<String> deferredResult = new DeferredResult<>();
+@RequestMapping("push")
+public class PushController {
 
     @GetMapping("/")
     public SseEmitter sse(String name, String group) {
-        return SseUtil.INSTANCE.buildEmitter(SseKey.newInstance(name, group));
-    }
-
-    @GetMapping("callable")
-    public Callable<?> callable() {
-        return () -> null;
+        return PushUtil.INSTANCE.appendPusher(PusherKey.newInstance(name, group), SseEmitter.class);
     }
 
     @GetMapping("/deferredResult")
-    public DeferredResult<?> testDeferredResult() {
-        // 客户端将会一直等待，直到一定时长后会超时或者其它线程调用deferredResult.setResult
-        return deferredResult;
+    public DeferredResult<?> deferredResult(String name, String group) {
+        return PushUtil.INSTANCE.appendPusher(PusherKey.newInstance(name, group), DeferredResult.class);
     }
 
     @GetMapping("/streamingResponseBody")

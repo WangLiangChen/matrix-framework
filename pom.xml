@@ -49,6 +49,7 @@
         <module>matrix-framework-web-spring-boot-starter</module>
         <module>matrix-framework-ddd</module>
         <module>matrix-framework-generator</module>
+        <module>matrix-framework-lock</module>
     </modules>
 
     <properties>

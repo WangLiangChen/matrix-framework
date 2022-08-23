@@ -13,7 +13,6 @@
     <properties>
         <version.inject>1</version.inject>
         <version.annotations>4.6.0</version.annotations>
-        <version.shedlock>4.34.0</version.shedlock>
     </properties>
 
     <dependencyManagement>
@@ -27,21 +26,6 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${version.annotations}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.javacrumbs.shedlock</groupId>
-                <artifactId>shedlock-spring</artifactId>
-                <version>${version.shedlock}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -61,10 +45,6 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.javacrumbs.shedlock</groupId>
-            <artifactId>shedlock-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.spotbugs</groupId>

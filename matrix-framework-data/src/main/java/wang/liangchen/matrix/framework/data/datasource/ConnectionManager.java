@@ -8,12 +8,14 @@ import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @author LiangChen.Wang 2021/6/9
  */
-public enum ConnectionsManager {
+public enum ConnectionManager {
     /**
      * instance
      */
@@ -30,8 +32,12 @@ public enum ConnectionsManager {
     }
 
     public Connection nonManagedConnection() {
+        return nonManagedConnection(this.dataSource);
+    }
+
+    public Connection nonManagedConnection(DataSource dataSource) {
         try {
-            return this.dataSource.getConnection();
+            return dataSource.getConnection();
         } catch (SQLException ex) {
             throw new MatrixErrorException(ex);
         }
@@ -63,35 +69,89 @@ public enum ConnectionsManager {
             rollbackConnection(connection);
             throw new MatrixErrorException(e);
         } finally {
-            closeConnection(connection);
+            closeConnection(connection, this.dataSource);
         }
+    }
+
+    public void commitConnection(Connection connection) {
+        if (null == connection) {
+            return;
+        }
+        try {
+            if (connection.isClosed()) {
+                logger.warn("Connection is closed!");
+                return;
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            logger.error("Couldn't commit jdbc connection. ", e);
+        }
+    }
+
+    public void rollbackConnection(Connection connection) {
+        if (null == connection) {
+            return;
+        }
+        try {
+            if (connection.isClosed()) {
+                logger.warn("Connection is closed!");
+                return;
+            }
+            connection.rollback();
+        } catch (SQLException e) {
+            logger.error("Couldn't rollback jdbc connection. ", e);
+        }
+    }
+
+    public void closeConnection(Connection connection, DataSource dataSource) {
+        // Will work for transactional and non-transactional connections.
+        DataSourceUtils.releaseConnection(connection, dataSource);
     }
 
     public void closeConnection(Connection connection) {
-        // Will work for transactional and non-transactional connections.
-        DataSourceUtils.releaseConnection(connection, this.dataSource);
-    }
-
-
-    private void commitConnection(Connection connection) {
         if (null == connection) {
             return;
         }
         try {
-            connection.commit();
+            if (connection.isClosed()) {
+                logger.warn("Connection is closed!");
+                return;
+            }
+            connection.close();
         } catch (SQLException e) {
-            throw new MatrixErrorException("Couldn't commit jdbc connection. " + e.getMessage(), e);
+            logger.error("Failed to close Connection", e);
+        } catch (Exception e) {
+            logger.error("Unexpected exception closing Connection.This is often due to a Connection being returned after or during shutdown.", e);
         }
     }
 
-    private void rollbackConnection(Connection connection) {
-        if (null == connection) {
+    public void closeStatement(Statement statement) {
+        if (null == statement) {
             return;
         }
         try {
-            connection.rollback();
+            if (statement.isClosed()) {
+                logger.warn("Statement is closed!");
+                return;
+            }
+            statement.close();
         } catch (SQLException e) {
-            logger.error("Couldn't rollback jdbc connection. " + e.getMessage(), e);
+            logger.error("Failed to close Statement", e);
+        }
+    }
+
+    public void closeResultSet(ResultSet resultSet) {
+        if (null == resultSet) {
+            return;
+        }
+        try {
+            if (resultSet.isClosed()) {
+                logger.warn("ResultSet is closed!");
+                return;
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            logger.error("Failed to close ResultSet", e);
         }
     }
 

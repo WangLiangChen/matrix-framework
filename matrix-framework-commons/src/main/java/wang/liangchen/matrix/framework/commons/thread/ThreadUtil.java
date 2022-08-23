@@ -17,6 +17,7 @@ public enum ThreadUtil {
         try {
             timeUnit.sleep(timeout);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new MatrixErrorException(e);
         }
     }
@@ -25,6 +26,7 @@ public enum ThreadUtil {
         try {
             TimeUnit.MILLISECONDS.sleep(timeoutMS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new MatrixErrorException(e);
         }
     }

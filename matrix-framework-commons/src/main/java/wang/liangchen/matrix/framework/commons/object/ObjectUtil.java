@@ -49,14 +49,14 @@ public enum ObjectUtil {
         if (object instanceof String) {
             return object.toString().isEmpty();
         }
-        if (object instanceof Map) {
-            return ((Map<?, ?>) object).isEmpty();
-        }
         if (object instanceof Collection) {
             return ((Collection<?>) object).isEmpty();
         }
         if (object instanceof Iterable) {
             return ((Iterable<?>) object).iterator().hasNext();
+        }
+        if (object instanceof Map) {
+            return ((Map<?, ?>) object).isEmpty();
         }
         Class<?> type = object.getClass();
         if (type.isArray()) {
@@ -399,6 +399,20 @@ public enum ObjectUtil {
         BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
                 key -> BeanCopier.create(sourceClass, targetClass, false));
         beanCopier.copy(source, target, null);
+    }
+
+    public <T> T validateNotNull(T object) {
+        if (isNull(object)) {
+            throw new MatrixInfoException("object can not be null");
+        }
+        return object;
+    }
+
+    public <T> T validateNotEmpty(T object) {
+        if (isEmpty(object)) {
+            throw new MatrixInfoException("object can not be empty");
+        }
+        return object;
     }
 
     static class CopierId {

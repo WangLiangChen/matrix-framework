@@ -1,20 +1,21 @@
 package wang.liangchen.matrix.framework.data.dao.impl;
 
 
-import org.springframework.stereotype.Repository;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.data.condition.JdbcCondition;
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import wang.liangchen.matrix.framework.data.dao.ISequenceDao;
-import wang.liangchen.matrix.framework.data.datasource.ConnectionsManager;
+import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author LiangChen.Wang
  */
-@JdbcCondition
-@Repository("Matrix_Data_SequenceDao")
 public class SequenceDaoImpl implements ISequenceDao {
     private final String SELECT_SQL = "select sequence_number from matrix_sequence where sequence_key=?";
     private final String UPDATE_SQL = "update matrix_sequence set sequence_number=sequence_number+1 where sequence_key=?";
@@ -25,6 +26,7 @@ public class SequenceDaoImpl implements ISequenceDao {
         for (int i = 0; i < 3; i++) {
             long sequenceNumber = fetchSequenceNumber(sequenceKey, initialValue);
             if (-1 == sequenceNumber) {
+                ThreadUtil.INSTANCE.sleep(TimeUnit.MILLISECONDS, 50);
                 continue;
             }
             return sequenceNumber;
@@ -33,7 +35,7 @@ public class SequenceDaoImpl implements ISequenceDao {
     }
 
     private long fetchSequenceNumber(String sequenceKey, long initialValue) {
-        return ConnectionsManager.INSTANCE.executeInNonManagedConnection((connection) -> {
+        return ConnectionManager.INSTANCE.executeInNonManagedConnection((connection) -> {
             try {
                 // 先更新
                 PreparedStatement statement = connection.prepareStatement(UPDATE_SQL);
@@ -45,7 +47,7 @@ public class SequenceDaoImpl implements ISequenceDao {
                     statement = connection.prepareStatement(SELECT_SQL);
                     statement.setString(1, sequenceKey);
                     ResultSet resultSet = statement.executeQuery();
-                    Long sequenceNumber = null;
+                    Long sequenceNumber = -1L;
                     if (resultSet.next()) {
                         sequenceNumber = resultSet.getLong("sequence_number");
                     }
@@ -61,7 +63,7 @@ public class SequenceDaoImpl implements ISequenceDao {
                     statement.executeUpdate();
                     statement.close();
                     return initialValue;
-                } catch (SQLIntegrityConstraintViolationException ex) {
+                } catch (SQLException ex) {
                     // 主键冲突 插入失败
                     return -1L;
                 }
