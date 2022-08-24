@@ -10,13 +10,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * @author Liangchen.Wang 2022-08-22 23:30
  */
 public class UpdateLockImpl extends AbstractRdbmsLock {
     private final Logger logger = LoggerFactory.getLogger(UpdateLockImpl.class);
-    private final String UPDATE_SQL = "update matrix_lock set lock_datetime=?,lock_expire=?,lock_owner=? where lock_key=? and lock_expire<=?";
+    private final String UPDATE_SQL = "update matrix_lock set lock_at=?,lock_expire=?,lock_owner=? where lock_key=? and lock_expire<=?";
 
 
     protected UpdateLockImpl(LockConfiguration lockConfiguration, Connection connection) {
@@ -27,13 +28,16 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
     protected boolean executeBlockingSQL(final Connection connection, final String lockKey) throws SQLException {
         logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
         boolean obtainedLock = false;
-        if (!inserted(lockKey)) {
+        if (inserted(lockKey)) {
+            logger.debug("Lock '{}' is inserted.", lockKey);
+        } else {
             obtainedLock = lockByInsert(connection, lockKey);
         }
         if (obtainedLock) {
             logger.debug("Lock '{}' is obtained by insert", lockKey);
             return true;
         }
+
         obtainedLock = lockByUpdate(connection, lockKey);
         if (obtainedLock) {
             logger.debug("Lock '{}' is obtained by update", lockKey);
@@ -49,7 +53,7 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
         try {
             preparedStatement = connection.prepareStatement(UPDATE_SQL);
             preparedStatement.setObject(1, now);
-            preparedStatement.setObject(2, LocalDateTime.from(lockConfiguration().getLockAtMost()));
+            preparedStatement.setObject(2, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
             preparedStatement.setString(3, NetUtil.INSTANCE.getLocalHostName());
             preparedStatement.setString(4, lockKey);
             preparedStatement.setObject(5, now);

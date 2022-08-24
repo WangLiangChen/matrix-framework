@@ -27,9 +27,13 @@ public final class FormattedResponse implements Serializable {
 
     private boolean success = false;
     /**
-     * 业务代码/错误代码
+     * 业务代码(success=true)/错误代码(success=false)
      */
     private String code = StringUtil.INSTANCE.blankString();
+    /**
+     * 提示级别/类型
+     */
+    private ResponseLevel level = ResponseLevel.OFF;
     /**
      * 提示信息/前端提示信息Key
      */
@@ -72,16 +76,19 @@ public final class FormattedResponse implements Serializable {
         }
         if (throwable instanceof MatrixPromptException) {
             logger.debug(throwable.getMessage(), throwable);
+            failure.level(ResponseLevel.INFO);
             failure.message(throwable.getMessage());
             return failure;
         }
         failure.debug(throwable.getMessage());
         if (throwable instanceof MatrixInfoException) {
             logger.info(throwable.getMessage(), throwable);
+            failure.level(ResponseLevel.WARN);
             return failure;
         }
         // MatrixErrorException or other Exception
         logger.error(throwable.getMessage(), throwable);
+        failure.level(ResponseLevel.ERROR);
         return failure;
     }
 
@@ -99,6 +106,11 @@ public final class FormattedResponse implements Serializable {
 
     public FormattedResponse code(String code) {
         this.code = code;
+        return this;
+    }
+
+    public FormattedResponse level(ResponseLevel level) {
+        this.level = level;
         return this;
     }
 

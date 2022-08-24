@@ -25,13 +25,16 @@ public class ForUpdateLockImpl extends AbstractRdbmsLock {
     protected boolean executeBlockingSQL(final Connection connection, final String lockKey) {
         logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
         boolean obtainedLock = false;
-        if (!inserted(lockKey)) {
+        if (inserted(lockKey)) {
+            logger.debug("Lock '{}' is inserted.", lockKey);
+        } else {
             obtainedLock = lockByInsert(connection, lockKey);
         }
         if (obtainedLock) {
             logger.debug("Lock '{}' is obtained by insert", lockKey);
             return true;
         }
+
         obtainedLock = lockBySelectForUpdate(connection, lockKey);
         if (obtainedLock) {
             logger.debug("Lock '{}' is obtained by (select... for update)", lockKey);

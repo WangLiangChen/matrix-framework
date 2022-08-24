@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,22 +49,21 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         try {
             preparedStatement = connection.prepareStatement(INSERT_SQL);
             preparedStatement.setString(1, lockKey);
-            preparedStatement.setObject(2, LocalDateTime.now());
-            preparedStatement.setObject(3, LocalDateTime.from(lockConfiguration().getLockAtMost()));
+            preparedStatement.setObject(2, LocalDateTime.ofInstant(lockConfiguration().getLockAt(), ZoneId.systemDefault()));
+            preparedStatement.setObject(3, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
             preparedStatement.setString(4, NetUtil.INSTANCE.getLocalHostName());
             // obtained lock, go
             if (preparedStatement.executeUpdate() == 1) {
                 insertedLock.add(lockKey);
                 return true;
             }
-        } catch (SQLIntegrityConstraintViolationException e) {
-            // 主键冲突 说明有其它线程插入成功
-            insertedLock.add(lockKey);
         } catch (SQLException ex) {
             // PostgreSQL 主键冲突
-            if (PostgreSQLDialect.EXCEPTION_CLASS.equals(ex.getClass().getName())
-                    && PostgreSQLDialect.PSQLState.UNIQUE_VIOLATION.getState().equals(ex.getSQLState())) {
+            if (ex instanceof SQLIntegrityConstraintViolationException
+                    || (PostgreSQLDialect.EXCEPTION_CLASS.equals(ex.getClass().getName()) && PostgreSQLDialect.PSQLState.UNIQUE_VIOLATION.getState().equals(ex.getSQLState()))) {
                 insertedLock.add(lockKey);
+                logger.debug("Primary key  conflict, '{}'", lockKey);
+                return false;
             }
             logger.error(ex.getMessage());
         } finally {
@@ -108,8 +108,8 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(UNLOCK_SQL);
-            preparedStatement.setString(1, lockKey());
-            preparedStatement.setObject(2, LocalDateTime.from(lockConfiguration().getUnLockInstant()));
+            preparedStatement.setObject(1, LocalDateTime.ofInstant(lockConfiguration().getUnLockInstant(), ZoneId.systemDefault()));
+            preparedStatement.setString(2, lockKey());
             int rows = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());

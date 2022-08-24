@@ -10,5 +10,5 @@ public interface LockManager {
 
     void executeInLock(LockConfiguration lockConfiguration, Runnable task);
 
-    <R> R executeInLock(LockConfiguration lockConfiguration, Supplier<R> task);
+    <R> TaskResult<R> executeInLock(LockConfiguration lockConfiguration, Supplier<R> task);
 }

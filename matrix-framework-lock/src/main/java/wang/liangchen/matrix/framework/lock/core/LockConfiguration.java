@@ -16,9 +16,9 @@ public class LockConfiguration {
     private final Instant lockAtLeast;
     private final Instant lockAtMost;
 
-    public LockConfiguration(String lockKey, Instant lockAt, Duration lockAtLeast, Duration lockAtMost) {
+    public LockConfiguration(String lockKey, Duration lockAtLeast, Duration lockAtMost) {
         this.lockKey = ObjectUtil.INSTANCE.validateNotEmpty(lockKey);
-        this.lockAt = ObjectUtil.INSTANCE.validateNotNull(lockAt);
+        this.lockAt = Instant.now();
         this.lockAtLeast = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtLeast));
         this.lockAtMost = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtMost));
         Assert.INSTANCE.isFalse(lockAtLeast.isNegative(), "lockAtLeast is negative, {}", this.lockKey);

@@ -7,6 +7,7 @@ import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.lock.core.Lock;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 import wang.liangchen.matrix.framework.lock.core.LockManager;
+import wang.liangchen.matrix.framework.lock.core.TaskResult;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -33,17 +34,21 @@ public class RdbmsFailFastLockManager implements LockManager {
     public void executeInLock(LockConfiguration lockConfiguration, Runnable task) {
         executeInLock(lockConfiguration, () -> {
             task.run();
-            return null;
+            return TaskResult.skipped();
         });
     }
 
     @Override
-    public <R> R executeInLock(LockConfiguration lockConfiguration, Supplier<R> task) {
+    public <R> TaskResult<R> executeInLock(LockConfiguration lockConfiguration, Supplier<R> task) {
         AbstractRdbmsLock lock = (AbstractRdbmsLock) getLock(lockConfiguration);
         Connection connection = lock.getConnection();
+        boolean obtainedLock = lock.lock();
+        if (!obtainedLock) {
+            return TaskResult.skipped();
+        }
         try {
             connection.setAutoCommit(true);
-            return task.get();
+            return TaskResult.newInstance(task);
         } catch (SQLException e) {
             throw new MatrixInfoException("get Connection AutoCommit error", e);
         } finally {

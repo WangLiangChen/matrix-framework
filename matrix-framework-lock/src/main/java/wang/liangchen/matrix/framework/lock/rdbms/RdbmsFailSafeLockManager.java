@@ -7,6 +7,7 @@ import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.lock.core.Lock;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 import wang.liangchen.matrix.framework.lock.core.LockManager;
+import wang.liangchen.matrix.framework.lock.core.TaskResult;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -38,7 +39,7 @@ public class RdbmsFailSafeLockManager implements LockManager {
     }
 
     @Override
-    public <R> R executeInLock(LockConfiguration lockConfiguration, Supplier<R> task) {
+    public <R> TaskResult<R> executeInLock(LockConfiguration lockConfiguration, Supplier<R> task) {
         AbstractRdbmsLock lock = (AbstractRdbmsLock) getLock(lockConfiguration);
         Connection connection = lock.getConnection();
         try {
@@ -55,13 +56,13 @@ public class RdbmsFailSafeLockManager implements LockManager {
         }
     }
 
-    private <R> R executeInNonManagedTXLock(Lock lock, Connection connection, Supplier<R> task) {
+    private <R> TaskResult<R> executeInNonManagedTXLock(Lock lock, Connection connection, Supplier<R> task) {
         lock.lock();
         try {
-            R result = task.get();
+            TaskResult<R> taskResult = TaskResult.newInstance(task);
             // 显式提交
             ConnectionManager.INSTANCE.commitConnection(connection);
-            return result;
+            return taskResult;
         } catch (Exception e) {
             // 显式回滚
             ConnectionManager.INSTANCE.rollbackConnection(connection);
@@ -75,10 +76,10 @@ public class RdbmsFailSafeLockManager implements LockManager {
         }
     }
 
-    private <R> R executeInManagedTXLock(Lock lock, Supplier<R> task) {
+    private <R> TaskResult<R> executeInManagedTXLock(Lock lock, Supplier<R> task) {
         lock.lock();
         try {
-            return task.get();
+            return TaskResult.newInstance(task);
         } finally {
             lock.unlock();
         }
