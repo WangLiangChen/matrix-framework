@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.impl;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import wang.liangchen.matrix.framework.data.dao.ISequenceDao;
@@ -36,26 +35,20 @@ public class SequenceDaoImpl implements ISequenceDao {
 
     private long fetchSequenceNumber(String sequenceKey, long initialValue) {
         return ConnectionManager.INSTANCE.executeInNonManagedConnection((connection) -> {
+            PreparedStatement statement = null;
+            int rows = 0;
+            // 先更新
             try {
-                // 先更新
-                PreparedStatement statement = connection.prepareStatement(UPDATE_SQL);
+                statement = connection.prepareStatement(UPDATE_SQL);
                 statement.setString(1, sequenceKey);
-                int rows = statement.executeUpdate();
-                statement.close();
-                // 更新成功,说明数据存在，则查询返回
-                if (1 == rows) {
-                    statement = connection.prepareStatement(SELECT_SQL);
-                    statement.setString(1, sequenceKey);
-                    ResultSet resultSet = statement.executeQuery();
-                    Long sequenceNumber = -1L;
-                    if (resultSet.next()) {
-                        sequenceNumber = resultSet.getLong("sequence_number");
-                    }
-                    resultSet.close();
-                    statement.close();
-                    return sequenceNumber;
-                }
-                // 更新失败则尝试插入
+                rows = statement.executeUpdate();
+            } catch (SQLException e) {
+                return -1L;
+            } finally {
+                ConnectionManager.INSTANCE.closeStatement(statement);
+            }
+            // 更新失败则尝试插入
+            if (0 == rows) {
                 try {
                     statement = connection.prepareStatement(INSERT_SQL);
                     statement.setString(1, sequenceKey);
@@ -67,9 +60,23 @@ public class SequenceDaoImpl implements ISequenceDao {
                     // 主键冲突 插入失败
                     return -1L;
                 }
-            } catch (SQLException e) {
-                throw new MatrixErrorException(e);
             }
+            // 更新成功,说明数据存在，则查询返回
+            ResultSet resultSet = null;
+            try {
+                statement = connection.prepareStatement(SELECT_SQL);
+                statement.setString(1, sequenceKey);
+                resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getLong("sequence_number");
+                }
+            } catch (SQLException e) {
+                return -1L;
+            } finally {
+                ConnectionManager.INSTANCE.closeResultSet(resultSet);
+                ConnectionManager.INSTANCE.closeStatement(statement);
+            }
+            return -1L;
         }, Connection.TRANSACTION_READ_COMMITTED);
     }
 

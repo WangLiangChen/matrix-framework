@@ -13,7 +13,7 @@ import java.sql.SQLException;
 /**
  * @author Liangchen.Wang 2022-08-22 23:29
  */
-public class ForUpdateLockImpl extends AbstractRdbmsLock{
+public class ForUpdateLockImpl extends AbstractRdbmsLock {
     private Logger logger = LoggerFactory.getLogger(ForUpdateLockImpl.class);
     private final String SELECT_FOR_UPDATE_SQL = "select 0 from matrix_lock where lock_key=? for update";
 
@@ -22,26 +22,36 @@ public class ForUpdateLockImpl extends AbstractRdbmsLock{
     }
 
     @Override
-    protected void executeBlockingSQL(final Connection connection, final String lockName) throws SQLException {
-        logger.debug("Lock '{}' is being obtained, waiting...", lockName);
-        if (lockBySelectForUpdate(connection, lockName)) {
-            logger.debug("Lock: '{}' is obtained", lockName);
-            return;
+    protected boolean executeBlockingSQL(final Connection connection, final String lockKey) {
+        logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
+        boolean obtainedLock = false;
+        if (!inserted(lockKey)) {
+            obtainedLock = lockByInsert(connection, lockKey);
         }
-        lockByInsert(connection, lockName);
-        logger.debug("Insert a row,Lock: '{}' is obtained", lockName);
+        if (obtainedLock) {
+            logger.debug("Lock '{}' is obtained by insert", lockKey);
+            return true;
+        }
+        obtainedLock = lockBySelectForUpdate(connection, lockKey);
+        if (obtainedLock) {
+            logger.debug("Lock '{}' is obtained by (select... for update)", lockKey);
+            return true;
+        }
+        logger.debug("Lock '{}' is not obtained", lockKey);
+        return false;
     }
 
-    private boolean lockBySelectForUpdate(Connection connection, String lockName) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FOR_UPDATE_SQL);
-        preparedStatement.setString(1, lockName);
+    private boolean lockBySelectForUpdate(Connection connection, String lockName) {
+        PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
+            preparedStatement = connection.prepareStatement(SELECT_FOR_UPDATE_SQL);
+            preparedStatement.setString(1, lockName);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                // obtained lock, go
-                return true;
-            }
+            // obtained lock, go
+            return resultSet.next();
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
         } finally {
             ConnectionManager.INSTANCE.closeResultSet(resultSet);
             ConnectionManager.INSTANCE.closeStatement(preparedStatement);

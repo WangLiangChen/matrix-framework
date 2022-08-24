@@ -16,11 +16,11 @@ import java.util.function.Supplier;
 /**
  * @author Liangchen.Wang 2022-08-22 23:35
  */
-public class RdbmsLockManager implements LockManager {
-    private final static Logger logger = LoggerFactory.getLogger(RdbmsLockManager.class);
+public class RdbmsFailSafeLockManager implements LockManager {
+    private final static Logger logger = LoggerFactory.getLogger(RdbmsFailSafeLockManager.class);
     private final DataSource dataSource;
 
-    public RdbmsLockManager(DataSource dataSource) {
+    public RdbmsFailSafeLockManager(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -31,7 +31,10 @@ public class RdbmsLockManager implements LockManager {
 
     @Override
     public void executeInLock(LockConfiguration lockConfiguration, Runnable task) {
-
+        executeInLock(lockConfiguration, () -> {
+            task.run();
+            return null;
+        });
     }
 
     @Override

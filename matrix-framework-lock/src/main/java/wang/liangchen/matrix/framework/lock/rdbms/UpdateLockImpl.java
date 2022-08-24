@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.lock.rdbms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.network.NetUtil;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 
@@ -15,31 +16,50 @@ import java.time.LocalDateTime;
  */
 public class UpdateLockImpl extends AbstractRdbmsLock {
     private final Logger logger = LoggerFactory.getLogger(UpdateLockImpl.class);
-    private final String UPDATE_SQL = "update matrix_lock set lock_datetime=? where lock_key=?";
+    private final String UPDATE_SQL = "update matrix_lock set lock_datetime=?,lock_expire=?,lock_owner=? where lock_key=? and lock_expire<=?";
+
 
     protected UpdateLockImpl(LockConfiguration lockConfiguration, Connection connection) {
         super(lockConfiguration, connection);
     }
 
     @Override
-    protected void executeBlockingSQL(final Connection connection, final String lockName) throws SQLException {
-        logger.debug("Lock '{}' is being obtained, waiting...", lockName);
-        if (lockByUpdate(connection, lockName)) {
-            logger.debug("Lock '{}' is obtained", lockName);
-            return;
+    protected boolean executeBlockingSQL(final Connection connection, final String lockKey) throws SQLException {
+        logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
+        boolean obtainedLock = false;
+        if (!inserted(lockKey)) {
+            obtainedLock = lockByInsert(connection, lockKey);
         }
-        lockByInsert(connection, lockName);
-        logger.debug("Insert a row, Lock '{}' is obtained", lockName);
+        if (obtainedLock) {
+            logger.debug("Lock '{}' is obtained by insert", lockKey);
+            return true;
+        }
+        obtainedLock = lockByUpdate(connection, lockKey);
+        if (obtainedLock) {
+            logger.debug("Lock '{}' is obtained by update", lockKey);
+            return true;
+        }
+        logger.debug("Lock '{}' is not obtained", lockKey);
+        return false;
     }
 
-    private boolean lockByUpdate(Connection connection, String lockName) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_SQL);
-        preparedStatement.setObject(1, LocalDateTime.now());
-        preparedStatement.setString(2, lockName);
+    protected boolean lockByUpdate(Connection connection, String lockKey) {
+        PreparedStatement preparedStatement = null;
+        LocalDateTime now = LocalDateTime.now();
         try {
-            return preparedStatement.executeUpdate() >= 1;
+            preparedStatement = connection.prepareStatement(UPDATE_SQL);
+            preparedStatement.setObject(1, now);
+            preparedStatement.setObject(2, LocalDateTime.from(lockConfiguration().getLockAtMost()));
+            preparedStatement.setString(3, NetUtil.INSTANCE.getLocalHostName());
+            preparedStatement.setString(4, lockKey);
+            preparedStatement.setObject(5, now);
+            // obtained lock, go
+            return preparedStatement.executeUpdate() == 1;
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
         } finally {
             ConnectionManager.INSTANCE.closeStatement(preparedStatement);
         }
+        return false;
     }
 }

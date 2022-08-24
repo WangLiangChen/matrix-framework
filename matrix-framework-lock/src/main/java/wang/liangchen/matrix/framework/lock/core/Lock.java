@@ -8,6 +8,7 @@ public interface Lock {
 
     void unlock();
 
-
     LockConfiguration lockConfiguration();
+
+    String lockKey();
 }

@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.lock.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
@@ -13,33 +11,23 @@ import java.time.Instant;
  * @author Liangchen.Wang 2022-08-22 11:35
  */
 public class LockConfiguration {
-    private final static Logger logger = LoggerFactory.getLogger(LockConfiguration.class);
     private final String lockKey;
     private final Instant lockAt;
-    private final Duration lockAtLeast;
-    private final Duration lockAtMost;
+    private final Instant lockAtLeast;
+    private final Instant lockAtMost;
 
     public LockConfiguration(String lockKey, Instant lockAt, Duration lockAtLeast, Duration lockAtMost) {
         this.lockKey = ObjectUtil.INSTANCE.validateNotEmpty(lockKey);
         this.lockAt = ObjectUtil.INSTANCE.validateNotNull(lockAt);
-        this.lockAtLeast = ObjectUtil.INSTANCE.validateNotNull(lockAtLeast);
-        this.lockAtMost = ObjectUtil.INSTANCE.validateNotNull(lockAtMost);
+        this.lockAtLeast = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtLeast));
+        this.lockAtMost = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtMost));
         Assert.INSTANCE.isFalse(lockAtLeast.isNegative(), "lockAtLeast is negative, {}", this.lockKey);
         Assert.INSTANCE.isFalse(lockAtLeast.compareTo(lockAtMost) > 0, "lockAtLeast is longer than lockAtMost for lock {}", this.lockKey);
     }
 
-    public Instant getLockAtLeastExpire() {
-        return lockAt.plus(lockAtLeast);
-    }
-
-    public Instant getLockAtMostExpire() {
-        return lockAt.plus(lockAtMost);
-    }
-
     public Instant getUnLockInstant() {
         Instant now = Instant.now();
-        Instant lockAtLeastExpire = getLockAtLeastExpire();
-        return lockAtLeastExpire.isAfter(now) ? lockAtLeastExpire : now;
+        return lockAtLeast.isAfter(now) ? lockAtLeast : now;
     }
 
     public String getLockKey() {
@@ -50,11 +38,11 @@ public class LockConfiguration {
         return lockAt;
     }
 
-    public Duration getLockAtLeast() {
+    public Instant getLockAtLeast() {
         return lockAtLeast;
     }
 
-    public Duration getLockAtMost() {
+    public Instant getLockAtMost() {
         return lockAtMost;
     }
 }
