@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.lock.core;
 
-import java.util.function.Supplier;
-
 /**
  * @author Liangchen.Wang 2022-08-24 23:09
  */
@@ -14,8 +12,8 @@ public class TaskResult<R> {
         this.object = object;
     }
 
-    public static <R> TaskResult<R> newInstance(Supplier<R> task) {
-        return new TaskResult<>(false, task.get());
+    public static <R> TaskResult<R> newInstance(R object) {
+        return new TaskResult<>(false, object);
     }
 
     public static <R> TaskResult<R> skipped() {
