@@ -36,18 +36,19 @@ public class SequenceDaoImpl implements ISequenceDao {
     private long fetchSequenceNumber(String sequenceKey, long initialValue) {
         return ConnectionManager.INSTANCE.executeInNonManagedConnection((connection) -> {
             PreparedStatement statement = null;
-            int rows = 0;
-            // 先更新
+            int rows;
+            // 先更新,如果数据还不存在则rows==0
             try {
                 statement = connection.prepareStatement(UPDATE_SQL);
                 statement.setString(1, sequenceKey);
                 rows = statement.executeUpdate();
             } catch (SQLException e) {
+                // 更新失败 重试
                 return -1L;
             } finally {
                 ConnectionManager.INSTANCE.closeStatement(statement);
             }
-            // 更新失败则尝试插入
+            // 数据不存在 则尝试插入
             if (0 == rows) {
                 try {
                     statement = connection.prepareStatement(INSERT_SQL);
@@ -57,11 +58,11 @@ public class SequenceDaoImpl implements ISequenceDao {
                     statement.close();
                     return initialValue;
                 } catch (SQLException ex) {
-                    // 主键冲突 插入失败
+                    // 插入失败(含主键冲突) 重试
                     return -1L;
                 }
             }
-            // 更新成功,说明数据存在，则查询返回
+            // 数据存在，则查询返回
             ResultSet resultSet = null;
             try {
                 statement = connection.prepareStatement(SELECT_SQL);

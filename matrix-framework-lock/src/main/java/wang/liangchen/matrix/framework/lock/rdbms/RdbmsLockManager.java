@@ -17,11 +17,11 @@ import java.util.function.Supplier;
 /**
  * @author Liangchen.Wang 2022-08-22 23:35
  */
-public class RdbmsFailFastLockManager implements LockManager {
-    private final static Logger logger = LoggerFactory.getLogger(RdbmsFailFastLockManager.class);
+public class RdbmsLockManager implements LockManager {
+    private final static Logger logger = LoggerFactory.getLogger(RdbmsLockManager.class);
     private final DataSource dataSource;
 
-    public RdbmsFailFastLockManager(DataSource dataSource) {
+    public RdbmsLockManager(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -43,6 +43,7 @@ public class RdbmsFailFastLockManager implements LockManager {
         AbstractRdbmsLock lock = (AbstractRdbmsLock) getLock(lockConfiguration);
         Connection connection = lock.getConnection();
         boolean obtainedLock = lock.lock();
+        // 获锁失败略过任务
         if (!obtainedLock) {
             return TaskResult.skipped();
         }

@@ -25,22 +25,21 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
     }
 
     @Override
-    protected boolean executeBlockingSQL(final Connection connection, final String lockKey) throws SQLException {
+    protected boolean executeBlockingSQL(final Connection connection, final String lockKey) {
         logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
-        boolean obtainedLock = false;
-        if (inserted(lockKey)) {
+        if (inserted(connection, lockKey)) {
             logger.debug("Lock '{}' is inserted.", lockKey);
-        } else {
-            obtainedLock = lockByInsert(connection, lockKey);
+            boolean obtainedLock = lockByUpdate(connection, lockKey);
+            if (obtainedLock) {
+                logger.debug("Lock '{}' is obtained by update", lockKey);
+                return true;
+            }
+            logger.debug("Lock '{}' is not obtained", lockKey);
+            return false;
         }
+        boolean obtainedLock = lockByInsert(connection, lockKey);
         if (obtainedLock) {
             logger.debug("Lock '{}' is obtained by insert", lockKey);
-            return true;
-        }
-
-        obtainedLock = lockByUpdate(connection, lockKey);
-        if (obtainedLock) {
-            logger.debug("Lock '{}' is obtained by update", lockKey);
             return true;
         }
         logger.debug("Lock '{}' is not obtained", lockKey);
