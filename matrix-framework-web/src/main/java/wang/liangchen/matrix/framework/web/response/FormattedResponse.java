@@ -80,7 +80,7 @@ public final class FormattedResponse implements Serializable {
             failure.message(throwable.getMessage());
             return failure;
         }
-        failure.debug(throwable.getMessage());
+        failure.debug(stackTraceString(throwable));
         if (throwable instanceof MatrixInfoException) {
             logger.info(throwable.getMessage(), throwable);
             failure.level(ResponseLevel.WARN);
@@ -142,6 +142,9 @@ public final class FormattedResponse implements Serializable {
         return code;
     }
 
+    public ResponseLevel getLevel() {
+        return level;
+    }
 
     public String getMessage() {
         return message;

@@ -402,17 +402,31 @@ public enum ObjectUtil {
     }
 
     public <T> T validateNotNull(T object) {
-        if (isNull(object)) {
+        return validateNotNull(object, null);
+    }
+
+    public <T> T validateNotNull(T object, String message, String... args) {
+        if (isNotNull(object)) {
+            return object;
+        }
+        if (StringUtil.INSTANCE.isBlank(message)) {
             throw new MatrixInfoException("object can not be null");
         }
-        return object;
+        throw new MatrixInfoException(StringUtil.INSTANCE.format(message, args));
     }
 
     public <T> T validateNotEmpty(T object) {
-        if (isEmpty(object)) {
+        return validateNotEmpty(object, null);
+    }
+
+    public <T> T validateNotEmpty(T object, String message, String... args) {
+        if (isNotEmpty(object)) {
+            return object;
+        }
+        if (StringUtil.INSTANCE.isBlank(message)) {
             throw new MatrixInfoException("object can not be empty");
         }
-        return object;
+        throw new MatrixInfoException(StringUtil.INSTANCE.format(message, args));
     }
 
     static class CopierId {

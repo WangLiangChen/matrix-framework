@@ -12,14 +12,12 @@ public @interface MatrixLock {
     String lockKey();
 
     /**
-     * Can be either time with suffix like 10s
-     * or ISO8601 duration as described in {@link java.time.Duration#parse(CharSequence)}, for example PT10S.
+     * @return Can be either time with suffix like 10s or ISO8601 duration as described in {@link java.time.Duration#parse(CharSequence)}, for example PT10S.
      */
     String lockAtLeast();
 
     /**
-     * Can be either time with suffix like 10s
-     * or ISO8601 duration as described in {@link java.time.Duration#parse(CharSequence)}, for example PT10S.
+     * @return Can be either time with suffix like 10s or ISO8601 duration as described in {@link java.time.Duration#parse(CharSequence)}, for example PT10S.
      */
     String lockAtMost();
 }
