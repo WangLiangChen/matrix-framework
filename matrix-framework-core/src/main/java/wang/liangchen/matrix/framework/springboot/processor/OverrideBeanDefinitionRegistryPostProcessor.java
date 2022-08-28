@@ -14,9 +14,7 @@ import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguratio
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.springboot.annotation.OverrideBean;
 
@@ -33,9 +31,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger(OverrideBeanDefinitionRegistryPostProcessor.class);
     private final static String ASYNCCONFIGURER_BEANNAME = "asyncConfigurer";
-    private final static String SCHEDULINGCONFIGURER_BEANNAME = "schedulingConfigurer";
     private final static String ASYNC_THREAD_PREFIX = "async-";
-    private final static String TASKSCHEDULER_THREAD_PREFIX = "taskScheduler-";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -71,14 +67,12 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
         /*
         使用 EnableAsync后，避免AsyncConfigurer出现 not eligible for getting processed by all BeanPostProcessors
         用这种方式注册的Bean，在BeanFactory的BeanDefinition集合中是不存在的，但通过getBean可以获取对象
+        在TaskExecutionAutoConfiguration注册的ThreadPoolTaskExecutor
+        在TaskSchedulingAutoConfiguration注册的ThreadPoolTaskScheduler
+        注意：在这里getBean会导致提前初始化
          */
-        // 在TaskExecutionAutoConfiguration注册的ThreadPoolTaskExecutor
         ThreadPoolTaskExecutor defaultExecutor = beanFactory.getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME, ThreadPoolTaskExecutor.class);
         beanFactory.registerSingleton(ASYNCCONFIGURER_BEANNAME, asyncConfigurer(defaultExecutor));
-        // 在TaskSchedulingAutoConfiguration注册的ThreadPoolTaskScheduler
-        ThreadPoolTaskScheduler defaultScheduler = beanFactory.getBean(ThreadPoolTaskScheduler.class);
-        beanFactory.registerSingleton(SCHEDULINGCONFIGURER_BEANNAME, schedulingConfigurer(defaultScheduler));
-        String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
     }
 
     /*
@@ -114,23 +108,6 @@ public class OverrideBeanDefinitionRegistryPostProcessor implements BeanDefiniti
             public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
                 return (ex, method, params) -> logger.error("Async thread run exception", ex);
             }
-        };
-    }
-
-    private SchedulingConfigurer schedulingConfigurer(ThreadPoolTaskScheduler defaultScheduler) {
-        return taskRegistrar -> {
-            if (null != defaultScheduler) {
-                defaultScheduler.setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
-                taskRegistrar.setTaskScheduler(defaultScheduler);
-                return;
-            }
-            ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-            int processors = Runtime.getRuntime().availableProcessors();
-            taskScheduler.setPoolSize(processors * 2);
-            taskScheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-            taskScheduler.setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
-            taskScheduler.initialize();
-            taskRegistrar.setTaskScheduler(taskScheduler);
         };
     }
 }

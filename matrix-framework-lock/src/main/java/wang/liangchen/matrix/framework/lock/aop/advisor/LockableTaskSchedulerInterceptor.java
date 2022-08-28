@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.lock.aop.advisor;
 
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 import wang.liangchen.matrix.framework.lock.core.LockManager;
 import wang.liangchen.matrix.framework.lock.resolver.LockConfigurationResolver;
@@ -16,16 +17,17 @@ public class LockableTaskSchedulerInterceptor extends TaskSchedulerInterceptor {
     }
 
     @Override
-    protected Runnable wrapRunnable(Runnable runnable) throws Throwable {
+    protected Runnable wrapRunnable(Runnable runnable) {
         LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(runnable);
         if (null == lockConfiguration) {
             return runnable;
         }
+        // wrap runnable
         return () -> {
             try {
-                lockManager.executeInLock(lockConfiguration, () -> runnable);
+                lockManager.executeInLock(lockConfiguration, runnable::run);
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                throw new MatrixErrorException(e);
             }
         };
     }

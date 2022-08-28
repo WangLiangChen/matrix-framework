@@ -10,6 +10,7 @@ import wang.liangchen.matrix.framework.web.context.WebContext;
 import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.HttpServletResponseWrapper;
+import wang.liangchen.matrix.framework.web.response.ResponseLevel;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -67,13 +68,18 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                         outputStream.flush();
                         return;
                     }
+                    // handle 404
                     int statusCode = responseWrapper.getStatusCode();
                     if (SC_NOT_FOUND == statusCode) {
-                        outputStream.write(FormattedResponse.failure().code(String.valueOf(SC_NOT_FOUND)).message("request does not exist: {}", requestURI).toString().getBytes());
+                        outputStream.write(FormattedResponse.failure()
+                                .code(String.valueOf(SC_NOT_FOUND))
+                                .level(ResponseLevel.ERROR)
+                                .message("request does not exist: {}", requestURI).toString().getBytes());
                         outputStream.flush();
                         return;
                     }
 
+                    // handle void
                     if (0 == responseWrapper.getContentSize()) {
                         outputStream.write(FormattedResponse.success().toString().getBytes());
                         outputStream.flush();

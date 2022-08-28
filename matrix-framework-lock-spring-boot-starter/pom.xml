@@ -9,12 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>matrix-framework-web-spring-boot-autoconfigure</artifactId>
+    <artifactId>matrix-framework-lock-spring-boot-starter</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-web</artifactId>
+            <artifactId>matrix-framework-lock</artifactId>
         </dependency>
     </dependencies>
+
 </project>

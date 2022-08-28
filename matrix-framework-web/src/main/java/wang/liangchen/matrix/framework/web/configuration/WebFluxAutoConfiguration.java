@@ -22,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 import wang.liangchen.matrix.framework.web.exchange.ServerWebExchangeDecorator;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.ResponseBodyResultHandler;
+import wang.liangchen.matrix.framework.web.response.ResponseLevel;
 
 /**
  * @author LiangChen.Wang
@@ -41,7 +42,10 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
             if (ex instanceof ResponseStatusException) {
                 ResponseStatusException responseStatusException = (ResponseStatusException) ex;
                 if (responseStatusException.getStatus() == HttpStatus.NOT_FOUND) {
-                    dataString = FormattedResponse.failure().code(HttpStatus.NOT_FOUND.name()).message("Resource not found:{}", exchange.getRequest().getPath()).toString();
+                    dataString = FormattedResponse.failure()
+                            .code(HttpStatus.NOT_FOUND.name())
+                            .level(ResponseLevel.ERROR)
+                            .message("request does not exist: {}", exchange.getRequest().getPath()).toString();
                 }
             }
             DataBuffer dataBuffer = dataBufferFactory.wrap(dataString.getBytes());
@@ -51,7 +55,7 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
 
     @Bean
     public WebFilter webFilter() {
-        return (exchange, chain) ->  chain.filter(new ServerWebExchangeDecorator(exchange));
+        return (exchange, chain) -> chain.filter(new ServerWebExchangeDecorator(exchange));
     }
 
     public HandlerFilterFunction<?, ?> handlerFilterFunction() {

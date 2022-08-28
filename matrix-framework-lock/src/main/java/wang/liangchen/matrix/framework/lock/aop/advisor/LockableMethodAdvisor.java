@@ -3,9 +3,11 @@ package wang.liangchen.matrix.framework.lock.aop.advisor;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.ClassFilter;
+import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
-import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
+import org.springframework.aop.support.annotation.AnnotationMethodMatcher;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
@@ -17,14 +19,20 @@ import wang.liangchen.matrix.framework.lock.resolver.LockConfigurationResolver;
  * @author Liangchen.Wang 2022-08-26 15:40
  */
 public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
+    private final LockManager lockManager;
+
+    public LockableMethodAdvisor(LockManager lockManager) {
+        this.lockManager = lockManager;
+    }
+
     @Override
     public Pointcut getPointcut() {
-        return new AnnotationMatchingPointcut(null, MatrixLock.class, true);
+        return new LockableMethodPointcut();
     }
 
     @Override
     public Advice getAdvice() {
-        return null;
+        return new LockableMethodInterceptor(this.lockManager);
     }
 
     private static class LockableMethodInterceptor implements MethodInterceptor {
@@ -46,6 +54,17 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
             LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(invocation.getThis(), invocation.getMethod());
             TaskResult<Object> result = lockManager.executeInLock(lockConfiguration, invocation::proceed);
             return result.getObject();
+        }
+    }
+
+    private static class LockableMethodPointcut implements Pointcut {
+        @Override
+        public ClassFilter getClassFilter() {
+            return ClassFilter.TRUE;
+        }
+        @Override
+        public MethodMatcher getMethodMatcher() {
+            return new AnnotationMethodMatcher(MatrixLock.class, true);
         }
     }
 }

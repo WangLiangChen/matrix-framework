@@ -42,14 +42,13 @@
         <module>matrix-framework-commons</module>
         <module>matrix-framework-core</module>
         <module>matrix-framework-data</module>
-        <module>matrix-framework-data-spring-boot-autoconfigure</module>
         <module>matrix-framework-data-spring-boot-starter</module>
+        <module>matrix-framework-lock</module>
+        <module>matrix-framework-lock-spring-boot-starter</module>
         <module>matrix-framework-web</module>
-        <module>matrix-framework-web-spring-boot-autoconfigure</module>
         <module>matrix-framework-web-spring-boot-starter</module>
         <module>matrix-framework-ddd</module>
         <module>matrix-framework-generator</module>
-        <module>matrix-framework-lock</module>
     </modules>
 
     <properties>
@@ -58,7 +57,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <version.hibernate>7.0.4.Final</version.hibernate>
-        <version.springboot>2.7.1</version.springboot>
+        <version.springboot>2.7.2</version.springboot>
         <version.servlet>4.0.1</version.servlet>
         <version.matrix>1.0.0-SNAPSHOT</version.matrix>
     </properties>
@@ -95,22 +94,22 @@
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-data-spring-boot-autoconfigure</artifactId>
-                <version>${version.matrix}</version>
-            </dependency>
-            <dependency>
-                <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-web</artifactId>
+                <artifactId>matrix-framework-lock</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-web-spring-boot-autoconfigure</artifactId>
+                <artifactId>matrix-framework-lock-spring-boot-starter</artifactId>
+                <version>${version.matrix}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-web</artifactId>
                 <version>${version.matrix}</version>
             </dependency>
             <dependency>

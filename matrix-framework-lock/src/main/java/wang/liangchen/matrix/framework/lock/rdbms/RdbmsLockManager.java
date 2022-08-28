@@ -22,20 +22,28 @@ public class RdbmsLockManager implements LockManager {
 
     @Override
     public void executeInLock(LockConfiguration lockConfiguration, RunnableTask task) throws Throwable {
-        executeInLock(lockConfiguration, () -> {
+        Lock lock = getLock(lockConfiguration);
+        boolean obtainedLock = lock.lock();
+        if (!obtainedLock) {
+            return;
+        }
+        // 获锁成功 才执行
+        try {
             task.run();
-            return TaskResult.skipped();
-        });
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public <R> TaskResult<R> executeInLock(LockConfiguration lockConfiguration, SupplierTask<R> task) throws Throwable {
-        AbstractRdbmsLock lock = (AbstractRdbmsLock) getLock(lockConfiguration);
+        Lock lock = getLock(lockConfiguration);
         boolean obtainedLock = lock.lock();
         // 获锁失败略过任务
         if (!obtainedLock) {
             return TaskResult.skipped();
         }
+        // 获锁成功
         try {
             return TaskResult.newInstance(task.get());
         } finally {

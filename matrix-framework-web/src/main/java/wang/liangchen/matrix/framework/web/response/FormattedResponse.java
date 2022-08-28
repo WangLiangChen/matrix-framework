@@ -80,7 +80,7 @@ public final class FormattedResponse implements Serializable {
             failure.message(throwable.getMessage());
             return failure;
         }
-        failure.debug(stackTraceString(throwable));
+        failure.debug(stackTraceString(throwable, new StringBuilder()));
         if (throwable instanceof MatrixInfoException) {
             logger.info(throwable.getMessage(), throwable);
             failure.level(ResponseLevel.WARN);
@@ -171,11 +171,18 @@ public final class FormattedResponse implements Serializable {
         }
     }
 
-    private static String stackTraceString(Throwable throwable) {
-        StringBuilder builder = new StringBuilder();
-        for (StackTraceElement stackTraceElement : throwable.getStackTrace()) {
-            builder.append(stackTraceElement.toString()).append(Symbol.LINE_SEPARATOR.getSymbol());
+    private static String stackTraceString(Throwable throwable, StringBuilder messageContainer) {
+        if (null == throwable) {
+            return messageContainer.toString();
         }
-        return builder.toString();
+        messageContainer.append(throwable).append(Symbol.LINE_SEPARATOR.getSymbol());
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        for (int i = 0; i < stackTrace.length; i++) {
+            messageContainer.append("    ").append(stackTrace[i]).append(Symbol.LINE_SEPARATOR.getSymbol());
+            if (i > 3) {
+                break;
+            }
+        }
+        return stackTraceString(throwable.getCause(), messageContainer);
     }
 }

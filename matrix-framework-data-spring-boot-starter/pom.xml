@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-data-spring-boot-autoconfigure</artifactId>
+            <artifactId>matrix-framework-data</artifactId>
         </dependency>
     </dependencies>
 
