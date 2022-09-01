@@ -4,10 +4,10 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.dao.entity.RootId;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;
@@ -33,25 +33,22 @@ public enum TableMetas {
         return tableMetaCache.computeIfAbsent(entityClass, this::resolveTableMeta);
     }
 
-    private ColumnMeta resolveColumnMeta(Field field, boolean isRootIdField) {
-        IdStrategy idStrategy = resolveColumnId(field);
-        boolean isId = isRootIdField || idStrategy != IdStrategy.NONE;
-        return ColumnMeta.newInstance(field.getName(), field.getType(), resolveColumnName(field),
-                isId, idStrategy, resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnDelete(field));
+    private ColumnMeta resolveColumnMeta(Field field) {
+        return ColumnMeta.newInstance(field.getName(), field.getType(), field.getGenericType(), resolveColumnName(field),
+                resolveColumnId(field), resolveColumnIdStrategy(field), resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnJson(field), resolveColumnDelete(field));
     }
 
-    private IdStrategy resolveColumnId(Field field) {
-        wang.liangchen.matrix.framework.data.annotation.Id matrixIdAnnotation = field.getAnnotation(wang.liangchen.matrix.framework.data.annotation.Id.class);
-        if (null != matrixIdAnnotation) {
-            IdStrategy idStrategy = matrixIdAnnotation.value();
-            return IdStrategy.NONE == idStrategy ? IdStrategy.AUTO_INCREMENT : idStrategy;
-        }
+    private boolean resolveColumnId(Field field) {
         Id idAnnotation = field.getAnnotation(Id.class);
-        if (null != idAnnotation) {
-            //Default Strategy
-            return IdStrategy.AUTO_INCREMENT;
+        return null != idAnnotation;
+    }
+
+    private IdStrategy.Strategy resolveColumnIdStrategy(Field field) {
+        IdStrategy idStrategyAnnotation = field.getAnnotation(IdStrategy.class);
+        if (null == idStrategyAnnotation) {
+            return null;
         }
-        return IdStrategy.NONE;
+        return idStrategyAnnotation.value();
     }
 
     private String resolveColumnName(Field field) {
@@ -62,6 +59,11 @@ public enum TableMetas {
     public String resolveColumnDelete(Field field) {
         ColumnMarkDelete columnMarkDeleteAnnotation = field.getAnnotation(ColumnMarkDelete.class);
         return null == columnMarkDeleteAnnotation ? null : columnMarkDeleteAnnotation.value();
+    }
+
+    public boolean resolveColumnJson(Field field) {
+        ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
+        return null != columnJsonAnnotation;
     }
 
     private boolean resolveColumnVersion(Field field) {
@@ -96,14 +98,7 @@ public enum TableMetas {
                         && !Modifier.isStatic(field.getModifiers()));
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {
-            if (RootId.class.isAssignableFrom(field.getType())) {
-                List<Field> idFields = ClassUtil.INSTANCE.declaredFields(field.getType());
-                for (Field idField : idFields) {
-                    columnMetas.put(idField.getName(), resolveColumnMeta(idField, true));
-                }
-                continue;
-            }
-            columnMetas.put(field.getName(), resolveColumnMeta(field, false));
+            columnMetas.put(field.getName(), resolveColumnMeta(field));
         }
         return TableMeta.newInstance(entityClass, resolveTableName(entityClass), columnMetas);
     }

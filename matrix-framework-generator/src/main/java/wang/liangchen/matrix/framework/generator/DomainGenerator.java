@@ -15,7 +15,6 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
-import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
@@ -164,6 +163,9 @@ public class DomainGenerator {
                     case "column-version":
                         generatorProperties.setColumnVersion(node.getTextContent());
                         break;
+                    case "column-json":
+                        generatorProperties.setColumnJson(node.getTextContent());
+                        break;
                     case "column-markdelete":
                         generatorProperties.setColumnMarkDelete(node.getTextContent());
                         generatorProperties.setColumnMarkDeleteValue(node.getAttributes().getNamedItem("value").getTextContent());
@@ -190,7 +192,9 @@ public class DomainGenerator {
                 List<String> uniqueKeyColumnNames = uniqueKeyColumnNames(databaseMetaData, tableName);
                 uniqueKeyColumnNames.removeAll(primaryKeyColumnNames);
 
-                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(), generatorProperties.getColumnVersion(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(), primaryKeyColumnNames, uniqueKeyColumnNames);
+                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(),
+                        generatorProperties.getColumnVersion(), generatorProperties.getColumnJson(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(),
+                        primaryKeyColumnNames, uniqueKeyColumnNames);
                 GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
                 generatorTemplate.getColumnMetas().addAll(columnMetas);
                 // 构造imports
@@ -227,7 +231,7 @@ public class DomainGenerator {
 
     }
 
-    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
+    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String jsonColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -242,9 +246,10 @@ public class DomainGenerator {
             boolean isId = primaryKeyColumnNames.contains(columnName);
             boolean isUnique = uniqueKeyColumnNames.contains(columnName);
             boolean isVersion = columnName.equals(versionColumn);
+            boolean isJson = columnName.equals(jsonColumn);
             String _deleteValue = columnName.equals(deleteColumn) ? markDeleteValue : null;
 
-            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, IdStrategy.NONE, isUnique, isVersion, _deleteValue, underline2camelCase);
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, _deleteValue, underline2camelCase);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();

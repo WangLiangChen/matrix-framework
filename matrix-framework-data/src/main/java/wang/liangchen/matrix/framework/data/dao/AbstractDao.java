@@ -11,8 +11,6 @@ import org.springframework.util.ClassUtils;
 import wang.liangchen.matrix.framework.data.dao.criteria.SqlBuilder;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.List;
@@ -28,8 +26,8 @@ public abstract class AbstractDao implements IDao{
     protected JdbcTemplate jdbcTemplate;
     @Inject
     protected SqlSessionTemplate sqlSessionTemplate;
-    @PersistenceContext
-    protected EntityManager entityManager;
+    //@PersistenceContext
+    //protected EntityManager entityManager;
 
     protected <I> I getMybatisMapper(Class<I> type) {
         return this.sqlSessionTemplate.getMapper(type);

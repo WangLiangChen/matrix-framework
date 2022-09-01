@@ -25,6 +25,7 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
 
     @SuppressWarnings({"unchecked"})
     public AbstractParameterizedDao() {
+
         Type thisType = getClass().getGenericSuperclass();
         if (!(thisType instanceof ParameterizedType)) {
             throw new MatrixInfoException(EXCEPTION);

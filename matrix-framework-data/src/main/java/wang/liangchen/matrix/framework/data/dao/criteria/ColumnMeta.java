@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.SQLXML;
 import java.sql.Timestamp;
@@ -20,69 +21,39 @@ import java.util.Map;
 public class ColumnMeta {
     private static final String NON_IMPORT = "java.lang";
     private static final String BYTE_ARRAY = "byte[]";
-
     private static final Map<String, Class<?>> mapping = new HashMap<>();
+
     private final String columnName;
     private final String dataTypeName;
     private final String jdbcTypeName;
-
     private final boolean id;
-    private final IdStrategy idStrategy;
+    private final IdStrategy.Strategy idStrategy;
     private final boolean unique;
     private final boolean version;
+    private final boolean json;
     private final String markDeleteValue;
+    private final String fieldName;
+    private final Class<?> fieldClass;
+    private final Type fieldType;
     private final String importPackage;
     private final String modifier;
-    private final String fieldName;
-    private final Class<?> fieldType;
 
     static {
         populateMySQL();
         populatePostgreSQL();
     }
 
-    private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
-        this.columnName = columnName;
-        this.dataTypeName = dataTypeName;
-        this.jdbcTypeName = jdbcTypeName;
-        this.id = isId;
-        this.idStrategy = idStrategy;
-        this.unique = isUnique;
-        this.version = isVersion;
-        this.markDeleteValue = markDeleteValue;
-
-        if (underline2camelCase) {
-            this.fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
-        } else {
-            this.fieldName = columnName;
-        }
-        this.fieldType = dataType2JavaType(dataTypeName);
-        if (ByteArray.class.isAssignableFrom(this.fieldType)) {
-            modifier = BYTE_ARRAY;
-        } else {
-            modifier = fieldType.getSimpleName();
-        }
-        String packageName = fieldType.getPackage().getName();
-        if (NON_IMPORT.equals(packageName)) {
-            importPackage = "";
-        } else {
-            importPackage = fieldType.getName();
-        }
-    }
-
-    public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
-                                         boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue, boolean underline2camelCase) {
-        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, idStrategy, isUnique, isVersion, markDeleteValue, underline2camelCase);
-    }
-
-    private ColumnMeta(String fieldName, Class<?> fieldType, String columnName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue) {
+    private ColumnMeta(String fieldName, Class<?> fieldClass, Type fieldType,
+                       String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue) {
         this.fieldName = fieldName;
+        this.fieldClass = fieldClass;
         this.fieldType = fieldType;
         this.columnName = columnName;
         this.id = isId;
         this.idStrategy = idStrategy;
         this.unique = isUnique;
         this.version = isVersion;
+        this.json = isJson;
         this.markDeleteValue = markDeleteValue;
 
         this.dataTypeName = null;
@@ -91,9 +62,48 @@ public class ColumnMeta {
         this.modifier = null;
     }
 
-    public static ColumnMeta newInstance(String fieldName, Class<?> fieldType, String columnName, boolean isId, IdStrategy idStrategy, boolean isUnique, boolean isVersion, String markDeleteValue) {
-        return new ColumnMeta(fieldName, fieldType, columnName, isId, idStrategy, isUnique, isVersion, markDeleteValue);
+    public static ColumnMeta newInstance(String fieldName, Class<?> fieldClass, Type fieldType,
+                                         String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue) {
+        return new ColumnMeta(fieldName, fieldClass, fieldType, columnName, isId, idStrategy, isUnique, isVersion, isJson, markDeleteValue);
     }
+
+    private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName,
+                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue, boolean underline2camelCase) {
+        this.columnName = columnName;
+        this.dataTypeName = dataTypeName;
+        this.jdbcTypeName = jdbcTypeName;
+        this.id = isId;
+        this.idStrategy = null;
+        this.unique = isUnique;
+        this.version = isVersion;
+        this.json = isJson;
+        this.markDeleteValue = markDeleteValue;
+
+        if (underline2camelCase) {
+            this.fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
+        } else {
+            this.fieldName = columnName;
+        }
+        this.fieldClass = dataType2JavaType(dataTypeName);
+        this.fieldType = this.fieldClass;
+        if (ByteArray.class.isAssignableFrom(this.fieldClass)) {
+            modifier = BYTE_ARRAY;
+        } else {
+            modifier = fieldClass.getSimpleName();
+        }
+        String packageName = fieldClass.getPackage().getName();
+        if (NON_IMPORT.equals(packageName)) {
+            importPackage = "";
+        } else {
+            importPackage = fieldClass.getName();
+        }
+    }
+
+    public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
+                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue, boolean underline2camelCase) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, markDeleteValue, underline2camelCase);
+    }
+
 
     public String getColumnName() {
         return columnName;
@@ -115,12 +125,16 @@ public class ColumnMeta {
         return !id;
     }
 
-    public IdStrategy getIdStrategy() {
+    public IdStrategy.Strategy getIdStrategy() {
         return idStrategy;
     }
 
     public boolean isUnique() {
         return unique;
+    }
+
+    public boolean isJson() {
+        return json;
     }
 
     public boolean isVersion() {
@@ -143,7 +157,11 @@ public class ColumnMeta {
         return fieldName;
     }
 
-    public Class<?> getFieldType() {
+    public Class<?> getFieldClass() {
+        return fieldClass;
+    }
+
+    public Type getFieldType() {
         return fieldType;
     }
 

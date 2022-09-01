@@ -77,7 +77,7 @@ public class MybatisAutoConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
-        Resource configLocation =resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getLocation("/mybatis-config.xml"));
+        Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getLocation("/mybatis-config.xml"));
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
         } else {
@@ -113,7 +113,6 @@ public class MybatisAutoConfiguration {
             PrettyPrinter.INSTANCE.buffer(resource.toString());
         }
         sqlSessionFactoryBean.setMapperLocations(mapperLocations.toArray(new Resource[0]));
-
         // add plugins interceptors
         if (CollectionUtil.INSTANCE.isNotEmpty(interceptors)) {
             sqlSessionFactoryBean.setPlugins(interceptors);

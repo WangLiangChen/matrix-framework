@@ -13,6 +13,7 @@ public class GeneratorProperties {
     private String tableName;
     private String entityName;
     private String columnVersion;
+    private String columnJson;
     private String columnMarkDelete;
     private String columnMarkDeleteValue;
     private boolean camelCase;
@@ -79,6 +80,14 @@ public class GeneratorProperties {
 
     public void setColumnVersion(String columnVersion) {
         this.columnVersion = columnVersion;
+    }
+
+    public String getColumnJson() {
+        return columnJson;
+    }
+
+    public void setColumnJson(String columnJson) {
+        this.columnJson = columnJson;
     }
 
     public String getColumnMarkDelete() {

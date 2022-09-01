@@ -79,15 +79,7 @@ public enum CriteriaResolver {
             Set<String> fieldNames = Arrays.stream(resultFields).map(LambdaUtil.INSTANCE::getReferencedFieldName).collect(Collectors.toSet());
             columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
-        columnMetas.forEach((fieldName, columnMeta) -> {
-            String columnName = columnMeta.getColumnName();
-            // 列名 as 成 实体属性名
-            if (Objects.equals(columnName, fieldName)) {
-                criteriaParameter.addResultColumn(columnName);
-            } else {
-                criteriaParameter.addResultColumn(String.format("%s as %s", columnName, fieldName));
-            }
-        });
+        columnMetas.forEach((fieldName, columnMeta) -> criteriaParameter.addResultColumn(columnMeta.getColumnName()));
     }
 
     private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
