@@ -32,10 +32,10 @@ public enum SignatureUtil {
     }
 
     public String sign(SignatureAlgorithm algorithm, String privateKey, String data) {
-        Assert.INSTANCE.notBlank(data, "参数data不能为空");
-        Assert.INSTANCE.notBlank(privateKey, "参数privateKey不能为空");
+        Assert.INSTANCE.notBlank(privateKey, "privateKey can not be blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
         try {
-            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyAlgorithm(), privateKey);
+            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKey);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initSign(priKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));
@@ -47,16 +47,15 @@ public enum SignatureUtil {
     }
 
     public boolean verify(SignatureAlgorithm algorithm, String publicKey, String data, String sign) {
-        Assert.INSTANCE.notBlank(data, "参数data不能为空");
-        Assert.INSTANCE.notBlank(sign, "参数sign不能为空");
-        Assert.INSTANCE.notBlank(publicKey, "参数publicKey不能为空");
+        Assert.INSTANCE.notBlank(publicKey, "publicKey can not be blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notBlank(sign, "sign can not be blank");
+
         try {
-            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyAlgorithm(), publicKey);
+            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKey);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initVerify(pubKey);
-
             signature.update(data.getBytes(StandardCharsets.UTF_8));
-
             return signature.verify(Base64Util.INSTANCE.decode(sign));
         } catch (Exception e) {
             throw new MatrixErrorException(e, "RSA data = {},sign={}", data, sign);
