@@ -1,5 +1,19 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
+import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.CipherAsymmetricAlgorithm;
+import wang.liangchen.matrix.framework.commons.encryption.enums.CipherSymmetricAlgorithm;
+import wang.liangchen.matrix.framework.commons.encryption.enums.KeyAlgorithm;
+import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 /**
  * @author Liangchen.Wang 2022-04-11 17:04
  */
@@ -8,18 +22,96 @@ public enum CipherUtil {
      * instance
      */
     INSTANCE;
-    private final String privateKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDSf8C4cbm/sN81v7DRUNMTWNNmZ/dddLSLuSIbr3RqtgXCvDPYcdY/MeD5Hfk0fhiXC9N2+nbwAtTTPlX32jfDl767WZtWfOFZ7hYFYn9AdSrk/5tQmtyF/iXGXIRSpLeNqiwshjWZpYMIQZ+nPI2fKgvsbY/LWQF+OLkdbip+ExT18WWfBGS8ewioZgwM0hAUiLCa8ZIa4fpHkRInBXDDpL5PSJl0qGD2VpTbH6bf4y8lDVB5um6GI5Wvh3GxjxyQSwq+EcWxnyxLZUpOLHkOF8V4AVmFQ5QORMt3rSnLX2up/74emeI+a4/3unXFH7k6SAi8sjFEAWKzjNK8dWjlAgMBAAECggEAUXa1i+wfWctGpxN3h5pDBeLDdYdY2Sc4VDait5owcLffBN03J1Xu92gDTAXIkwMV2ybtgMcvznUaDmK6fIBMQnrwiqsEDfWodNhKV20mGDkAD73ISuqT25te3SSi5STwEHhCPjz2c271hfV3pw4tNOLd2HMSSj048bNcGMKw2Tcvh5Xm++OTLFdUmverpnYOlRzO4bf+UgG1vDl4rNDJvvwUG8J/QBDBAs5JSfmcE540I2zqYpVCuGqqCvBz4SN36LmKYDk3eNOihDGLFA89TEFrT8/7Ts/EXGRPmykSVSXhBAytINpnWnM/726WoGclaL7jniJHwQjNf7BVY/AfRQKBgQDv9MA+ettfAgf2MzBEdjeiC+q9U/OkgEFS/vuD47pRfdGtLxIWPyc/HdtCXf7f1qJt58FjxgdPfRHdtKYgXDdx+apIFTW/m0nl3I306diFLqWKu5ni+9x92w0+pBjlRNhlpUQqoiJQZgS11tV2b9HIYbhtMybQAPH1Bahx/HszBwKBgQDgksuwF1iVAW59fu1iG4RDoR/+iUlyZ0gqtf66++hu0kv0gzaiMLCXPzW08AXRP5fdHHZJ6O0N9ehxI1wlisN2vxu1JZktj/AVu90VhkyccD1QWpDBDHHyDciiHm92Rhvj2lfmzV7oyq2+mMd2oLHWZvdiepOwHmzwVXw+OkOtswKBgEQOyyfteKLt1IxD4IDKduUDNEUWtpgFuIFtyLCTupi6cuoH271rlBoWwcWFG3EpU1CQ1w0Rcald899KCYRMI320LlPbkC8UQFVtxOWeHcdIf7NlmjQC83rO0mbd7CG68RWDVl4xNkJPbS6WDF1XQczvyntOcse0POwd+rS5w8epAoGBAJUFtHaQt26BebF7ZckBm35JUHLW5U8ubDwzcurfuPi5Qj/qRnnQN47WGiyMTj/xpDPM7E3VbGEkOm/BWCdtcpG89YT6gzAx4M57UJU0/medL4K/5mjEemR2cxnpemuQ0Hcd79CvnXh67lqZBVuZ/QjaYPUPhCuNtRqyj3S3sytzAoGAZVQKU9uAzXro+MwMVQrjTn3qxU1trqkfJlT+WHwlK/oGl9MgsMPSg88CIf9OGqpzvkB0GJ2smLK3WcvTx91gwrXqZbmsAoOEooqpSOyFbfyiBzz9SFGZl+5JPFUms0N0UtdW3G6rG/W9oTif2JYBYVyQFZ+Nz6DqpXQSjQ7f1l4=";
-    // publicKey:D27FC0B871B9BFB0DF35BFB0D150D31358D36667F75D74B48BB9221BAF746AB605C2BC33D871D63F31E0F91DF9347E18970BD376FA76F002D4D33E55F7DA37C397BEBB599B567CE159EE1605627F40752AE4FF9B509ADC85FE25C65C8452A4B78DAA2C2C863599A58308419FA73C8D9F2A0BEC6D8FCB59017E38B91D6E2A7E1314F5F1659F0464BC7B08A8660C0CD2101488B09AF1921AE1FA479112270570C3A4BE4F489974A860F65694DB1FA6DFE32F250D5079BA6E862395AF8771B18F1C904B0ABE11C5B19F2C4B654A4E2C790E17C57801598543940E44CB77AD29CB5F6BA9FFBE1E99E23E6B8FF7BA75C51FB93A4808BCB231440162B38CD2BC7568E5
-    private final byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKey);
-/*
-    public String rsaDecryptByPrivateKey(String data, String privateKey) {
+
+    public String encrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
+        Assert.INSTANCE.notBlank(key, "key can not be blank");
+        return encrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
+    }
+
+    public String encrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
+        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes can not be blank");
         Assert.INSTANCE.notBlank(data, "data can not be blank");
-        Assert.INSTANCE.notBlank(privateKey, "privateKey can not be blank");
+        validateKeyLength(algorithm, keyBytes);
         try {
-            CipherTransformation rsa_ecb_pkcs1Padding = CipherTransformation.RSA_ECB_PKCS1Padding;
-            Cipher cipher = Cipher.getInstance(rsa_ecb_pkcs1Padding.getTransformation());
-            // privateKey
-            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(rsa_ecb_pkcs1Padding.getKeyAlgorithm(), privateKey);
+            Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
+            Key secretKey = new SecretKeySpec(keyBytes, algorithm.getAlgorithm());
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] bytes = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            String encrypt = Base64Util.INSTANCE.encode(bytes);
+            return encrypt;
+        } catch (Exception e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    public String decrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
+        Assert.INSTANCE.notBlank(key, "key can not be blank");
+        return decrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
+    }
+
+    public String decrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
+        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes can not be blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        validateKeyLength(algorithm, keyBytes);
+        try {
+            Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
+            Key secretKey = new SecretKeySpec(keyBytes, algorithm.getAlgorithm());
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] bytes = cipher.doFinal(Base64Util.INSTANCE.decode(data));
+            String decrypt = BytesUtil.INSTANCE.toString(bytes);
+            return decrypt;
+        } catch (Exception e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    private void validateKeyLength(CipherSymmetricAlgorithm algorithm, byte[] keyBytes) {
+        // AES 128, 192 or 256
+        // DES 56
+        // DESede 112 168
+        int bit = keyBytes.length;
+        KeyAlgorithm keyAlgorithm = algorithm.getKeyAlgorithm();
+        switch (keyAlgorithm) {
+            case AES:
+                if (bit != 16 && bit != 24 && bit != 32) {
+                    throw new MatrixErrorException("keyAlgorithm:'{}',size must be equal to 16, 24 or 32", keyAlgorithm);
+                }
+                break;
+            case DES:
+                if (bit != 8) {
+                    throw new MatrixErrorException("keyAlgorithm:'{}',size must be equal to 8", keyAlgorithm);
+                }
+                break;
+            case DESede:
+                if (bit != 24) {
+                    throw new MatrixErrorException("keyAlgorithm:'{}',size must be equal to 24", keyAlgorithm);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public String encrypt(CipherAsymmetricAlgorithm algorithm, String publicKey, String data) {
+        Assert.INSTANCE.notBlank(publicKey, "publicKey can not be blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        try {
+            Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
+            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+            byte[] encryptBytes = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64Util.INSTANCE.encode(encryptBytes);
+        } catch (Exception e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
+    public String decrypt(CipherAsymmetricAlgorithm algorithm, String privateKey, String data) {
+        Assert.INSTANCE.notBlank(privateKey, "privateKey can not be blank");
+        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        try {
+            Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
+            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKey);
             cipher.init(Cipher.DECRYPT_MODE, priKey);
             // 对密文base64解密
             byte[] ciphertextBytes = Base64Util.INSTANCE.decode(data);
@@ -28,5 +120,5 @@ public enum CipherUtil {
         } catch (Exception e) {
             throw new MatrixErrorException(e);
         }
-    }*/
+    }
 }

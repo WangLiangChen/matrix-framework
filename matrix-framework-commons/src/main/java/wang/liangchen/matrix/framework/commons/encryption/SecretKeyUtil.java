@@ -1,13 +1,13 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
-import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.KeyAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyPairAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SecureRandomAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -21,8 +21,6 @@ public enum SecretKeyUtil {
      * instance
      */
     INSTANCE;
-    public final static String PRIVATE_KEY = "PRIVATE_KEY";
-    public final static String PUBLIC_KEY = "PUBLIC_KEY";
 
     public PrivateKey generatePrivateKeyPKCS8(KeyPairAlgorithm algorithm, String privateKey) {
         Assert.INSTANCE.notBlank(privateKey, "privateKey can't be blank");
@@ -61,15 +59,18 @@ public enum SecretKeyUtil {
         }
     }
 
-    public String generateKey(String algorithm, int length, String saltkey) {
+    public String keyGenerator(KeyAlgorithm keyAlgorithm, int bit, String saltkey) {
+        // AES 128, 192 or 256
+        // DES 56
+        // DESede 112 168
         try {
-            KeyGenerator kgen = KeyGenerator.getInstance(algorithm);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(keyAlgorithm.getAlgorithm());
             SecureRandom random = SecureRandom.getInstance(SecureRandomAlgorithm.SHA1PRNG.name());
-            random.setSeed(saltkey.getBytes());
-            kgen.init(length * 8, random);
-            Key key = kgen.generateKey();
+            random.setSeed(saltkey.getBytes(StandardCharsets.UTF_8));
+            keyGenerator.init(bit, random);
+            Key key = keyGenerator.generateKey();
             byte[] bytes = key.getEncoded();
-            return BytesUtil.INSTANCE.toHexString(bytes);
+            return Base64Util.INSTANCE.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
             throw new MatrixErrorException(e);
         }

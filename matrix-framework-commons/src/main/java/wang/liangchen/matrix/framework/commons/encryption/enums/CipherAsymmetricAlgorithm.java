@@ -5,14 +5,14 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 /**
  * @author Liangchen.Wang 2022-04-11 17:10
  */
-public enum CipherAsymmetric {
+public enum CipherAsymmetricAlgorithm {
     RSA_ECB_PKCS1Padding("RSA/ECB/PKCS1Padding"),
     RSA_ECB_OAEPWithSHA1AndMGF1Padding("RSA/ECB/OAEPWithSHA-1AndMGF1Padding"),
     RSA_ECB_OAEPWithSHA256AndMGF1Padding("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
 
     private final String transformation;
 
-    CipherAsymmetric(String transformation) {
+    CipherAsymmetricAlgorithm(String transformation) {
         this.transformation = transformation;
     }
 
@@ -24,6 +24,10 @@ public enum CipherAsymmetric {
         String transformation = this.transformation;
         int index = transformation.indexOf(Symbol.URI_SEPARATOR.getSymbol());
         return transformation.substring(0, index);
+    }
+
+    public KeyPairAlgorithm getKeyPairAlgorithm() {
+        return KeyPairAlgorithm.valueOf(getAlgorithm());
     }
 
     public String getMode() {

@@ -16,6 +16,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -64,7 +65,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                     try {
                         filterChain.doFilter(requestWrapper, responseWrapper);
                     } catch (Exception e) {
-                        outputStream.write(FormattedResponse.exception(e).toString().getBytes());
+                        outputStream.write(FormattedResponse.exception(e).toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;
                     }
@@ -74,14 +75,14 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                         outputStream.write(FormattedResponse.failure()
                                 .code(String.valueOf(SC_NOT_FOUND))
                                 .level(ResponseLevel.ERROR)
-                                .message("request does not exist: {}", requestURI).toString().getBytes());
+                                .message("request does not exist: {}", requestURI).toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;
                     }
 
                     // handle void
                     if (0 == responseWrapper.getContentSize()) {
-                        outputStream.write(FormattedResponse.success().toString().getBytes());
+                        outputStream.write(FormattedResponse.success().toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;
                     }

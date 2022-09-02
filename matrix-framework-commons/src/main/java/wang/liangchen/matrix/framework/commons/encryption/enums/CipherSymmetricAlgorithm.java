@@ -5,7 +5,7 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 /**
  * @author Liangchen.Wang 2022-04-11 17:10
  */
-public enum CipherSymmetric {
+public enum CipherSymmetricAlgorithm {
     AES_CBC_PKCS5Padding("AES/CBC/PKCS5Padding"),
     AES_ECB_PKCS5Padding("AES/ECB/PKCS5Padding"),
     DES_CBC_PKCS5Padding("DES/CBC/PKCS5Padding"),
@@ -14,7 +14,7 @@ public enum CipherSymmetric {
     DESede_ECB_PKCS5Padding("DESede/ECB/PKCS5Padding");
     private final String transformation;
 
-    CipherSymmetric(String transformation) {
+    CipherSymmetricAlgorithm(String transformation) {
         this.transformation = transformation;
     }
 
@@ -26,6 +26,10 @@ public enum CipherSymmetric {
         String transformation = this.transformation;
         int index = transformation.indexOf(Symbol.URI_SEPARATOR.getSymbol());
         return transformation.substring(0, index);
+    }
+
+    public KeyAlgorithm getKeyAlgorithm() {
+        return KeyAlgorithm.valueOf(getAlgorithm());
     }
 
     public String getMode() {

@@ -24,6 +24,8 @@ import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.ResponseBodyResultHandler;
 import wang.liangchen.matrix.framework.web.response.ResponseLevel;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author LiangChen.Wang
  * 不能与@EnableWebMvc同时存在,The Java/XML config for Spring MVC and Spring WebFlux cannot both be enabled, e.g. via @EnableWebMvc and @EnableWebFlux, in the same application.
@@ -48,7 +50,7 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
                             .message("request does not exist: {}", exchange.getRequest().getPath()).toString();
                 }
             }
-            DataBuffer dataBuffer = dataBufferFactory.wrap(dataString.getBytes());
+            DataBuffer dataBuffer = dataBufferFactory.wrap(dataString.getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(dataBuffer));
         };
     }

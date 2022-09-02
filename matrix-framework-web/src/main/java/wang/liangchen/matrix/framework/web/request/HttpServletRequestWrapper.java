@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -124,10 +125,10 @@ public final class HttpServletRequestWrapper extends javax.servlet.http.HttpServ
                     List<String> values = Arrays.asList(form.get(name));
                     for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext(); ) {
                         String value = valueIterator.next();
-                        this.cachedContent.write(URLEncoder.encode(name, requestEncoding).getBytes());
+                        this.cachedContent.write(URLEncoder.encode(name, requestEncoding).getBytes(StandardCharsets.UTF_8));
                         if (value != null) {
                             this.cachedContent.write('=');
-                            this.cachedContent.write(URLEncoder.encode(value, requestEncoding).getBytes());
+                            this.cachedContent.write(URLEncoder.encode(value, requestEncoding).getBytes(StandardCharsets.UTF_8));
                             if (valueIterator.hasNext()) {
                                 this.cachedContent.write('&');
                             }
