@@ -31,11 +31,11 @@ public enum SignatureUtil {
                 .map(e -> String.format("%s=%s", e.getKey(), e.getValue())).collect(Collectors.joining("&"));
     }
 
-    public String sign(SignatureAlgorithm algorithm, String privateKey, String data) {
-        Assert.INSTANCE.notBlank(privateKey, "privateKey can not be blank");
+    public String sign(SignatureAlgorithm algorithm, String privateKeyString, String data) {
+        Assert.INSTANCE.notBlank(privateKeyString, "privateKey can not be blank");
         Assert.INSTANCE.notBlank(data, "data can not be blank");
         try {
-            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKey);
+            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initSign(priKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));
@@ -46,13 +46,13 @@ public enum SignatureUtil {
         }
     }
 
-    public boolean verify(SignatureAlgorithm algorithm, String publicKey, String data, String sign) {
-        Assert.INSTANCE.notBlank(publicKey, "publicKey can not be blank");
+    public boolean verify(SignatureAlgorithm algorithm, String publicKeyString, String data, String sign) {
+        Assert.INSTANCE.notBlank(publicKeyString, "publicKey can not be blank");
         Assert.INSTANCE.notBlank(data, "data can not be blank");
         Assert.INSTANCE.notBlank(sign, "sign can not be blank");
 
         try {
-            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKey);
+            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
             Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initVerify(pubKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));

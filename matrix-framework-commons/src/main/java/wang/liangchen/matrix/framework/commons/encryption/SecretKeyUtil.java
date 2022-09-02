@@ -22,9 +22,9 @@ public enum SecretKeyUtil {
      */
     INSTANCE;
 
-    public PrivateKey generatePrivateKeyPKCS8(KeyPairAlgorithm algorithm, String privateKey) {
-        Assert.INSTANCE.notBlank(privateKey, "privateKey can't be blank");
-        byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKey);
+    public PrivateKey generatePrivateKeyPKCS8(KeyPairAlgorithm algorithm, String privateKeyString) {
+        Assert.INSTANCE.notBlank(privateKeyString, "privateKey can't be blank");
+        byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());
             KeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
@@ -34,9 +34,9 @@ public enum SecretKeyUtil {
         }
     }
 
-    public PublicKey generatePublicKeyX509(KeyPairAlgorithm algorithm, String publicKey) {
-        Assert.INSTANCE.notBlank(publicKey, "publicKey can't be blank");
-        byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKey);
+    public PublicKey generatePublicKeyX509(KeyPairAlgorithm algorithm, String publicKeyString) {
+        Assert.INSTANCE.notBlank(publicKeyString, "publicKey can't be blank");
+        byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());
             KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);

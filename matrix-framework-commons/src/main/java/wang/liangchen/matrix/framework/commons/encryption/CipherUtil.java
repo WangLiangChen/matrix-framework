@@ -92,12 +92,12 @@ public enum CipherUtil {
         }
     }
 
-    public String encrypt(CipherAsymmetricAlgorithm algorithm, String publicKey, String data) {
-        Assert.INSTANCE.notBlank(publicKey, "publicKey can not be blank");
+    public String encrypt(CipherAsymmetricAlgorithm algorithm, String publicKeyString, String data) {
+        Assert.INSTANCE.notBlank(publicKeyString, "publicKey can not be blank");
         Assert.INSTANCE.notBlank(data, "data can not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
-            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKey);
+            PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
             byte[] encryptBytes = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64Util.INSTANCE.encode(encryptBytes);
@@ -106,12 +106,12 @@ public enum CipherUtil {
         }
     }
 
-    public String decrypt(CipherAsymmetricAlgorithm algorithm, String privateKey, String data) {
-        Assert.INSTANCE.notBlank(privateKey, "privateKey can not be blank");
+    public String decrypt(CipherAsymmetricAlgorithm algorithm, String privateKeyString, String data) {
+        Assert.INSTANCE.notBlank(privateKeyString, "privateKey can not be blank");
         Assert.INSTANCE.notBlank(data, "data can not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
-            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKey);
+            PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);
             cipher.init(Cipher.DECRYPT_MODE, priKey);
             // 对密文base64解密
             byte[] ciphertextBytes = Base64Util.INSTANCE.decode(data);

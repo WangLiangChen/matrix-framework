@@ -1,19 +1,19 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
 public class KeyPairString {
-    private String privateKey;
-    private String publicKey;
+    private String privateKeyString;
+    private String publicKeyString;
 
-    public KeyPairString(String privateKey, String publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
+    public KeyPairString(String privateKeyString, String publicKeyString) {
+        this.privateKeyString = privateKeyString;
+        this.publicKeyString = publicKeyString;
     }
 
-    public String getPrivateKey() {
-        return privateKey;
+    public String getPrivateKeyString() {
+        return privateKeyString;
     }
 
-    public String getPublicKey() {
-        return publicKey;
+    public String getPublicKeyString() {
+        return publicKeyString;
     }
 }
