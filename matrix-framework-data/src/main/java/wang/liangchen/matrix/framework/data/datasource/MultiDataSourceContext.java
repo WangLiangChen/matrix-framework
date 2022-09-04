@@ -56,7 +56,11 @@ public enum MultiDataSourceContext {
     }
 
     public AbstractDialect getDialect(String dataSourceName) {
-        return cache.get(dataSourceName).getDialect();
+        CachedDataSource cachedDataSource = cache.get(dataSourceName);
+        if (null == cachedDataSource) {
+            return null;
+        }
+        return cachedDataSource.getDialect();
     }
 
     public AbstractDialect getDialect() {

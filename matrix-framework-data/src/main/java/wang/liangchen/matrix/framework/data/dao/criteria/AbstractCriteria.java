@@ -146,7 +146,7 @@ public abstract class AbstractCriteria<E extends RootEntity> {
         return entityClass;
     }
 
-    protected TableMeta getTableMeta() {
+    public TableMeta getTableMeta() {
         return tableMeta;
     }
 }
