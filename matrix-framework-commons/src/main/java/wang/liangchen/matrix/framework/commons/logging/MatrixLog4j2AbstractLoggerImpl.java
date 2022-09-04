@@ -33,27 +33,27 @@ class MatrixLog4j2AbstractLoggerImpl implements MatrixLogger {
     }
 
     @Override
-    public void error(Throwable e,String message,Object ... args) {
-        nativeLogger.logIfEnabled(FQCN, Level.ERROR, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), e);
+    public void error(Throwable e, String message, Object... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.ERROR, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message, args)), e);
     }
 
     @Override
-    public void error(String message,Object ... args) {
-        error(message, null);
+    public void error(String message, Object... args) {
+        error(null, message, args);
     }
 
     @Override
-    public void debug(String message,Object ... args) {
-        nativeLogger.logIfEnabled(FQCN, Level.DEBUG, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
+    public void debug(String message, Object... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.DEBUG, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message, args)), null);
     }
 
     @Override
-    public void trace(String message,Object ... args) {
-        nativeLogger.logIfEnabled(FQCN, Level.TRACE, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
+    public void trace(String message, Object... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.TRACE, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message, args)), null);
     }
 
     @Override
-    public void warn(String message,Object ... args) {
-        nativeLogger.logIfEnabled(FQCN, Level.WARN, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message,args)), null);
+    public void warn(String message, Object... args) {
+        nativeLogger.logIfEnabled(FQCN, Level.WARN, MARKER, (Message) new SimpleMessage(StringUtil.INSTANCE.format(message, args)), null);
     }
 }

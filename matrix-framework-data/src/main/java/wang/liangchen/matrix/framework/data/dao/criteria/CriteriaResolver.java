@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
@@ -25,9 +26,14 @@ public enum CriteriaResolver {
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
         CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
+        criteriaParameter.setEntity(abstractCriteria.getEntity());
+        criteriaParameter.setEntityClass(abstractCriteria.getEntityClass());
+
         // 从线程上下文设置数据库类型
         AbstractDialect dialect = MultiDataSourceContext.INSTANCE.getDialect();
-        criteriaParameter.setDataSourceType(dialect.getDataSourceType());
+        if (null != dialect) {
+            criteriaParameter.setDataSourceType(dialect.getDataSourceType());
+        }
         criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
         StringBuilder sqlBuilder = new StringBuilder();
@@ -98,59 +104,70 @@ public enum CriteriaResolver {
         List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
         if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
             String columnName;
-            SqlValue[] sqlValues;
-            List<String> placeholders;
-            String placeholder;
+            Object[] sqlValues;
+            String placeholder = null;
             Operator operator;
             int innerCounter = 0;
             Map<String, ColumnMeta> columnMetas = abstractCriteria.getTableMeta().getColumnMetas();
             for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
-                columnName = columnName(criteriaMeta.getColumn(), columnMetas);
-                sqlValues = criteriaMeta.getSqlValues();
-                placeholders = new ArrayList<>();
-                for (SqlValue sqlValue : sqlValues) {
-                    Object value = sqlValue.getValue();
-                    if (value instanceof EntityGetter) {
-                        placeholders.add(columnName((EntityGetter<E>) value, columnMetas));
-                        continue;
-                    }
-                    placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
-                    values.put(placeholder, value);
-                    placeholders.add(String.format("#{whereSqlValues.%s}", placeholder));
-                }
                 if (innerCounter++ > 0) {
                     sqlBuilder.append(AND);
                 }
+                columnName = resoveEntityGetter(criteriaMeta.getColumn(), columnMetas);
                 operator = criteriaMeta.getOperator();
+                sqlBuilder.append(columnName).append(operator.getOperator());
+                sqlValues = criteriaMeta.getSqlValues();
+                for (int i = 0; i < sqlValues.length; i++) {
+                    Object sqlValue = sqlValues[i];
+                    if (sqlValue instanceof EntityGetter) {
+                        sqlValues[i] = resoveEntityGetter((EntityGetter<? extends RootEntity>) sqlValue, columnMetas);
+                        continue;
+                    }
+                    if (sqlValue instanceof Class) {
+                        sqlValues[i] = String.format("#{entity.%s}", columnName);
+                        continue;
+                    }
+                    placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
+                    sqlValues[i] = String.format("#{whereSqlValues.%s}", placeholder);
+                    values.put(placeholder, sqlValue);
+                }
                 switch (operator) {
                     case IN:
                     case NOTIN:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append(Symbol.OPEN_PAREN.getSymbol());
-                        sqlBuilder.append(placeholders.stream().collect(Collectors.joining(Symbol.COMMA.getSymbol())));
+                        sqlBuilder.append(Symbol.OPEN_PAREN.getSymbol());
+                        sqlBuilder.append(Arrays.stream(sqlValues).map(String::valueOf).collect(Collectors.joining(Symbol.COMMA.getSymbol())));
                         sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
                         break;
                     case BETWEEN:
                     case NOTBETWEEN:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0)).append(AND).append(placeholders.get(1));
+                        sqlBuilder.append(sqlValues[0]).append(AND).append(sqlValues[1]);
                         break;
                     case ISNULL:
                     case ISNOTNULL:
-                        sqlBuilder.append(columnName).append(operator.getOperator());
                         break;
                     case CONTAINS:
                     case NOTCONTAINS:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'%").append(sqlValues[0].getValue()).append("%'");
+                        Object object = values.get(placeholder);
+                        object = String.format("%%%s%%", object);
+                        values.put(placeholder, object);
+                        sqlBuilder.append(sqlValues[0]);
                         break;
                     case STARTWITH:
                     case NOTSTARTWITH:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'").append(sqlValues[0].getValue()).append("%'");
+                        object = values.get(placeholder);
+                        object = String.format("%s%%", object);
+                        values.put(placeholder, object);
+                        sqlBuilder.append(sqlValues[0]);
                         break;
                     case ENDWITH:
                     case NOTENDWITH:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append("'%").append(sqlValues[0].getValue()).append("'");
+                        object = values.get(placeholder);
+                        object = String.format("%%%s", object);
+                        values.put(placeholder, object);
+                        sqlBuilder.append(sqlValues[0]);
                         break;
                     default:
-                        sqlBuilder.append(columnName).append(operator.getOperator()).append(placeholders.get(0));
+                        sqlBuilder.append(sqlValues[0]);
                         break;
                 }
             }
@@ -175,9 +192,8 @@ public enum CriteriaResolver {
         }
     }
 
-    private <E extends RootEntity> String columnName(EntityGetter<E> column, final Map<String, ColumnMeta> columnMetas) {
-
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
+    private <E extends RootEntity> String resoveEntityGetter(EntityGetter<E> entityGetter, final Map<String, ColumnMeta> columnMetas) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
         ColumnMeta columnMeta = columnMetas.get(fieldName);
         return columnMeta.getColumnName();
     }

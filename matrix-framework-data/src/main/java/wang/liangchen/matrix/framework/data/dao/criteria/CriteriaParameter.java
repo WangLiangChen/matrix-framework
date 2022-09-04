@@ -16,6 +16,7 @@ public class CriteriaParameter<E extends RootEntity> extends PaginationParameter
     private Map<String, Object> whereSqlValues;
 
     private E entity;
+    private Class<E> entityClass;
 
     public String getDataSourceType() {
         return dataSourceType;
@@ -60,5 +61,13 @@ public class CriteriaParameter<E extends RootEntity> extends PaginationParameter
 
     public void setEntity(E entity) {
         this.entity = entity;
+    }
+
+    public Class<E> getEntityClass() {
+        return entityClass;
+    }
+
+    public void setEntityClass(Class<E> entityClass) {
+        this.entityClass = entityClass;
     }
 }

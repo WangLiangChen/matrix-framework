@@ -8,15 +8,15 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 public class CriteriaMeta<E extends RootEntity> {
     private final Operator operator;
     private final EntityGetter<E> column;
-    private final SqlValue[] sqlValues;
+    private final Object[] sqlValues;
 
-    private CriteriaMeta(Operator operator, EntityGetter<E> column, SqlValue[] sqlValues) {
+    private CriteriaMeta(Operator operator, EntityGetter<E> column, Object[] sqlValues) {
         this.operator = operator;
         this.column = column;
         this.sqlValues = sqlValues;
     }
 
-    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, SqlValue... sqlValues) {
+    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Object... sqlValues) {
         return new CriteriaMeta<>(operator, column, sqlValues);
     }
 
@@ -28,7 +28,7 @@ public class CriteriaMeta<E extends RootEntity> {
         return column;
     }
 
-    public SqlValue[] getSqlValues() {
+    public Object[] getSqlValues() {
         return sqlValues;
     }
 }
