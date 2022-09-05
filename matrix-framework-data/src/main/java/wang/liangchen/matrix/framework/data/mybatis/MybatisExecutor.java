@@ -91,7 +91,9 @@ public enum MybatisExecutor {
             id = NumbericUid.INSTANCE.nextId();
         }
         try {
-            idGenerator.getMethod().invoke(entity, id);
+            Method method = idGenerator.getMethod();
+            method.setAccessible(true);
+            method.invoke(entity, id);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new MatrixErrorException(e);
         }

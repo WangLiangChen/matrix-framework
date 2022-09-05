@@ -1,14 +1,17 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import org.springframework.util.ReflectionUtils;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -103,34 +106,33 @@ public enum CriteriaResolver {
     private <E extends RootEntity> void resovle(AbstractCriteria<E> abstractCriteria, StringBuilder sqlBuilder, Map<String, Object> values, AtomicInteger counter) {
         List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
         if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
+            String filedName;
             String columnName;
             Object[] sqlValues;
             String placeholder = null;
             Operator operator;
-            int innerCounter = 0;
             Map<String, ColumnMeta> columnMetas = abstractCriteria.getTableMeta().getColumnMetas();
             for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
-                if (innerCounter++ > 0) {
-                    sqlBuilder.append(AND);
-                }
-                columnName = resoveEntityGetter(criteriaMeta.getColumn(), columnMetas);
-                operator = criteriaMeta.getOperator();
-                sqlBuilder.append(columnName).append(operator.getOperator());
                 sqlValues = criteriaMeta.getSqlValues();
+                filedName = resoveEntityGetter(criteriaMeta.getColumn());
+                // 任意值为空 跳过
+                boolean skip = parseSqlValues(sqlValues, abstractCriteria.getEntity(), filedName);
+                if (skip) {
+                    continue;
+                }
+                columnName = columnMetas.get(filedName).getColumnName();
                 for (int i = 0; i < sqlValues.length; i++) {
                     Object sqlValue = sqlValues[i];
                     if (sqlValue instanceof EntityGetter) {
                         sqlValues[i] = resoveEntityGetter((EntityGetter<? extends RootEntity>) sqlValue, columnMetas);
                         continue;
                     }
-                    if (sqlValue instanceof Class) {
-                        sqlValues[i] = String.format("#{entity.%s}", columnName);
-                        continue;
-                    }
                     placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
                     sqlValues[i] = String.format("#{whereSqlValues.%s}", placeholder);
                     values.put(placeholder, sqlValue);
                 }
+                operator = criteriaMeta.getOperator();
+                sqlBuilder.append(AND).append(columnName).append(operator.getOperator());
                 switch (operator) {
                     case IN:
                     case NOTIN:
@@ -192,10 +194,41 @@ public enum CriteriaResolver {
         }
     }
 
+    private boolean parseSqlValues(Object[] sqlValues, Object entity, String fileldName) {
+        boolean skip = false;
+        for (int i = 0; i < sqlValues.length; i++) {
+            if (null == sqlValues[i]) {
+                skip = true;
+                break;
+            }
+            if (sqlValues[i] instanceof Class) {
+                // 反射获取属性值
+                Field field = ReflectionUtils.findField((Class<?>) sqlValues[i], fileldName);
+                field.setAccessible(true);
+                try {
+                    sqlValues[i] = field.get(entity);
+                    if (null == sqlValues[i]) {
+                        skip = true;
+                        break;
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new MatrixErrorException(e);
+                }
+            }
+
+        }
+        return skip;
+    }
+
     private <E extends RootEntity> String resoveEntityGetter(EntityGetter<E> entityGetter, final Map<String, ColumnMeta> columnMetas) {
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
+        String fieldName = resoveEntityGetter(entityGetter);
         ColumnMeta columnMeta = columnMetas.get(fieldName);
         return columnMeta.getColumnName();
+    }
+
+    private <E extends RootEntity> String resoveEntityGetter(EntityGetter<E> entityGetter) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
+        return fieldName;
     }
 
 }
