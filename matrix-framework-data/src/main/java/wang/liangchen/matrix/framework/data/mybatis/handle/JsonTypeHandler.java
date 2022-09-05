@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -24,6 +25,10 @@ public class JsonTypeHandler extends BaseTypeHandler<Object> {
     private final Class<?> resultClass;
     private final Type resultType;
     private final Class<?>[] actualClasses;
+
+    static {
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
     public JsonTypeHandler(Class<?> resultClass) {
         this.resultClass = resultClass;
