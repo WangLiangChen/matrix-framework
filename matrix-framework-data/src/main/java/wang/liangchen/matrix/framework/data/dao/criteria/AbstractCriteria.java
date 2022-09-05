@@ -4,6 +4,7 @@ import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -81,8 +82,18 @@ abstract class AbstractCriteria<E extends RootEntity> {
         return this;
     }
 
+    protected AbstractCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, column, values));
+        return this;
+    }
+
     // =====================notIn========================
     protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Object... values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
+        return this;
+    }
+
+    protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
         return this;
     }

@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     private UpdateCriteria(E entity) {
         super(entity);
     }
+
     private UpdateCriteria(Class<E> entityClass) {
         super(entityClass);
     }
@@ -24,6 +26,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return new UpdateCriteria<E>(entity) {
         };
     }
+
     public static <E extends RootEntity> UpdateCriteria<E> of(Class<E> entityClass) {
         return new UpdateCriteria<E>(entityClass) {
         };
@@ -73,7 +76,17 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+        return (UpdateCriteria<E>) super._in(column, values);
+    }
+
+    @Override
     public UpdateCriteria<E> _notIn(EntityGetter<E> column, Object... values) {
+        return (UpdateCriteria<E>) super._notIn(column, values);
+    }
+
+    @Override
+    public UpdateCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
         return (UpdateCriteria<E>) super._notIn(column, values);
     }
 

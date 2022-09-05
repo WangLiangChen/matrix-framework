@@ -3,6 +3,8 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
+import java.util.Collection;
+
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
@@ -61,7 +63,17 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractCriteria
     }
 
     @Override
+    public SubCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+        return (SubCriteria<E>) super._in(column, values);
+    }
+
+    @Override
     public SubCriteria<E> _notIn(EntityGetter<E> column, Object... values) {
+        return (SubCriteria<E>) super._notIn(column, values);
+    }
+
+    @Override
+    public SubCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
         return (SubCriteria<E>) super._notIn(column, values);
     }
 

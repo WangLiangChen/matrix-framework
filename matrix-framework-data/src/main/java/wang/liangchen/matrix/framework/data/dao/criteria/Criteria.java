@@ -4,6 +4,7 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,7 +110,17 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     @Override
+    public Criteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+        return (Criteria<E>) super._in(column, values);
+    }
+
+    @Override
     public Criteria<E> _notIn(EntityGetter<E> column, Object... values) {
+        return (Criteria<E>) super._notIn(column, values);
+    }
+
+    @Override
+    public Criteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
         return (Criteria<E>) super._notIn(column, values);
     }
 
