@@ -3,7 +3,6 @@ package wang.liangchen.matrix.framework.commons.encryption;
 
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -15,35 +14,58 @@ public enum Base64Util {
      *
      */
     INSTANCE;
-    private final Base64.Decoder base64Decoder = Base64.getDecoder();
-    private final Base64.Encoder base64Encoder = Base64.getEncoder();
+    private final Base64.Encoder encoder = Base64.getEncoder();
+    private final Base64.Decoder decoder = Base64.getDecoder();
 
-    public byte[] decode(String string) {
-        Assert.INSTANCE.notBlank(string, "string can not be blank");
-        return base64Decoder.decode(string);
+    private final Base64.Encoder urlEncoder = Base64.getUrlEncoder().withoutPadding();
+    private final Base64.Decoder urlDecoder = Base64.getUrlDecoder();
+
+    public String encode(String string) {
+        return encode(string, true);
     }
 
-    public byte[] decode(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes can not be empty");
-        return base64Decoder.decode(bytes);
+    public String encode(String string, boolean urlSafe) {
+        Assert.INSTANCE.notBlank(string, "string can not be blank");
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+        if (urlSafe) {
+            urlEncoder.encodeToString(bytes);
+        }
+        return encoder.encodeToString(bytes);
     }
 
     public String encode(byte[] bytes) {
+        return encode(bytes, true);
+    }
+
+    public String encode(byte[] bytes, boolean urlSafe) {
         Assert.INSTANCE.notEmpty(bytes, "bytes can not be empty");
-        return base64Encoder.encodeToString(bytes);
-    }
-
-    public String encode(String string, Charset charset) {
-        Assert.INSTANCE.notBlank(string, "string can not be blank");
-        if (null == charset) {
-            charset = StandardCharsets.UTF_8;
+        if (urlSafe) {
+            return urlEncoder.encodeToString(bytes);
         }
-        byte[] bytes = string.getBytes(charset);
-        return base64Encoder.encodeToString(bytes);
+        return encoder.encodeToString(bytes);
     }
 
-    public String encode(String string) {
+    public byte[] decode(String string) {
+        return decode(string, true);
+    }
+
+    public byte[] decode(String string, boolean urlSafe) {
         Assert.INSTANCE.notBlank(string, "string can not be blank");
-        return encode(string, StandardCharsets.UTF_8);
+        if (urlSafe) {
+            return urlDecoder.decode(string);
+        }
+        return decoder.decode(string);
+    }
+
+    public byte[] decode(byte[] bytes) {
+        return decode(bytes, true);
+    }
+
+    public byte[] decode(byte[] bytes, boolean urlSafe) {
+        Assert.INSTANCE.notEmpty(bytes, "bytes can not be empty");
+        if (urlSafe) {
+            return urlDecoder.decode(bytes);
+        }
+        return decoder.decode(bytes);
     }
 }

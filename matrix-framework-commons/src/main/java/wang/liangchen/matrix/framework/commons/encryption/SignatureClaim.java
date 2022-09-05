@@ -13,14 +13,14 @@ import java.util.Map;
 /**
  * @author Liangchen.Wang 2022-09-03 10:04
  * 签名的传递
- * Signature: algorithm=MD5&nonce=${nonce}&timestamp=${timestamp}&signature=${signature}
+ * {@code Signature: algorithm=MD5&nonce=${nonce}&timestamp=${timestamp}&signature=${signature}}
  * 签名内容以换行符分隔，最后一行不添加\n
  * uri\n
  * timestamp\n
  * nonce\n
  * body
  */
-public class Signature implements Serializable {
+public class SignatureClaim implements Serializable {
     private final static String LINE = "\n";
     private final String uri;
     private final Long timestamp;
@@ -31,31 +31,31 @@ public class Signature implements Serializable {
     private String algorithm;
     private String signature;
 
-    public static Signature instance4Sign(String uri, String body) {
+    public static SignatureClaim instance4Sign(String uri, String body) {
         Assert.INSTANCE.notBlank(uri, "uri can't be blank");
         Assert.INSTANCE.notBlank(body, "body can't be blank");
-        return new Signature(uri, body);
+        return new SignatureClaim(uri, body);
     }
 
-    public static Signature instance4Sign(String uri) {
+    public static SignatureClaim instance4Sign(String uri) {
         Assert.INSTANCE.notBlank(uri, "uri can't be blank");
-        return new Signature(uri, null);
+        return new SignatureClaim(uri, null);
     }
 
-    public static Signature instance4Verify(String uri, String body, String signMessage) {
+    public static SignatureClaim instance4Verify(String uri, String body, String signMessage) {
         Assert.INSTANCE.notBlank(uri, "uri can't be blank");
         Assert.INSTANCE.notBlank(body, "body can't be blank");
         Assert.INSTANCE.notBlank(signMessage, "signMessage can't be blank");
-        return new Signature(uri, body, signMessage);
+        return new SignatureClaim(uri, body, signMessage);
     }
 
-    public static Signature instance4Verify(String uri, String signMessage) {
+    public static SignatureClaim instance4Verify(String uri, String signMessage) {
         Assert.INSTANCE.notBlank(uri, "uri can't be blank");
         Assert.INSTANCE.notBlank(signMessage, "signMessage can't be blank");
-        return new Signature(uri, null, signMessage);
+        return new SignatureClaim(uri, null, signMessage);
     }
 
-    private Signature(String uri, String body) {
+    private SignatureClaim(String uri, String body) {
         this.uri = uri;
         this.body = body;
         this.timestamp = System.currentTimeMillis();
@@ -63,7 +63,7 @@ public class Signature implements Serializable {
         this.payload = buildPayload();
     }
 
-    private Signature(String uri, String body, String signMessage) {
+    private SignatureClaim(String uri, String body, String signMessage) {
         this.uri = uri;
         this.body = body;
         Map<String, String> parameters = NetUtil.INSTANCE.queryString2Map(signMessage);
@@ -78,13 +78,13 @@ public class Signature implements Serializable {
     public String sign(SignatureAlgorithm signatureAlgorithm, String privateKeyString) {
         this.algorithm = signatureAlgorithm.name();
         this.signature = DigestSignUtil.INSTANCE.sign(signatureAlgorithm, privateKeyString, this.payload);
-        return buildSignature();
+        return buildSignatureMessage();
     }
 
     public String sign(HmacAligorithm hmacAligorithm, String secretKeyString) {
         this.algorithm = hmacAligorithm.name();
         this.signature = DigestSignUtil.INSTANCE.hmac(hmacAligorithm, secretKeyString, this.payload);
-        return buildSignature();
+        return buildSignatureMessage();
     }
 
     public boolean verify(String key) {
@@ -121,7 +121,7 @@ public class Signature implements Serializable {
     }
 
 
-    private String buildSignature() {
+    private String buildSignatureMessage() {
         // algorithm=${algorithm}&timestamp=${timestamp}&nonce=${nonce}&signature=${signature}
         StringBuilder signBuilder = new StringBuilder();
         signBuilder.append("algorithm").append(Symbol.EQUAL.getSymbol()).append(algorithm);
