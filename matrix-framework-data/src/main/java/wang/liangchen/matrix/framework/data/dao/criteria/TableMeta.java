@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,11 +21,14 @@ public class TableMeta {
 
     private TableMeta(Class<?> entityClass, String tableName, Map<String, ColumnMeta> columnMetas) {
         this.entityClass = entityClass;
-        this.tableName = tableName;
         this.columnMetas = columnMetas;
+        if (StringUtil.INSTANCE.isBlank(tableName)) {
+            this.tableName = StringUtil.INSTANCE.camelCase2underline(entityClass.getSimpleName());
+        } else {
+            this.tableName = tableName;
+        }
 
         ColumnMeta columnDeleteMeta = null;
-        ColumnMeta columnStateMeta = null;
         ColumnMeta columnVersionMeta = null;
         Collection<ColumnMeta> values = columnMetas.values();
         for (ColumnMeta columnMeta : values) {

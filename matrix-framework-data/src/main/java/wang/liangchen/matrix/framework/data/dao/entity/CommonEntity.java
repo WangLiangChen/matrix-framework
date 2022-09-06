@@ -26,10 +26,8 @@ public class CommonEntity extends RootEntity {
     private LocalDateTime modifyDatetime = LocalDateTime.now();
     @Column(name = "summary")
     private String summary = Symbol.BLANK.getSymbol();
-    ;
     @Column(name = "state")
     private String state = Symbol.BLANK.getSymbol();
-    ;
 
 
     public Integer getVersion() {

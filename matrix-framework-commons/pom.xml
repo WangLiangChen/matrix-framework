@@ -14,13 +14,11 @@
     <properties>
         <version.el>3.0.0</version.el>
         <version.commons.exec>1.3</version.commons.exec>
-        <version.transmittable-threadlocal>2.12.2</version.transmittable-threadlocal>
+        <version.transmittable-threadlocal>2.14.0</version.transmittable-threadlocal>
         <version.cglib>3.3.0</version.cglib>
-        <version.kryo>4.0.2</version.kryo>
-        <version.protostuff>1.7.4</version.protostuff>
-        <version.disruptor>3.4.4</version.disruptor>
         <version.asm>9.3</version.asm>
-        <version.jose.jwt>9.23</version.jose.jwt>
+        <version.reflectasm>1.11.9</version.reflectasm>
+        <version.jose.jwt>9.24.3</version.jose.jwt>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -56,24 +54,8 @@
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
-                <artifactId>kryo-shaded</artifactId>
-                <version>${version.kryo}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.protostuff</groupId>
-                <artifactId>protostuff-core</artifactId>
-                <version>${version.protostuff}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.protostuff</groupId>
-                <artifactId>protostuff-runtime</artifactId>
-                <version>${version.protostuff}</version>
-            </dependency>
-            <!-- Disruptor - Concurrent Programming Framework -->
-            <dependency>
-                <groupId>com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${version.disruptor}</version>
+                <artifactId>reflectasm</artifactId>
+                <version>${version.reflectasm}</version>
             </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>
@@ -122,20 +104,7 @@
         </dependency>
         <dependency>
             <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo-shaded</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-runtime</artifactId>
-        </dependency>
-        <!-- Disruptor - Concurrent Programming Framework -->
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
+            <artifactId>reflectasm</artifactId>
         </dependency>
         <!-- logging provided -->
         <dependency>

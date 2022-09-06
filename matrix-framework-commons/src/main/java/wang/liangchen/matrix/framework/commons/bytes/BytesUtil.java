@@ -1,9 +1,6 @@
 package wang.liangchen.matrix.framework.commons.bytes;
 
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -21,8 +18,6 @@ public enum BytesUtil {
      */
     INSTANCE;
     private final String[] hexDigits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
-    private final Kryo kryo = new Kryo();
-
     public byte[] toBytes(InputStream inputStream) {
         byte[] buffer = new byte[4096];
         int n;
@@ -43,19 +38,6 @@ public enum BytesUtil {
             output.writeObject(object);
             output.flush();
             byte[] bytes = outputStream.toByteArray();
-            return bytes;
-        } catch (IOException e) {
-            throw new MatrixErrorException(e);
-        }
-    }
-
-    public byte[] toKryoBytes(Object object) {
-        Assert.INSTANCE.notNull(object, "object can not be null");
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            Output output = new Output(outputStream);
-            kryo.writeObject(output, object);
-            output.flush();
-            byte[] bytes = output.toBytes();
             return bytes;
         } catch (IOException e) {
             throw new MatrixErrorException(e);
@@ -176,20 +158,6 @@ public enum BytesUtil {
             Object object = intput.readObject();
             return (T) object;
         } catch (IOException | ClassNotFoundException e) {
-            throw new MatrixErrorException(e);
-        }
-    }
-
-    public <T> T toKryoObject(byte[] bytes, Class<T> clazz) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes can not be null or empty");
-        Assert.INSTANCE.notNull(clazz, "clazz can not bye null");
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-            Kryo kryo = new Kryo();
-            Input input = new Input(inputStream);
-            T object = kryo.readObject(input, clazz);
-            input.close();
-            return object;
-        } catch (IOException e) {
             throw new MatrixErrorException(e);
         }
     }
