@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -99,7 +99,7 @@ public class EnhancedMap implements Cloneable, Serializable {
         if (object instanceof Map) {
             return new EnhancedMap((Map) object);
         }
-        throw new MatrixInfoException("object must be Map or EnhancedMap");
+        throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
 
     @SuppressWarnings("unchecked")
@@ -112,7 +112,7 @@ public class EnhancedMap implements Cloneable, Serializable {
         if (object instanceof List) {
             return new EnhancedList((List) object);
         }
-        throw new MatrixInfoException("object must be List or EnhancedList");
+        throw new MatrixWarnException("object must be List or EnhancedList");
     }
 
     public <T> T getObject(String key) {

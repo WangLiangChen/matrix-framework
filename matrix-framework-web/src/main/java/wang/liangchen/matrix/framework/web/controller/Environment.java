@@ -1,10 +1,10 @@
-package wang.liangchen.matrix.framework.web.domain;
+package wang.liangchen.matrix.framework.web.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public final class Server {
+public final class Environment {
     private LocalDateTime datetime;
     private LocalDate date;
     private LocalTime time;

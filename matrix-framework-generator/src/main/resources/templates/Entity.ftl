@@ -14,7 +14,6 @@ import ${importPackage};
  * @author ${author}
  */
 @Entity(name = "${tableName}")
-@Table(name = "${tableName}")
 public class ${entityName} extends RootEntity {
 <#list columnMetas as columnMeta>
     <#if columnMeta.id>

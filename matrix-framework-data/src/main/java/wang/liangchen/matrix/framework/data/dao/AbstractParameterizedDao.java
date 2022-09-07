@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.SubCriteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
@@ -28,11 +28,11 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
 
         Type thisType = getClass().getGenericSuperclass();
         if (!(thisType instanceof ParameterizedType)) {
-            throw new MatrixInfoException(EXCEPTION);
+            throw new MatrixWarnException(EXCEPTION);
         }
         Type[] argTypes = ((ParameterizedType) thisType).getActualTypeArguments();
         if (argTypes.length < 1) {
-            throw new MatrixInfoException(EXCEPTION);
+            throw new MatrixWarnException(EXCEPTION);
         }
         entityClass = (Class<E>) argTypes[0];
     }

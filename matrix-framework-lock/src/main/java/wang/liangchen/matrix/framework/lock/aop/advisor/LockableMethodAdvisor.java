@@ -8,7 +8,7 @@ import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMethodMatcher;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 import wang.liangchen.matrix.framework.lock.core.LockManager;
@@ -46,10 +46,10 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
         public Object invoke(MethodInvocation invocation) throws Throwable {
             Class<?> returnType = invocation.getMethod().getReturnType();
             if (void.class.equals(returnType)) {
-                throw new MatrixInfoException("method can't return void");
+                throw new MatrixWarnException("method can't return void");
             }
             if (returnType.isPrimitive()) {
-                throw new MatrixInfoException("method can't return primitive type");
+                throw new MatrixWarnException("method can't return primitive type");
             }
             LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(invocation.getThis(), invocation.getMethod());
             TaskResult<Object> result = lockManager.executeInLock(lockConfiguration, invocation::proceed);

@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -236,7 +236,7 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
         if (object instanceof Map) {
             return new EnhancedMap((Map) object);
         }
-        throw new MatrixInfoException("object must be Map or EnhancedMap");
+        throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
     @SuppressWarnings("unchecked")
     public EnhancedList getEnhancedList(int index) {
@@ -250,7 +250,7 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
             return new EnhancedList((List) object);
         }
 
-        throw new MatrixInfoException("object must be List or EnhancedList");
+        throw new MatrixWarnException("object must be List or EnhancedList");
     }
 
     public <T> T getObject(int index) {

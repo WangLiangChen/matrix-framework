@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.type;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class GenericTypeBuilder {
 
     public GenericTypeBuilder endSubType() {
         if (parent == null) {
-            throw new MatrixInfoException("expect beginSubType() before endSubType()");
+            throw new MatrixWarnException("expect beginSubType() before endSubType()");
         }
 
         parent.addTypeParam(getType());
@@ -91,7 +91,7 @@ public class GenericTypeBuilder {
 
     public Type build() {
         if (parent != null) {
-            throw new MatrixInfoException("expect endSubType() before build()");
+            throw new MatrixWarnException("expect endSubType() before build()");
         }
 
         return getType();

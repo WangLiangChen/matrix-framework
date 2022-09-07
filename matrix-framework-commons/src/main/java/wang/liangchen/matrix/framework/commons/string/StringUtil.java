@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.commons.string;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.Assert;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -179,5 +180,15 @@ public enum StringUtil {
             return null;
         }
         return pack.replaceAll(DOT_REPLACEMENT, Matcher.quoteReplacement(Symbol.FILE_SEPARATOR.getSymbol()));
+    }
+
+    public String getGetter(String fieldName) {
+        Assert.INSTANCE.notBlank(fieldName, "fileldName can't be blank");
+        return String.format("get%s", firstLetterUpperCase(fieldName));
+    }
+
+    public String getSetter(String fieldName) {
+        Assert.INSTANCE.notBlank(fieldName, "fileldName can't be blank");
+        return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 }

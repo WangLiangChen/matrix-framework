@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
@@ -85,7 +85,7 @@ public enum TableMetas {
         if (null != table) {
             return table.name();
         }
-        throw new MatrixInfoException("Entity class has no entity or table annotation:{}", entityClass.getName());
+        throw new MatrixWarnException("Entity class has no entity or table annotation:{}", entityClass.getName());
     }
 
 

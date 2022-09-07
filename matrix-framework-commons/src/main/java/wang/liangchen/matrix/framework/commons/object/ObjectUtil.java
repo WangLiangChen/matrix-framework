@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.object;
 
 import net.sf.cglib.beans.BeanCopier;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
@@ -103,7 +103,7 @@ public enum ObjectUtil {
                 return Byte.parseByte(string);
             }
         }
-        throw new MatrixInfoException("can not cast to byte, object :{} ", object);
+        throw new MatrixWarnException("can not cast to byte, object :{} ", object);
     }
 
     public Character castToChar(Object object) {
@@ -119,11 +119,11 @@ public enum ObjectUtil {
                 return null;
             }
             if (string.length() != 1) {
-                throw new MatrixInfoException("can not cast to char, object : {}", object);
+                throw new MatrixWarnException("can not cast to char, object : {}", object);
             }
             return string.charAt(0);
         }
-        throw new MatrixInfoException("can not cast to char, object :{} ", object);
+        throw new MatrixWarnException("can not cast to char, object :{} ", object);
     }
 
     public Short castToShort(Object object) {
@@ -147,7 +147,7 @@ public enum ObjectUtil {
                 return Short.parseShort(string);
             }
         }
-        throw new MatrixInfoException("can not cast to short, object : {}", object);
+        throw new MatrixWarnException("can not cast to short, object : {}", object);
     }
 
     public Integer castToInt(Object object) {
@@ -171,7 +171,7 @@ public enum ObjectUtil {
                 return Integer.parseInt(string);
             }
         }
-        throw new MatrixInfoException("can not cast to int, object : {}", object);
+        throw new MatrixWarnException("can not cast to int, object : {}", object);
     }
 
     public Long castToLong(Object object) {
@@ -195,7 +195,7 @@ public enum ObjectUtil {
                 return Long.parseLong(string);
             }
         }
-        throw new MatrixInfoException("can not cast to long, object : {}", object);
+        throw new MatrixWarnException("can not cast to long, object : {}", object);
     }
 
     public BigDecimal castToBigDecimal(Object object) {
@@ -287,7 +287,7 @@ public enum ObjectUtil {
             return (Boolean) object ? 1F : 0F;
         }
 
-        throw new MatrixInfoException("can not cast to float, object :{}", object);
+        throw new MatrixWarnException("can not cast to float, object :{}", object);
     }
 
     public Double castToDouble(Object object) {
@@ -308,7 +308,7 @@ public enum ObjectUtil {
             return (Boolean) object ? 1D : 0D;
         }
 
-        throw new MatrixInfoException("can not cast to double, object :{}", object);
+        throw new MatrixWarnException("can not cast to double, object :{}", object);
     }
 
     public Boolean castToBoolean(Object object) {
@@ -345,14 +345,14 @@ public enum ObjectUtil {
                 return Boolean.FALSE;
             }
         }
-        throw new MatrixInfoException("can not cast to boolean, object : {}", object);
+        throw new MatrixWarnException("can not cast to boolean, object : {}", object);
     }
 
     public byte[] castToBytes(Object object) {
         if (object instanceof byte[]) {
             return (byte[]) object;
         }
-        throw new MatrixInfoException("can not cast to byte[], object : " + object);
+        throw new MatrixWarnException("can not cast to byte[], object : " + object);
     }
 
     public <T> List<T> copyProperties(Collection<?> sources, Class<T> targetClass) {
@@ -410,9 +410,9 @@ public enum ObjectUtil {
             return object;
         }
         if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be null");
+            throw new MatrixWarnException("object can not be null");
         }
-        throw new MatrixInfoException(message, args);
+        throw new MatrixWarnException(message, args);
     }
 
     public <T> T validateNotEmpty(T object) {
@@ -424,9 +424,9 @@ public enum ObjectUtil {
             return object;
         }
         if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be empty");
+            throw new MatrixWarnException("object can not be empty");
         }
-        throw new MatrixInfoException(message, args);
+        throw new MatrixWarnException(message, args);
     }
 
     static class CopierId {

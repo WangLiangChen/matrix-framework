@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 
@@ -170,7 +170,7 @@ public class ColumnMeta {
         if (null != javaType) {
             return javaType;
         }
-        throw new MatrixInfoException("can't mapping dataType to javaType:{}", dataTypeName);
+        throw new MatrixWarnException("can't mapping dataType to javaType:{}", dataTypeName);
     }
 
     private static void populateMySQL() {

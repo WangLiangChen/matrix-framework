@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.web.push;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -40,7 +40,7 @@ public enum PushUtil {
         if (pusherClass.isAssignableFrom(DeferredResult.class)) {
             return (T) appendDeferredResult(pusherKey);
         }
-        throw new MatrixInfoException("Unsupported type:{}", pusherClass);
+        throw new MatrixWarnException("Unsupported type:{}", pusherClass);
     }
 
     private SseEmitter appendSseEmitter(PusherKey pusherKey) {

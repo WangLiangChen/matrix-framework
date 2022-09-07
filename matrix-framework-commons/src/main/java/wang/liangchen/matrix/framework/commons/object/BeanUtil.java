@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
@@ -22,7 +22,7 @@ public enum BeanUtil {
         if (methodName.startsWith(IS)) {
             return StringUtil.INSTANCE.firstLetterLowerCase(methodName.substring(2));
         }
-        throw new MatrixInfoException("methodName is illegal");
+        throw new MatrixWarnException("methodName is illegal");
     }
 
     public String resolveGetterName(String fieldName) {

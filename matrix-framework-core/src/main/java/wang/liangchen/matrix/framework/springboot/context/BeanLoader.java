@@ -5,7 +5,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.util.Map;
@@ -61,7 +61,7 @@ public enum BeanLoader {
             if (bean.getClass().isAssignableFrom(clazz)) {
                 return (T) bean;
             } else {
-                throw new MatrixInfoException("Duplicate Bean Name");
+                throw new MatrixWarnException("Duplicate Bean Name");
             }
         }
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);

@@ -21,7 +21,7 @@ public class CriteriaMeta<E extends RootEntity> {
     public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Object... sqlValues) {
         return new CriteriaMeta<>(operator, column, sqlValues);
     }
-    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Collection<Object> sqlValues) {
+    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Collection<?> sqlValues) {
         return new CriteriaMeta<>(operator, column, sqlValues.toArray());
     }
 

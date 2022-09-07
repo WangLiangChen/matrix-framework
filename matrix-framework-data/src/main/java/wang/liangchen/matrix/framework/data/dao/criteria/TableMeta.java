@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.util.Collection;
@@ -74,7 +74,7 @@ public class TableMeta {
         if (1 == pkColumnMetas.size()) {
             return pkColumnMetas.values().stream().findFirst().get();
         }
-        throw new MatrixInfoException("No or multiple primary keys exist");
+        throw new MatrixWarnException("No or multiple primary keys exist");
     }
 
     public Map<String, ColumnMeta> getNonPkColumnMetas() {

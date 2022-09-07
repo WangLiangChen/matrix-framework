@@ -7,6 +7,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.web.configuration.RequestResponseBodyMethodProcessorConfiguration;
 import wang.liangchen.matrix.framework.web.configuration.WebFluxAutoConfiguration;
 import wang.liangchen.matrix.framework.web.configuration.WebMvcAutoConfiguration;
 
@@ -42,7 +43,7 @@ public @interface EnableWeb {
             String[] imports;
             switch (webType) {
                 case WEBMVC:
-                    imports = new String[]{WebMvcAutoConfiguration.class.getName(), org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class.getName(), DelegatingWebMvcConfiguration.class.getName()};
+                    imports = new String[]{WebMvcAutoConfiguration.class.getName(), RequestResponseBodyMethodProcessorConfiguration.class.getName(), org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class.getName(), DelegatingWebMvcConfiguration.class.getName()};
                     break;
                 case WEBFLUX:
                     imports = new String[]{WebFluxAutoConfiguration.class.getName(), org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration.class.getName(), DelegatingWebFluxConfiguration.class.getName()};

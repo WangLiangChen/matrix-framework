@@ -1,10 +1,9 @@
 package wang.liangchen.matrix.framework.web.configuration;
 
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
@@ -27,8 +26,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
  * 2、使用FilterRegistrationBean、ServletRegistrationBean
  * 3、使用@Bean自动添加，添加后默认的过滤路径为 /*，使用FilterRegistrationBean来进行Filter的注册，filterRegistration.setEnabled(false);，就可以取消Filter的自动注册行为。
  */
-@AutoConfigureBefore(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
-public class WebMvcAutoConfiguration implements WebMvcConfigurer {
+@AutoConfigureAfter(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
+public class WebMvcAutoConfiguration {
     //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
     @Bean
     public FilterRegistrationBean<Filter> rootFilter() {

@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.lock.resolver;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -38,6 +38,6 @@ public enum DurationResolver {
             ChronoUnit unit = UNITS.get(matcher.group(2));
             return Duration.of(amount, unit);
         }
-        throw new MatrixInfoException("'{}' is not a valid duration", durationString);
+        throw new MatrixWarnException("'{}' is not a valid duration", durationString);
     }
 }

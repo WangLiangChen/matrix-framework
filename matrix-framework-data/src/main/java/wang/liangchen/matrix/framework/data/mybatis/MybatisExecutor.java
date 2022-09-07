@@ -40,25 +40,17 @@ public enum MybatisExecutor {
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Map<String, ColumnMeta> pkColumnMetas = entityTableMeta.getPkColumnMetas();
-            if (1 == pkColumnMetas.size()) {
-                pkColumnMetas.values().stream().findFirst().ifPresent(columnMeta -> {
-                    String fieldName = columnMeta.getFieldName();
-                    String methodName = "set" + StringUtil.INSTANCE.firstLetterUpperCase(fieldName);
-                    Method method = ReflectionUtils.findMethod(entityClass, methodName, columnMeta.getFieldClass());
-                    ID_METHOD_CACHE.put(cacheKey, new IDGenerator(method, columnMeta.getIdStrategy()));
-                });
-            }
-            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            // 缓存单一ID的setter
+            cacheIdGeneratorMethod(cacheKey, entityClass, tableMeta.getPkColumnMetas());
+            Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("insert into ").append(entityTableMeta.getTableName());
-            sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            sqlBuilder.append("insert into ").append(tableMeta.getTableName()).append("(");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
-            sqlBuilder.append("</trim>");
-            sqlBuilder.append("values");
-            sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            // 去除最后一个逗号
+            sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
+            sqlBuilder.append(")values(");
             columnMetas.values().forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
@@ -66,39 +58,18 @@ public enum MybatisExecutor {
                 }
                 sqlBuilder.append("#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
             });
-            sqlBuilder.append("</trim>");
+            // 去除最后一个逗号
+            sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
+            sqlBuilder.append(")");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class);
             logger.debug("create and cache insertId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        populateId(statementId, entity);
+        populateId(statementId, Collections.singletonList(entity));
         return sqlSessionTemplate.insert(statementId, entity);
     }
-
-    private <E extends RootEntity> void populateId(String cacheKey, E entity) {
-        IDGenerator idGenerator = ID_METHOD_CACHE.get(cacheKey);
-        if (null == idGenerator) {
-            return;
-        }
-        IdStrategy.Strategy strategy = idGenerator.getStrategy();
-        if (null == strategy || IdStrategy.Strategy.NONE == strategy) {
-            return;
-        }
-        Object id = null;
-        if (IdStrategy.Strategy.MatrixFlake == strategy) {
-            id = NumbericUid.INSTANCE.nextId();
-        }
-        try {
-            Method method = idGenerator.getMethod();
-            method.setAccessible(true);
-            method.invoke(entity, id);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new MatrixErrorException(e);
-        }
-    }
-
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
         Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
@@ -107,15 +78,17 @@ public enum MybatisExecutor {
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            Map<String, ColumnMeta> columnMetas = entityTableMeta.getColumnMetas();
+            TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+            // 缓存ID Setter
+            cacheIdGeneratorMethod(cacheKey, entityClass, tableMeta.getPkColumnMetas());
+            Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("insert into ").append(entityTableMeta.getTableName());
-            sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+            sqlBuilder.append("insert into ").append(tableMeta.getTableName()).append("(");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
-            sqlBuilder.append("</trim>");
-            sqlBuilder.append("values");
+            // 去除最后一个逗号
+            sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
+            sqlBuilder.append(")values");
             sqlBuilder.append("<foreach collection=\"list\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             columnMetas.values().forEach(columnMeta -> {
@@ -133,6 +106,7 @@ public enum MybatisExecutor {
             logger.debug("create and cache insertBulkId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
+        populateId(statementId, entities);
         return sqlSessionTemplate.insert(statementId, entities);
     }
 
@@ -318,6 +292,40 @@ public enum MybatisExecutor {
             return sqlScript;
         });
         return sqlSessionTemplate.selectList(statementId, criteriaParameter);
+    }
+
+    private void cacheIdGeneratorMethod(String cacheKey, Class<? extends RootEntity> entityClass, Map<String, ColumnMeta> pkColumnMetas) {
+        if (1 != pkColumnMetas.size()) {
+            return;
+        }
+        for (ColumnMeta columnMeta : pkColumnMetas.values()) {
+            String methodName = StringUtil.INSTANCE.getSetter(columnMeta.getFieldName());
+            Method method = ReflectionUtils.findMethod(entityClass, methodName, columnMeta.getFieldClass());
+            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(method, columnMeta.getIdStrategy()));
+        }
+    }
+
+    private <E extends RootEntity> void populateId(String cacheKey, Collection<E> entities) {
+        IDGenerator idGenerator = ID_METHOD_CACHE.get(cacheKey);
+        if (null == idGenerator) {
+            return;
+        }
+        IdStrategy.Strategy strategy = idGenerator.getStrategy();
+        if (null == strategy || IdStrategy.Strategy.NONE == strategy) {
+            return;
+        }
+        Method method = idGenerator.getMethod();
+        method.setAccessible(true);
+        try {
+            for (E entity : entities) {
+                if (IdStrategy.Strategy.MatrixFlake == strategy) {
+                    Long id = NumbericUid.INSTANCE.nextId();
+                    method.invoke(entity, id);
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new MatrixErrorException(e);
+        }
     }
 
     private StringBuilder pkWhereSql(Map<String, ColumnMeta> pkColumnMetas) {

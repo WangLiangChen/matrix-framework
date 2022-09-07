@@ -82,7 +82,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
         return this;
     }
 
-    protected AbstractCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+    protected AbstractCriteria<E> _in(EntityGetter<E> column, Collection<?> values) {
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, column, values));
         return this;
     }
@@ -93,7 +93,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
         return this;
     }
 
-    protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
+    protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Collection<?> values) {
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
         return this;
     }

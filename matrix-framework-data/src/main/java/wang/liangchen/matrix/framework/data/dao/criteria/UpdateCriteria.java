@@ -76,7 +76,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+    public UpdateCriteria<E> _in(EntityGetter<E> column, Collection<?> values) {
         return (UpdateCriteria<E>) super._in(column, values);
     }
 
@@ -86,7 +86,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
+    public UpdateCriteria<E> _notIn(EntityGetter<E> column, Collection<?> values) {
         return (UpdateCriteria<E>) super._notIn(column, values);
     }
 

@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
@@ -93,7 +93,7 @@ public class DomainGenerator {
             // Entity File
             Path entityFilePath = entityPath.resolve(generatorProperties.getEntityName() + JAVA);
             if (Files.exists(entityFilePath)) {
-                throw new MatrixInfoException("file:{} already exists", entityFilePath.toString());
+                throw new MatrixWarnException("file:{} already exists", entityFilePath.toString());
             }
             Files.createFile(entityFilePath);
             Template template = freemarkerConfig.getTemplate("Entity.ftl");

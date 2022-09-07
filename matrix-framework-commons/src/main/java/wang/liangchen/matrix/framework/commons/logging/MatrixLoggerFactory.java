@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.lang.reflect.Constructor;
 
@@ -29,7 +29,7 @@ public class MatrixLoggerFactory {
             // create a logger
             return abstractMatrixLoggerConstructor.newInstance(className);
         } catch (Throwable t) {
-            throw new MatrixInfoException(t, "Error creating logger for {}.  Cause: {}", className, t.getMessage());
+            throw new MatrixWarnException(t, "Error creating logger for {}.  Cause: {}", className, t.getMessage());
         }
     }
 
@@ -86,7 +86,7 @@ public class MatrixLoggerFactory {
             }
 
         } catch (Throwable t) {
-            throw new MatrixInfoException("Error setting Log implementation.  Cause: " + t, t);
+            throw new MatrixWarnException("Error setting Log implementation.  Cause: " + t, t);
         }
     }
 }

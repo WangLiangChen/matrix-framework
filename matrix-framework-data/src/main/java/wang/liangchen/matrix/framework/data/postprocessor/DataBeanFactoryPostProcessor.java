@@ -5,7 +5,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.dao.AbstractDao;
 
 /**
@@ -23,7 +23,7 @@ public class DataBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
         if (hasDataSource) {
             return;
         }
-        throw new MatrixInfoException("Please use annotation '@EnableJdbc' to enable JDBC");
+        throw new MatrixWarnException("Please use annotation '@EnableJdbc' to enable JDBC");
     }
 
 }

@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.uid;
 
 import wang.liangchen.matrix.framework.commons.datetime.DateTimeUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.network.NetUtil;
 import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
@@ -90,7 +90,7 @@ public enum NumbericUid {
     private long toID() {
         if (usingElapsedTime >= timeUpperLimit) {
             // 时间已达到上限，继续生成下去的话，id就会重复
-            throw new MatrixInfoException("over the time limit");
+            throw new MatrixWarnException("over the time limit");
         }
         return usingElapsedTime << (sequenceBits + nodeBits)
                 | sequence << nodeBits

@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.validation;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -38,7 +38,7 @@ public enum ValidationUtil {
             stringBuilder.append(Symbol.LINE_SEPARATOR.getSymbol()).append("Field '").append(e.getPropertyPath().toString()).append("' ")
                     .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol());
         });
-        throw new MatrixInfoException(stringBuilder.toString());
+        throw new MatrixWarnException(stringBuilder.toString());
     }
 
 

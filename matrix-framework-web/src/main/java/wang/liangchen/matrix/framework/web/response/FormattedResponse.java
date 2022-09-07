@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixPromptException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.web.context.WebContext;
@@ -74,14 +74,14 @@ public final class FormattedResponse implements Serializable {
                 failure.payload(exPayload);
             }
         }
-        if (throwable instanceof MatrixPromptException) {
+        if (throwable instanceof MatrixInfoException) {
             logger.debug(throwable.getMessage(), throwable);
             failure.level(ResponseLevel.INFO);
             failure.message(throwable.getMessage());
             return failure;
         }
         failure.debug(stackTraceString(throwable, new StringBuilder()));
-        if (throwable instanceof MatrixInfoException) {
+        if (throwable instanceof MatrixWarnException) {
             logger.info(throwable.getMessage(), throwable);
             failure.level(ResponseLevel.WARN);
             return failure;

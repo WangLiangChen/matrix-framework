@@ -16,51 +16,51 @@ public enum Assert {
 
     public void isTrue(boolean condition, String message, Object... args) {
         if (!condition) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
     public void isFalse(boolean condition, String message, Object... args) {
         if (condition) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
     public void isBlank(String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isNotBlank(string)) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
 
     public void notBlank(String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isBlank(string)) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
     public void isNull(Object object, String message, Object... args) {
         if (null != object) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
     public void notNull(Object object, String message, Object... args) {
         if (null == object) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
 
     public void isEmpty(Object object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isNotEmpty(object)) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
     public void notEmpty(Object object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 
@@ -68,12 +68,12 @@ public enum Assert {
         if (Objects.equals(from, to)) {
             return;
         }
-        throw new MatrixInfoException(message, args);
+        throw new MatrixWarnException(message, args);
     }
 
     public void notEquals(Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
-            throw new MatrixInfoException(message, args);
+            throw new MatrixWarnException(message, args);
         }
     }
 

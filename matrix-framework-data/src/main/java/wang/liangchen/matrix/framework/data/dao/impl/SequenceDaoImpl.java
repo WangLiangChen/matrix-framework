@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.impl;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import wang.liangchen.matrix.framework.data.dao.ISequenceDao;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
@@ -30,7 +30,7 @@ public class SequenceDaoImpl implements ISequenceDao {
             }
             return sequenceNumber;
         }
-        throw new MatrixInfoException("Could't fetch sequence number!");
+        throw new MatrixWarnException("Could't fetch sequence number!");
     }
 
     private long fetchSequenceNumber(String sequenceKey, long initialValue) {

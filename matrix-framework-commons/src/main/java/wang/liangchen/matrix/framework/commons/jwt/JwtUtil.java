@@ -15,7 +15,7 @@ import wang.liangchen.matrix.framework.commons.encryption.SecretKeyUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyPairAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.Assert;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -55,7 +55,7 @@ public enum JwtUtil {
                 jwsAlgorithm = JWSAlgorithm.HS512;
                 break;
             default:
-                throw new MatrixInfoException("Not Supported Algorithm");
+                throw new MatrixWarnException("Not Supported Algorithm");
         }
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(jwsAlgorithm), claimsSet);

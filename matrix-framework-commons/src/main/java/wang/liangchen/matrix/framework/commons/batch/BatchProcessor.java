@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.batch;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.thread.ThreadPoolUtil;
 
 import java.util.ArrayList;
@@ -38,10 +38,10 @@ public final class BatchProcessor<E> {
 
     public BatchProcessor(int batchSize, long timeout, TimeUnit timeUnit) {
         if (batchSize <= 0) {
-            throw new MatrixInfoException("the batchsize must be positive integer");
+            throw new MatrixWarnException("the batchsize must be positive integer");
         }
         if (timeout <= 0) {
-            throw new MatrixInfoException("the timeout must be positive integer");
+            throw new MatrixWarnException("the timeout must be positive integer");
         }
         this.batchSize = batchSize;
         this.blockingQueue = new ArrayBlockingQueue<>(batchSize * 4);
@@ -55,7 +55,7 @@ public final class BatchProcessor<E> {
             return false;
         }
         if (null == consumer) {
-            throw new MatrixInfoException("Set Consumer by method onConsume");
+            throw new MatrixWarnException("Set Consumer by method onConsume");
         }
         try {
             blockingQueue.put(e);
@@ -68,7 +68,7 @@ public final class BatchProcessor<E> {
 
     public void onConsume(Consumer<List<E>> consumer) {
         if (null != this.consumer) {
-            throw new MatrixInfoException("Consumer has been set");
+            throw new MatrixWarnException("Consumer has been set");
         }
         this.consumer = consumer;
         onDrain();

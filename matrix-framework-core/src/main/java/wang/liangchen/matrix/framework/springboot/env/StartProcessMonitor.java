@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
@@ -337,7 +337,7 @@ public class StartProcessMonitor implements
         String configFile = environment.getProperty(CONFIG_FILE);
         if (StringUtil.INSTANCE.isBlank(configFile)) {
             PrettyPrinter.INSTANCE.flush();
-            throw new MatrixInfoException("'config.file' does not exist.");
+            throw new MatrixWarnException("'config.file' does not exist.");
         }
         configFile = EnvironmentContext.INSTANCE.getConfigRoot().concat(Symbol.URI_SEPARATOR.getSymbol()).concat(configFile);
         System.setProperty(LOGGING_CONFIG, configFile);

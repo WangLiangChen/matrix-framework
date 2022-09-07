@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
@@ -56,7 +56,7 @@ public class StandaloneDao extends AbstractDao {
         if (1 == size) {
             return list.get(0);
         }
-        throw new MatrixInfoException("Expected one result (or null) to be returned by select(), but found: {}", size);
+        throw new MatrixWarnException("Expected one result (or null) to be returned by select(), but found: {}", size);
     }
 
     @Override

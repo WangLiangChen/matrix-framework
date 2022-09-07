@@ -63,7 +63,7 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractCriteria
     }
 
     @Override
-    public SubCriteria<E> _in(EntityGetter<E> column, Collection<Object> values) {
+    public SubCriteria<E> _in(EntityGetter<E> column, Collection<?> values) {
         return (SubCriteria<E>) super._in(column, values);
     }
 
@@ -73,7 +73,7 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractCriteria
     }
 
     @Override
-    public SubCriteria<E> _notIn(EntityGetter<E> column, Collection<Object> values) {
+    public SubCriteria<E> _notIn(EntityGetter<E> column, Collection<?> values) {
         return (SubCriteria<E>) super._notIn(column, values);
     }
 
