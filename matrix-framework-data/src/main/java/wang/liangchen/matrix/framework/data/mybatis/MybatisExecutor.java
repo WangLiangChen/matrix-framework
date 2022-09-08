@@ -121,15 +121,14 @@ public enum MybatisExecutor {
             sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
                 sqlBuilder.append("delete from ").append(tableMeta.getTableName());
-                sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
             } else {
                 // 通过扩展字段 增加deleteValue
                 entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
-                sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
             }
+            sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class);
@@ -151,15 +150,14 @@ public enum MybatisExecutor {
             sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
                 sqlBuilder.append("delete from ").append(tableMeta.getTableName());
-                sqlBuilder.append("<where>${whereSql}</where>");
             } else {
                 // 通过扩展字段 增加deleteValue
                 criteriaParameter.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
-                sqlBuilder.append("<where>${whereSql}</where>");
             }
+            sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class);
@@ -191,8 +189,8 @@ public enum MybatisExecutor {
             });
             // 更新强制项
             sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(forceUpdateColumns)\">");
-            sqlBuilder.append("<foreach collection=\"forceUpdateColumns.keys\" item=\"key\" separator=\",\">");
-            sqlBuilder.append("${key} = #{forceUpdateColumns.${key}}");
+            sqlBuilder.append("<foreach collection=\"forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
+            sqlBuilder.append("${key} = #{item}");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
@@ -227,8 +225,8 @@ public enum MybatisExecutor {
             });
 
             sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(entity.forceUpdateColumns)\">");
-            sqlBuilder.append("<foreach collection=\"entity.forceUpdateColumns.keys\" item=\"key\" separator=\",\">");
-            sqlBuilder.append("${key} = #{entity.forceUpdateColumns.${key}}");
+            sqlBuilder.append("<foreach collection=\"entity.forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
+            sqlBuilder.append("${key} = #{item}");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</if>");
             sqlBuilder.append("</set>");
@@ -274,7 +272,7 @@ public enum MybatisExecutor {
             sqlBuilder.append("from ").append(tableMeta.getTableName());
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
-            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" index=\"index\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
             sqlBuilder.append("<if test=\"null!=offset and null!=rows\">");
             sqlBuilder.append("<choose>");
             sqlBuilder.append("<when test=\"'PostgreSQL'== dataSourceType\">");
@@ -362,7 +360,7 @@ public enum MybatisExecutor {
         configuration.addMappedStatement(ms);
     }
 
-    class IDGenerator {
+    static class IDGenerator {
         private final Method method;
         private final IdStrategy.Strategy strategy;
 

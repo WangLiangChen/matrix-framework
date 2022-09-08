@@ -1,7 +1,10 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
-import wang.liangchen.matrix.framework.data.dao.criteria.*;
+import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaParameter;
+import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaResolver;
+import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
@@ -30,8 +33,8 @@ public class StandaloneDao extends AbstractDao {
     }
 
     @Override
-    public <E extends RootEntity> int delete(SubCriteria<E> subCriteria) {
-        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(subCriteria);
+    public <E extends RootEntity> int delete(Criteria<E> criteria) {
+        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
     }
 

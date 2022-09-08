@@ -3,7 +3,6 @@ package wang.liangchen.matrix.framework.data.dao;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
-import wang.liangchen.matrix.framework.data.dao.criteria.SubCriteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
@@ -53,8 +52,8 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
     }
 
     @Override
-    public <E extends RootEntity> int delete(SubCriteria<E> subCriteria) {
-        return standaloneDao.delete(subCriteria);
+    public <E extends RootEntity> int delete(Criteria<E> criteria) {
+        return standaloneDao.delete(criteria);
     }
 
     @Override
