@@ -36,7 +36,7 @@ public interface IDao {
      * </pre>
      *
      * @param criteria Constructed query criteria
-     * @param <E>         Subclass of RootEntity
+     * @param <E>      Subclass of RootEntity
      * @return Number of rows deleted
      */
     <E extends RootEntity> int delete(Criteria<E> criteria);
@@ -71,6 +71,8 @@ public interface IDao {
     <E extends RootEntity> E select(Criteria<E> criteria);
 
     <E extends RootEntity> int count(Criteria<E> criteria);
+
+    <E extends RootEntity> boolean exists(Criteria<E> criteria);
 
     <E extends RootEntity> List<E> list(Criteria<E> criteria);
 

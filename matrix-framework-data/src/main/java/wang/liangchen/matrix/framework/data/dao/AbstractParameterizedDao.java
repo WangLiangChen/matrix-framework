@@ -77,6 +77,11 @@ public abstract class AbstractParameterizedDao<E extends RootEntity> extends Abs
     }
 
     @Override
+    public <E extends RootEntity> boolean exists(Criteria<E> criteria) {
+        return standaloneDao.exists(criteria);
+    }
+
+    @Override
     public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
         return standaloneDao.list(criteria);
     }

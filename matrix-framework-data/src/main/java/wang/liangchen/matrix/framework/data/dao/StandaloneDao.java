@@ -69,6 +69,11 @@ public class StandaloneDao extends AbstractDao {
     }
 
     @Override
+    public <E extends RootEntity> boolean exists(Criteria<E> criteria) {
+        return count(criteria) > 0;
+    }
+
+    @Override
     public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         return MybatisExecutor.INSTANCE.list(sqlSessionTemplate, criteriaParameter);
