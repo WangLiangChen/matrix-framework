@@ -115,26 +115,41 @@ public enum StringUtil {
         return Symbol.BLANK.getSymbol();
     }
 
-    public String underline2camelCase(String string) {
+    public String underline2lowerCamelCase(String string) {
+        return underline2camelCase(string, false);
+    }
+
+    public String underline2UpperCamelCase(String string) {
+        return underline2camelCase(string, true);
+    }
+
+    public String underline2camelCase(String string, boolean upper) {
         char[] chars = string.toCharArray();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < chars.length; i++) {
-            if ('_' == chars[i]) {
+            char c = chars[i];
+            if ('_' == c) {
                 builder.append((char) (chars[++i] - 32));
                 continue;
             }
+            if (upper && i == 0 && c >= 'a' && c <= 'z') {
+                chars[i] = (char) (c - 32);
+            }
             builder.append(chars[i]);
         }
-
         return builder.toString();
     }
 
     public String camelCase2underline(String string) {
         char[] chars = string.toCharArray();
         StringBuilder builder = new StringBuilder();
-        for (char c : chars) {
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
             if (c >= 'A' && c <= 'Z') {
-                builder.append(Symbol.UNDERLINE.getSymbol()).append((char) (c + 32));
+                if (i > 0) {
+                    builder.append(Symbol.UNDERLINE.getSymbol());
+                }
+                builder.append((char) (c + 32));
                 continue;
             }
             builder.append(c);

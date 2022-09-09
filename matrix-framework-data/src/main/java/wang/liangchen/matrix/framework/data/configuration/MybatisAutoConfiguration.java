@@ -141,7 +141,7 @@ public class MybatisAutoConfiguration {
                     @Override
                     public String findProperty(String name, boolean useCamelCaseMapping) {
                         if (useCamelCaseMapping) {
-                            return StringUtil.INSTANCE.underline2camelCase(name);
+                            return StringUtil.INSTANCE.underline2lowerCamelCase(name);
                         }
                         return name;
                     }

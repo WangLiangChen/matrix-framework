@@ -80,7 +80,7 @@ public class ColumnMeta {
         this.markDeleteValue = markDeleteValue;
 
         if (underline2camelCase) {
-            this.fieldName = StringUtil.INSTANCE.underline2camelCase(columnName);
+            this.fieldName = StringUtil.INSTANCE.underline2lowerCamelCase(columnName);
         } else {
             this.fieldName = columnName;
         }

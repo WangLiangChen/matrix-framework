@@ -3,6 +3,7 @@ package ${basePackage}.${contextPackage}.${domainPackage};
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
+import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import javax.persistence.*;
@@ -27,6 +28,9 @@ public class ${entityName} extends RootEntity {
     </#if>
     <#if columnMeta.markDeleteValue??>
     @ColumnMarkDelete("${columnMeta.markDeleteValue}")
+    </#if>
+    <#if columnMeta.json>
+    @ColumnJson
     </#if>
     @Column(name = "${columnMeta.columnName}")
     private ${columnMeta.modifier} ${columnMeta.fieldName};

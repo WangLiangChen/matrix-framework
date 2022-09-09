@@ -142,6 +142,8 @@ public class DomainGenerator {
             generatorProperties.setAuthor(author);
             generatorProperties.setOutput(output);
             generatorProperties.setBasePackage(basePackage);
+            // 默认下划线转驼峰
+            generatorProperties.setCamelCase(true);
 
             NodeList childNodes = node.getChildNodes();
             for (int j = 0; j < childNodes.getLength(); j++) {
@@ -152,7 +154,9 @@ public class DomainGenerator {
                         generatorProperties.setDatasource(node.getTextContent());
                         break;
                     case "table-name":
-                        generatorProperties.setTableName(node.getTextContent());
+                        String tableName = node.getTextContent();
+                        generatorProperties.setTableName(tableName);
+                        generatorProperties.setEntityName(StringUtil.INSTANCE.underline2UpperCamelCase(tableName));
                         break;
                     case "entity-name":
                         generatorProperties.setEntityName(node.getTextContent());
