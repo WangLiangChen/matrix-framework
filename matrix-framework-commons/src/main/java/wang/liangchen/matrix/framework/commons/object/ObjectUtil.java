@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.commons.object;
 
 import net.sf.cglib.beans.BeanCopier;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -410,9 +411,9 @@ public enum ObjectUtil {
             return object;
         }
         if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixWarnException("object can not be null");
+            throw new MatrixInfoException("object can not be null");
         }
-        throw new MatrixWarnException(message, args);
+        throw new MatrixInfoException(message, args);
     }
 
     public <T> T validateNotEmpty(T object) {
@@ -424,9 +425,9 @@ public enum ObjectUtil {
             return object;
         }
         if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixWarnException("object can not be empty");
+            throw new MatrixInfoException("object can not be empty");
         }
-        throw new MatrixWarnException(message, args);
+        throw new MatrixInfoException(message, args);
     }
 
     static class CopierId {
