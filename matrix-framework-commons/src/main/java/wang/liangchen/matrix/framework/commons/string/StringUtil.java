@@ -198,12 +198,12 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        Assert.INSTANCE.notBlank(fieldName, "fileldName can't be blank");
+        Assert.INSTANCE.notBlank(fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        Assert.INSTANCE.notBlank(fieldName, "fileldName can't be blank");
+        Assert.INSTANCE.notBlank(fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 }

@@ -36,7 +36,7 @@ public enum MybatisExecutor {
     private final static Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        Assert.INSTANCE.notNull(entity, "entity can not be null");
+        Assert.INSTANCE.notNull(entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -72,7 +72,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
-        Assert.INSTANCE.notEmpty(entities, "entities can not be empty");
+        Assert.INSTANCE.notEmpty(entities, "entities must not be empty");
         Iterator<E> iterator = entities.iterator();
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
@@ -111,7 +111,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        Assert.INSTANCE.notNull(entity, "entity can not be null");
+        Assert.INSTANCE.notNull(entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -168,7 +168,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, E entity) {
-        Assert.INSTANCE.notNull(entity, "entity can not be null");
+        Assert.INSTANCE.notNull(entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "update");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {

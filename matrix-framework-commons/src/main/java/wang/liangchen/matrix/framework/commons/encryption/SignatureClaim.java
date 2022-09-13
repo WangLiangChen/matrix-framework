@@ -32,26 +32,26 @@ public class SignatureClaim implements Serializable {
     private String signature;
 
     public static SignatureClaim instance4Sign(String uri, String body) {
-        Assert.INSTANCE.notBlank(uri, "uri can't be blank");
-        Assert.INSTANCE.notBlank(body, "body can't be blank");
+        Assert.INSTANCE.notBlank(uri, "uri must not be blank");
+        Assert.INSTANCE.notBlank(body, "body must not be blank");
         return new SignatureClaim(uri, body);
     }
 
     public static SignatureClaim instance4Sign(String uri) {
-        Assert.INSTANCE.notBlank(uri, "uri can't be blank");
+        Assert.INSTANCE.notBlank(uri, "uri must not be blank");
         return new SignatureClaim(uri, null);
     }
 
     public static SignatureClaim instance4Verify(String uri, String body, String signMessage) {
-        Assert.INSTANCE.notBlank(uri, "uri can't be blank");
-        Assert.INSTANCE.notBlank(body, "body can't be blank");
-        Assert.INSTANCE.notBlank(signMessage, "signMessage can't be blank");
+        Assert.INSTANCE.notBlank(uri, "uri must not be blank");
+        Assert.INSTANCE.notBlank(body, "body must not be blank");
+        Assert.INSTANCE.notBlank(signMessage, "signMessage must not be blank");
         return new SignatureClaim(uri, body, signMessage);
     }
 
     public static SignatureClaim instance4Verify(String uri, String signMessage) {
-        Assert.INSTANCE.notBlank(uri, "uri can't be blank");
-        Assert.INSTANCE.notBlank(signMessage, "signMessage can't be blank");
+        Assert.INSTANCE.notBlank(uri, "uri must not be blank");
+        Assert.INSTANCE.notBlank(signMessage, "signMessage must not be blank");
         return new SignatureClaim(uri, null, signMessage);
     }
 

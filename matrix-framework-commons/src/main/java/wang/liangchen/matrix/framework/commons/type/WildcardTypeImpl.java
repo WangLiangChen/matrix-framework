@@ -19,7 +19,7 @@ public class WildcardTypeImpl implements WildcardType {
 
     private void checkArgs() {
         if (lower.length == 0 && upper.length == 0) {
-            throw new IllegalArgumentException("lower or upper can't be null");
+            throw new IllegalArgumentException("lower or upper must not be null");
         }
         checkArgs(lower);
         checkArgs(upper);

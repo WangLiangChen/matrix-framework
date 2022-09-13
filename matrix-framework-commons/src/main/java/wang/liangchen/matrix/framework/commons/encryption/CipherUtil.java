@@ -24,13 +24,13 @@ public enum CipherUtil {
     INSTANCE;
 
     public String encrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
-        Assert.INSTANCE.notBlank(key, "key can not be blank");
+        Assert.INSTANCE.notBlank(key, "key must not be blank");
         return encrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
     }
 
     public String encrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
-        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes can not be blank");
-        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes must not be blank");
+        Assert.INSTANCE.notBlank(data, "data must not be blank");
         validateKeyLength(algorithm, keyBytes);
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
@@ -45,13 +45,13 @@ public enum CipherUtil {
     }
 
     public String decrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
-        Assert.INSTANCE.notBlank(key, "key can not be blank");
+        Assert.INSTANCE.notBlank(key, "key must not be blank");
         return decrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
     }
 
     public String decrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
-        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes can not be blank");
-        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notEmpty(keyBytes, "keyBytes must not be blank");
+        Assert.INSTANCE.notBlank(data, "data must not be blank");
         validateKeyLength(algorithm, keyBytes);
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
@@ -93,8 +93,8 @@ public enum CipherUtil {
     }
 
     public String encrypt(CipherAsymmetricAlgorithm algorithm, String publicKeyString, String data) {
-        Assert.INSTANCE.notBlank(publicKeyString, "publicKey can not be blank");
-        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notBlank(publicKeyString, "publicKey must not be blank");
+        Assert.INSTANCE.notBlank(data, "data must not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
             PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
@@ -107,8 +107,8 @@ public enum CipherUtil {
     }
 
     public String decrypt(CipherAsymmetricAlgorithm algorithm, String privateKeyString, String data) {
-        Assert.INSTANCE.notBlank(privateKeyString, "privateKey can not be blank");
-        Assert.INSTANCE.notBlank(data, "data can not be blank");
+        Assert.INSTANCE.notBlank(privateKeyString, "privateKey must not be blank");
+        Assert.INSTANCE.notBlank(data, "data must not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
             PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);

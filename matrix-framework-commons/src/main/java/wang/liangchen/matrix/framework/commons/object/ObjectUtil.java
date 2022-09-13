@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.commons.object;
 
 import net.sf.cglib.beans.BeanCopier;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -400,34 +399,6 @@ public enum ObjectUtil {
         BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
                 key -> BeanCopier.create(sourceClass, targetClass, false));
         beanCopier.copy(source, target, null);
-    }
-
-    public <T> T validateNotNull(T object) {
-        return validateNotNull(object, null);
-    }
-
-    public <T> T validateNotNull(T object, String message, Object... args) {
-        if (isNotNull(object)) {
-            return object;
-        }
-        if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be null");
-        }
-        throw new MatrixInfoException(message, args);
-    }
-
-    public <T> T validateNotEmpty(T object) {
-        return validateNotEmpty(object, null);
-    }
-
-    public <T> T validateNotEmpty(T object, String message, Object... args) {
-        if (isNotEmpty(object)) {
-            return object;
-        }
-        if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be empty");
-        }
-        throw new MatrixInfoException(message, args);
     }
 
     static class CopierId {

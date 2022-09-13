@@ -52,8 +52,8 @@ public class PaginationParameter extends EnhancedMap {
     }
 
     public void addOrderBy(String orderby, OrderByDirection direction, Integer index) {
-        Assert.INSTANCE.notBlank(orderby, "orderby can not be blank");
-        Assert.INSTANCE.notNull(direction, "direction can not be null");
+        Assert.INSTANCE.notBlank(orderby, "orderby must not be blank");
+        Assert.INSTANCE.notNull(direction, "direction must not be null");
         if (null == orderBys) {
             orderBys = new ArrayList<>();
         }
@@ -69,7 +69,7 @@ public class PaginationParameter extends EnhancedMap {
     }
 
     public void addOrderBys(List<OrderBy> orderBys) {
-        Assert.INSTANCE.notEmpty(orderBys, "orderBys can not be empty");
+        Assert.INSTANCE.notEmpty(orderBys, "orderBys must not be empty");
         if (null == this.orderBys) {
             this.orderBys = new ArrayList<>();
         }
@@ -77,7 +77,7 @@ public class PaginationParameter extends EnhancedMap {
     }
 
     public void addResultColumn(String resultColumn) {
-        Assert.INSTANCE.notBlank(resultColumn, "resultColumn can not be blank");
+        Assert.INSTANCE.notBlank(resultColumn, "resultColumn must not be blank");
         if (null == resultColumns) {
             resultColumns = new ArrayList<>();
         }
@@ -85,7 +85,7 @@ public class PaginationParameter extends EnhancedMap {
     }
 
     public void addResultColumns(List<String> resultColumns) {
-        Assert.INSTANCE.notEmpty(resultColumns, "resultColumns can not be empty");
+        Assert.INSTANCE.notEmpty(resultColumns, "resultColumns must not be empty");
         if (null == this.resultColumns) {
             this.resultColumns = new ArrayList<>();
         }

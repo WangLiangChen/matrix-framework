@@ -33,7 +33,7 @@ public class ParameterizedType implements java.lang.reflect.ParameterizedType {
     }
 
     private void checkArgs() {
-        Assert.INSTANCE.notNull(raw, "raw class can't be null");
+        Assert.INSTANCE.notNull(raw, "raw class must not be null");
         TypeVariable[] typeParameters = raw.getTypeParameters();
         if (args.length != 0 && typeParameters.length != args.length) {
             throw new MatrixWarnException(raw.getName() + " expect " + typeParameters.length + " arg(s), got " + args.length);

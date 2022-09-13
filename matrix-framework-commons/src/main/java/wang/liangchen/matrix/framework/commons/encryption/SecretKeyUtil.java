@@ -23,7 +23,7 @@ public enum SecretKeyUtil {
     INSTANCE;
 
     public PrivateKey generatePrivateKeyPKCS8(KeyPairAlgorithm algorithm, String privateKeyString) {
-        Assert.INSTANCE.notBlank(privateKeyString, "privateKey can't be blank");
+        Assert.INSTANCE.notBlank(privateKeyString, "privateKey must not be blank");
         byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());
@@ -35,7 +35,7 @@ public enum SecretKeyUtil {
     }
 
     public PublicKey generatePublicKeyX509(KeyPairAlgorithm algorithm, String publicKeyString) {
-        Assert.INSTANCE.notBlank(publicKeyString, "publicKey can't be blank");
+        Assert.INSTANCE.notBlank(publicKeyString, "publicKey must not be blank");
         byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());

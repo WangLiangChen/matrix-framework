@@ -10,6 +10,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,45 +31,129 @@ public enum ValidationUtil {
         VALIDATOR_FACTORY.close();
     }
 
-    public <T> void validate(T object, Class<?>... groups) {
+    public <T> T validate(T object, Class<?>... groups) {
         Set<ConstraintViolation<T>> results = VALIDATOR.validate(object, groups);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
-            return;
+            return object;
         }
         StringBuilder stringBuilder = new StringBuilder();
         results.forEach(e -> {
             stringBuilder.append(Symbol.LINE_SEPARATOR.getSymbol())
-                    .append("Field '").append(e.getPropertyPath().toString()).append("' ")
+                    .append(e.getPropertyPath())
                     .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol());
         });
         throw new MatrixInfoException(stringBuilder.toString());
     }
 
-    public <T> T notNull(T object) {
-        return notNull(object, null);
-    }
-
-    public <T> T notNull(T object, String message, Object... args) {
-        if (ObjectUtil.INSTANCE.isNotNull(object)) {
-            return object;
-        }
-        if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be null");
+    public boolean isTrue(boolean condition, String message, Object... args) {
+        if (condition) {
+            return true;
         }
         throw new MatrixInfoException(message, args);
     }
 
-    public <T> T notEmpty(T object) {
-        return notEmpty(object, null);
+    public boolean isTrue(boolean condition) {
+        return isTrue(condition, "condition must be true");
+    }
+
+    public boolean isFalse(boolean condition, String message, Object... args) {
+        if (condition) {
+            throw new MatrixInfoException(message, args);
+        }
+        return false;
+    }
+
+    public boolean isFalse(boolean condition) {
+        return isFalse(condition, "condition must be false");
+    }
+
+    public String isBlank(String string, String message, Object... args) {
+        if (StringUtil.INSTANCE.isNotBlank(string)) {
+            throw new MatrixInfoException(message, args);
+        }
+        return string;
+    }
+
+    public String isBlank(String string) {
+        return isBlank(string, "parameter must be blank");
+    }
+
+    public String notBlank(String string, String message, Object... args) {
+        if (StringUtil.INSTANCE.isBlank(string)) {
+            throw new MatrixInfoException(message, args);
+        }
+        return string;
+    }
+
+    public String notBlank(String string) {
+        return notBlank(string, "parameter must not be blank");
+    }
+
+    public <T> T isNull(T object, String message, Object... args) {
+        if (null == object) {
+            return null;
+        }
+        throw new MatrixInfoException(message, args);
+    }
+
+    public <T> T isNull(T object) {
+        return isNull(object, "parameter must be null");
+    }
+
+
+    public <T> T notNull(T object, String message, Object... args) {
+        if (null == object) {
+            throw new MatrixInfoException(message, args);
+        }
+        return object;
+    }
+
+    public <T> T notNull(T object) {
+        return notNull(object, "parameter must not be null");
+    }
+
+
+    public <T> T isEmpty(T object, String message, Object... args) {
+        if (ObjectUtil.INSTANCE.isEmpty(object)) {
+            return object;
+        }
+        throw new MatrixInfoException(message, args);
+    }
+
+    public <T> T isEmpty(T object) {
+        return isEmpty(object, "parameter must be empty");
     }
 
     public <T> T notEmpty(T object, String message, Object... args) {
-        if (ObjectUtil.INSTANCE.isNotEmpty(object)) {
-            return object;
+        if (ObjectUtil.INSTANCE.isEmpty(object)) {
+            throw new MatrixInfoException(message, args);
         }
-        if (StringUtil.INSTANCE.isBlank(message)) {
-            throw new MatrixInfoException("object can not be empty");
+        return object;
+    }
+
+    public <T> T notEmpty(T object) {
+        return notEmpty(object, "parameter must not be empty");
+    }
+
+    public boolean equals(Object from, Object to, String message, Object... args) {
+        if (Objects.equals(from, to)) {
+            return true;
         }
         throw new MatrixInfoException(message, args);
+    }
+
+    public boolean equals(Object from, Object to) {
+        return equals(from, to, "parameters must be equal");
+    }
+
+    public boolean notEquals(Object from, Object to, String message, Object... args) {
+        if (Objects.equals(from, to)) {
+            throw new MatrixInfoException(message, args);
+        }
+        return false;
+    }
+
+    public boolean notEquals(Object from, Object to) {
+        return notEquals(from, to, "parameters must not be equal");
     }
 }

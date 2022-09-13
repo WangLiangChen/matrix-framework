@@ -44,7 +44,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================equals========================
     protected AbstractCriteria<E> _equals(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, column, entityClass));
         return this;
     }
@@ -61,7 +61,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================notEquals========================
     protected AbstractCriteria<E> _notEquals(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, column, entityClass));
         return this;
     }
@@ -100,7 +100,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================greaterThan========================
     protected AbstractCriteria<E> _greaterThan(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, column, entityClass));
         return this;
     }
@@ -117,7 +117,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================greaterThanOrEauals========================
     protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, column, entityClass));
         return this;
     }
@@ -134,7 +134,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================_lessThan========================
     protected AbstractCriteria<E> _lessThan(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, column, entityClass));
         return this;
     }
@@ -151,7 +151,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     // =====================-========================
     protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> column) {
-        Assert.INSTANCE.notNull(entity, "Unsupported call,entity can't be null");
+        Assert.INSTANCE.notNull(entity, "Unsupported call,entity must not be null");
         CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, column, entityClass));
         return this;
     }

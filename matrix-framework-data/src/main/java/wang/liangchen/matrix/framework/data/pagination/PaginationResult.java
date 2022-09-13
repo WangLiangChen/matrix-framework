@@ -27,7 +27,7 @@ public final class PaginationResult<E> {
     }
 
     public void setDatas(List<E> datas) {
-        Assert.INSTANCE.notNull(datas, "datas can not be null");
+        Assert.INSTANCE.notNull(datas, "datas must not be null");
         this.datas = datas;
     }
 
@@ -36,7 +36,7 @@ public final class PaginationResult<E> {
     }
 
     public void setTotalRecords(Integer totalRecord) {
-        Assert.INSTANCE.notNull(totalRecord, "totalRecord can not be null");
+        Assert.INSTANCE.notNull(totalRecord, "totalRecord must not be null");
         this.totalRecords = totalRecord;
     }
 
@@ -45,7 +45,7 @@ public final class PaginationResult<E> {
     }
 
     public void setPageNumber(Integer pageNumber) {
-        Assert.INSTANCE.notNull(pageNumber, "pageNumber can not be null");
+        Assert.INSTANCE.notNull(pageNumber, "pageNumber must not be null");
         this.pageNumber = pageNumber;
     }
 
@@ -54,7 +54,7 @@ public final class PaginationResult<E> {
     }
 
     public void setPageSize(Integer pageSize) {
-        Assert.INSTANCE.notNull(pageSize, "pageSize can not be null");
+        Assert.INSTANCE.notNull(pageSize, "pageSize must not be null");
         this.pageSize = pageSize;
     }
 

@@ -47,7 +47,7 @@ public enum Assert {
 
     public void notNull(Object object) {
         if (null == object) {
-            throw new MatrixWarnException("parameter can not be null");
+            throw new MatrixWarnException("parameter must not be null");
         }
     }
 
@@ -65,7 +65,7 @@ public enum Assert {
     }
     public void notEmpty(Object object) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
-            throw new MatrixWarnException("parameter can't be empty");
+            throw new MatrixWarnException("parameter must not be empty");
         }
     }
     public void notEmpty(Object object, String message, Object... args) {

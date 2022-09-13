@@ -22,7 +22,7 @@ public enum URIUtil {
     INSTANCE;
 
     public URI toURI(String uriString, String... more) {
-        Assert.INSTANCE.notBlank(uriString, "uriString can't be blank");
+        Assert.INSTANCE.notBlank(uriString, "uriString must not be blank");
         try {
             return Paths.get(resolveURIString(uriString, more)).toUri();
         } catch (InvalidPathException e) {
@@ -39,12 +39,12 @@ public enum URIUtil {
     }
 
     public URI expandURI(URI uri, String... more) {
-        Assert.INSTANCE.notNull(uri, "uri can not be null");
+        Assert.INSTANCE.notNull(uri, "uri must not be null");
         return URI.create(resolveURIString(uri.toString(), more));
     }
 
     public URL expendURL(URL url, String... more) {
-        Assert.INSTANCE.notNull(url, "url can not be null");
+        Assert.INSTANCE.notNull(url, "url must not be null");
         try {
             return new URL(resolveURIString(url.toString(), more));
         } catch (MalformedURLException e) {
