@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -25,7 +26,7 @@ public enum Base64Util {
     }
 
     public String encode(String string, boolean urlSafe) {
-        Assert.INSTANCE.notBlank(string, "string must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,string, "string must not be blank");
         byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         if (urlSafe) {
             urlEncoder.encodeToString(bytes);
@@ -38,7 +39,7 @@ public enum Base64Util {
     }
 
     public String encode(byte[] bytes, boolean urlSafe) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlEncoder.encodeToString(bytes);
         }
@@ -50,7 +51,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(String string, boolean urlSafe) {
-        Assert.INSTANCE.notBlank(string, "string must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,string, "string must not be blank");
         if (urlSafe) {
             return urlDecoder.decode(string);
         }
@@ -62,7 +63,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(byte[] bytes, boolean urlSafe) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlDecoder.decode(bytes);
         }

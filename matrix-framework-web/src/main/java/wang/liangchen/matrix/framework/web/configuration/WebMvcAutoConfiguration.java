@@ -5,11 +5,11 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.HttpServletResponseWrapper;
-import wang.liangchen.matrix.framework.web.response.ResponseLevel;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +73,7 @@ public class WebMvcAutoConfiguration {
                     if (SC_NOT_FOUND == statusCode) {
                         outputStream.write(FormattedResponse.failure()
                                 .code(String.valueOf(SC_NOT_FOUND))
-                                .level(ResponseLevel.ERROR)
+                                .level(ExceptionLevel.ERROR)
                                 .message("request does not exist: {}", requestURI).toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;

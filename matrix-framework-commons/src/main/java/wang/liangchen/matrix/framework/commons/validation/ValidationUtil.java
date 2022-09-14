@@ -2,7 +2,10 @@ package wang.liangchen.matrix.framework.commons.validation;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
@@ -31,129 +34,231 @@ public enum ValidationUtil {
         VALIDATOR_FACTORY.close();
     }
 
-    public <T> T validate(T object, Class<?>... groups) {
+    public <T> T validate(ExceptionLevel exceptionLevel, T object, Class<?>... groups) {
         Set<ConstraintViolation<T>> results = VALIDATOR.validate(object, groups);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
             return object;
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        results.forEach(e -> {
-            stringBuilder.append(Symbol.LINE_SEPARATOR.getSymbol())
-                    .append(e.getPropertyPath())
-                    .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol());
-        });
-        throw new MatrixInfoException(stringBuilder.toString());
+        StringBuilder messageBuilder = new StringBuilder();
+        results.forEach(e -> messageBuilder.append(Symbol.LINE_SEPARATOR.getSymbol())
+                .append(e.getPropertyPath())
+                .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol()));
+        handleException(exceptionLevel, messageBuilder.toString());
+        return object;
     }
 
-    public boolean isTrue(boolean condition, String message, Object... args) {
+    public <T> T validate(T object, Class<?>... groups) {
+        return validate(ExceptionLevel.INFO, object, groups);
+    }
+
+    public boolean isTrue(ExceptionLevel exceptionLevel, boolean condition, String message, Object... args) {
         if (condition) {
             return true;
         }
-        throw new MatrixInfoException(message, args);
+        handleException(exceptionLevel, message, args);
+        return false;
+    }
+
+    public boolean isTrue(boolean condition, String message, Object... args) {
+        return isTrue(ExceptionLevel.INFO, condition, message, args);
+    }
+
+    public boolean isTrue(ExceptionLevel exceptionLevel, boolean condition) {
+        return isTrue(exceptionLevel, condition, "condition must be true");
     }
 
     public boolean isTrue(boolean condition) {
         return isTrue(condition, "condition must be true");
     }
 
-    public boolean isFalse(boolean condition, String message, Object... args) {
+    public boolean isFalse(ExceptionLevel level, boolean condition, String message, Object... args) {
         if (condition) {
-            throw new MatrixInfoException(message, args);
+            handleException(level, message, args);
+            return true;
         }
         return false;
+    }
+
+    public boolean isFalse(boolean condition, String message, Object... args) {
+        return isFalse(ExceptionLevel.INFO, condition, message, args);
+    }
+
+    public boolean isFalse(ExceptionLevel level, boolean condition) {
+        return isFalse(level, condition, "condition must be false");
     }
 
     public boolean isFalse(boolean condition) {
         return isFalse(condition, "condition must be false");
     }
 
-    public String isBlank(String string, String message, Object... args) {
-        if (StringUtil.INSTANCE.isNotBlank(string)) {
-            throw new MatrixInfoException(message, args);
+    public String isBlank(ExceptionLevel level, String string, String message, Object... args) {
+        if (StringUtil.INSTANCE.isBlank(string)) {
+            return string;
         }
+        handleException(level, message, args);
         return string;
+    }
+
+    public String isBlank(String string, String message, Object... args) {
+        return isBlank(ExceptionLevel.INFO, string, message, args);
+    }
+
+    public String isBlank(ExceptionLevel exceptionLevel, String string) {
+        return isBlank(exceptionLevel, string, "parameter must be blank");
     }
 
     public String isBlank(String string) {
         return isBlank(string, "parameter must be blank");
     }
 
-    public String notBlank(String string, String message, Object... args) {
+    public String notBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isBlank(string)) {
-            throw new MatrixInfoException(message, args);
+            handleException(exceptionLevel, message, args);
+            return string;
         }
         return string;
+    }
+
+    public String notBlank(String string, String message, Object... args) {
+        return notBlank(ExceptionLevel.INFO, string, message, args);
+    }
+
+    public String notBlank(ExceptionLevel exceptionLevel, String string) {
+        return notBlank(exceptionLevel, string, "parameter must not be blank");
     }
 
     public String notBlank(String string) {
         return notBlank(string, "parameter must not be blank");
     }
 
-    public <T> T isNull(T object, String message, Object... args) {
+    public <T> T isNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
             return null;
         }
-        throw new MatrixInfoException(message, args);
+        handleException(exceptionLevel, message, args);
+        return object;
+    }
+
+    public <T> T isNull(T object, String message, Object... args) {
+        return isNull(ExceptionLevel.INFO, object, message, args);
+    }
+
+    public <T> T isNull(ExceptionLevel exceptionLevel, T object) {
+        return isNull(exceptionLevel, object, "parameter must be null");
     }
 
     public <T> T isNull(T object) {
         return isNull(object, "parameter must be null");
     }
 
-
-    public <T> T notNull(T object, String message, Object... args) {
+    public <T> T notNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
-            throw new MatrixInfoException(message, args);
+            handleException(exceptionLevel, message, args);
+            return null;
         }
         return object;
+    }
+
+    public <T> T notNull(T object, String message, Object... args) {
+        return notNull(ExceptionLevel.INFO, object, message, args);
+    }
+
+    public <T> T notNull(ExceptionLevel exceptionLevel, T object) {
+        return notNull(exceptionLevel, object, "parameter must not be null");
     }
 
     public <T> T notNull(T object) {
         return notNull(object, "parameter must not be null");
     }
 
-
-    public <T> T isEmpty(T object, String message, Object... args) {
+    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             return object;
         }
-        throw new MatrixInfoException(message, args);
+        handleException(exceptionLevel, message, args);
+        return object;
+    }
+
+    public <T> T isEmpty(T object, String message, Object... args) {
+        return isEmpty(ExceptionLevel.INFO, object, message, args);
+    }
+
+    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object) {
+        return isEmpty(exceptionLevel, object, "parameter must be empty");
     }
 
     public <T> T isEmpty(T object) {
         return isEmpty(object, "parameter must be empty");
     }
 
-    public <T> T notEmpty(T object, String message, Object... args) {
+    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
-            throw new MatrixInfoException(message, args);
+            handleException(exceptionLevel, message, args);
+            return object;
         }
         return object;
+    }
+
+    public <T> T notEmpty(T object, String message, Object... args) {
+        return notEmpty(ExceptionLevel.INFO, object, message, args);
+    }
+
+    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object) {
+        return notEmpty(exceptionLevel, object, "parameter must not be empty");
     }
 
     public <T> T notEmpty(T object) {
         return notEmpty(object, "parameter must not be empty");
     }
 
-    public boolean equals(Object from, Object to, String message, Object... args) {
+    public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
             return true;
         }
-        throw new MatrixInfoException(message, args);
+        handleException(exceptionLevel, message, args);
+        return false;
+    }
+
+    public boolean equals(Object from, Object to, String message, Object... args) {
+        return equals(ExceptionLevel.INFO, from, to, message, args);
+    }
+
+    public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to) {
+        return equals(exceptionLevel, from, to, "parameters must be equal");
     }
 
     public boolean equals(Object from, Object to) {
         return equals(from, to, "parameters must be equal");
     }
 
-    public boolean notEquals(Object from, Object to, String message, Object... args) {
+    public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
-            throw new MatrixInfoException(message, args);
+            handleException(exceptionLevel, message, args);
+            return true;
         }
         return false;
     }
 
+    public boolean notEquals(Object from, Object to, String message, Object... args) {
+        return notEquals(ExceptionLevel.INFO, from, to, message, args);
+    }
+
+    public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to) {
+        return notEquals(exceptionLevel, from, to, "parameters must not be equal");
+    }
+
     public boolean notEquals(Object from, Object to) {
         return notEquals(from, to, "parameters must not be equal");
+    }
+
+    private void handleException(ExceptionLevel exceptionLevel, String message, Object... args) {
+        switch (exceptionLevel) {
+            case WARN:
+                throw new MatrixWarnException(message, args);
+            case ERROR:
+                throw new MatrixErrorException(message, args);
+            default:
+                throw new MatrixInfoException(message, args);
+        }
     }
 }

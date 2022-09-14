@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.lock.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +20,7 @@ public abstract class AbstractLock implements Lock {
     private final String lockKey;
 
     protected AbstractLock(LockConfiguration lockConfiguration) {
-        this.lockConfiguration = ObjectUtil.INSTANCE.validateNotNull(lockConfiguration);
+        this.lockConfiguration = ValidationUtil.INSTANCE.notNull(lockConfiguration);
         this.lockKey = this.lockConfiguration.getLockKey();
     }
 

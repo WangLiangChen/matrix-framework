@@ -19,10 +19,10 @@ import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.web.exchange.ServerWebExchangeDecorator;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.ResponseBodyResultHandler;
-import wang.liangchen.matrix.framework.web.response.ResponseLevel;
 
 import java.nio.charset.StandardCharsets;
 
@@ -46,7 +46,7 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
                 if (responseStatusException.getStatus() == HttpStatus.NOT_FOUND) {
                     dataString = FormattedResponse.failure()
                             .code(HttpStatus.NOT_FOUND.name())
-                            .level(ResponseLevel.ERROR)
+                            .level(ExceptionLevel.ERROR)
                             .message("request does not exist: {}", exchange.getRequest().getPath()).toString();
                 }
             }

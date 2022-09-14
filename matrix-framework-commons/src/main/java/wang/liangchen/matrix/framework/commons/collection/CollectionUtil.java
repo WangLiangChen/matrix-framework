@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.commons.collection;
 
-import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
-
 import java.util.*;
 
 /**
@@ -18,27 +16,58 @@ public enum CollectionUtil {
     }
 
     public boolean isEmpty(Collection<?> collection) {
-        return ObjectUtil.INSTANCE.isEmpty(collection);
+        if (null == collection) {
+            return true;
+        }
+        return collection.isEmpty();
     }
 
     public boolean isNotEmpty(Collection<?> collection) {
-        return ObjectUtil.INSTANCE.isNotEmpty(collection);
+        return !isEmpty(collection);
     }
 
     public boolean isEmpty(Map<?, ?> map) {
-        return ObjectUtil.INSTANCE.isEmpty(map);
+        if (null == map) {
+            return true;
+        }
+        return map.isEmpty();
+    }
+
+    public boolean isNotEmpty(Map<?, ?> map) {
+        return !isEmpty(map);
     }
 
     public <T> boolean isEmpty(T[] array) {
-        return ObjectUtil.INSTANCE.isEmpty(array);
+        if (null == array) {
+            return true;
+        }
+        return array.length == 0;
     }
 
     public <T> boolean isNotEmpty(T[] array) {
-        return ObjectUtil.INSTANCE.isNotEmpty(array);
+        return !isEmpty(array);
     }
 
     public boolean isEmpty(Iterator<?> iterator) {
-        return ObjectUtil.INSTANCE.isEmpty(iterator);
+        if (null == iterator) {
+            return true;
+        }
+        return !iterator.hasNext();
+    }
+
+    public boolean isNotEmpty(Iterator<?> iterator) {
+        return !isEmpty(iterator);
+    }
+
+    public boolean isEmpty(Iterable<?> iterable) {
+        if (null == iterable) {
+            return true;
+        }
+        return !iterable.iterator().hasNext();
+    }
+
+    public boolean isNotEmpty(Iterable<?> iterable) {
+        return !isEmpty(iterable);
     }
 
     public <T> List<T> array2List(T[] array) {
@@ -77,16 +106,44 @@ public enum CollectionUtil {
         return set;
     }
 
+    public <T> List<T> iterable2List(Iterable<T> iterable) {
+        if (isEmpty(iterable)) {
+            return Collections.emptyList();
+        }
+        List<T> list = new ArrayList<>();
+        Iterator<T> iterator = iterable.iterator();
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+        return list;
+    }
+
+    public <T> Set<T> iterator2Set(Iterable<T> iterable) {
+        if (isEmpty(iterable)) {
+            return Collections.emptySet();
+        }
+        Set<T> set = new HashSet<>();
+        Iterator<T> iterator = iterable.iterator();
+        while (iterator.hasNext()) {
+            set.add(iterator.next());
+        }
+        return set;
+    }
+
     public <T> boolean contains(T[] array, T value) {
         if (isEmpty(array)) {
             return false;
         }
-        return array2Set(array).contains(value);
+        for (T t : array) {
+            if (t.equals(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public <T> boolean notContains(T[] array, T value) {
         return !contains(array, value);
     }
-
 
 }

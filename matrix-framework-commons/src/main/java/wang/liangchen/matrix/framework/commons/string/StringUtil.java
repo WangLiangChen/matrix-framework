@@ -2,7 +2,8 @@ package wang.liangchen.matrix.framework.commons.string;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -198,12 +199,12 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        Assert.INSTANCE.notBlank(fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        Assert.INSTANCE.notBlank(fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 }

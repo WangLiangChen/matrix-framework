@@ -13,9 +13,10 @@ import wang.liangchen.matrix.framework.commons.encryption.Base64Util;
 import wang.liangchen.matrix.framework.commons.encryption.KeyPairString;
 import wang.liangchen.matrix.framework.commons.encryption.SecretKeyUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyPairAlgorithm;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -31,7 +32,7 @@ public enum JwtUtil {
 
     public String generateKey(int length) {
         //32 48 64
-        Assert.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[length];
         random.nextBytes(sharedSecret);
@@ -39,10 +40,10 @@ public enum JwtUtil {
     }
 
     public String sign(String secretKey, JWTClaimsSet claimsSet) {
-        Assert.INSTANCE.notBlank(secretKey, "secretKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,secretKey, "secretKey must not be blank");
         byte[] sharedSecret = Base64Util.INSTANCE.decode(secretKey);
         int length = sharedSecret.length;
-        Assert.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         JWSAlgorithm jwsAlgorithm;
         switch (length) {
             case 32:
@@ -69,11 +70,11 @@ public enum JwtUtil {
     }
 
     public JWTClaimsSet verify(String secretKey, String jwtString) {
-        Assert.INSTANCE.notBlank(secretKey, "secretKey must not be blank");
-        Assert.INSTANCE.notBlank(jwtString, "jwtString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,secretKey, "secretKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,jwtString, "jwtString must not be blank");
         byte[] sharedSecret = Base64Util.INSTANCE.decode(secretKey);
         int length = sharedSecret.length;
-        Assert.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwtString);
             JWSVerifier verifier = new MACVerifier(sharedSecret);
@@ -98,7 +99,7 @@ public enum JwtUtil {
     }
 
     public String rsaSign(String privateKeyString, JWTClaimsSet claimsSet) {
-        Assert.INSTANCE.notBlank(privateKeyString, "privateKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,privateKeyString, "privateKey must not be blank");
         PrivateKey privateKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(KeyPairAlgorithm.RSA, privateKeyString);
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.RS256).build(),
@@ -113,8 +114,8 @@ public enum JwtUtil {
     }
 
     public JWTClaimsSet rsaVerify(String publicKeyString, String jwtString) {
-        Assert.INSTANCE.notBlank(publicKeyString, "publicKeyString must not be blank");
-        Assert.INSTANCE.notBlank(jwtString, "jwtString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,publicKeyString, "publicKeyString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,jwtString, "jwtString must not be blank");
         PublicKey publicKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(KeyPairAlgorithm.RSA, publicKeyString);
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwtString);

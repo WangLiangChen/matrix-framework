@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.lock.rdbms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.network.NetUtil;
-import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect;
 import wang.liangchen.matrix.framework.lock.core.AbstractLock;
@@ -29,7 +29,7 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
 
     protected AbstractRdbmsLock(LockConfiguration lockConfiguration, Connection connection) {
         super(lockConfiguration);
-        this.connection = ObjectUtil.INSTANCE.validateNotNull(connection);
+        this.connection = ValidationUtil.INSTANCE.notNull(connection);
     }
 
     protected abstract boolean executeBlockingSQL(Connection connection, String lockKey);

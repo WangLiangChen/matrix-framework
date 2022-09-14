@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.commons.type;
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -33,7 +34,7 @@ public class ParameterizedType implements java.lang.reflect.ParameterizedType {
     }
 
     private void checkArgs() {
-        Assert.INSTANCE.notNull(raw, "raw class must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,raw, "raw class must not be null");
         TypeVariable[] typeParameters = raw.getTypeParameters();
         if (args.length != 0 && typeParameters.length != args.length) {
             throw new MatrixWarnException(raw.getName() + " expect " + typeParameters.length + " arg(s), got " + args.length);

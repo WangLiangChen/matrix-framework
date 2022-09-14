@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.commons.network;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
@@ -22,7 +23,7 @@ public enum URIUtil {
     INSTANCE;
 
     public URI toURI(String uriString, String... more) {
-        Assert.INSTANCE.notBlank(uriString, "uriString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,uriString, "uriString must not be blank");
         try {
             return Paths.get(resolveURIString(uriString, more)).toUri();
         } catch (InvalidPathException e) {
@@ -39,12 +40,12 @@ public enum URIUtil {
     }
 
     public URI expandURI(URI uri, String... more) {
-        Assert.INSTANCE.notNull(uri, "uri must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,uri, "uri must not be null");
         return URI.create(resolveURIString(uri.toString(), more));
     }
 
     public URL expendURL(URL url, String... more) {
-        Assert.INSTANCE.notNull(url, "url must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,url, "url must not be null");
         try {
             return new URL(resolveURIString(url.toString(), more));
         } catch (MalformedURLException e) {

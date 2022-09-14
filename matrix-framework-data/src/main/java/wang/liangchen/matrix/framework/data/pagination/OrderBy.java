@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 /**
  * @author LiangChen.Wang
@@ -15,14 +16,14 @@ public final class OrderBy {
     }
 
     public OrderBy(String orderBy) {
-        Assert.INSTANCE.notBlank(orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,orderBy, "Parameter 'orderBy' cannot be blank");
         this.orderBy = orderBy;
         this.direction = OrderByDirection.asc.name();
     }
 
     public OrderBy(String orderby, OrderByDirection direction) {
-        Assert.INSTANCE.notBlank(orderby, "Parameter 'orderBy' cannot be blank");
-        Assert.INSTANCE.notNull(direction, "Parameter 'direction' cannot be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,orderby, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,direction, "Parameter 'direction' cannot be blank");
         this.orderBy = orderby;
         this.direction = direction.name();
     }

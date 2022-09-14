@@ -10,10 +10,7 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -52,15 +49,18 @@ public enum ObjectUtil {
         if (object instanceof Collection) {
             return ((Collection<?>) object).isEmpty();
         }
-        if (object instanceof Iterable) {
-            return ((Iterable<?>) object).iterator().hasNext();
-        }
         if (object instanceof Map) {
             return ((Map<?, ?>) object).isEmpty();
         }
         Class<?> type = object.getClass();
         if (type.isArray()) {
             return Array.getLength(object) == 0;
+        }
+        if (object instanceof Iterator) {
+            return !((Iterator<?>) object).hasNext();
+        }
+        if (object instanceof Iterable) {
+            return !((Iterable<?>) object).iterator().hasNext();
         }
         return true;
     }

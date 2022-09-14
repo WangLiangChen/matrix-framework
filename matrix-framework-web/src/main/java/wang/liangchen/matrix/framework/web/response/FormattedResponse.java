@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.exception.*;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.web.context.WebContext;
@@ -33,7 +30,7 @@ public final class FormattedResponse implements Serializable {
     /**
      * 提示级别/类型
      */
-    private ResponseLevel level = ResponseLevel.OFF;
+    private ExceptionLevel level = ExceptionLevel.OFF;
     /**
      * 提示信息/前端提示信息Key
      */
@@ -76,19 +73,19 @@ public final class FormattedResponse implements Serializable {
         }
         if (throwable instanceof MatrixInfoException) {
             logger.debug(throwable.getMessage(), throwable);
-            failure.level(ResponseLevel.INFO);
+            failure.level(ExceptionLevel.INFO);
             failure.message(throwable.getMessage());
             return failure;
         }
         failure.debug(stackTraceString(throwable, new StringBuilder()));
         if (throwable instanceof MatrixWarnException) {
             logger.info(throwable.getMessage(), throwable);
-            failure.level(ResponseLevel.WARN);
+            failure.level(ExceptionLevel.WARN);
             return failure;
         }
         // MatrixErrorException or other Exception
         logger.error(throwable.getMessage(), throwable);
-        failure.level(ResponseLevel.ERROR);
+        failure.level(ExceptionLevel.ERROR);
         return failure;
     }
 
@@ -109,7 +106,7 @@ public final class FormattedResponse implements Serializable {
         return this;
     }
 
-    public FormattedResponse level(ResponseLevel level) {
+    public FormattedResponse level(ExceptionLevel level) {
         this.level = level;
         return this;
     }
@@ -142,7 +139,7 @@ public final class FormattedResponse implements Serializable {
         return code;
     }
 
-    public ResponseLevel getLevel() {
+    public ExceptionLevel getLevel() {
         return level;
     }
 

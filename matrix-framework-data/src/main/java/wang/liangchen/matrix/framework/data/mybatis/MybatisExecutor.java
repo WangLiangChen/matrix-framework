@@ -8,10 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.uid.NumbericUid;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
@@ -36,7 +37,7 @@ public enum MybatisExecutor {
     private final static Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        Assert.INSTANCE.notNull(entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -72,7 +73,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
-        Assert.INSTANCE.notEmpty(entities, "entities must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,entities, "entities must not be empty");
         Iterator<E> iterator = entities.iterator();
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
@@ -111,7 +112,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        Assert.INSTANCE.notNull(entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -168,7 +169,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, E entity) {
-        Assert.INSTANCE.notNull(entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "update");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {

@@ -17,11 +17,12 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.type.AnnotationMetadata;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.configuration.ComponentAutoConfiguration;
 import wang.liangchen.matrix.framework.data.configuration.JdbcAutoConfiguration;
 import wang.liangchen.matrix.framework.data.configuration.MybatisAutoConfiguration;
@@ -146,7 +147,7 @@ public @interface EnableJdbc {
                 if (length > requiredConfigItemsByHost.size()) {
                     length = requiredConfigItemsByUrl.size();
                     requiredConfigItemsByUrl.retainAll(properties.keySet());
-                    Assert.INSTANCE.isTrue(requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
+                    ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
                 }
             });
         }

@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.lock.core;
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
-import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -17,12 +17,12 @@ public class LockConfiguration {
     private final Instant lockAtMost;
 
     public LockConfiguration(String lockKey, Instant lockAt, Duration lockAtLeast, Duration lockAtMost) {
-        this.lockKey = ObjectUtil.INSTANCE.validateNotEmpty(lockKey);
-        this.lockAt = ObjectUtil.INSTANCE.validateNotNull(lockAt);
-        this.lockAtLeast = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtLeast));
-        this.lockAtMost = this.lockAt.plus(ObjectUtil.INSTANCE.validateNotNull(lockAtMost));
-        Assert.INSTANCE.isFalse(lockAtLeast.isNegative(), "lockAtLeast is negative, {}", this.lockKey);
-        Assert.INSTANCE.isFalse(lockAtLeast.compareTo(lockAtMost) > 0, "lockAtLeast is longer than lockAtMost for lock {}", this.lockKey);
+        this.lockKey = ValidationUtil.INSTANCE.notEmpty(lockKey);
+        this.lockAt = ValidationUtil.INSTANCE.notNull(lockAt);
+        this.lockAtLeast = this.lockAt.plus(ValidationUtil.INSTANCE.notNull(lockAtLeast));
+        this.lockAtMost = this.lockAt.plus(ValidationUtil.INSTANCE.notNull(lockAtMost));
+        ValidationUtil.INSTANCE.isFalse(ExceptionLevel.WARN,lockAtLeast.isNegative(), "lockAtLeast is negative, {}", this.lockKey);
+        ValidationUtil.INSTANCE.isFalse(ExceptionLevel.WARN,lockAtLeast.compareTo(lockAtMost) > 0, "lockAtLeast is longer than lockAtMost for lock {}", this.lockKey);
     }
 
     public Instant getUnLockInstant() {

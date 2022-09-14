@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,7 @@ public final class PaginationResult<E> {
     }
 
     public void setDatas(List<E> datas) {
-        Assert.INSTANCE.notNull(datas, "datas must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,datas, "datas must not be null");
         this.datas = datas;
     }
 
@@ -36,7 +37,7 @@ public final class PaginationResult<E> {
     }
 
     public void setTotalRecords(Integer totalRecord) {
-        Assert.INSTANCE.notNull(totalRecord, "totalRecord must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,totalRecord, "totalRecord must not be null");
         this.totalRecords = totalRecord;
     }
 
@@ -45,7 +46,7 @@ public final class PaginationResult<E> {
     }
 
     public void setPageNumber(Integer pageNumber) {
-        Assert.INSTANCE.notNull(pageNumber, "pageNumber must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,pageNumber, "pageNumber must not be null");
         this.pageNumber = pageNumber;
     }
 
@@ -54,7 +55,7 @@ public final class PaginationResult<E> {
     }
 
     public void setPageSize(Integer pageSize) {
-        Assert.INSTANCE.notNull(pageSize, "pageSize must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,pageSize, "pageSize must not be null");
         this.pageSize = pageSize;
     }
 

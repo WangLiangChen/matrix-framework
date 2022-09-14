@@ -1,9 +1,10 @@
 package wang.liangchen.matrix.framework.commons.io;
 
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -47,7 +48,7 @@ public enum IOUtil {
     }
 
     public String read(InputStream inputStream, String encoding, int bufferSize) {
-        Assert.INSTANCE.notNull(inputStream, "inputStream must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,inputStream, "inputStream must not be null");
         if (bufferSize <= 0) {
             bufferSize = DEFAULT_BUFFER_SIZE;
         }
@@ -80,8 +81,8 @@ public enum IOUtil {
     }
 
     public void io(InputStream inputStream, OutputStream outputStream, int bufferSize) {
-        Assert.INSTANCE.notNull(inputStream, "inputStream must not be null");
-        Assert.INSTANCE.notNull(outputStream, "outputStream must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,inputStream, "inputStream must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,outputStream, "outputStream must not be null");
         if (bufferSize <= 0) {
             bufferSize = DEFAULT_BUFFER_SIZE;
         }
@@ -105,8 +106,8 @@ public enum IOUtil {
     }
 
     public void io(Reader reader, Writer writer, int bufferSize) {
-        Assert.INSTANCE.notNull(reader, "reader must not be null");
-        Assert.INSTANCE.notNull(writer, "writer must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,reader, "reader must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,writer, "writer must not be null");
         if (bufferSize <= 0) {
             bufferSize = DEFAULT_BUFFER_SIZE;
         }

@@ -1,9 +1,10 @@
 package wang.liangchen.matrix.framework.commons.bytes;
 
 
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -32,7 +33,7 @@ public enum BytesUtil {
     }
 
     public byte[] toBytes(Object object) {
-        Assert.INSTANCE.notNull(object, "object must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,object, "object must not be null");
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ObjectOutputStream output = new ObjectOutputStream(outputStream);
             output.writeObject(object);
@@ -103,56 +104,56 @@ public enum BytesUtil {
         if (StringUtil.INSTANCE.isBlank(data)) {
             return new byte[0];
         }
-        Assert.INSTANCE.notNull(charset, "charset must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,charset, "charset must not be null");
         return data.getBytes(charset);
     }
 
     public short toShort(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return (short) ((0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)));
     }
 
     public char toChar(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return (char) ((0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)));
     }
 
     public int toInt(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return (0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)) | (0xff0000 & (bytes[2] << 16)) | (0xff000000 & (bytes[3] << 24));
     }
 
     public long toLong(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return (0xffL & (long) bytes[0]) | (0xff00L & ((long) bytes[1] << 8)) | (0xff0000L & ((long) bytes[2] << 16)) | (0xff000000L & ((long) bytes[3] << 24))
                 | (0xff00000000L & ((long) bytes[4] << 32)) | (0xff0000000000L & ((long) bytes[5] << 40)) | (0xff000000000000L & ((long) bytes[6] << 48)) | (0xff00000000000000L & ((long) bytes[7] << 56));
     }
 
     public float toFloat(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return Float.intBitsToFloat(toInt(bytes));
     }
 
     public double toDouble(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         long l = toLong(bytes);
         return Double.longBitsToDouble(l);
     }
 
     public String toString(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public String toString(byte[] bytes, Charset charset) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
-        Assert.INSTANCE.notNull(charset, "charset must not be null");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,charset, "charset must not be null");
         return new String(bytes, charset);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T Object(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             ObjectInputStream intput = new ObjectInputStream(inputStream);
             Object object = intput.readObject();
@@ -163,7 +164,7 @@ public enum BytesUtil {
     }
 
     public String toHexString(byte[] bytes) {
-        Assert.INSTANCE.notEmpty(bytes, "bytes must not be null or empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be null or empty");
         StringBuilder resultSb = new StringBuilder();
         for (byte b : bytes) {
             resultSb.append(toHexString(b));

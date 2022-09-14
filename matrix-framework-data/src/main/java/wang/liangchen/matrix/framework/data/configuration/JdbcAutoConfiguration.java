@@ -9,9 +9,10 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import wang.liangchen.matrix.framework.commons.exception.Assert;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceAssign;
 import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
@@ -38,7 +39,7 @@ public class JdbcAutoConfiguration {
                 dataSourceAssign = method.getDeclaringClass().getAnnotation(DataSourceAssign.class);
             }
             String dataSourceName = dataSourceAssign.value();
-            Assert.INSTANCE.isTrue(MultiDataSourceContext.INSTANCE.getDataSourceNames().contains(dataSourceName), "The annotated dataSource '{}' does not exist", dataSourceName);
+            ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,MultiDataSourceContext.INSTANCE.getDataSourceNames().contains(dataSourceName), "The annotated dataSource '{}' does not exist", dataSourceName);
             MultiDataSourceContext.INSTANCE.set(dataSourceName);
             try {
                 return methodInvocation.proceed();
