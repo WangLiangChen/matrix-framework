@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
+import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -13,8 +15,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Liangchen.Wang 2022-04-29 15:50
@@ -24,8 +25,19 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
-    private final static ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
+
+    private final static ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
+    private final static ValidatorFactory VALIDATOR_FACTORY = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
+                add("i18n/messages");
+            }}), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> threadLocale.get(), false))
+            .buildValidatorFactory();
     private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
+
+    public void setLocale(Locale locale) {
+        threadLocale.set(locale);
+    }
 
     public void close() {
         if (null == VALIDATOR_FACTORY) {
@@ -41,7 +53,7 @@ public enum ValidationUtil {
         }
         StringBuilder messageBuilder = new StringBuilder();
         results.forEach(e -> messageBuilder.append(Symbol.LINE_SEPARATOR.getSymbol())
-                .append(e.getPropertyPath())
+                .append("'").append(e.getPropertyPath()).append("' ")
                 .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol()));
         handleException(exceptionLevel, messageBuilder.toString());
         return object;
