@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.data.enumeration.StateEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Version;
@@ -27,7 +28,7 @@ public class CommonEntity extends RootEntity {
     @Column(name = "summary")
     private String summary = Symbol.BLANK.getSymbol();
     @Column(name = "state")
-    private String state = Symbol.BLANK.getSymbol();
+    private StateEnum state = StateEnum.NONE;
 
 
     public Integer getVersion() {
@@ -87,11 +88,11 @@ public class CommonEntity extends RootEntity {
         this.summary = summary;
     }
 
-    public String getState() {
+    public StateEnum getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(StateEnum state) {
         this.state = state;
     }
 }

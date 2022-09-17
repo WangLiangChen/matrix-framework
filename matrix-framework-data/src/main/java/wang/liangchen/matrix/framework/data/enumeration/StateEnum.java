@@ -16,19 +16,14 @@ public class StateEnum extends CommonEnum {
     public final static StateEnum INPROGRESS = new StateEnum("INPROGRESS", "进行中");
     public final static StateEnum COMPLETED = new StateEnum("COMPLETED", "完成");
     public final static StateEnum FAILED = new StateEnum("FAILED", "失败");
+    public final static StateEnum ACTIVE = new StateEnum("ACTIVE", "激活");
+    public final static StateEnum INACTIVE = new StateEnum("INACTIVE", "无效");
+    public final static StateEnum DRAFT = new StateEnum("DRAFT", "草稿");
+    public final static StateEnum ENABLE = new StateEnum("ENABLE", "启用");
+    public final static StateEnum DISABLE = new StateEnum("DISABLE", "禁用");
+
 
     public StateEnum(String name, String value) {
         super(name, value);
-    }
-
-    public static String[] names(StateEnum[] stateEnums) {
-        if (null == stateEnums) {
-            return null;
-        }
-        String[] names = new String[stateEnums.length];
-        for (int i = 0; i < stateEnums.length; i++) {
-            names[i] = stateEnums[i].name();
-        }
-        return names;
     }
 }

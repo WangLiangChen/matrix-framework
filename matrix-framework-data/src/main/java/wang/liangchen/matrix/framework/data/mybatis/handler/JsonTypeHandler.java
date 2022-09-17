@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.mybatis.handle;
+package wang.liangchen.matrix.framework.data.mybatis.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;

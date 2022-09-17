@@ -31,7 +31,7 @@ public enum ValidationUtil {
             .configure()
             .messageInterpolator(new ResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
                 add("i18n/messages");
-            }}), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> threadLocale.get(), false))
+            }},new MatrixResourceBundleLocator()), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> threadLocale.get(), false))
             .buildValidatorFactory();
     private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
 

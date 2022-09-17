@@ -16,7 +16,7 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.mybatis.handle.JsonTypeHandler;
+import wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,7 +55,7 @@ public enum MybatisExecutor {
             columnMetas.values().forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handle.JsonTypeHandler";
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
                 }
                 sqlBuilder.append("#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
             });
@@ -95,7 +95,7 @@ public enum MybatisExecutor {
             columnMetas.values().forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handle.JsonTypeHandler";
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
                 }
                 sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append(typeHandler).append("},");
             });
@@ -182,7 +182,7 @@ public enum MybatisExecutor {
             entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handle.JsonTypeHandler";
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
                 }
                 sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnMeta.getFieldName()).append(")\">");
                 sqlBuilder.append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
@@ -218,7 +218,7 @@ public enum MybatisExecutor {
             entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handle.JsonTypeHandler";
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
                 }
                 sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(entity.").append(columnMeta.getFieldName()).append(")\">");
                 sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append(typeHandler).append("},");

@@ -20,7 +20,7 @@ public class MultiDataSourceRegister implements ImportBeanDefinitionRegistrar {
     private final static String DATASOURCE_BEAN_NAME = "dataSource";
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata meta, BeanDefinitionRegistry registry) {
+    public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(MultiDataSource.class);
         AbstractBeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
         beanDefinition.setBeanClass(MultiDataSource.class);
