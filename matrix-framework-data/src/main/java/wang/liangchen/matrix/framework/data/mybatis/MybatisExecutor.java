@@ -221,7 +221,9 @@ public enum MybatisExecutor {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
                 }
                 sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(entity.").append(columnMeta.getFieldName()).append(")\">");
+                sqlBuilder.append("<if test=\"!entity.forceUpdateColumns.keySet().contains('").append(columnMeta.getColumnName()).append("')\">");
                 sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append(typeHandler).append("},");
+                sqlBuilder.append("</if>");
                 sqlBuilder.append("</if>");
             });
 
