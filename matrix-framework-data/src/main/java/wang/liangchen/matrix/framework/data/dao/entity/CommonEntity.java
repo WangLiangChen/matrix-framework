@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.data.enumeration.StateEnum;
 
 import javax.persistence.Column;
@@ -14,21 +13,21 @@ public class CommonEntity extends RootEntity {
 
     @Version
     @Column(name = "version")
-    private Integer version = 0;
+    private Integer version;
     @Column(name = "owner")
-    private String owner = Symbol.BLANK.getSymbol();
+    private String owner;
     @Column(name = "creator")
-    private String creator = Symbol.BLANK.getSymbol();
+    private String creator;
     @Column(name = "create_datetime")
-    private LocalDateTime createDatetime = LocalDateTime.now();
+    private LocalDateTime createDatetime;
     @Column(name = "modifier")
-    private String modifier = Symbol.BLANK.getSymbol();
+    private String modifier;
     @Column(name = "modify_datetime")
-    private LocalDateTime modifyDatetime = LocalDateTime.now();
+    private LocalDateTime modifyDatetime;
     @Column(name = "summary")
-    private String summary = Symbol.BLANK.getSymbol();
+    private String summary;
     @Column(name = "state")
-    private StateEnum state = StateEnum.NONE;
+    private StateEnum state;
 
 
     public Integer getVersion() {

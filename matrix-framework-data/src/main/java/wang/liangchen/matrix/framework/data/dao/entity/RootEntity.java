@@ -17,19 +17,13 @@ import java.util.Map;
  */
 public abstract class RootEntity extends EnhancedObject {
     @Transient
-    private transient Map<String, Object> forceUpdateColumns;
+    private transient final Map<String, Object> forceUpdateColumns = new HashMap<>();
 
     public void addForceUpdateColumn(String columnName, Object value) {
-        if (null == forceUpdateColumns) {
-            forceUpdateColumns = new HashMap<>();
-        }
         forceUpdateColumns.put(columnName, value);
     }
 
     public <E extends RootEntity> void addForceUpdateField(EntityGetter<E> entityGetter, Object value) {
-        if (null == forceUpdateColumns) {
-            forceUpdateColumns = new HashMap<>();
-        }
         TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(this.getClass());
         Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
         String fieldName = entityGetter.getFieldName();

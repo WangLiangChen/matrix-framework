@@ -1,6 +1,9 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
@@ -13,23 +16,21 @@ import java.util.Map;
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     private Map<EntityGetter<E>, Object> forceUpdateFields;
 
-    @SuppressWarnings("unchecked")
-    private UpdateCriteria(E entity) {
-        super(entity);
-    }
-
     private UpdateCriteria(Class<E> entityClass) {
-        super(entityClass);
+        super(ClassUtil.INSTANCE.instantiate(entityClass));
     }
 
-    public static <E extends RootEntity> UpdateCriteria<E> of(E entity) {
-        return new UpdateCriteria<E>(entity) {
-        };
-    }
 
     public static <E extends RootEntity> UpdateCriteria<E> of(Class<E> entityClass) {
         return new UpdateCriteria<E>(entityClass) {
         };
+    }
+
+    public UpdateCriteria<E> update(E entity) {
+        ValidationUtil.INSTANCE.notNull(entity);
+        // copy properties
+        ObjectUtil.INSTANCE.copyProperties(entity, this.getEntity());
+        return this;
     }
 
     public UpdateCriteria<E> forceUpdate(EntityGetter<E> column, Object value) {
