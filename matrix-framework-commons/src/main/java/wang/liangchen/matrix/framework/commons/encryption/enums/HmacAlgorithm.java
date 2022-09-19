@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.encryption.enums;
 /**
  * @author Liangchen.Wang 2022-04-11 16:42
  */
-public enum HmacAligorithm {
+public enum HmacAlgorithm {
     HmacMD5("HmacMD5"),
     HmacSHA1("HmacSHA1"),
     HmacSHA256("HmacSHA256"),
@@ -12,7 +12,7 @@ public enum HmacAligorithm {
 
     private final String algorithm;
 
-    HmacAligorithm(String algorithm) {
+    HmacAlgorithm(String algorithm) {
         this.algorithm = algorithm;
     }
 

@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.encryption;
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
-import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAligorithm;
+import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SignatureAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
@@ -28,7 +28,7 @@ public enum DigestSignUtil {
      */
     INSTANCE;
 
-    public String hmac(HmacAligorithm aligorithm, String secretKeyString, String data) {
+    public String hmac(HmacAlgorithm aligorithm, String secretKeyString, String data) {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,secretKeyString, "secretKeyString must not be blank");
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,data, "data must not be blank");
         byte[] keyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);

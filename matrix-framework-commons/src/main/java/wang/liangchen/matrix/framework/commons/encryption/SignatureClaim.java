@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
-import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAligorithm;
+import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SignatureAlgorithm;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -82,16 +82,16 @@ public class SignatureClaim implements Serializable {
         return buildSignatureMessage();
     }
 
-    public String sign(HmacAligorithm hmacAligorithm, String secretKeyString) {
-        this.algorithm = hmacAligorithm.name();
-        this.signature = DigestSignUtil.INSTANCE.hmac(hmacAligorithm, secretKeyString, this.payload);
+    public String sign(HmacAlgorithm hmacAlgorithm, String secretKeyString) {
+        this.algorithm = hmacAlgorithm.name();
+        this.signature = DigestSignUtil.INSTANCE.hmac(hmacAlgorithm, secretKeyString, this.payload);
         return buildSignatureMessage();
     }
 
     public boolean verify(String key) {
         try {
-            HmacAligorithm hmacAligorithm = HmacAligorithm.valueOf(this.algorithm);
-            String verify = DigestSignUtil.INSTANCE.hmac(hmacAligorithm, key, this.payload);
+            HmacAlgorithm hmacAlgorithm = HmacAlgorithm.valueOf(this.algorithm);
+            String verify = DigestSignUtil.INSTANCE.hmac(hmacAlgorithm, key, this.payload);
             return this.signature.equals(verify);
         } catch (Exception e) {
             SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.valueOf(this.algorithm);
