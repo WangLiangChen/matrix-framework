@@ -11,6 +11,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.dao.AbstractDao;
 import wang.liangchen.matrix.framework.data.enumeration.StateEnum;
@@ -41,9 +42,11 @@ public class DataBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     }
 
     private void scanAndLoadClass(ConfigurableListableBeanFactory configurableListableBeanFactory) {
+        // 主动实例化下StateEnum
+        StateEnum none = StateEnum.NONE;
         ClassLoader beanClassLoader = configurableListableBeanFactory.getBeanClassLoader();
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(StateEnum.class));
+        provider.addIncludeFilter(new AssignableTypeFilter(ConstantEnum.class));
         List<String> basePackages = AutoConfigurationPackages.get(configurableListableBeanFactory);
         Set<String> classNames = new HashSet<>();
         for (String basePackage : basePackages) {

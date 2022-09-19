@@ -1,11 +1,11 @@
 package wang.liangchen.matrix.framework.data.enumeration;
 
-import wang.liangchen.matrix.framework.commons.enumeration.CommonEnum;
+import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 
 /**
  * @author Liangchen.Wang 2022-07-08 22:55
  */
-public class StateEnum extends CommonEnum {
+public class StateEnum extends ConstantEnum {
     public final static StateEnum NONE = new StateEnum("NONE", "无状态");
     public final static StateEnum NORMAL = new StateEnum("NORMAL", "正常");
     public final static StateEnum INITIAL = new StateEnum("INITIAL", "初始");

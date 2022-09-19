@@ -23,7 +23,7 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
-import wang.liangchen.matrix.framework.data.mybatis.handler.StateEnumTypeHandler;
+import wang.liangchen.matrix.framework.data.mybatis.handler.ConstantEnumTypeHandler;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
@@ -119,7 +119,7 @@ public class MybatisAutoConfiguration {
             sqlSessionFactoryBean.setPlugins(interceptors);
         }
         // typeHandler
-        sqlSessionFactoryBean.setTypeHandlers(new StateEnumTypeHandler());
+        sqlSessionFactoryBean.setTypeHandlers(new ConstantEnumTypeHandler());
         //sqlSessionFactoryBean.setTypeAliasesPackage(typeAliasPackage);
         return sqlSessionFactoryBean;
     }

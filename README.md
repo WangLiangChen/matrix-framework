@@ -1,6 +1,6 @@
 # matrix-framework
 
-A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive
+A rapid,efficient and stable development framework based on springboot,which is distributed, asynchronous non-blocking and reactive
 
 # matrix-framework-commons
 
