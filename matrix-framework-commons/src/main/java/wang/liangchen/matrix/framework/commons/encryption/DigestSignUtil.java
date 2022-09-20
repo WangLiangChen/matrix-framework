@@ -62,7 +62,7 @@ public enum DigestSignUtil {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,data, "data must not be blank");
         try {
             PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);
-            Signature signature = Signature.getInstance(algorithm.getAlgorithm());
+            Signature signature = Signature.getInstance(algorithm.name());
             signature.initSign(priKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));
             byte[] signed = signature.sign();
@@ -79,7 +79,7 @@ public enum DigestSignUtil {
 
         try {
             PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
-            Signature signature = Signature.getInstance(algorithm.getAlgorithm());
+            Signature signature = Signature.getInstance(algorithm.name());
             signature.initVerify(pubKey);
             signature.update(data.getBytes(StandardCharsets.UTF_8));
             return signature.verify(Base64Util.INSTANCE.decode(signatureString));

@@ -7,26 +7,15 @@ public enum KeyPairAlgorithm {
     /**
      * Keys for the Digital Signature Algorithm.
      */
-    DSA("DSA"),
+    DSA,
     /**
      * Keys for the RSA algorithm (Signature/Cipher).
      */
-    RSA("RSA"),
+    RSA,
 
     /**
      * Keys for the Diffie-Hellman KeyAgreement algorithm.
      */
-    DIFFIEHELLMAN("DiffieHellman");
-
-    private final String algorithm;
-
-
-    KeyPairAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public String getAlgorithm() {
-        return algorithm;
-    }
-
+    DiffieHellman,
+    EC
 }

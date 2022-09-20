@@ -27,7 +27,7 @@ public enum SecretKeyUtil {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,privateKeyString, "privateKey must not be blank");
         byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKeyString);
         try {
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());
             KeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
             return keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
@@ -39,7 +39,7 @@ public enum SecretKeyUtil {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,publicKeyString, "publicKey must not be blank");
         byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKeyString);
         try {
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.getAlgorithm());
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());
             KeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
             return keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
@@ -49,7 +49,7 @@ public enum SecretKeyUtil {
 
     public KeyPairString keyPair(KeyPairAlgorithm algorithm) {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm.getAlgorithm());
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm.name());
             keyPairGenerator.initialize(1024);
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
             byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
@@ -65,7 +65,7 @@ public enum SecretKeyUtil {
         // DES 56
         // DESede 112 168
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(keyAlgorithm.getAlgorithm());
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(keyAlgorithm.name());
             SecureRandom random = SecureRandom.getInstance(SecureRandomAlgorithm.SHA1PRNG.name());
             random.setSeed(saltkey.getBytes(StandardCharsets.UTF_8));
             keyGenerator.init(bit, random);
