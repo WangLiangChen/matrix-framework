@@ -34,8 +34,8 @@ public enum DigestSignUtil {
         byte[] keyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
         byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
         try {
-            Mac mac = Mac.getInstance(aligorithm.getAlgorithm());
-            SecretKey secretKey = new SecretKeySpec(keyBytes, aligorithm.getAlgorithm());
+            Mac mac = Mac.getInstance(aligorithm.name());
+            SecretKey secretKey = new SecretKeySpec(keyBytes, aligorithm.name());
             mac.init(secretKey);
             byte[] bytes = mac.doFinal(dataBytes);
             return Base64Util.INSTANCE.encode(bytes);
