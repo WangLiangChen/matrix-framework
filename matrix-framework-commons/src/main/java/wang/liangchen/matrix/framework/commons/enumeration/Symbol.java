@@ -7,8 +7,10 @@ public enum Symbol {
     /**
      *
      */
-    CARET("^","^"),
-    CARET_REGEX("\\^","^正则"),
+    SETTER_PREFIX("set", "set"),
+    GETTER_PREFIX("get", "get"),
+    CARET("^", "^"),
+    CARET_REGEX("\\^", "^正则"),
     EQUAL("=", "等号"),
     AND("&", "与"),
     BLANK("", "空串"),
@@ -53,8 +55,8 @@ public enum Symbol {
     BACKSLASH("\\", "反斜杠"),
     URI_SEPARATOR("/", "路径分割符"),
 
-    DOLLAR("$","美元"),
-    DOLLAR_REGEX("\\$","美元");
+    DOLLAR("$", "美元"),
+    DOLLAR_REGEX("\\$", "美元");
 
     private final String symbol;
     private final String text;

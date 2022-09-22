@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.commons.object;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
  * 不能实现Map接口，否则该类子类的属性将会被隐藏
  */
 public class EnhancedObject implements Cloneable, Serializable {
+
     /**
      * 对象扩展属性 需要被序列化
      */
@@ -34,6 +36,26 @@ public class EnhancedObject implements Cloneable, Serializable {
 
     public Map<String, Object> getExtendedFields() {
         return extendedFields;
+    }
+
+    public static <T extends EnhancedObject> T newInstance(Class<T> clazz) {
+        return ClassUtil.INSTANCE.instantiate(clazz);
+    }
+
+    public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initialize) {
+        T object = ClassUtil.INSTANCE.instantiate(clazz);
+        if (initialize) {
+            ClassUtil.INSTANCE.initializeFields(object);
+        }
+        return object;
+    }
+
+    public static <T extends EnhancedObject> T valueOf(Object source, Class<T> clazz) {
+        return ObjectUtil.INSTANCE.copyProperties(source, clazz);
+    }
+
+    public void initializeFields() {
+        ClassUtil.INSTANCE.initializeFields(this);
     }
 
     @Override

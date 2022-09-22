@@ -1,9 +1,13 @@
 package wang.liangchen.matrix.framework.commons.type;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
+import com.esotericsoftware.reflectasm.MethodAccess;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -20,6 +24,16 @@ public enum ClassUtil {
      */
     INSTANCE;
     private static final Map<String, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, MethodAccess> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Object> defaultValue = new HashMap<Class<?>, Object>() {{
+        put(Long.class, 0L);
+        put(Integer.class, 0);
+        put(Short.class, (short) 0);
+        put(Byte.class, (byte) 0);
+        put(String.class, Symbol.BLANK.getSymbol());
+        put(LocalDate.class, LocalDate.now());
+        put(LocalDateTime.class, LocalDateTime.now());
+    }};
 
     public Class<?> forName(String className) {
         try {
@@ -36,6 +50,29 @@ public enum ClassUtil {
 
     public <T> T instantiate(Class<T> clazz) {
         return constructorAccess(clazz).newInstance();
+    }
+
+    public void initializeFields(Object target) {
+        MethodAccess methodAccess = methodAccess(target.getClass());
+        String[] methodNames = methodAccess.getMethodNames();
+        Class<?>[] returnTypes = methodAccess.getReturnTypes();
+        for (int i = 0; i < methodNames.length; i++) {
+            String methodName = methodNames[i];
+            if (!methodName.startsWith(Symbol.GETTER_PREFIX.getSymbol())) {
+                continue;
+            }
+            Object object = methodAccess.invoke(target, methodName);
+            if (null != object) {
+                continue;
+            }
+            Class<?> returnType = returnTypes[i];
+            object = defaultValue.get(returnType);
+            if (null == object) {
+                continue;
+            }
+            methodName = methodName.replace(Symbol.GETTER_PREFIX.getSymbol(), Symbol.SETTER_PREFIX.getSymbol());
+            methodAccess.invoke(target, methodName, object);
+        }
     }
 
     public List<Field> declaredFields(final Class<?> clazz, Predicate<Field> fieldFilter) {
@@ -69,12 +106,12 @@ public enum ClassUtil {
         return declaredFields(clazz, null);
     }
 
-    private <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
-        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> {
-            ConstructorAccess<T> constructorAccess = ConstructorAccess.get(targetClass);
-            constructorAccess.newInstance();
-            return constructorAccess;
-        });
+    public <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
+        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> ConstructorAccess.get(targetClass));
+    }
+
+    public MethodAccess methodAccess(Class<?> targetClass) {
+        return METHOD_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> MethodAccess.get(targetClass));
     }
 
     private List<Class<?>> populateSuperClasses(final Class<?> clazz, Predicate<Class<?>> classFilter) {

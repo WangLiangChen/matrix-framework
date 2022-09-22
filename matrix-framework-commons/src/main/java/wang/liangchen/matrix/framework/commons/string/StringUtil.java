@@ -5,8 +5,10 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2021-08-19 19:53
@@ -53,6 +55,22 @@ public enum StringUtil {
         }
         format = format.replaceAll(FORMAT_REGEX, FORMAT_REPLACEMENT);
         return String.format(format, args);
+    }
+
+    public String join(String splitor, String... strings) {
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, splitor);
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
+        return Arrays.stream(strings).collect(Collectors.joining(splitor));
+    }
+
+    public String concat(String... strings) {
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
+        StringBuilder builder = new StringBuilder();
+        for (String string : strings) {
+            ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, string);
+            builder.append(string);
+        }
+        return builder.toString();
     }
 
     public String firstLetterLowerCase(String string) {
