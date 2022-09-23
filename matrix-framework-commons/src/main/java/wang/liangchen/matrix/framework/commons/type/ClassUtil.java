@@ -6,6 +6,8 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,9 +32,15 @@ public enum ClassUtil {
         put(Integer.class, 0);
         put(Short.class, (short) 0);
         put(Byte.class, (byte) 0);
+        put(Double.class, 0d);
+        put(Float.class, 0f);
+        put(Boolean.class, Boolean.FALSE);
+        put(BigDecimal.class, new BigDecimal(0));
+        put(Timestamp.class, new Timestamp(System.currentTimeMillis()));
         put(String.class, Symbol.BLANK.getSymbol());
         put(LocalDate.class, LocalDate.now());
         put(LocalDateTime.class, LocalDateTime.now());
+        put(Date.class, new Date());
     }};
 
     public Class<?> forName(String className) {

@@ -43,6 +43,13 @@ public class ${entityName} extends RootEntity {
     public static ${entityName} newInstance() {
         return ClassUtil.INSTANCE.instantiate(${entityName}.class);
     }
+    public static ${entityName} newInstance(boolean initializeFields) {
+        ${entityName} entity = ClassUtil.INSTANCE.instantiate(${entityName}.class);
+        if(initializeFields) {
+            entity.initializeFields();
+        }
+        return entity;
+    }
 
 <#list columnMetas as columnMeta>
     public ${columnMeta.modifier} get${columnMeta.fieldName?cap_first}() {

@@ -42,9 +42,9 @@ public class EnhancedObject implements Cloneable, Serializable {
         return ClassUtil.INSTANCE.instantiate(clazz);
     }
 
-    public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initialize) {
+    public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initializeFields) {
         T object = ClassUtil.INSTANCE.instantiate(clazz);
-        if (initialize) {
+        if (initializeFields) {
             ClassUtil.INSTANCE.initializeFields(object);
         }
         return object;
