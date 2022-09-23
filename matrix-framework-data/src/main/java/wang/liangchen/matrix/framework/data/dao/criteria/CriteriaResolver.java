@@ -195,6 +195,9 @@ public enum CriteriaResolver {
     }
 
     private boolean parseSqlValues(Object[] sqlValues, Object entity, String fileldName) {
+        if (sqlValues.length == 0) {
+            return true;
+        }
         boolean skip = false;
         for (int i = 0; i < sqlValues.length; i++) {
             if (null == sqlValues[i]) {
