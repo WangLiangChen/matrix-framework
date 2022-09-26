@@ -55,11 +55,11 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return this;
     }
 
-    public final Criteria<E> resultFields(String... resultFields) {
+    public final Criteria<E> resultColumns(String... resultColumns) {
         if (null == this.resultColumns) {
             this.resultColumns = new HashSet<>();
         }
-        this.resultColumns.addAll(Arrays.asList(resultFields));
+        this.resultColumns.addAll(Arrays.asList(resultColumns));
         return this;
     }
 
