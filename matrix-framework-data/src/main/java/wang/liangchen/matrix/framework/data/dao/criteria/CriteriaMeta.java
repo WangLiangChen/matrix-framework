@@ -15,12 +15,17 @@ public class CriteriaMeta<E extends RootEntity> {
     private CriteriaMeta(Operator operator, EntityGetter<E> column, Object[] sqlValues) {
         this.operator = operator;
         this.column = column;
-        this.sqlValues = sqlValues;
+        Object[] innerValues = new Object[sqlValues.length];
+        for (int i = 0; i < sqlValues.length; i++) {
+            innerValues[i] = sqlValues[i];
+        }
+        this.sqlValues = innerValues;
     }
 
     public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Object... sqlValues) {
         return new CriteriaMeta<>(operator, column, sqlValues);
     }
+
     public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, EntityGetter<E> column, Collection<?> sqlValues) {
         return new CriteriaMeta<>(operator, column, sqlValues.toArray());
     }
