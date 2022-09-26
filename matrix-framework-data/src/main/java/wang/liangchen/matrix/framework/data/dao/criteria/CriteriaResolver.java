@@ -9,11 +9,13 @@ import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
-import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -84,23 +86,11 @@ public enum CriteriaResolver {
     }
 
     private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
-        Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        EntityGetter<E>[] resultFields = criteria.getResultFields();
-        if (CollectionUtil.INSTANCE.isNotEmpty(resultFields)) {
-            Set<String> fieldNames = Arrays.stream(resultFields).map(LambdaUtil.INSTANCE::getReferencedFieldName).collect(Collectors.toSet());
-            columnMetas = columnMetas.entrySet().stream().filter(e -> fieldNames.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        }
-        columnMetas.forEach((fieldName, columnMeta) -> criteriaParameter.addResultColumn(columnMeta.getColumnName()));
+        criteriaParameter.addResultColumns(criteria.getResultColumns());
     }
 
     private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
-        Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
-        Map<EntityGetter<E>, OrderByDirection> orderByFields = criteria.getOrderBy();
-        orderByFields.forEach((k, v) -> {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(k);
-            String columnName = columnMetas.get(fieldName).getColumnName();
-            criteriaParameter.getPagination().addOrderBy(columnName, v);
-        });
+        criteriaParameter.getPagination().addOrderBys(criteria.getOrderBys());
     }
 
 

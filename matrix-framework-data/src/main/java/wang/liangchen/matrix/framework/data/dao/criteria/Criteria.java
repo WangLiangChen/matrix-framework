@@ -1,24 +1,27 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
+import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E> {
-    private EntityGetter<E>[] resultFields;
+    private Set<String> resultColumns;
     private Boolean forUpdate;
     private Integer pageSize;
     private Integer pageNumber;
     private Boolean distinct;
     private Long version;
-    private final Map<EntityGetter<E>, OrderByDirection> orderBy = new HashMap<>();
+    private List<OrderBy> orderBys;
 
     private Criteria(E entity) {
         super(entity);
@@ -40,7 +43,23 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
 
     @SafeVarargs
     public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
-        this.resultFields = resultFields;
+        if (null == this.resultColumns) {
+            this.resultColumns = new HashSet<>();
+        }
+        Map<String, ColumnMeta> columnMetas = getTableMeta().getColumnMetas();
+        for (EntityGetter<E> resultField : resultFields) {
+            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
+            String columnName = columnMetas.get(fieldName).getColumnName();
+            this.resultColumns.add(columnName);
+        }
+        return this;
+    }
+
+    public final Criteria<E> resultFields(String... resultFields) {
+        if (null == this.resultColumns) {
+            this.resultColumns = new HashSet<>();
+        }
+        this.resultColumns.addAll(Arrays.asList(resultFields));
         return this;
     }
 
@@ -55,7 +74,21 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public Criteria<E> orderBy(EntityGetter<E> column, OrderByDirection orderByDirection) {
-        orderBy.put(column, orderByDirection);
+        if (null == this.orderBys) {
+            this.orderBys = new ArrayList<>();
+        }
+        Map<String, ColumnMeta> columnMetas = getTableMeta().getColumnMetas();
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
+        String columnName = columnMetas.get(fieldName).getColumnName();
+        this.orderBys.add(OrderBy.newInstance(columnName, orderByDirection));
+        return this;
+    }
+
+    public Criteria<E> orderBy(List<OrderBy> orderBys) {
+        if (null == this.orderBys) {
+            this.orderBys = new ArrayList<>();
+        }
+        this.orderBys.addAll(orderBys);
         return this;
     }
 
@@ -66,6 +99,17 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
 
     public Criteria<E> pageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+        return this;
+    }
+
+    public Criteria<E> pagination(Pagination pagination) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, "'pagination' may not be null");
+        this.pageNumber = null == this.pageNumber ? pagination.getPageNumber() : this.pageNumber;
+        this.pageSize = null == this.pageSize ? pagination.getPageSize() : this.pageSize;
+        if (null == orderBys) {
+            this.orderBys = new ArrayList<>();
+            this.orderBys.addAll(pagination.getOrderBys());
+        }
         return this;
     }
 
@@ -254,8 +298,8 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return (Criteria<E>) super._AND(subCriteria);
     }
 
-    public EntityGetter<E>[] getResultFields() {
-        return resultFields;
+    public Set<String> getResultColumns() {
+        return resultColumns;
     }
 
     public Boolean getDistinct() {
@@ -274,12 +318,12 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return pageNumber;
     }
 
-    public Map<EntityGetter<E>, OrderByDirection> getOrderBy() {
-        return orderBy;
+    public List<OrderBy> getOrderBys() {
+        return orderBys;
     }
-
 
     public Long getVersion() {
         return version;
     }
+
 }

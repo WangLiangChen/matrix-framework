@@ -30,11 +30,8 @@ public enum LambdaUtil {
         try {
             Method writeReplace = serializableFunctionInterface.getClass().getDeclaredMethod("writeReplace");
             writeReplace.setAccessible(true);
-            SerializedLambda serializedLambda = (SerializedLambda) writeReplace.invoke(serializableFunctionInterface, CollectionUtil.INSTANCE.emptyArray());
-            return serializedLambda;
-        } catch (NoSuchMethodException e) {
-            throw new MatrixErrorException("functionInterface is not a serializable FunctionInterface");
-        } catch (InvocationTargetException | IllegalAccessException e) {
+            return (SerializedLambda) writeReplace.invoke(serializableFunctionInterface, CollectionUtil.INSTANCE.emptyArray());
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new MatrixErrorException("functionInterface is not a serializable FunctionInterface");
         }
     }
