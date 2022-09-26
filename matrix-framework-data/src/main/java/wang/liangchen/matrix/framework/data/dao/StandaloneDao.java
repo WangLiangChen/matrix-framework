@@ -7,6 +7,7 @@ import wang.liangchen.matrix.framework.data.dao.criteria.CriteriaResolver;
 import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
+import wang.liangchen.matrix.framework.data.pagination.Pagination;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
 import java.util.Collection;
@@ -85,8 +86,9 @@ public class StandaloneDao extends AbstractDao {
         int count = MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
         PaginationResult<E> paginationResult = PaginationResult.newInstance();
         paginationResult.setTotalRecords(count);
-        paginationResult.setPageNumber(criteriaParameter.getPageNumber());
-        paginationResult.setPageSize(criteriaParameter.getPageSize());
+        Pagination pagination = criteriaParameter.getPagination();
+        paginationResult.setPageNumber(pagination.getPageNumber());
+        paginationResult.setPageSize(pagination.getPageSize());
         if (0 == count) {
             paginationResult.setDatas(Collections.emptyList());
             return paginationResult;

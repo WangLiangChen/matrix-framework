@@ -273,14 +273,14 @@ public enum MybatisExecutor {
             sqlBuilder.append("from ").append(tableMeta.getTableName());
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
-            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(orderBys)\"> order by <foreach collection=\"orderBys\" item=\"item\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
-            sqlBuilder.append("<if test=\"null!=offset and null!=rows\">");
+            sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(pagination.orderBys)\"> order by <foreach collection=\"pagination.orderBys\" item=\"item\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
+            sqlBuilder.append("<if test=\"null!=pagination.offset and null!=pagination.rows\">");
             sqlBuilder.append("<choose>");
             sqlBuilder.append("<when test=\"'PostgreSQL'== dataSourceType\">");
-            sqlBuilder.append("limit #{rows} offset #{offset}");
+            sqlBuilder.append("limit #{pagination.rows} offset #{pagination.offset}");
             sqlBuilder.append("</when>");
             sqlBuilder.append("<otherwise>");
-            sqlBuilder.append("limit #{offset},#{rows}");
+            sqlBuilder.append("limit #{pagination.offset},#{pagination.rows}");
             sqlBuilder.append("</otherwise>");
             sqlBuilder.append("</choose>");
             sqlBuilder.append("</if>");

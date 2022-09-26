@@ -10,6 +10,7 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
+import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -76,8 +77,9 @@ public enum CriteriaResolver {
 
     private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         criteriaParameter.setForUpdate(criteria.getForUpdate());
-        criteriaParameter.setPageNumber(criteria.getPageNumber());
-        criteriaParameter.setPageSize(criteria.getPageSize());
+        Pagination pagination = criteriaParameter.getPagination();
+        pagination.setPageNumber(criteria.getPageNumber());
+        pagination.setPageSize(criteria.getPageSize());
         criteriaParameter.setDistinct(criteria.getDistinct());
     }
 
@@ -97,7 +99,7 @@ public enum CriteriaResolver {
         orderByFields.forEach((k, v) -> {
             String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(k);
             String columnName = columnMetas.get(fieldName).getColumnName();
-            criteriaParameter.addOrderBy(columnName, v);
+            criteriaParameter.getPagination().addOrderBy(columnName, v);
         });
     }
 

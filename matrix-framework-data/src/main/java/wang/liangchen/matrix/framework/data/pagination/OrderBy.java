@@ -11,20 +11,27 @@ public final class OrderBy {
     private final String orderBy;
     private final String direction;
 
-    public static OrderBy newInstance(String orderby, OrderByDirection direction) {
-        return new OrderBy(orderby, direction);
+    public static OrderBy newInstance(String orderBy, OrderByDirection direction) {
+        return new OrderBy(orderBy, direction);
     }
 
     public OrderBy(String orderBy) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
         this.orderBy = orderBy;
         this.direction = OrderByDirection.asc.name();
     }
 
-    public OrderBy(String orderby, OrderByDirection direction) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,orderby, "Parameter 'orderBy' cannot be blank");
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,direction, "Parameter 'direction' cannot be blank");
-        this.orderBy = orderby;
+    public OrderBy(String orderBy, String direction) {
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, direction, "Parameter 'direction' cannot be blank");
+        this.orderBy = orderBy;
+        this.direction = direction;
+    }
+
+    public OrderBy(String orderBy, OrderByDirection direction) {
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, direction, "Parameter 'direction' cannot be null");
+        this.orderBy = orderBy;
         this.direction = direction.name();
     }
 

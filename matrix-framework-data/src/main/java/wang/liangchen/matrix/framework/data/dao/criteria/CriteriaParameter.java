@@ -1,14 +1,14 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.pagination.PaginationParameter;
+import wang.liangchen.matrix.framework.data.pagination.QueryParameter;
 
 import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2022-04-17 23:14
  */
-public class CriteriaParameter<E extends RootEntity> extends PaginationParameter {
+public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private String dataSourceType;
     private TableMeta tableMeta;
     private String tableName;
