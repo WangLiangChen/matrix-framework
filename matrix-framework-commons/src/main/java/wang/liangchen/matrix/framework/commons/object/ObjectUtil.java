@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * @author Liangchen.Wang 2021-09-30 15:22
@@ -77,25 +77,27 @@ public enum ObjectUtil {
         return (T) object;
     }
 
-    public String castToString(Object object) {
+    public String castToString(Object object, String defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         return String.valueOf(object);
     }
 
-    public Byte castToByte(Object object) {
+    public String castToString(Object object) {
+        return castToString(object, null);
+    }
+
+    public Byte castToByte(Object object, Byte defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof BigDecimal) {
             return NumberUtil.INSTANCE.decimalToByte((BigDecimal) object);
         }
+
         if (object instanceof Number) {
             return ((Number) object).byteValue();
-        }
-        if (object instanceof Boolean) {
-            return (Boolean) object ? (byte) 1 : (byte) 0;
         }
         if (object instanceof String) {
             String string = String.valueOf(object);
@@ -103,21 +105,25 @@ public enum ObjectUtil {
                 return Byte.parseByte(string);
             }
         }
+        if (object instanceof Boolean) {
+            return (Boolean) object ? (byte) 1 : (byte) 0;
+        }
         throw new MatrixWarnException("can not cast to byte, object :{} ", object);
     }
 
-    public Character castToChar(Object object) {
+    public Byte castToByte(Object object) {
+        return castToByte(object, null);
+    }
+
+    public Character castToChar(Object object, Character defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof Character) {
             return (Character) object;
         }
         if (object instanceof String) {
             String string = (String) object;
-            if (string.length() == 0) {
-                return null;
-            }
             if (string.length() != 1) {
                 throw new MatrixWarnException("can not cast to char, object : {}", object);
             }
@@ -126,9 +132,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to char, object :{} ", object);
     }
 
-    public Short castToShort(Object object) {
+    public Character castToChar(Object object) {
+        return castToChar(object, null);
+    }
+
+    public Short castToShort(Object object, Short defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
 
         if (object instanceof BigDecimal) {
@@ -150,9 +160,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to short, object : {}", object);
     }
 
-    public Integer castToInt(Object object) {
+    public Short castToShort(Object object) {
+        return castToShort(object, null);
+    }
+
+    public Integer castToInt(Object object, Integer defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
 
         if (object instanceof BigDecimal) {
@@ -174,9 +188,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to int, object : {}", object);
     }
 
-    public Long castToLong(Object object) {
+    public Integer castToInt(Object object) {
+        return castToInt(object, null);
+    }
+
+    public Long castToLong(Object object, Long defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
 
         if (object instanceof BigDecimal) {
@@ -198,24 +216,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to long, object : {}", object);
     }
 
-    public BigDecimal castToBigDecimal(Object object) {
+    public Long castToLong(Object object) {
+        return castToLong(object, null);
+    }
+
+    public BigDecimal castToBigDecimal(Object object, BigDecimal defaultValue) {
         if (object == null) {
-            return null;
-        }
-        if (object instanceof Float) {
-            Float floatobject = (Float) object;
-            if (Float.isNaN(floatobject) || Float.isInfinite(floatobject)) {
-                return null;
-            }
-        }
-        if (object instanceof Double) {
-            Double doubleobject = (Double) object;
-            if (Double.isNaN(doubleobject) || Double.isInfinite(doubleobject)) {
-                return null;
-            }
-        }
-        if (object instanceof Map && ((Map<?, ?>) object).size() == 0) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof BigDecimal) {
             return (BigDecimal) object;
@@ -223,32 +230,38 @@ public enum ObjectUtil {
         if (object instanceof BigInteger) {
             return new BigDecimal((BigInteger) object);
         }
+        if (object instanceof Float) {
+            float floatobject = (float) object;
+            if (Float.isNaN(floatobject) || Float.isInfinite(floatobject)) {
+                throw new MatrixWarnException("can not cast to BigDecimal, object : {}", object);
+            }
+        }
+        if (object instanceof Double) {
+            double doubleobject = (double) object;
+            if (Double.isNaN(doubleobject) || Double.isInfinite(doubleobject)) {
+                throw new MatrixWarnException("can not cast to BigDecimal, object : {}", object);
+            }
+        }
+        if (object instanceof Map && ((Map<?, ?>) object).size() == 0) {
+            throw new MatrixWarnException("can not cast to BigDecimal, object : {}", object);
+        }
+
         // 统一转换成字符串
         String string = String.valueOf(object);
         int length = string.length();
         if (length == 0 || string.equalsIgnoreCase("null")) {
-            return null;
+            throw new MatrixWarnException("can not cast to BigDecimal, object : {}", object);
         }
         return new BigDecimal(string);
     }
 
-    public BigInteger castToBigInteger(Object object) {
+    public BigDecimal castToBigDecimal(Object object) {
+        return castToBigDecimal(object, null);
+    }
+
+    public BigInteger castToBigInteger(Object object, BigInteger defaultValue) {
         if (object == null) {
-            return null;
-        }
-        if (object instanceof Float) {
-            Float floatobject = (Float) object;
-            if (Float.isNaN(floatobject) || Float.isInfinite(floatobject)) {
-                return null;
-            }
-            return BigInteger.valueOf(floatobject.longValue());
-        }
-        if (object instanceof Double) {
-            Double doubleobject = (Double) object;
-            if (Double.isNaN(doubleobject) || Double.isInfinite(doubleobject)) {
-                return null;
-            }
-            return BigInteger.valueOf(doubleobject.longValue());
+            return defaultValue;
         }
         if (object instanceof BigInteger) {
             return (BigInteger) object;
@@ -260,19 +273,36 @@ public enum ObjectUtil {
                 return ((BigDecimal) object).toBigInteger();
             }
         }
-
+        if (object instanceof Float) {
+            Float floatobject = (Float) object;
+            if (Float.isNaN(floatobject) || Float.isInfinite(floatobject)) {
+                throw new MatrixWarnException("can not cast to BigInteger, object : {}", object);
+            }
+            return BigInteger.valueOf(floatobject.longValue());
+        }
+        if (object instanceof Double) {
+            Double doubleobject = (Double) object;
+            if (Double.isNaN(doubleobject) || Double.isInfinite(doubleobject)) {
+                throw new MatrixWarnException("can not cast to BigInteger, object : {}", object);
+            }
+            return BigInteger.valueOf(doubleobject.longValue());
+        }
         String string = object.toString();
         int length = string.length();
 
         if (length == 0 || string.equalsIgnoreCase("null")) {
-            return null;
+            throw new MatrixWarnException("can not cast to BigInteger, object : {}", object);
         }
         return new BigInteger(string);
     }
 
-    public Float castToFloat(Object object) {
+    public BigInteger castToBigInteger(Object object) {
+        return castToBigInteger(object, null);
+    }
+
+    public Float castToFloat(Object object, Float defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof Number) {
             return ((Number) object).floatValue();
@@ -290,9 +320,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to float, object :{}", object);
     }
 
-    public Double castToDouble(Object object) {
+    public Float castToFloat(Object object) {
+        return castToFloat(object, null);
+    }
+
+    public Double castToDouble(Object object, Double defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof Number) {
             return ((Number) object).doubleValue();
@@ -311,9 +345,13 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to double, object :{}", object);
     }
 
-    public Boolean castToBoolean(Object object) {
+    public Double castToDouble(Object object) {
+        return castToDouble(object, null);
+    }
+
+    public Boolean castToBoolean(Object object, Boolean defaultValue) {
         if (object == null) {
-            return null;
+            return defaultValue;
         }
         if (object instanceof Boolean) {
             return (Boolean) object;
@@ -348,6 +386,10 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to boolean, object : {}", object);
     }
 
+    public Boolean castToBoolean(Object object) {
+        return castToBoolean(object, null);
+    }
+
     public byte[] castToBytes(Object object) {
         if (object instanceof byte[]) {
             return (byte[]) object;
@@ -355,17 +397,17 @@ public enum ObjectUtil {
         throw new MatrixWarnException("can not cast to byte[], object : " + object);
     }
 
-    public <T> List<T> copyProperties(Collection<?> sources, Class<T> targetClass) {
+    public <S, T> List<T> copyProperties(Collection<S> sources, Class<T> targetClass) {
         return copyProperties(sources, targetClass, null);
     }
 
-    public <T> List<T> copyProperties(Collection<?> sources, Class<T> targetClass, Consumer<T> consumer) {
+    public <S, T> List<T> copyProperties(Collection<S> sources, Class<T> targetClass, BiConsumer<S, T> consumer) {
         if (CollectionUtil.INSTANCE.isEmpty(sources)) {
             return new ArrayList<>(0);
         }
         BeanCopier beanCopier = null;
         List<T> targets = new ArrayList<>(sources.size());
-        for (Object source : sources) {
+        for (S source : sources) {
             if (null == beanCopier) {
                 Class<?> sourceClass = source.getClass();
                 CopierId copierId = new CopierId(sourceClass, targetClass);
@@ -375,7 +417,7 @@ public enum ObjectUtil {
             T target = ClassUtil.INSTANCE.instantiate(targetClass);
             beanCopier.copy(source, target, null);
             if (null != consumer) {
-                consumer.accept(target);
+                consumer.accept(source, target);
             }
             targets.add(target);
         }
