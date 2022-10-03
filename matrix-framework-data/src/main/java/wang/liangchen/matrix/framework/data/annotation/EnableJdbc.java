@@ -23,9 +23,7 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.data.configuration.ComponentAutoConfiguration;
-import wang.liangchen.matrix.framework.data.configuration.JdbcAutoConfiguration;
-import wang.liangchen.matrix.framework.data.configuration.MybatisAutoConfiguration;
+import wang.liangchen.matrix.framework.data.configuration.*;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceRegister;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
@@ -77,14 +75,17 @@ public @interface EnableJdbc {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             instantiateDataSource();
             PrettyPrinter.INSTANCE.flush();
-            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(), JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName(), ComponentAutoConfiguration.class.getName()};
+            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName()
+                    , JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName()
+                    , StandaloneDaoConfiguration.class.getName(), CachedStandaloneDaoConfiguration.class.getName()
+                    , ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
             DataStatus.INSTANCE.setJdbcEnabled(true);
             return imports;
         }
 
         private void instantiateDataSource() {
-            MapPropertySource jdbc = (MapPropertySource)environment.getPropertySources().get(EnvironmentContext.JDBC_PREFIX);
+            MapPropertySource jdbc = (MapPropertySource) environment.getPropertySources().get(EnvironmentContext.JDBC_PREFIX);
             String[] propertyNames = jdbc.getPropertyNames();
 
             Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();
@@ -135,7 +136,7 @@ public @interface EnableJdbc {
                 DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();
                 // 将其它配置绑定到dataSource
                 binder.bind(EXTRA_ITEM, Bindable.ofInstance(dataSource));
-                MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource,dialect);
+                MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource, dialect);
             });
         }
 
@@ -147,7 +148,7 @@ public @interface EnableJdbc {
                 if (length > requiredConfigItemsByHost.size()) {
                     length = requiredConfigItemsByUrl.size();
                     requiredConfigItemsByUrl.retainAll(properties.keySet());
-                    ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
+                    ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
                 }
             });
         }

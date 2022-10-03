@@ -9,13 +9,11 @@ import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
+import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -86,11 +84,17 @@ public enum CriteriaResolver {
     }
 
     private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
-        criteriaParameter.addResultColumns(criteria.getResultColumns());
+        Set<String> resultColumns = criteria.getResultColumns();
+        if (CollectionUtil.INSTANCE.isNotEmpty(resultColumns)) {
+            criteriaParameter.addResultColumns(resultColumns);
+        }
     }
 
     private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
-        criteriaParameter.getPagination().addOrderBys(criteria.getOrderBys());
+        List<OrderBy> orderBys = criteria.getOrderBys();
+        if (CollectionUtil.INSTANCE.isNotEmpty(orderBys)) {
+            criteriaParameter.getPagination().addOrderBys(orderBys);
+        }
     }
 
 
@@ -105,7 +109,9 @@ public enum CriteriaResolver {
             Operator operator;
             Map<String, ColumnMeta> columnMetas = abstractCriteria.getTableMeta().getColumnMetas();
             for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
-                sqlValues = criteriaMeta.getSqlValues();
+                Object[] originalSqlValues = criteriaMeta.getSqlValues();
+                // 因为解析过程或习惯sqlValues中的值，所以复制一份
+                sqlValues = Arrays.copyOf(originalSqlValues, originalSqlValues.length);
                 filedName = resoveEntityGetter(criteriaMeta.getColumn());
                 // 任意值为空 跳过
                 boolean skip = parseSqlValues(sqlValues, abstractCriteria.getEntity(), filedName);

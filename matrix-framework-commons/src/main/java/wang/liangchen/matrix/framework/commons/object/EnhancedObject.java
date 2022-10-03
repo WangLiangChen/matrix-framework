@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 
 import java.io.Serializable;
@@ -11,7 +10,7 @@ import java.util.Map;
  * @author Liangchen.Wang 2022-04-01 21:46
  * 不能实现Map接口，否则该类子类的属性将会被隐藏
  */
-public class EnhancedObject implements Cloneable, Serializable {
+public class EnhancedObject implements Serializable {
 
     /**
      * 对象扩展属性 需要被序列化
@@ -56,14 +55,5 @@ public class EnhancedObject implements Cloneable, Serializable {
 
     public void initializeFields() {
         ClassUtil.INSTANCE.initializeFields(this);
-    }
-
-    @Override
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new MatrixErrorException(e);
-        }
     }
 }

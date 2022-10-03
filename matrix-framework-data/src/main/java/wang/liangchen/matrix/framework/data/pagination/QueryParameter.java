@@ -7,6 +7,7 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * @author LiangChen.Wang
@@ -38,8 +39,8 @@ public class QueryParameter extends EnhancedObject {
 
     public void addResultColumns(Set<String> resultColumns) {
         ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, resultColumns, "resultColumns must not be empty");
-        if (null == resultColumns) {
-            resultColumns = new HashSet<>();
+        if (null == this.resultColumns) {
+            this.resultColumns = new HashSet<>();
         }
         this.resultColumns.addAll(resultColumns);
     }
@@ -66,5 +67,15 @@ public class QueryParameter extends EnhancedObject {
 
     public Pagination getPagination() {
         return pagination;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", QueryParameter.class.getSimpleName() + "[", "]")
+                .add("pagination=" + pagination)
+                .add("distinct=" + distinct)
+                .add("forUpdate=" + forUpdate)
+                .add("resultColumns=" + resultColumns)
+                .toString();
     }
 }

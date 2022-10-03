@@ -1,5 +1,9 @@
 package wang.liangchen.matrix.framework.commons.object;
 
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 import net.sf.cglib.beans.BeanCopier;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
@@ -23,6 +27,7 @@ public enum ObjectUtil {
      */
     INSTANCE;
     private final static Map<CopierId, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
+    private static final Schema<ProtostuffWrapper> PROTOSTUFF_WRAPPER_SCHEMA = RuntimeSchema.getSchema(ProtostuffWrapper.class);
 
     public boolean isNull(Object object) {
         return null == object;
@@ -52,8 +57,7 @@ public enum ObjectUtil {
         if (object instanceof Map) {
             return ((Map<?, ?>) object).isEmpty();
         }
-        Class<?> type = object.getClass();
-        if (type.isArray()) {
+        if (isArray(object)) {
             return Array.getLength(object) == 0;
         }
         if (object instanceof Iterator) {
@@ -441,6 +445,36 @@ public enum ObjectUtil {
         BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
                 key -> BeanCopier.create(sourceClass, targetClass, false));
         beanCopier.copy(source, target, null);
+    }
+
+    public <T> byte[] protostuffSerializer(T object) {
+        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
+        wrapper.setObject(object);
+        LinkedBuffer allocate = LinkedBuffer.allocate();
+        try {
+            return ProtostuffIOUtil.toByteArray(wrapper, PROTOSTUFF_WRAPPER_SCHEMA, allocate);
+        } finally {
+            allocate.clear();
+        }
+    }
+
+    public <T> T protostuffDeserializer(byte[] bytes) {
+        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
+        ProtostuffIOUtil.mergeFrom(bytes, wrapper, PROTOSTUFF_WRAPPER_SCHEMA);
+        return wrapper.getObject();
+    }
+
+
+    public static class ProtostuffWrapper<T> {
+        private T object;
+
+        public T getObject() {
+            return object;
+        }
+
+        public void setObject(T object) {
+            this.object = object;
+        }
     }
 
     static class CopierId {

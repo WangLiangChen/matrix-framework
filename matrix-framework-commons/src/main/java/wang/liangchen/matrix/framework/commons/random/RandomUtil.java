@@ -12,7 +12,10 @@ public enum RandomUtil {
     INSTANCE;
 
     public int random(int min, int max) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        return random.nextInt(max - min + 1) + min;
+        return ThreadLocalRandom.current().nextInt(max - min + 1) + min;
+    }
+
+    public int random() {
+        return ThreadLocalRandom.current().nextInt();
     }
 }

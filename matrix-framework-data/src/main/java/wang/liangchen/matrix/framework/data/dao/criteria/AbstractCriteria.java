@@ -257,11 +257,11 @@ abstract class AbstractCriteria<E extends RootEntity> {
         return ANDS;
     }
 
-    protected E getEntity() {
+    public E getEntity() {
         return entity;
     }
 
-    protected Class<E> getEntityClass() {
+    public Class<E> getEntityClass() {
         return entityClass;
     }
 

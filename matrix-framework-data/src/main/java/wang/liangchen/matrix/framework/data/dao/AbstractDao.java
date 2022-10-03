@@ -20,7 +20,7 @@ import java.util.Map;
  * @author Liangchen.Wang 2021-10-19 18:35
  * spirng jdbc,mybatis and jpa
  */
-public abstract class AbstractDao implements IDao{
+public abstract class AbstractDao implements IDao {
     private final static Logger logger = LoggerFactory.getLogger(AbstractDao.class);
     @Inject
     protected JdbcTemplate jdbcTemplate;

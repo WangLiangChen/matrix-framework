@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
  */
-public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Serializable {
+public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     private static final long serialVersionUID = 1L;
     private final List<Object> list;
     protected transient Object relatedArray;
@@ -238,6 +238,7 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
         }
         throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
+
     @SuppressWarnings("unchecked")
     public EnhancedList getEnhancedList(int index) {
         Object object = list.get(index);
@@ -247,7 +248,7 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
         }
 
         if (object instanceof List) {
-            return new EnhancedList((List) object);
+            return new EnhancedList((List<Object>) object);
         }
 
         throw new MatrixWarnException("object must be List or EnhancedList");
@@ -256,6 +257,14 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     public <T> T getObject(int index) {
         Object object = list.get(index);
         return ObjectUtil.INSTANCE.cast(object);
+    }
+
+    public byte[] getBytes(int index) {
+        Object object = get(index);
+        if (object == null) {
+            return null;
+        }
+        return ObjectUtil.INSTANCE.castToBytes(object);
     }
 
     public Boolean getBoolean(int index) {
@@ -267,12 +276,13 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public boolean getBooleanValue(int index) {
-        Object object = get(index);
-        if (object == null) {
+        Boolean object = getBoolean(index);
+        if (null == object) {
             return false;
         }
-        return ObjectUtil.INSTANCE.castToBoolean(object).booleanValue();
+        return object;
     }
+
 
     public Byte getByte(int index) {
         Object object = get(index);
@@ -283,11 +293,11 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public byte getByteValue(int index) {
-        Object object = get(index);
-        if (object == null) {
+        Byte object = getByte(index);
+        if (null == object) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToByte(object).byteValue();
+        return object;
     }
 
     public Short getShort(int index) {
@@ -299,14 +309,14 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public short getShortValue(int index) {
-        Object object = get(index);
+        Short object = getShort(index);
         if (object == null) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToShort(object).shortValue();
+        return object;
     }
 
-    public Integer getInt(int index) {
+    public Integer getInteger(int index) {
         Object object = get(index);
         if (object == null) {
             return null;
@@ -314,12 +324,12 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
         return ObjectUtil.INSTANCE.castToInt(object);
     }
 
-    public int getIntValue(int index) {
-        Object object = get(index);
-        if (object == null) {
+    public int getIntegerValue(int index) {
+        Integer object = getInteger(index);
+        if (null == object) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToInt(object);
+        return object;
     }
 
     public Long getLong(int index) {
@@ -331,11 +341,11 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public long getLongValue(int index) {
-        Object object = get(index);
+        Long object = getLong(index);
         if (object == null) {
             return 0L;
         }
-        return ObjectUtil.INSTANCE.castToLong(object).longValue();
+        return object;
     }
 
     public Float getFloat(int index) {
@@ -347,11 +357,11 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public float getFloatValue(int index) {
-        Object object = get(index);
+        Float object = getFloat(index);
         if (object == null) {
             return 0f;
         }
-        return ObjectUtil.INSTANCE.castToFloat(object).floatValue();
+        return object;
     }
 
     public Double getDouble(int index) {
@@ -363,11 +373,11 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
     }
 
     public double getDoubleValue(int index) {
-        Object object = get(index);
+        Double object = getDouble(index);
         if (object == null) {
             return 0d;
         }
-        return ObjectUtil.INSTANCE.castToDouble(object).doubleValue();
+        return object;
     }
 
     public BigDecimal getBigDecimal(int index) {
@@ -391,29 +401,7 @@ public class EnhancedList implements List<Object>, Cloneable, RandomAccess, Seri
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToString(object);
+        return String.valueOf(object);
     }
 
-    @Override
-    public Object clone() {
-        return new EnhancedList(new ArrayList<Object>(list));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof EnhancedList) {
-            return this.list.equals(((EnhancedList) obj).list);
-        }
-
-        return this.list.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return this.list.hashCode();
-    }
 }

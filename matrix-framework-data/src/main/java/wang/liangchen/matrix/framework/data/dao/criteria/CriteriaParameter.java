@@ -1,14 +1,21 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.cache.sdk.cache.CachedObject;
+import wang.liangchen.matrix.framework.commons.encryption.DigestSignUtil;
+import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.QueryParameter;
 
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * @author Liangchen.Wang 2022-04-17 23:14
  */
-public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
+public class CriteriaParameter<E extends RootEntity> extends QueryParameter implements CachedObject {
+    private final static Logger logger = LoggerFactory.getLogger(CriteriaParameter.class);
     private String dataSourceType;
     private TableMeta tableMeta;
     private String tableName;
@@ -69,5 +76,24 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     public void setEntityClass(Class<E> entityClass) {
         this.entityClass = entityClass;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", CriteriaParameter.class.getSimpleName() + "[", "]")
+                .add("dataSourceType='" + dataSourceType + "'")
+                .add("tableName='" + tableName + "'")
+                .add("whereSql='" + whereSql + "'")
+                .add("whereSqlValues=" + whereSqlValues)
+                + super.toString();
+    }
+
+    @Override
+    public Object cacheKey() {
+        String cacheKey = toString();
+        logger.debug("CacheKey: {}", cacheKey);
+        cacheKey = DigestSignUtil.INSTANCE.digest(DigestAlgorithm.MD5, cacheKey);
+        logger.debug("SimpleCacheKey: {}", cacheKey);
+        return cacheKey;
     }
 }

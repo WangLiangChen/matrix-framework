@@ -21,6 +21,7 @@
         <version.jose.jwt>9.24.3</version.jose.jwt>
         <version.el>3.0.0</version.el>
         <version.hibernate.validator>6.2.5.Final</version.hibernate.validator>
+        <version.protostuff>1.8.0</version.protostuff>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -74,6 +75,16 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${version.jose.jwt}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${version.protostuff}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${version.protostuff}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -143,6 +154,14 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
         </dependency>
     </dependencies>
 </project>

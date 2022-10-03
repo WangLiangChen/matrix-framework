@@ -1,18 +1,18 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 ;
 
 /**
  * @author LiangChen.Wang
  */
-public class Pagination implements Cloneable, Serializable {
+public class Pagination implements Serializable {
     /**
      * 分页页号
      */
@@ -102,13 +102,11 @@ public class Pagination implements Cloneable, Serializable {
     }
 
     @Override
-    public Pagination clone() {
-        try {
-            Pagination clone = (Pagination) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new MatrixErrorException(e);
-        }
+    public String toString() {
+        return new StringJoiner(", ", Pagination.class.getSimpleName() + "[", "]")
+                .add("pageNumber=" + pageNumber)
+                .add("pageSize=" + pageSize)
+                .add("orderBys=" + orderBys)
+                .toString();
     }
 }

@@ -1,6 +1,8 @@
 package wang.liangchen.matrix.framework.commons.object;
 
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,21 +13,28 @@ import java.util.*;
  * @author Liangchen.Wang 2022-04-01 21:46
  * 不能实现Map接口，否则该类子类的属性将会被隐藏
  */
-public class EnhancedMap implements Cloneable, Serializable {
-    private static final long serialVersionUID = 1L;
+public class EnhancedMap implements Serializable {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    /**
+     * 对象扩展属性 需要被序列化
+     */
+    private final Map<String, Object> extendedFields;
 
-    private final transient Map<String, Object> extendedFields;
-
-    public EnhancedMap() {
-        this(DEFAULT_INITIAL_CAPACITY, false);
+    public EnhancedMap(int initialCapacity, boolean ordered) {
+        if (ordered) {
+            extendedFields = new LinkedHashMap<>(initialCapacity);
+        } else {
+            extendedFields = new HashMap<>(initialCapacity);
+        }
     }
 
     public EnhancedMap(Map<String, Object> extendedFields) {
-        if (extendedFields == null) {
-            throw new IllegalArgumentException("map is null.");
-        }
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, extendedFields, "extendedFields must not be null");
         this.extendedFields = extendedFields;
+    }
+
+    public EnhancedMap() {
+        this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
     public EnhancedMap(boolean ordered) {
@@ -36,53 +45,25 @@ public class EnhancedMap implements Cloneable, Serializable {
         this(initialCapacity, false);
     }
 
-
-    public EnhancedMap(int initialCapacity, boolean ordered) {
-        if (ordered) {
-            extendedFields = new LinkedHashMap<>(initialCapacity);
-        } else {
-            extendedFields = new HashMap<>(initialCapacity);
-        }
-    }
-
-
     public int size() {
         return extendedFields.size();
     }
-
 
     public boolean isEmpty() {
         return extendedFields.isEmpty();
     }
 
-
     public boolean containsKey(Object key) {
-        boolean contain = extendedFields.containsKey(key);
-        if (contain) {
-            return true;
-        }
-        if (key instanceof Number || key instanceof Character || key instanceof Boolean || key instanceof UUID) {
-            contain = extendedFields.containsKey(String.valueOf(key));
-        }
-        return contain;
+        return extendedFields.containsKey(String.valueOf(key));
     }
-
 
     public boolean containsValue(Object object) {
         return extendedFields.containsValue(object);
     }
 
-
     public Object get(Object key) {
-        Object object = extendedFields.get(key);
-        if (object == null) {
-            if (key instanceof Number || key instanceof Character || key instanceof Boolean || key instanceof UUID) {
-                object = extendedFields.get(String.valueOf(key));
-            }
-        }
-        return object;
+        return extendedFields.get(String.valueOf(key));
     }
-
 
     public Object getOrDefault(Object key, Object defaultValue) {
         Object object;
@@ -95,9 +76,8 @@ public class EnhancedMap implements Cloneable, Serializable {
         if (object instanceof EnhancedMap) {
             return (EnhancedMap) object;
         }
-
         if (object instanceof Map) {
-            return new EnhancedMap((Map) object);
+            return new EnhancedMap((Map<String, Object>) object);
         }
         throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
@@ -110,7 +90,7 @@ public class EnhancedMap implements Cloneable, Serializable {
         }
 
         if (object instanceof List) {
-            return new EnhancedList((List) object);
+            return new EnhancedList((List<Object>) object);
         }
         throw new MatrixWarnException("object must be List or EnhancedList");
     }
@@ -118,14 +98,6 @@ public class EnhancedMap implements Cloneable, Serializable {
     public <T> T getObject(String key) {
         Object object = extendedFields.get(key);
         return ObjectUtil.INSTANCE.cast(object);
-    }
-
-    public Boolean getBoolean(String key) {
-        Object object = get(key);
-        if (object == null) {
-            return null;
-        }
-        return ObjectUtil.INSTANCE.castToBoolean(object);
     }
 
     public byte[] getBytes(String key) {
@@ -136,13 +108,22 @@ public class EnhancedMap implements Cloneable, Serializable {
         return ObjectUtil.INSTANCE.castToBytes(object);
     }
 
-    public boolean getBooleanValue(String key) {
+    public Boolean getBoolean(String key) {
         Object object = get(key);
         if (object == null) {
+            return null;
+        }
+        return ObjectUtil.INSTANCE.castToBoolean(object);
+    }
+
+    public boolean getBooleanValue(String key) {
+        Boolean object = getBoolean(key);
+        if (null == object) {
             return false;
         }
-        return ObjectUtil.INSTANCE.castToBoolean(key).booleanValue();
+        return object;
     }
+
 
     public Byte getByte(String key) {
         Object object = get(key);
@@ -153,11 +134,11 @@ public class EnhancedMap implements Cloneable, Serializable {
     }
 
     public byte getByteValue(String key) {
-        Object object = get(key);
-        if (object == null) {
+        Byte object = getByte(key);
+        if (null == object) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToByte(object).byteValue();
+        return object;
     }
 
     public Short getShort(String key) {
@@ -169,11 +150,11 @@ public class EnhancedMap implements Cloneable, Serializable {
     }
 
     public short getShortValue(String key) {
-        Object object = get(key);
+        Short object = getShort(key);
         if (object == null) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToShort(object).shortValue();
+        return object;
     }
 
     public Integer getInteger(String key) {
@@ -184,12 +165,12 @@ public class EnhancedMap implements Cloneable, Serializable {
         return ObjectUtil.INSTANCE.castToInt(object);
     }
 
-    public int getIntValue(String key) {
-        Object object = get(key);
-        if (object == null) {
+    public int getIntegerValue(String key) {
+        Integer object = getInteger(key);
+        if (null == object) {
             return 0;
         }
-        return ObjectUtil.INSTANCE.castToInt(object).intValue();
+        return object;
     }
 
     public Long getLong(String key) {
@@ -201,11 +182,11 @@ public class EnhancedMap implements Cloneable, Serializable {
     }
 
     public long getLongValue(String key) {
-        Object object = get(key);
+        Long object = getLong(key);
         if (object == null) {
             return 0L;
         }
-        return ObjectUtil.INSTANCE.castToLong(object).longValue();
+        return object;
     }
 
     public Float getFloat(String key) {
@@ -217,11 +198,11 @@ public class EnhancedMap implements Cloneable, Serializable {
     }
 
     public float getFloatValue(String key) {
-        Object object = get(key);
+        Float object = getFloat(key);
         if (object == null) {
             return 0f;
         }
-        return ObjectUtil.INSTANCE.castToFloat(object).floatValue();
+        return object;
     }
 
     public Double getDouble(String key) {
@@ -233,11 +214,11 @@ public class EnhancedMap implements Cloneable, Serializable {
     }
 
     public double getDoubleValue(String key) {
-        Object object = get(key);
+        Double object = getDouble(key);
         if (object == null) {
             return 0d;
         }
-        return ObjectUtil.INSTANCE.castToDouble(object).doubleValue();
+        return object;
     }
 
     public BigDecimal getBigDecimal(String key) {
@@ -319,29 +300,6 @@ public class EnhancedMap implements Cloneable, Serializable {
         return extendedFields.entrySet();
     }
 
-
-    public EnhancedMap clone() {
-        return new EnhancedMap(extendedFields instanceof LinkedHashMap ? new LinkedHashMap<>(extendedFields) : new HashMap<>(extendedFields));
-    }
-
-
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object instanceof EnhancedMap) {
-            return this.extendedFields.equals(((EnhancedMap) object).extendedFields);
-        }
-
-        return this.extendedFields.equals(object);
-    }
-
-
-    public int hashCode() {
-        return this.extendedFields.hashCode();
-    }
-
     public Map<String, Object> getNativeMap() {
         return this.extendedFields;
     }
@@ -361,5 +319,4 @@ public class EnhancedMap implements Cloneable, Serializable {
     public Map<String, Object> getExtendedFields() {
         return extendedFields;
     }
-
 }

@@ -8,6 +8,7 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 /**
@@ -93,12 +94,11 @@ public final class PaginationResult<E> {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("PaginationResult{");
-        builder.append("totalRecords = ").append(totalRecords).append(", ");
-        builder.append("pageNumber = ").append(pageNumber).append(", ");
-        builder.append("pageSize = ").append(pageSize).append(", ");
-        builder.append("datas = ").append(datas);
-        return builder.toString();
+        return new StringJoiner(", ", PaginationResult.class.getSimpleName() + "[", "]")
+                .add("datas=" + datas)
+                .add("totalRecords=" + totalRecords)
+                .add("pageNumber=" + pageNumber)
+                .add("pageSize=" + pageSize)
+                .toString();
     }
 }

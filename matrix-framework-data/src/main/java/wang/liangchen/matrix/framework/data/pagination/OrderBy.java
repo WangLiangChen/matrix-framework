@@ -4,10 +4,13 @@ package wang.liangchen.matrix.framework.data.pagination;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
+import java.io.Serializable;
+import java.util.StringJoiner;
+
 /**
  * @author LiangChen.Wang
  */
-public final class OrderBy {
+public final class OrderBy implements Serializable {
     private final String orderBy;
     private final String direction;
 
@@ -43,4 +46,11 @@ public final class OrderBy {
         return direction;
     }
 
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", OrderBy.class.getSimpleName() + "[", "]")
+                .add("orderBy='" + orderBy + "'")
+                .add("direction='" + direction + "'")
+                .toString();
+    }
 }
