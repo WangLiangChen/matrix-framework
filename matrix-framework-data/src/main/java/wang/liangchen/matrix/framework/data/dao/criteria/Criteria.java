@@ -22,6 +22,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     private Boolean distinct;
     private Long version;
     private List<OrderBy> orderBys;
+    private boolean useCache = true;
 
     private Criteria(E entity) {
         super(entity);
@@ -70,6 +71,11 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
 
     public Criteria<E> forUpdate() {
         this.forUpdate = true;
+        return this;
+    }
+
+    public Criteria<E> disableCache() {
+        this.useCache = false;
         return this;
     }
 
@@ -326,4 +332,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return version;
     }
 
+    public boolean isUseCache() {
+        return useCache;
+    }
 }

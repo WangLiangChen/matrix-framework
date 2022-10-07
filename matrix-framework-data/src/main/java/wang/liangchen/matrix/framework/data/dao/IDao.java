@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.dao.criteria.DeleteCriteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
@@ -23,11 +24,11 @@ public interface IDao {
      * If there is a field using annotation '@ColumnMarkDelete',the row will not be physically deleted
      * </pre>
      *
-     * @param entity Entity object to delete
+     * @param primaryKey Entity object to delete
      * @param <E>    Subclass of RootEntity
      * @return Number of rows deleted
      */
-    <E extends RootEntity> int delete(E entity);
+    <E extends RootEntity> int delete(E primaryKey);
 
     /**
      * <pre>
@@ -35,11 +36,11 @@ public interface IDao {
      * If there is a field using annotation '@ColumnMarkDelete',the row will not be physically deleted
      * </pre>
      *
-     * @param criteria Constructed query criteria
+     * @param deleteCriteria Constructed query criteria
      * @param <E>      Subclass of RootEntity
      * @return Number of rows deleted
      */
-    <E extends RootEntity> int delete(Criteria<E> criteria);
+    <E extends RootEntity> int delete(DeleteCriteria<E> deleteCriteria);
 
     /**
      * <pre>

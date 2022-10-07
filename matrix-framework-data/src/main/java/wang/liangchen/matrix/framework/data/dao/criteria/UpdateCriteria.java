@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     private final Map<EntityGetter<E>, Object> forceUpdateFields = new HashMap<>();
+    private boolean flushCache = true;
 
     @SuppressWarnings("unchecked")
     private UpdateCriteria(E entity) {
@@ -34,6 +35,10 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
 
     public UpdateCriteria<E> forceUpdate(EntityGetter<E> column, Object value) {
         forceUpdateFields.put(column, value);
+        return this;
+    }
+    public UpdateCriteria<E> disableCache() {
+        this.flushCache = false;
         return this;
     }
 
@@ -209,5 +214,9 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
 
     public Map<EntityGetter<E>, Object> getForceUpdateFields() {
         return forceUpdateFields;
+    }
+
+    public boolean isFlushCache() {
+        return flushCache;
     }
 }

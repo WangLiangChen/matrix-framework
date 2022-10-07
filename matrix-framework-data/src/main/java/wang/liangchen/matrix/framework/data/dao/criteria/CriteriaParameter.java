@@ -85,7 +85,7 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter impl
                 .add("tableName='" + tableName + "'")
                 .add("whereSql='" + whereSql + "'")
                 .add("whereSqlValues=" + whereSqlValues)
-                + super.toString();
+                .add(super.toString()).toString();
     }
 
     @Override

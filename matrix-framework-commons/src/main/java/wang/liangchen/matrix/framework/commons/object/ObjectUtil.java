@@ -465,7 +465,7 @@ public enum ObjectUtil {
     }
 
 
-    public static class ProtostuffWrapper<T> {
+    static class ProtostuffWrapper<T> {
         private T object;
 
         public T getObject() {
