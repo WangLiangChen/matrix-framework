@@ -8,6 +8,8 @@ public class GeneratorProperties {
     private String output;
     private String basePackage;
     private String contextPackage;
+    private String aggregatePackage;
+    private boolean aggregateRoot;
 
     private String datasource;
     private String tableName;
@@ -48,6 +50,22 @@ public class GeneratorProperties {
 
     public void setContextPackage(String contextPackage) {
         this.contextPackage = contextPackage;
+    }
+
+    public String getAggregatePackage() {
+        return aggregatePackage;
+    }
+
+    public void setAggregatePackage(String aggregatePackage) {
+        this.aggregatePackage = aggregatePackage;
+    }
+
+    public boolean isAggregateRoot() {
+        return aggregateRoot;
+    }
+
+    public void setAggregateRoot(boolean aggregateRoot) {
+        this.aggregateRoot = aggregateRoot;
     }
 
     public String getDatasource() {

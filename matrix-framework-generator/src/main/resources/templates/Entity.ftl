@@ -1,10 +1,14 @@
-package ${basePackage}.${contextPackage}.${domainPackage};
+package ${basePackage}.${contextPackage}.${domainPackage}.${aggregatePackage};
 
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+<#if aggregateRoot>
+import wang.liangchen.matrix.framework.ddd.domain.AggregateRoot;
+</#if>
 
 import javax.persistence.*;
 <#list imports as importPackage>
@@ -14,11 +18,15 @@ import ${importPackage};
 /**
  * @author ${author}
  */
+<#if aggregateRoot>
+@AggregateRoot
+</#if>
 @Entity(name = "${tableName}")
 public class ${entityName} extends RootEntity {
 <#list columnMetas as columnMeta>
     <#if columnMeta.id>
     @Id
+    @IdStrategy(IdStrategy.Strategy.MatrixFlake)
     </#if>
     <#if columnMeta.unique>
     @UniqueConstraint
@@ -27,9 +35,15 @@ public class ${entityName} extends RootEntity {
     @Version
     </#if>
     <#if columnMeta.markDeleteValue??>
+    /**
+     * 逻辑删除的列和逻辑值
+     */
     @ColumnMarkDelete("${columnMeta.markDeleteValue}")
     </#if>
     <#if columnMeta.json>
+    /**
+     * 对象和JSON格式互转列
+     */
     @ColumnJson
     </#if>
     @Column(name = "${columnMeta.columnName}")
