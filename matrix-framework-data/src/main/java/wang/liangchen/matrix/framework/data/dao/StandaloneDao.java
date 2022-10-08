@@ -106,7 +106,7 @@ public class StandaloneDao extends AbstractDao {
         return count(criteriaParameter);
     }
 
-    public <E extends RootEntity> int count(CriteriaParameter<E> criteriaParameter) {
+    private <E extends RootEntity> int count(CriteriaParameter<E> criteriaParameter) {
         return MybatisExecutor.INSTANCE.count(sqlSessionTemplate, criteriaParameter);
     }
 

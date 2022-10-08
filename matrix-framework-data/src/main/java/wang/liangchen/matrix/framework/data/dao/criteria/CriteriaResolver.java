@@ -85,9 +85,14 @@ public enum CriteriaResolver {
 
     private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         Set<String> resultColumns = criteria.getResultColumns();
+        // 非空则使用设置的返回列
         if (CollectionUtil.INSTANCE.isNotEmpty(resultColumns)) {
             criteriaParameter.addResultColumns(resultColumns);
+            return;
         }
+        // 为空则使用所有列
+        Map<String, ColumnMeta> columnMetas = criteria.getTableMeta().getColumnMetas();
+        columnMetas.forEach((fieldName, columnMeta) -> criteriaParameter.addResultColumn(columnMeta.getColumnName()));
     }
 
     private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
