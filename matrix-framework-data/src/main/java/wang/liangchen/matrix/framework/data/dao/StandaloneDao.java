@@ -1,40 +1,37 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 
-import org.springframework.cache.Cache;
-import wang.liangchen.matrix.cache.sdk.cache.CacheManager;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
-import wang.liangchen.matrix.framework.commons.random.RandomUtil;
+import wang.liangchen.matrix.framework.data.cache.CacheOperator;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author Liangchen.Wang 2021-10-20 14:21
  */
 public class StandaloneDao extends AbstractDao {
-    private final CacheManager cacheManager;
+    private final CacheOperator cacheOperator;
 
     public StandaloneDao() {
-        this.cacheManager = null;
+        this.cacheOperator = null;
     }
 
-    public StandaloneDao(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+    public StandaloneDao(CacheOperator cacheOperator) {
+        this.cacheOperator = cacheOperator;
     }
 
     @Override
     public <E extends RootEntity> int insert(E entity) {
         int rows = MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entity);
-        optionalCache(entity.getClass()).ifPresent(Cache::clear);
+        clearCache(entity.getClass());
         return rows;
     }
 
@@ -42,7 +39,7 @@ public class StandaloneDao extends AbstractDao {
     public <E extends RootEntity> int insert(Collection<E> entities) {
         int rows = MybatisExecutor.INSTANCE.insert(sqlSessionTemplate, entities);
         for (E entity : entities) {
-            optionalCache(entity.getClass()).ifPresent(Cache::clear);
+            clearCache(entity.getClass());
             return rows;
         }
         return rows;
@@ -51,7 +48,7 @@ public class StandaloneDao extends AbstractDao {
     @Override
     public <E extends RootEntity> int delete(E primaryKey) {
         int rows = MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, primaryKey);
-        optionalCache(primaryKey.getClass()).ifPresent(Cache::clear);
+        clearCache(primaryKey.getClass());
         return rows;
     }
 
@@ -60,7 +57,7 @@ public class StandaloneDao extends AbstractDao {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(deleteCriteria);
         int rows = MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
         if (deleteCriteria.isFlushCache()) {
-            optionalCache(deleteCriteria.getEntityClass()).ifPresent(Cache::clear);
+            clearCache(deleteCriteria.getEntityClass());
         }
         return rows;
     }
@@ -68,7 +65,7 @@ public class StandaloneDao extends AbstractDao {
     @Override
     public <E extends RootEntity> int update(E entity) {
         int rows = MybatisExecutor.INSTANCE.update(sqlSessionTemplate, entity);
-        optionalCache(entity.getClass()).ifPresent(Cache::clear);
+        clearCache(entity.getClass());
         return rows;
     }
 
@@ -77,7 +74,7 @@ public class StandaloneDao extends AbstractDao {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(updateCriteria);
         int rows = MybatisExecutor.INSTANCE.update(sqlSessionTemplate, criteriaParameter);
         if (updateCriteria.isFlushCache()) {
-            optionalCache(updateCriteria.getEntityClass()).ifPresent(Cache::clear);
+            clearCache(updateCriteria.getEntityClass());
         }
         return rows;
     }
@@ -99,9 +96,7 @@ public class StandaloneDao extends AbstractDao {
     public <E extends RootEntity> int count(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         if (criteria.isUseCache()) {
-            return optionalCache(criteria.getEntityClass())
-                    .map(cache -> cache.get(criteriaParameter.cacheKey(), () -> count(criteriaParameter)))
-                    .orElseGet(() -> count(criteriaParameter));
+            return loadCache(criteriaParameter, () -> count(criteriaParameter));
         }
         return count(criteriaParameter);
     }
@@ -119,9 +114,7 @@ public class StandaloneDao extends AbstractDao {
     public <E extends RootEntity> List<E> list(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         if (criteria.isUseCache()) {
-            return optionalCache(criteria.getEntityClass())
-                    .map(cache -> cache.get(criteriaParameter.cacheKey(), () -> list(criteriaParameter)))
-                    .orElseGet(() -> list(criteriaParameter));
+            return loadCache(criteriaParameter, () -> list(criteriaParameter));
         }
         return list(criteriaParameter);
     }
@@ -134,9 +127,7 @@ public class StandaloneDao extends AbstractDao {
     public <E extends RootEntity> PaginationResult<E> pagination(Criteria<E> criteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(criteria);
         if (criteria.isUseCache()) {
-            return optionalCache(criteria.getEntityClass())
-                    .map(cache -> cache.get(criteriaParameter.cacheKey(), () -> pagination(criteriaParameter)))
-                    .orElseGet(() -> pagination(criteriaParameter));
+            return loadCache(criteriaParameter, () -> pagination(criteriaParameter));
         }
         return pagination(criteriaParameter);
     }
@@ -157,11 +148,17 @@ public class StandaloneDao extends AbstractDao {
         return paginationResult;
     }
 
-
-    private Optional<Cache> optionalCache(Class<?> entityClass) {
-        if (null == cacheManager) {
-            return Optional.empty();
+    private <E extends RootEntity> void clearCache(Class<E> entityClass) {
+        if (null == cacheOperator) {
+            return;
         }
-        return Optional.ofNullable(cacheManager.getCache(entityClass.getName(), Duration.ofMinutes(RandomUtil.INSTANCE.random(5, 60))));
+        this.cacheOperator.clear(entityClass);
+    }
+
+    private <R, E extends RootEntity> R loadCache(CriteriaParameter<E> criteriaParameter, Supplier<R> valueLoader) {
+        if (null == cacheOperator) {
+            return valueLoader.get();
+        }
+        return this.cacheOperator.load(criteriaParameter.getEntityClass(), criteriaParameter.cacheKey(), valueLoader);
     }
 }
