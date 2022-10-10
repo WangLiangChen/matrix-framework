@@ -6,6 +6,7 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
+import wang.liangchen.matrix.framework.data.annotation.ColumnState;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
@@ -35,7 +36,7 @@ public enum TableMetas {
 
     private ColumnMeta resolveColumnMeta(Field field) {
         return ColumnMeta.newInstance(field.getName(), field.getType(), field.getGenericType(), resolveColumnName(field),
-                resolveColumnId(field), resolveColumnIdStrategy(field), resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnJson(field), resolveColumnDelete(field));
+                resolveColumnId(field), resolveColumnIdStrategy(field), resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnJson(field), resolveColumnState(field), resolveColumnDelete(field));
     }
 
     private boolean resolveColumnId(Field field) {
@@ -64,6 +65,11 @@ public enum TableMetas {
     public boolean resolveColumnJson(Field field) {
         ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
         return null != columnJsonAnnotation;
+    }
+
+    public boolean resolveColumnState(Field field) {
+        ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
+        return null != columnStateAnnotation;
     }
 
     private boolean resolveColumnVersion(Field field) {

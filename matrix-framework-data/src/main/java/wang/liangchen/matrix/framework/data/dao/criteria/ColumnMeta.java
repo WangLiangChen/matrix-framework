@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
@@ -31,6 +32,8 @@ public class ColumnMeta {
     private final boolean unique;
     private final boolean version;
     private final boolean json;
+    private final boolean state;
+    private final boolean stateUseConstantEnum;
     private final String markDeleteValue;
     private final String fieldName;
     private final Class<?> fieldClass;
@@ -44,7 +47,7 @@ public class ColumnMeta {
     }
 
     private ColumnMeta(String fieldName, Class<?> fieldClass, Type fieldType,
-                       String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue) {
+                       String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, String markDeleteValue) {
         this.fieldName = fieldName;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
@@ -54,6 +57,12 @@ public class ColumnMeta {
         this.unique = isUnique;
         this.version = isVersion;
         this.json = isJson;
+        this.state = isState;
+        if (fieldClass.isAssignableFrom(ConstantEnum.class)) {
+            this.stateUseConstantEnum = true;
+        } else {
+            this.stateUseConstantEnum = false;
+        }
         this.markDeleteValue = markDeleteValue;
 
         this.dataTypeName = null;
@@ -63,12 +72,12 @@ public class ColumnMeta {
     }
 
     public static ColumnMeta newInstance(String fieldName, Class<?> fieldClass, Type fieldType,
-                                         String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue) {
-        return new ColumnMeta(fieldName, fieldClass, fieldType, columnName, isId, idStrategy, isUnique, isVersion, isJson, markDeleteValue);
+                                         String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, String markDeleteValue) {
+        return new ColumnMeta(fieldName, fieldClass, fieldType, columnName, isId, idStrategy, isUnique, isVersion, isJson, isState, markDeleteValue);
     }
 
     private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName,
-                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue, boolean underline2camelCase) {
+                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase) {
         this.columnName = columnName;
         this.dataTypeName = dataTypeName;
         this.jdbcTypeName = jdbcTypeName;
@@ -77,6 +86,8 @@ public class ColumnMeta {
         this.unique = isUnique;
         this.version = isVersion;
         this.json = isJson;
+        this.state = isState;
+        this.stateUseConstantEnum = isStateUseConstantEnum;
         this.markDeleteValue = markDeleteValue;
 
         if (underline2camelCase) {
@@ -86,10 +97,12 @@ public class ColumnMeta {
         }
         this.fieldClass = dataType2JavaType(dataTypeName);
         this.fieldType = this.fieldClass;
-        if (ByteArray.class.isAssignableFrom(this.fieldClass)) {
-            modifier = BYTE_ARRAY;
+        if (isState && isStateUseConstantEnum) {
+            this.modifier = "ConstantEnum";
+        } else if (ByteArray.class.isAssignableFrom(this.fieldClass)) {
+            this.modifier = BYTE_ARRAY;
         } else {
-            modifier = fieldClass.getSimpleName();
+            this.modifier = fieldClass.getSimpleName();
         }
         String packageName = fieldClass.getPackage().getName();
         if (NON_IMPORT.equals(packageName)) {
@@ -100,8 +113,8 @@ public class ColumnMeta {
     }
 
     public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
-                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, String markDeleteValue, boolean underline2camelCase) {
-        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, markDeleteValue, underline2camelCase);
+                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, markDeleteValue, underline2camelCase);
     }
 
 
@@ -163,6 +176,14 @@ public class ColumnMeta {
 
     public Type getFieldType() {
         return fieldType;
+    }
+
+    public boolean isState() {
+        return state;
+    }
+
+    public boolean isStateUseConstantEnum() {
+        return stateUseConstantEnum;
     }
 
     private Class<?> dataType2JavaType(String dataTypeName) {

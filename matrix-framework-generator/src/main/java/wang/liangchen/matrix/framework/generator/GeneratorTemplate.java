@@ -12,6 +12,7 @@ import java.util.Set;
  */
 public class GeneratorTemplate extends GeneratorProperties {
     private String domainPackage;
+    private String managerClassName;
     private String southboundAclPackage;
     private String portPackage;
     private String adapterPackage;
@@ -31,6 +32,8 @@ public class GeneratorTemplate extends GeneratorProperties {
     private String southPackage;
     private Set<String> imports = new HashSet<>();
     private List<ColumnMeta> columnMetas = new ArrayList<>();
+    private List<ColumnMeta> pkColumnMetas = new ArrayList<>();
+    private ColumnMeta stateColumnMeta;
 
 
     public String getDomainPackage() {
@@ -47,6 +50,10 @@ public class GeneratorTemplate extends GeneratorProperties {
 
     public List<ColumnMeta> getColumnMetas() {
         return columnMetas;
+    }
+
+    public List<ColumnMeta> getPkColumnMetas() {
+        return pkColumnMetas;
     }
 
     public void setSouthboundAclPackage(String southboundAclPackage) {
@@ -175,5 +182,21 @@ public class GeneratorTemplate extends GeneratorProperties {
 
     public void setSouthPackage(String southPackage) {
         this.southPackage = southPackage;
+    }
+
+    public ColumnMeta getStateColumnMeta() {
+        return stateColumnMeta;
+    }
+
+    public void setStateColumnMeta(ColumnMeta stateColumnMeta) {
+        this.stateColumnMeta = stateColumnMeta;
+    }
+
+    public void setManagerClassName(String managerClassName) {
+        this.managerClassName = managerClassName;
+    }
+
+    public String getManagerClassName() {
+        return managerClassName;
     }
 }

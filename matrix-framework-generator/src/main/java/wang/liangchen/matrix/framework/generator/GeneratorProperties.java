@@ -15,6 +15,8 @@ public class GeneratorProperties {
     private String tableName;
     private String entityName;
     private String columnVersion;
+    private String columnState;
+    private boolean columnStateUseConstantEnum;
     private String columnJson;
     private String columnMarkDelete;
     private String columnMarkDeleteValue;
@@ -130,5 +132,21 @@ public class GeneratorProperties {
 
     public void setCamelCase(boolean camelCase) {
         this.camelCase = camelCase;
+    }
+
+    public void setColumnState(String columnState) {
+        this.columnState = columnState;
+    }
+
+    public String getColumnState() {
+        return columnState;
+    }
+
+    public void setColumnStateUseConstantEnum(boolean columnStateUseConstantEnum) {
+        this.columnStateUseConstantEnum = columnStateUseConstantEnum;
+    }
+
+    public boolean isColumnStateUseConstantEnum() {
+        return columnStateUseConstantEnum;
     }
 }

@@ -73,6 +73,7 @@ public class DDDGenerator {
             createContextPackage(generatorProperties);
             createDomain(generatorProperties);
             createEntity(generatorProperties);
+            createManager(generatorProperties);
             createSouthboundAcl(generatorProperties);
             createPort(generatorProperties);
             createAdapter(generatorProperties);
@@ -86,6 +87,7 @@ public class DDDGenerator {
     private void createContextPackage(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
         generatorTemplate.setDomainPackage("domain");
+        generatorTemplate.setManagerClassName(generatorTemplate.getEntityName() + "Manager");
         generatorTemplate.setSouthboundAclPackage("southbound_acl");
         generatorTemplate.setPortPackage("port");
         generatorTemplate.setAdapterPackage("adapter");
@@ -368,7 +370,7 @@ public class DDDGenerator {
             Files.createFile(packageInfoFilePath);
             Template template = freemarkerConfig.getTemplate("Aggregate.ftl");
             template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
-            
+
             // Entity File
             Path entityFilePath = entityPath.resolve(generatorProperties.getEntityName() + JAVA);
             if (Files.exists(entityFilePath)) {
@@ -376,6 +378,31 @@ public class DDDGenerator {
             }
             Files.createFile(entityFilePath);
             template = freemarkerConfig.getTemplate("Entity.ftl");
+            template.process(generatorProperties, new FileWriter(entityFilePath.toFile()));
+        } catch (IOException | TemplateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void createManager(GeneratorProperties generatorProperties) {
+        GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
+        String packagePathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorProperties.getContextPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getDomainPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getAggregatePackage())
+                .toString();
+        try {
+            Path packagePath = Paths.get(packagePathName);
+            if (Files.notExists(packagePath)) {
+                Files.createDirectories(packagePath);
+            }
+            // Entity File
+            Path entityFilePath = packagePath.resolve(generatorProperties.getEntityName() + "Manager" + JAVA);
+            if (Files.exists(entityFilePath)) {
+                throw new MatrixWarnException("file:{} already exists", entityFilePath.toString());
+            }
+            Files.createFile(entityFilePath);
+            Template template = freemarkerConfig.getTemplate("Manager.ftl");
             template.process(generatorProperties, new FileWriter(entityFilePath.toFile()));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
@@ -452,6 +479,10 @@ public class DDDGenerator {
                     case "column-version":
                         generatorProperties.setColumnVersion(node.getTextContent());
                         break;
+                    case "column-state":
+                        generatorProperties.setColumnState(node.getTextContent());
+                        generatorProperties.setColumnStateUseConstantEnum(Boolean.parseBoolean(node.getAttributes().getNamedItem("useConstantEnum").getTextContent()));
+                        break;
                     case "column-json":
                         generatorProperties.setColumnJson(node.getTextContent());
                         break;
@@ -481,11 +512,13 @@ public class DDDGenerator {
                 List<String> uniqueKeyColumnNames = uniqueKeyColumnNames(databaseMetaData, tableName);
                 uniqueKeyColumnNames.removeAll(primaryKeyColumnNames);
 
-                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties.isCamelCase(),
-                        generatorProperties.getColumnVersion(), generatorProperties.getColumnJson(), generatorProperties.getColumnMarkDelete(), generatorProperties.getColumnMarkDeleteValue(),
-                        primaryKeyColumnNames, uniqueKeyColumnNames);
+                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties, primaryKeyColumnNames, uniqueKeyColumnNames);
                 GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
                 generatorTemplate.getColumnMetas().addAll(columnMetas);
+                generatorTemplate.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toList()));
+                columnMetas.stream().filter(ColumnMeta::isState)
+                        .findFirst().ifPresent(generatorTemplate::setStateColumnMeta);
+
                 // 构造imports
                 Set<String> imports = columnMetas.stream().map(ColumnMeta::getImportPackage).filter(StringUtil.INSTANCE::isNotBlank).collect(Collectors.toSet());
                 generatorTemplate.getImports().addAll(imports);
@@ -520,7 +553,7 @@ public class DDDGenerator {
 
     }
 
-    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, boolean underline2camelCase, String versionColumn, String jsonColumn, String deleteColumn, String markDeleteValue, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
+    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, GeneratorProperties generatorProperties, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -534,11 +567,13 @@ public class DDDGenerator {
 
             boolean isId = primaryKeyColumnNames.contains(columnName);
             boolean isUnique = uniqueKeyColumnNames.contains(columnName);
-            boolean isVersion = columnName.equals(versionColumn);
-            boolean isJson = columnName.equals(jsonColumn);
-            String _deleteValue = columnName.equals(deleteColumn) ? markDeleteValue : null;
+            boolean isVersion = columnName.equals(generatorProperties.getColumnVersion());
+            boolean isJson = columnName.equals(generatorProperties.getColumnJson());
+            boolean isState = columnName.equals(generatorProperties.getColumnState());
+            boolean isStateUseConstantEnum = generatorProperties.isColumnStateUseConstantEnum();
+            String _deleteValue = columnName.equals(generatorProperties.getColumnMarkDelete()) ? generatorProperties.getColumnMarkDeleteValue() : null;
 
-            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, _deleteValue, underline2camelCase);
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, _deleteValue, generatorProperties.isCamelCase());
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();

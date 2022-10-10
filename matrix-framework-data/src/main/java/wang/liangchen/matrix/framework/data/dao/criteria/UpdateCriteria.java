@@ -19,17 +19,8 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         super(entity);
     }
 
-    private UpdateCriteria(Class<E> entityClass) {
-        super(entityClass);
-    }
-
     public static <E extends RootEntity> UpdateCriteria<E> of(E entity) {
         return new UpdateCriteria<E>(entity) {
-        };
-    }
-
-    public static <E extends RootEntity> UpdateCriteria<E> of(Class<E> entityClass) {
-        return new UpdateCriteria<E>(entityClass) {
         };
     }
 
@@ -37,6 +28,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         forceUpdateFields.put(column, value);
         return this;
     }
+
     public UpdateCriteria<E> disableCache() {
         this.flushCache = false;
         return this;

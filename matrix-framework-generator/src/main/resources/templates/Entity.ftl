@@ -1,10 +1,12 @@
 package ${basePackage}.${contextPackage}.${domainPackage}.${aggregatePackage};
 
+import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
+import wang.liangchen.matrix.framework.data.annotation.ColumnState;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 <#if aggregateRoot>
 import wang.liangchen.matrix.framework.ddd.domain.AggregateRoot;
@@ -45,6 +47,12 @@ public class ${entityName} extends RootEntity {
      * 对象和JSON格式互转列
      */
     @ColumnJson
+    </#if>
+    <#if columnMeta.state>
+    /**
+     * 状态列
+     */
+    @ColumnState
     </#if>
     @Column(name = "${columnMeta.columnName}")
     private ${columnMeta.modifier} ${columnMeta.fieldName};
