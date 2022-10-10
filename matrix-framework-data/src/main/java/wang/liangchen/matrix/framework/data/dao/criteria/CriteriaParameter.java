@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wang.liangchen.matrix.cache.sdk.cache.CachedObject;
 import wang.liangchen.matrix.framework.commons.encryption.DigestSignUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
@@ -14,7 +13,7 @@ import java.util.StringJoiner;
 /**
  * @author Liangchen.Wang 2022-04-17 23:14
  */
-public class CriteriaParameter<E extends RootEntity> extends QueryParameter implements CachedObject {
+public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private final static Logger logger = LoggerFactory.getLogger(CriteriaParameter.class);
     private String dataSourceType;
     private TableMeta tableMeta;
@@ -88,7 +87,6 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter impl
                 .add(super.toString()).toString();
     }
 
-    @Override
     public Object cacheKey() {
         String cacheKey = toString();
         logger.debug("CacheKey: {}", cacheKey);
