@@ -13,6 +13,7 @@ public class GeneratorProperties {
 
     private String datasource;
     private String tableName;
+    private String tableComment;
     private String entityName;
     private String columnVersion;
     private String columnState;
@@ -21,6 +22,7 @@ public class GeneratorProperties {
     private String columnMarkDelete;
     private String columnMarkDeleteValue;
     private boolean camelCase;
+
 
     public String getAuthor() {
         return author;
@@ -148,5 +150,13 @@ public class GeneratorProperties {
 
     public boolean isColumnStateUseConstantEnum() {
         return columnStateUseConstantEnum;
+    }
+
+    public void setTableComment(String tableComment) {
+        this.tableComment = tableComment;
+    }
+
+    public String getTableComment() {
+        return tableComment;
     }
 }

@@ -25,6 +25,7 @@ public class ColumnMeta {
     private static final Map<String, Class<?>> mapping = new HashMap<>();
 
     private final String columnName;
+    private final String columnComment;
     private final String dataTypeName;
     private final String jdbcTypeName;
     private final boolean id;
@@ -52,6 +53,7 @@ public class ColumnMeta {
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
         this.columnName = columnName;
+        this.columnComment = null;
         this.id = isId;
         this.idStrategy = idStrategy;
         this.unique = isUnique;
@@ -77,8 +79,9 @@ public class ColumnMeta {
     }
 
     private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName,
-                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase) {
+                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
         this.columnName = columnName;
+        this.columnComment = columnComment;
         this.dataTypeName = dataTypeName;
         this.jdbcTypeName = jdbcTypeName;
         this.id = isId;
@@ -113,13 +116,17 @@ public class ColumnMeta {
     }
 
     public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
-                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase) {
-        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, markDeleteValue, underline2camelCase);
+                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, markDeleteValue, underline2camelCase, columnComment);
     }
 
 
     public String getColumnName() {
         return columnName;
+    }
+
+    public String getColumnComment() {
+        return columnComment;
     }
 
     public String getDataTypeName() {

@@ -18,7 +18,8 @@ import ${importPackage};
 </#list>
 
 /**
- * @author ${author}
+ * ${tableComment!}
+ * @author ${author} ${.now?string('yyyy-MM-dd HH:mm:ss')}
  */
 <#if aggregateRoot>
 @AggregateRoot
@@ -26,6 +27,19 @@ import ${importPackage};
 @Entity(name = "${tableName}")
 public class ${entityName} extends RootEntity {
 <#list columnMetas as columnMeta>
+    /**
+     * ${columnMeta.columnComment}
+    <#if columnMeta.markDeleteValue??>
+     * 逻辑删除列和值
+    </#if>
+    <#if columnMeta.json>
+     * 对象和JSON格式自动互转列
+     * 非基本类型需实现Serializable接口以避免代码错误提示
+    </#if>
+    <#if columnMeta.state>
+     * 状态列
+    </#if>
+     */
     <#if columnMeta.id>
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
@@ -37,21 +51,12 @@ public class ${entityName} extends RootEntity {
     @Version
     </#if>
     <#if columnMeta.markDeleteValue??>
-    /**
-     * 逻辑删除的列和逻辑值
-     */
     @ColumnMarkDelete("${columnMeta.markDeleteValue}")
     </#if>
     <#if columnMeta.json>
-    /**
-     * 对象和JSON格式互转列
-     */
     @ColumnJson
     </#if>
     <#if columnMeta.state>
-    /**
-     * 状态列
-     */
     @ColumnState
     </#if>
     @Column(name = "${columnMeta.columnName}")

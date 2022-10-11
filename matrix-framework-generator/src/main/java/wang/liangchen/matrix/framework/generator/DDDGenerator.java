@@ -29,9 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -506,13 +504,26 @@ public class DDDGenerator {
         String tableName = generatorProperties.getTableName();
         ConnectionManager.INSTANCE.executeInNonManagedConnection((connection) -> {
             try {
-                // 查询主键唯一键等信息
+                // 查询主键唯一键注释等信息
                 DatabaseMetaData databaseMetaData = connection.getMetaData();
+                ResultSet tables = databaseMetaData.getTables(null, null, tableName, new String[]{"TABLE"});
+                while (tables.next()) {
+                    String tableRemarks = tables.getString("REMARKS");
+                    generatorProperties.setTableComment(tableRemarks);
+                }
+                tables.close();
+                ResultSet columns = databaseMetaData.getColumns(null, null, tableName, null);
+                Map<String, String> columnCommentMap = new HashMap<>();
+                while (columns.next()) {
+                    columnCommentMap.put(columns.getString("COLUMN_NAME"), columns.getString("REMARKS"));
+                }
+                columns.close();
+
                 List<String> primaryKeyColumnNames = primaryKeyColumnNames(databaseMetaData, tableName);
                 List<String> uniqueKeyColumnNames = uniqueKeyColumnNames(databaseMetaData, tableName);
                 uniqueKeyColumnNames.removeAll(primaryKeyColumnNames);
 
-                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties, primaryKeyColumnNames, uniqueKeyColumnNames);
+                List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, generatorProperties, primaryKeyColumnNames, uniqueKeyColumnNames, columnCommentMap);
                 GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
                 generatorTemplate.getColumnMetas().addAll(columnMetas);
                 generatorTemplate.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toList()));
@@ -543,7 +554,7 @@ public class DDDGenerator {
 
     private List<String> uniqueKeyColumnNames(DatabaseMetaData databaseMetaData, String tableName) throws SQLException {
         List<String> uniqueKeyColumnNames = new ArrayList<>();
-        ResultSet resultSet = databaseMetaData.getPrimaryKeys(null, null, tableName);
+        ResultSet resultSet = databaseMetaData.getIndexInfo(null, null, tableName, true, false);
         while (resultSet.next()) {
             String columnName = resultSet.getString("COLUMN_NAME");
             uniqueKeyColumnNames.add(columnName);
@@ -553,7 +564,7 @@ public class DDDGenerator {
 
     }
 
-    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, GeneratorProperties generatorProperties, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames) throws SQLException {
+    private List<ColumnMeta> resolveResultSetMetaData(Connection connection, String tableName, GeneratorProperties generatorProperties, List<String> primaryKeyColumnNames, List<String> uniqueKeyColumnNames, Map<String, String> columnCommentMap) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(String.format(SQL, tableName));
         ResultSet resultSet = preparedStatement.executeQuery();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -572,8 +583,9 @@ public class DDDGenerator {
             boolean isState = columnName.equals(generatorProperties.getColumnState());
             boolean isStateUseConstantEnum = generatorProperties.isColumnStateUseConstantEnum();
             String _deleteValue = columnName.equals(generatorProperties.getColumnMarkDelete()) ? generatorProperties.getColumnMarkDeleteValue() : null;
-
-            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, _deleteValue, generatorProperties.isCamelCase());
+            String columnComment = columnCommentMap.getOrDefault(columnName, "");
+            columnComment = null == columnComment ? "" : columnComment;
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, _deleteValue, generatorProperties.isCamelCase(), columnComment);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();
