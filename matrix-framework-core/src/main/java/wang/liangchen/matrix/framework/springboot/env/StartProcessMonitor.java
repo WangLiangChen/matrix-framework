@@ -33,6 +33,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
+import wang.liangchen.matrix.framework.springboot.context.MessageSourceLoader;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 
 import javax.annotation.PostConstruct;
@@ -306,6 +307,7 @@ public class StartProcessMonitor implements
 
     @Override
     public void setMessageSource(MessageSource messageSource) {
+        MessageSourceLoader.INSTANCE.initMessageSource(messageSource);
         PrettyPrinter.INSTANCE.buffer("Overrided from MessageSourceAware").flush();
     }
 

@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -29,9 +28,9 @@ public enum ValidationUtil {
     private final static ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
     private final static ValidatorFactory VALIDATOR_FACTORY = Validation.byDefaultProvider()
             .configure()
-            .messageInterpolator(new ResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
+            .messageInterpolator(new TranscodingResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
                 add("i18n/messages");
-            }},new MatrixResourceBundleLocator()), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> threadLocale.get(), false))
+            }}, new MatrixResourceBundleLocator()), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> threadLocale.get(), false))
             .buildValidatorFactory();
     private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
 
