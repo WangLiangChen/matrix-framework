@@ -38,6 +38,14 @@ public enum ValidationUtil {
         threadLocale.set(locale);
     }
 
+    public Locale getLocale() {
+        return threadLocale.get();
+    }
+
+    public void removeLocale() {
+        threadLocale.remove();
+    }
+
     public void close() {
         if (null == VALIDATOR_FACTORY) {
             return;
@@ -51,9 +59,9 @@ public enum ValidationUtil {
             return object;
         }
         StringBuilder messageBuilder = new StringBuilder();
-        results.forEach(e -> messageBuilder.append(Symbol.LINE_SEPARATOR.getSymbol())
-                .append("'").append(e.getPropertyPath()).append("' ")
-                .append(e.getMessage()).append(Symbol.SEMICOLON.getSymbol()));
+        results.forEach(e -> messageBuilder.append(e.getMessage())
+                .append(Symbol.OPEN_PAREN.getSymbol()).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN.getSymbol())
+                .append(Symbol.SEMICOLON.getSymbol()));
         handleException(exceptionLevel, messageBuilder.toString());
         return object;
     }
@@ -272,4 +280,6 @@ public enum ValidationUtil {
                 throw new MatrixInfoException(message, args);
         }
     }
+
+
 }

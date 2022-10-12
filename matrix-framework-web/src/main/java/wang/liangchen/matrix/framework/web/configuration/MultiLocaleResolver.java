@@ -1,11 +1,17 @@
 package wang.liangchen.matrix.framework.web.configuration;
 
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+import wang.liangchen.matrix.framework.commons.network.CookieUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -14,34 +20,118 @@ import java.util.Locale;
 @Component("localeResolver")
 public class MultiLocaleResolver extends AcceptHeaderLocaleResolver {
     private final static String[] params = new String[]{"locale", "lang"};
+    private final List<Locale> supportedLocales = new ArrayList<>(4);
+
+
+    /**
+     * Configure supported locales to check against the requested locales
+     * determined via {@link HttpServletRequest#getLocales()}. If this is not
+     * configured then {@link HttpServletRequest#getLocale()} is used instead.
+     *
+     * @param locales the supported locales
+     * @since 4.3
+     */
+    public void setSupportedLocales(List<Locale> locales) {
+        this.supportedLocales.clear();
+        this.supportedLocales.addAll(locales);
+    }
+
+    /**
+     * Get the configured list of supported locales.
+     *
+     * @since 4.3
+     */
+    public List<Locale> getSupportedLocales() {
+        return this.supportedLocales;
+    }
+
 
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
-        Locale locale = doResolveLocale(request);
-        if (null != locale) {
-            LocaleContextHolder.setLocale(locale);
+        Locale requestLocale = resolveRequestLocale(request);
+        Locale defaultLocale = getDefaultLocale();
+        if (defaultLocale != null && requestLocale == null) {
+            return defaultLocale;
         }
-        return locale;
-        // LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+
+        List<Locale> supportedLocales = getSupportedLocales();
+        if (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) {
+            return requestLocale;
+        }
+        Locale supportedLocale = findSupportedLocale(request, supportedLocales);
+        if (supportedLocale != null) {
+            return supportedLocale;
+        }
+        return (defaultLocale != null ? defaultLocale : requestLocale);
     }
 
-    private Locale doResolveLocale(HttpServletRequest request) {
-        // 依次获取 后面的覆盖前面的
-        String localeString = null;
+    private Locale resolveRequestLocale(HttpServletRequest request) {
+        // 级别最高是自定义Header
         for (String param : params) {
-            localeString = request.getParameter(param);
+            String parameter = request.getHeader(param);
+            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+                Locale locale = Locale.forLanguageTag(parameter);
+                if (null != locale) {
+                    return locale;
+                }
+            }
         }
+        // 其次是自定义parameter
         for (String param : params) {
-            localeString = request.getHeader(param);
+            String parameter = request.getParameter(param);
+            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+                Locale locale = Locale.forLanguageTag(parameter);
+                if (null != locale) {
+                    return locale;
+                }
+            }
         }
-        if (StringUtil.INSTANCE.isBlank(localeString)) {
-            return super.resolveLocale(request);
+        // 然后是Cookie
+        for (String param : params) {
+            String parameter = CookieUtil.INSTANCE.getCookieValue(request, param);
+            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+                Locale locale = Locale.forLanguageTag(parameter);
+                if (null != locale) {
+                    return locale;
+                }
+            }
         }
-        Locale requestLocale = Locale.forLanguageTag(localeString);
-        if (null == requestLocale) {
-            return super.resolveLocale(request);
+        // 最次才是默认的
+        if (request.getHeader("Accept-Language") != null) {
+            return request.getLocale();
         }
-        return requestLocale;
+        return null;
+    }
+
+    @Nullable
+    private Locale findSupportedLocale(HttpServletRequest request, List<Locale> supportedLocales) {
+        Enumeration<Locale> requestLocales = request.getLocales();
+        Locale languageMatch = null;
+        while (requestLocales.hasMoreElements()) {
+            Locale locale = requestLocales.nextElement();
+            if (supportedLocales.contains(locale)) {
+                if (languageMatch == null || languageMatch.getLanguage().equals(locale.getLanguage())) {
+                    // Full match: language + country, possibly narrowed from earlier language-only match
+                    return locale;
+                }
+            } else if (languageMatch == null) {
+                // Let's try to find a language-only match as a fallback
+                for (Locale candidate : supportedLocales) {
+                    if (!StringUtils.hasLength(candidate.getCountry()) &&
+                            candidate.getLanguage().equals(locale.getLanguage())) {
+                        languageMatch = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+        return languageMatch;
+    }
+
+    @Override
+    public void setLocale(HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Locale locale) {
+        throw new UnsupportedOperationException(
+                "Cannot change HTTP Accept-Language header - use a different locale resolution strategy");
     }
 
 }

@@ -4,9 +4,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -29,6 +32,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
  */
 @AutoConfigureAfter(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
+    private LocaleResolver localeResolver = new MultiLocaleResolver();
+
     //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
     @Bean
     public FilterRegistrationBean<Filter> rootFilter() {
@@ -44,6 +49,11 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
             @Override
             public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
                 HttpServletRequest request = (HttpServletRequest) servletRequest;
+                // 及早设置locale
+                Locale locale = localeResolver.resolveLocale(request);
+                if (null != locale) {
+                    ValidationUtil.INSTANCE.setLocale(locale);
+                }
                 String requestURI = request.getRequestURI();
                 if (requestURI.endsWith("favicon.ico")) {
                     filterChain.doFilter(servletRequest, servletResponse);
@@ -94,6 +104,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
             @Override
             public void destroy() {
                 WebContext.INSTANCE.remove();
+                ValidationUtil.INSTANCE.removeLocale();
             }
         };
     }

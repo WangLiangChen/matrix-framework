@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.context;
 
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.util.Locale;
 
@@ -29,11 +29,11 @@ public enum MessageSourceLoader {
     }
 
     public String getMessage(String code, Object[] args, String defaultMessage) {
-        return getMessage(code, args, defaultMessage, LocaleContextHolder.getLocale());
+        return getMessage(code, args, defaultMessage, ValidationUtil.INSTANCE.getLocale());
     }
 
     public String getMessage(String code, Object[] args) {
-        return getMessage(code, args, LocaleContextHolder.getLocale());
+        return getMessage(code, args, ValidationUtil.INSTANCE.getLocale());
     }
 
     public String getMessage(String code, String defaultMessage, Locale locale) {
@@ -49,7 +49,7 @@ public enum MessageSourceLoader {
     }
 
     public String getMessage(String code) {
-        return getMessage(code, LocaleContextHolder.getLocale());
+        return getMessage(code, ValidationUtil.INSTANCE.getLocale());
     }
 
 }
