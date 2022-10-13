@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -224,5 +225,10 @@ public enum StringUtil {
     public String getSetter(String fieldName) {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
+    }
+
+    public boolean isISO_8859_1(String string) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, (Object) string, "parameter can not be null");
+        return string.equals(new String(string.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1));
     }
 }

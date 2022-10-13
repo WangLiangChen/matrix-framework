@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.commons.validation;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.spi.messageinterpolation.LocaleResolver;
 import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -19,10 +20,9 @@ public class TranscodingResourceBundleMessageInterpolator extends ResourceBundle
     @Override
     public String interpolate(String message, Context context) {
         String result = super.interpolate(message, context);
-        try {
+        if (StringUtil.INSTANCE.isISO_8859_1(result)) {
             return new String(result.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return result;
         }
+        return result;
     }
 }

@@ -11,6 +11,12 @@ import java.util.*;
 class MatrixResourceBundleLocator implements ResourceBundleLocator {
     @Immutable
     private final Map<Locale, Map<String, Object>> contents = new HashMap<Locale, Map<String, Object>>() {{
+        put(Locale.ENGLISH, new HashMap<String, Object>() {{
+            put("ParameterNotBlank", "Parameter can't be blank");
+        }});
+        put(Locale.CHINA, new HashMap<String, Object>() {{
+            put("ParameterNotBlank", "参数不能为空");
+        }});
     }};
 
     @Override

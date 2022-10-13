@@ -73,4 +73,9 @@ public enum Symbol {
     public String getText() {
         return text;
     }
+
+    @Override
+    public String toString() {
+        return this.symbol;
+    }
 }

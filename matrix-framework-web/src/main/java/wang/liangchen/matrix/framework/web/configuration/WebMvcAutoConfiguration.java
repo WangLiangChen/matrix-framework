@@ -32,33 +32,33 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
  */
 @AutoConfigureAfter(org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class)
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
-    private LocaleResolver localeResolver = new MultiLocaleResolver();
-
     //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
     @Bean
-    public FilterRegistrationBean<Filter> rootFilter() {
-        FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>(createRootFilter());
+    public FilterRegistrationBean<Filter> rootFilter(final LocaleResolver localeResolver) {
+        FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>(createRootFilter(localeResolver));
         filterFilterRegistrationBean.setEnabled(true);
         filterFilterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         filterFilterRegistrationBean.addUrlPatterns("/*");
         return filterFilterRegistrationBean;
     }
 
-    private Filter createRootFilter() {
+    private Filter createRootFilter(final LocaleResolver localeResolver) {
         return new Filter() {
             @Override
             public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
                 HttpServletRequest request = (HttpServletRequest) servletRequest;
-                // 及早设置locale
-                Locale locale = localeResolver.resolveLocale(request);
-                if (null != locale) {
-                    ValidationUtil.INSTANCE.setLocale(locale);
-                }
                 String requestURI = request.getRequestURI();
                 if (requestURI.endsWith("favicon.ico")) {
                     filterChain.doFilter(servletRequest, servletResponse);
                     return;
                 }
+
+                // resolve and set locale
+                Locale locale = localeResolver.resolveLocale(request);
+                WebContext.INSTANCE.setLocale(locale);
+                ValidationUtil.INSTANCE.setLocale(locale);
+
+                // resolve and set requestId
                 String requestId = request.getHeader(WebContext.REQUEST_ID);
                 if (null == requestId) {
                     requestId = request.getParameter(WebContext.REQUEST_ID);
@@ -66,6 +66,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 requestId = null == requestId ? Symbol.BLANK.getSymbol() : requestId;
                 WebContext.INSTANCE.setRequestId(requestId);
 
+                // wrap request and response
                 HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request);
                 HttpServletResponse response = (HttpServletResponse) servletResponse;
                 HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
@@ -73,19 +74,20 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 responseWrapper.setHeader(WebContext.REQUEST_ID, requestId);
                 try (ServletOutputStream outputStream = response.getOutputStream()) {
                     try {
+                        // doFilter with wrapped request and response
                         filterChain.doFilter(requestWrapper, responseWrapper);
-                    } catch (Exception e) {
-                        outputStream.write(FormattedResponse.exception(e).toString().getBytes(StandardCharsets.UTF_8));
+                    } catch (Throwable t) {
+                        outputStream.write(FormattedResponse.exception(t).toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;
                     }
-                    // handle 404
-                    int statusCode = responseWrapper.getStatusCode();
-                    if (SC_NOT_FOUND == statusCode) {
+
+                    // catch 404
+                    if (SC_NOT_FOUND == responseWrapper.getStatusCode()) {
                         outputStream.write(FormattedResponse.failure()
                                 .code(String.valueOf(SC_NOT_FOUND))
                                 .level(ExceptionLevel.ERROR)
-                                .message("request does not exist: {}", requestURI).toString().getBytes(StandardCharsets.UTF_8));
+                                .message("Request does not exist: {}", requestURI).toString().getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                         return;
                     }
@@ -103,6 +105,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
             @Override
             public void destroy() {
+                // remove ThreadLocal
                 WebContext.INSTANCE.remove();
                 ValidationUtil.INSTANCE.removeLocale();
             }

@@ -59,10 +59,14 @@ public enum ValidationUtil {
             return object;
         }
         StringBuilder messageBuilder = new StringBuilder();
-        results.forEach(e -> messageBuilder.append(e.getMessage())
-                .append(Symbol.OPEN_PAREN.getSymbol()).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN.getSymbol())
-                .append(Symbol.SEMICOLON.getSymbol()));
-        handleException(exceptionLevel, messageBuilder.toString());
+        results.forEach(e -> {
+            messageBuilder.append(e.getMessage());
+            if (object instanceof DynamicMessage) {
+                return;
+            }
+            messageBuilder.append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
+        });
+        throwException(exceptionLevel, messageBuilder.toString());
         return object;
     }
 
@@ -74,7 +78,7 @@ public enum ValidationUtil {
         if (condition) {
             return true;
         }
-        handleException(exceptionLevel, message, args);
+        dynamicException(exceptionLevel, message, args);
         return false;
     }
 
@@ -92,7 +96,7 @@ public enum ValidationUtil {
 
     public boolean isFalse(ExceptionLevel level, boolean condition, String message, Object... args) {
         if (condition) {
-            handleException(level, message, args);
+            dynamicException(level, message, args);
             return true;
         }
         return false;
@@ -114,7 +118,7 @@ public enum ValidationUtil {
         if (StringUtil.INSTANCE.isBlank(string)) {
             return string;
         }
-        handleException(level, message, args);
+        dynamicException(level, message, args);
         return string;
     }
 
@@ -132,7 +136,7 @@ public enum ValidationUtil {
 
     public String notBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isBlank(string)) {
-            handleException(exceptionLevel, message, args);
+            dynamicException(exceptionLevel, message, args);
             return string;
         }
         return string;
@@ -154,7 +158,7 @@ public enum ValidationUtil {
         if (null == object) {
             return null;
         }
-        handleException(exceptionLevel, message, args);
+        dynamicException(exceptionLevel, message, args);
         return object;
     }
 
@@ -172,7 +176,7 @@ public enum ValidationUtil {
 
     public <T> T notNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
-            handleException(exceptionLevel, message, args);
+            dynamicException(exceptionLevel, message, args);
             return null;
         }
         return object;
@@ -194,7 +198,7 @@ public enum ValidationUtil {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             return object;
         }
-        handleException(exceptionLevel, message, args);
+        dynamicException(exceptionLevel, message, args);
         return object;
     }
 
@@ -212,7 +216,7 @@ public enum ValidationUtil {
 
     public <T> T notEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
-            handleException(exceptionLevel, message, args);
+            dynamicException(exceptionLevel, message, args);
             return object;
         }
         return object;
@@ -234,7 +238,7 @@ public enum ValidationUtil {
         if (Objects.equals(from, to)) {
             return true;
         }
-        handleException(exceptionLevel, message, args);
+        dynamicException(exceptionLevel, message, args);
         return false;
     }
 
@@ -252,7 +256,7 @@ public enum ValidationUtil {
 
     public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
-            handleException(exceptionLevel, message, args);
+            dynamicException(exceptionLevel, message, args);
             return true;
         }
         return false;
@@ -270,16 +274,18 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    private void handleException(ExceptionLevel exceptionLevel, String message, Object... args) {
-        switch (exceptionLevel) {
-            case WARN:
-                throw new MatrixWarnException(message, args);
-            case ERROR:
-                throw new MatrixErrorException(message, args);
-            default:
-                throw new MatrixInfoException(message, args);
-        }
+    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
+        validate(exceptionLevel, DynamicMessage.newInstantce(message, args));
     }
 
-
+    public void throwException(ExceptionLevel exceptionLevel, String message) {
+        switch (exceptionLevel) {
+            case WARN:
+                throw new MatrixWarnException(message);
+            case ERROR:
+                throw new MatrixErrorException(message);
+            default:
+                throw new MatrixInfoException(message);
+        }
+    }
 }

@@ -208,11 +208,13 @@ public class ExampleClass {
 # matrix-framework-generator
 
 # matrix-framework-web
-
-1、兼容SpringMVC和WebFlux
-2、自动封装返回的JSON字符串为特定的格式
-3、自动封装异常(含404)为特定的格式
-4、支持SSE
+1、统一序列化为特定的JSON格式（含直接对象、异常、空响应）
+2、统一处理异常（含404）
+3、统一处理requestId
+依次从header、query中获取参数"requestId",并回传到Response，用于为前端标识同一次请求
+4、统一处理和切换Locale
+依次从header、query、cookie、Accept-Language中解析Locale，并放入WebContext
+4、统一支持SSE和DefferedResult
 
 # matrix-framework的使用
 
