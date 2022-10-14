@@ -119,6 +119,7 @@ public enum MybatisExecutor {
             TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
+            ColumnMeta columnVersionMeta = tableMeta.getColumnVersionMeta();
             sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
                 sqlBuilder.append("delete from ").append(tableMeta.getTableName());
@@ -127,9 +128,14 @@ public enum MybatisExecutor {
                 entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append("update ").append(tableMeta.getTableName());
                 sqlBuilder.append(" set ");
+                if (null != columnVersionMeta) {
+                    sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnVersionMeta.getFieldName()).append(")\">");
+                    sqlBuilder.append(columnVersionMeta.getColumnName()).append("=").append(columnVersionMeta.getColumnName()).append("+1,");
+                    sqlBuilder.append("</if>");
+                }
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
             }
-            sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas()));
+            sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas(), columnVersionMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class);
@@ -178,24 +184,35 @@ public enum MybatisExecutor {
             sqlBuilder.append("<script>");
             sqlBuilder.append("update ").append(entityTableMeta.getTableName());
             sqlBuilder.append("<set>");
-            // 只更新非空项
-            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
-                String typeHandler = "";
-                if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
+            // 版本列名称
+            String fieldName, columnName;
+            ColumnMeta columnVersionMeta = null;
+            for (ColumnMeta columnMeta : entityTableMeta.getNonPkColumnMetas().values()) {
+                fieldName = columnMeta.getFieldName();
+                columnName = columnMeta.getColumnName();
+                // version column
+                if (columnMeta.isVersion()) {
+                    columnVersionMeta = columnMeta;
+                    sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(fieldName).append(")\">");
+                    sqlBuilder.append(columnName).append("=").append(columnName).append("+1,");
+                    sqlBuilder.append("</if>");
+                    continue;
                 }
-                sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnMeta.getFieldName()).append(")\">");
-                sqlBuilder.append("<if test=\"!forceUpdateColumns.keySet().contains('").append(columnMeta.getColumnName()).append("')\">");
-                sqlBuilder.append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
-                sqlBuilder.append("</if>");
-                sqlBuilder.append("</if>");
-            });
+
+                String typeHandler = columnMeta.isJson() ? ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler" : "";
+                // skip forceUpdateColumns
+                sqlBuilder.append("<choose><when test=\"forceUpdateColumns.keySet().contains('").append(columnName).append("')\"></when>");
+                // only not null columns
+                sqlBuilder.append("<when test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(fieldName).append(")\">");
+                sqlBuilder.append(columnName).append("=#{").append(fieldName).append(typeHandler).append("},");
+                sqlBuilder.append("</when></choose>");
+            }
             // 更新强制项
             sqlBuilder.append("<foreach collection=\"forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
             sqlBuilder.append("${key} = #{item}");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</set>");
-            sqlBuilder.append(pkWhereSql(entityTableMeta.getPkColumnMetas()));
+            sqlBuilder.append(pkWhereSql(entityTableMeta.getPkColumnMetas(), columnVersionMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, entityClass, Integer.class);
@@ -216,15 +233,15 @@ public enum MybatisExecutor {
             sqlBuilder.append("update ").append(entityTableMeta.getTableName());
             sqlBuilder.append("<set>");
             entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
-                String typeHandler = "";
-                if (columnMeta.isJson()) {
-                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
-                }
-                sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(entity.").append(columnMeta.getFieldName()).append(")\">");
-                sqlBuilder.append("<if test=\"!entity.forceUpdateColumns.keySet().contains('").append(columnMeta.getColumnName()).append("')\">");
-                sqlBuilder.append(columnMeta.getColumnName()).append("=#{entity.").append(columnMeta.getFieldName()).append(typeHandler).append("},");
-                sqlBuilder.append("</if>");
-                sqlBuilder.append("</if>");
+                String fieldName = columnMeta.getFieldName();
+                String columnName = columnMeta.getColumnName();
+                String typeHandler = columnMeta.isJson() ? ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler" : "";
+                // skip forceUpdateColumns
+                sqlBuilder.append("<choose><when test=\"entity.forceUpdateColumns.keySet().contains('").append(columnName).append("')\"></when>");
+                // only not null columns
+                sqlBuilder.append("<when test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(entity.").append(fieldName).append(")\">");
+                sqlBuilder.append(columnName).append("=#{entity.").append(fieldName).append(typeHandler).append("},");
+                sqlBuilder.append("</when></choose");
             });
 
             sqlBuilder.append("<foreach collection=\"entity.forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
@@ -327,11 +344,16 @@ public enum MybatisExecutor {
         }
     }
 
-    private StringBuilder pkWhereSql(Map<String, ColumnMeta> pkColumnMetas) {
+    private StringBuilder pkWhereSql(Map<String, ColumnMeta> pkColumnMetas, ColumnMeta columnVersionMeta) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
         pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ")
                 .append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("}"));
+        if (null != columnVersionMeta) {
+            whereSql.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnVersionMeta.getFieldName()).append(")\">");
+            whereSql.append(" and ").append(columnVersionMeta.getColumnName()).append("=").append("#{").append(columnVersionMeta.getColumnName()).append("}");
+            whereSql.append("</if>");
+        }
         whereSql.append("</where>");
         return whereSql;
     }

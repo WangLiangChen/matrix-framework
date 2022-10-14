@@ -213,7 +213,7 @@ public class ExampleClass {
 3、统一处理requestId
 依次从header、query中获取参数"requestId",并回传到Response，用于为前端标识同一次请求
 4、统一处理和切换Locale
-依次从header、query、cookie、Accept-Language中解析Locale，并放入WebContext
+依次从header、query、cookie、Accept-Language中解析Locale（参数：locale,lang），并放入WebContext
 4、统一支持SSE和DefferedResult
 
 # matrix-framework的使用
