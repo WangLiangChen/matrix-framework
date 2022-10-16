@@ -52,4 +52,8 @@ public enum MessageSourceLoader {
         return getMessage(code, ValidationUtil.INSTANCE.getLocale());
     }
 
+    public Locale getLocale() {
+        return ValidationUtil.INSTANCE.getLocale();
+    }
+
 }

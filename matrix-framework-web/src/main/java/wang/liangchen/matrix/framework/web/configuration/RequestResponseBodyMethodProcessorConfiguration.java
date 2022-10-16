@@ -6,6 +6,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
+import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ public class RequestResponseBodyMethodProcessorConfiguration {
             }
         }
     }
-    class RequestResponseBodyMethodProcessorDelegate implements HandlerMethodReturnValueHandler{
+
+    class RequestResponseBodyMethodProcessorDelegate implements HandlerMethodReturnValueHandler {
         private final RequestResponseBodyMethodProcessor delegate;
 
         RequestResponseBodyMethodProcessorDelegate(RequestResponseBodyMethodProcessor delegate) {
@@ -45,11 +47,16 @@ public class RequestResponseBodyMethodProcessorConfiguration {
         }
 
         @Override
-        public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-            if(!(returnValue instanceof FormattedResponse)){
-                returnValue = FormattedResponse.success().payload(returnValue);
+        public void handleReturnValue(Object returnValue, MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+            Object newReturnValue;
+            if (returnValue instanceof FormattedResponse) {
+                newReturnValue = returnValue;
+            } else if (returnValue instanceof ReturnWrapper) {
+                newReturnValue = FormattedResponse.of((ReturnWrapper<?>) returnValue);
+            } else {
+                newReturnValue = FormattedResponse.success().payload(returnValue);
             }
-            delegate.handleReturnValue(returnValue,returnType,mavContainer,webRequest);
+            delegate.handleReturnValue(newReturnValue, methodParameter, mavContainer, webRequest);
         }
     }
 }

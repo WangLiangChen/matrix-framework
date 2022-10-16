@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.commons.exception;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -14,6 +15,8 @@ public class MatrixRuntimeException extends RuntimeException {
      * 错误代码
      */
     private String code;
+    private String i18n;
+    private Locale locale;
     /**
      * 异常数据对象 非线程安全
      */
@@ -39,12 +42,22 @@ public class MatrixRuntimeException extends RuntimeException {
         super(StringUtil.INSTANCE.format(message, args), cause, enableSuppression, writableStackTrace);
     }
 
-    public MatrixRuntimeException withCode(String code) {
+    public MatrixRuntimeException code(String code) {
         this.code = code;
         return this;
     }
 
-    public MatrixRuntimeException withPayload(Map<String, Object> payload) {
+    public MatrixRuntimeException i18n(String i18n) {
+        this.i18n = i18n;
+        return this;
+    }
+
+    public MatrixRuntimeException locale(Locale locale) {
+        this.locale = locale;
+        return this;
+    }
+
+    public MatrixRuntimeException payload(Map<String, Object> payload) {
         this.payload = payload;
         return this;
     }
@@ -63,5 +76,13 @@ public class MatrixRuntimeException extends RuntimeException {
 
     public Map<String, Object> getPayload() {
         return payload;
+    }
+
+    public String getI18n() {
+        return i18n;
+    }
+
+    public Locale getLocale() {
+        return locale;
     }
 }
