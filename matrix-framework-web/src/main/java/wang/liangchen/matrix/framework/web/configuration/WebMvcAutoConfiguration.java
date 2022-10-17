@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.web.context.WebContext;
@@ -63,8 +62,9 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 if (null == requestId) {
                     requestId = request.getParameter(WebContext.REQUEST_ID);
                 }
-                requestId = null == requestId ? Symbol.BLANK.getSymbol() : requestId;
-                WebContext.INSTANCE.setRequestId(requestId);
+                if (null != requestId) {
+                    WebContext.INSTANCE.setRequestId(requestId);
+                }
 
                 // wrap request and response
                 HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request);

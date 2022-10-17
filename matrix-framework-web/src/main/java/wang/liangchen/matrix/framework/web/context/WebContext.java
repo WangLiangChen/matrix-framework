@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.web.context;
 
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +23,7 @@ public enum WebContext {
     }
 
     public String getRequestId() {
-        return (String) threadLocal.get().getOrDefault(REQUEST_ID, Symbol.BLANK.getSymbol());
+        return String.valueOf(threadLocal.get().get(REQUEST_ID));
     }
 
     public Locale getLocale() {

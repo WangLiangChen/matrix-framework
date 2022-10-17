@@ -24,38 +24,40 @@ public final class FormattedResponse<T> implements Serializable {
     private final static ObjectMapper objectMapper = new ObjectMapper();
     private final static String DEFAULT_MESSAGE = "System Error!";
     /**
-     * 业务代码(success=true)/错误代码(success=false)
+     * 业务成功失败标识
      */
     private boolean success;
     /**
-     * 错误数据/业务数据
-     */
-    private Object payload = new HashMap<String, Object>();
-    /**
-     * 前端传递的requestId，原样返回
-     * 用于标识同一个请求
-     */
-    private String requestId;
-    /**
-     * 提示级别/类型
+     * 提示类型/级别
      */
     private ExceptionLevel level = ExceptionLevel.OFF;
-
     /**
-     * 业务代码
+     * 业务/错误代码
      */
     private String code;
     /**
-     * 前端提示信息
+     * 提示信息
      */
     private String message;
     /**
-     * i18n的Key
+     * 提示信息国际化Key
      */
     private String i18n;
+    /**
+     * 语言
+     */
     private Locale locale;
     /**
-     * 一般为异常堆栈信息
+     * 业务/错误数据
+     */
+    private Object payload = new HashMap<String, Object>();
+    /**
+     * 前端传递的requestId,原样返回
+     * 用于标识同一个请求,或作为traceId向后传递
+     */
+    private String requestId;
+    /**
+     * 用于调试的异常堆栈信息
      */
     private String debug;
 
@@ -92,11 +94,6 @@ public final class FormattedResponse<T> implements Serializable {
         return formattedResponse;
     }
 
-    public FormattedResponse<T> payload(Object payload) {
-        this.payload = payload;
-        return this;
-    }
-
     public FormattedResponse<T> level(ExceptionLevel level) {
         this.level = level;
         return this;
@@ -119,6 +116,11 @@ public final class FormattedResponse<T> implements Serializable {
 
     public FormattedResponse<T> locale(Locale Locale) {
         this.locale = locale;
+        return this;
+    }
+
+    public FormattedResponse<T> payload(Object payload) {
+        this.payload = payload;
         return this;
     }
 
@@ -160,28 +162,16 @@ public final class FormattedResponse<T> implements Serializable {
         return success;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public ExceptionLevel getLevel() {
         return level;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     public String getMessage() {
         return message;
-    }
-
-    public String getDebug() {
-        return debug;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public Object getPayload() {
-        return payload;
     }
 
     public String getI18n() {
@@ -190,6 +180,18 @@ public final class FormattedResponse<T> implements Serializable {
 
     public Locale getLocale() {
         return locale;
+    }
+
+    public Object getPayload() {
+        return payload;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public String getDebug() {
+        return debug;
     }
 
     @Override
