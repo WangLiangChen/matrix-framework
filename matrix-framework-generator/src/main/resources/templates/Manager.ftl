@@ -49,9 +49,9 @@ public class ${managerClassName} {
         return repository.select(Criteria.of(${entityName}.class)
                 .resultColumns(resultColumns)
 <#list pkColumnMetas as columnMeta>
-                ._equals(${entityName}::get${columnMeta.fieldName?cap_first}, ${columnMeta.fieldName}))
+                ._equals(${entityName}::get${columnMeta.fieldName?cap_first}, ${columnMeta.fieldName})
 </#list>
-                ;
+                );
     }
 
 <#if stateColumnMeta??>

@@ -111,9 +111,11 @@ public class DDDGenerator {
                 Files.createDirectories(contextPackagePath);
             }
             Path packageInfoFilePath = contextPackagePath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("BoundedContext.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("BoundedContext.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -131,9 +133,11 @@ public class DDDGenerator {
                 Files.createDirectories(packagePath);
             }
             Path packageInfoFilePath = packagePath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("SouthBoundAcl.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("SouthBoundAcl.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -227,9 +231,11 @@ public class DDDGenerator {
                 Files.createDirectories(packagePath);
             }
             Path packageInfoFilePath = packagePath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("NorthBoundOhs.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("NorthBoundOhs.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -325,9 +331,11 @@ public class DDDGenerator {
             }
 
             Path packageInfoFilePath = packagePath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("MessageContractPublishLanguage.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("MessageContractPublishLanguage.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -344,9 +352,11 @@ public class DDDGenerator {
                 Files.createDirectories(packagePath);
             }
             Path packageInfoFilePath = packagePath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("Domain.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("Domain.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -365,17 +375,18 @@ public class DDDGenerator {
                 Files.createDirectories(entityPath);
             }
             Path packageInfoFilePath = entityPath.resolve("package-info.java");
-            Files.createFile(packageInfoFilePath);
-            Template template = freemarkerConfig.getTemplate("Aggregate.ftl");
-            template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
-
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("Aggregate.ftl");
+                template.process(generatorProperties, new FileWriter(packageInfoFilePath.toFile()));
+            }
             // Entity File
             Path entityFilePath = entityPath.resolve(generatorProperties.getEntityName() + JAVA);
             if (Files.exists(entityFilePath)) {
                 throw new MatrixWarnException("file:{} already exists", entityFilePath.toString());
             }
             Files.createFile(entityFilePath);
-            template = freemarkerConfig.getTemplate("Entity.ftl");
+            Template template = freemarkerConfig.getTemplate("Entity.ftl");
             template.process(generatorProperties, new FileWriter(entityFilePath.toFile()));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
