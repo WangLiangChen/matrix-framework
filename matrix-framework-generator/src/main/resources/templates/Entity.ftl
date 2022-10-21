@@ -39,17 +39,14 @@ public class ${entityName} extends RootEntity {
     <#if columnMeta.state>
      * 状态列
     </#if>
-    <#if columnMeta.state>
-        * 版本列
-        * 更新和删除时,非空则启用乐观锁
+    <#if columnMeta.version>
+     * 版本列
+     * 更新和删除时,非空则启用乐观锁
     </#if>
      */
     <#if columnMeta.id>
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
-    </#if>
-    <#if columnMeta.unique>
-    @UniqueConstraint
     </#if>
     <#if columnMeta.version>
     @Version

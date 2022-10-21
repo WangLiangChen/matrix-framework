@@ -32,7 +32,7 @@ matrix-framework的依赖是分模块独立依赖的，后续的模块描述会�
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-dependencies</artifactId>
-            <version>2.7.4</version>
+            <version>2.7.5</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
