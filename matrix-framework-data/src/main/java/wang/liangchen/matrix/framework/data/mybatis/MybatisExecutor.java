@@ -11,6 +11,7 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.uid.NumbericUid;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
@@ -43,7 +44,7 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             // 缓存单一ID的setter
-            cacheIdGeneratorMethod(cacheKey, entityClass, tableMeta.getPkColumnMetas());
+            cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
             Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
@@ -81,7 +82,7 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             // 缓存ID Setter
-            cacheIdGeneratorMethod(cacheKey, entityClass, tableMeta.getPkColumnMetas());
+            cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
             Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
@@ -310,14 +311,14 @@ public enum MybatisExecutor {
         return sqlSessionTemplate.selectList(statementId, criteriaParameter);
     }
 
-    private void cacheIdGeneratorMethod(String cacheKey, Class<? extends RootEntity> entityClass, Map<String, ColumnMeta> pkColumnMetas) {
+    private void cacheIdGenerator(String cacheKey, Class<? extends RootEntity> entityClass, Map<String, ColumnMeta> pkColumnMetas) {
         if (1 != pkColumnMetas.size()) {
             return;
         }
         for (ColumnMeta columnMeta : pkColumnMetas.values()) {
-            String methodName = StringUtil.INSTANCE.getSetter(columnMeta.getFieldName());
-            Method method = ReflectionUtils.findMethod(entityClass, methodName, columnMeta.getFieldClass());
-            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(method, columnMeta.getIdStrategy()));
+            String setterMethod = StringUtil.INSTANCE.getSetter(columnMeta.getFieldName());
+            String getterMethod = StringUtil.INSTANCE.getGetter(columnMeta.getFieldName());
+            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(getterMethod, setterMethod, columnMeta.getIdStrategy()));
         }
     }
 
@@ -330,17 +331,11 @@ public enum MybatisExecutor {
         if (null == strategy || IdStrategy.Strategy.NONE == strategy) {
             return;
         }
-        Method method = idGenerator.getMethod();
-        method.setAccessible(true);
-        try {
-            for (E entity : entities) {
-                if (IdStrategy.Strategy.MatrixFlake == strategy) {
-                    Long id = NumbericUid.INSTANCE.nextId();
-                    method.invoke(entity, id);
-                }
+        String setterMethod = idGenerator.getSetterMethod();
+        for (E entity : entities) {
+            if (IdStrategy.Strategy.MatrixFlake == strategy) {
+                ClassUtil.INSTANCE.invokeSetter(entity, setterMethod, NumbericUid.INSTANCE.nextId());
             }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new MatrixErrorException(e);
         }
     }
 
@@ -384,16 +379,22 @@ public enum MybatisExecutor {
     }
 
     static class IDGenerator {
-        private final Method method;
+        private final String getterMethod;
+        private final String setterMethod;
         private final IdStrategy.Strategy strategy;
 
-        IDGenerator(Method method, IdStrategy.Strategy strategy) {
-            this.method = method;
+        public IDGenerator(String getterMethod, String setterMethod, IdStrategy.Strategy strategy) {
+            this.getterMethod = getterMethod;
+            this.setterMethod = setterMethod;
             this.strategy = strategy;
         }
 
-        public Method getMethod() {
-            return method;
+        public String getGetterMethod() {
+            return getterMethod;
+        }
+
+        public String getSetterMethod() {
+            return setterMethod;
         }
 
         public IdStrategy.Strategy getStrategy() {

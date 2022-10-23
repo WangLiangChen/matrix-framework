@@ -60,6 +60,16 @@ public enum ClassUtil {
         return constructorAccess(clazz).newInstance();
     }
 
+    public void invokeSetter(Object target, String setterMethod, Object... args) {
+        MethodAccess methodAccess = methodAccess(target.getClass());
+        methodAccess.invoke(target, setterMethod, args);
+    }
+
+    public Object invokeGetter(Object target, String getterMethod) {
+        MethodAccess methodAccess = methodAccess(target.getClass());
+        return methodAccess.invoke(target, getterMethod);
+    }
+
     public void initializeFields(Object target) {
         MethodAccess methodAccess = methodAccess(target.getClass());
         String[] methodNames = methodAccess.getMethodNames();
