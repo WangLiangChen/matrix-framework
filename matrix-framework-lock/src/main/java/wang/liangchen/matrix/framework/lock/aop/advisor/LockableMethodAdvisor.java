@@ -52,9 +52,9 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
-            Class<?> targetClass = method.getDeclaringClass();
+            Object target = invocation.getThis();
             // TaskScheduler method
-            if (TaskScheduler.class.isAssignableFrom(targetClass)) {
+            if (TaskScheduler.class.isAssignableFrom(target.getClass())) {
                 return super.invoke(invocation);
             }
             // AOP method
@@ -65,7 +65,7 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
             if (returnType.isPrimitive()) {
                 throw new MatrixWarnException("method can't return primitive type");
             }
-            LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(invocation.getThis(), method);
+            LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(target, method);
             TaskResult<Object> result = lockManager.executeInLock(lockConfiguration, invocation::proceed);
             return result.getObject();
         }
