@@ -21,6 +21,8 @@ import wang.liangchen.matrix.framework.lock.annotation.EnableLock;
 
 ## 普通Bean方法
 
+返回值不能为void或基本类型
+
 ```java
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
@@ -35,6 +37,8 @@ public class LockExample() {
 ```
 
 ## @Scheduled注解的Bean方法
+
+返回值必须为void
 
 ```java
 import org.springframework.stereotype.Component;

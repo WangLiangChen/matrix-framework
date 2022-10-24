@@ -33,7 +33,8 @@ public class AnnotationOrNameMatchMethodPointcut extends StaticMethodMatcher {
         this.mappedMethods = new HashSet<>(Arrays.asList(mappedMethods));
     }
 
-    public void setExcludedAnnotationTypes(Class<? extends Annotation>... excludedAnnotationTypes) {
+    @SafeVarargs
+    public final void setExcludedAnnotationTypes(Class<? extends Annotation>... excludedAnnotationTypes) {
         this.excludedAnnotationTypes = new HashSet<>(Arrays.asList(excludedAnnotationTypes));
     }
 
@@ -72,10 +73,7 @@ public class AnnotationOrNameMatchMethodPointcut extends StaticMethodMatcher {
         }
 
         boolean match(Class<?> targetClass, String methodName) {
-            if (this.targetClass.isAssignableFrom(targetClass) && (this.methodName.equals(methodName) || PatternMatchUtils.simpleMatch(this.methodName, methodName))) {
-                return true;
-            }
-            return false;
+            return this.targetClass.isAssignableFrom(targetClass) && (this.methodName.equals(methodName) || PatternMatchUtils.simpleMatch(this.methodName, methodName));
         }
     }
 }
