@@ -12,7 +12,6 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.List;

@@ -16,9 +16,12 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceAssign;
 import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFactoryPointcutAdvisor;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
+import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 
-import java.io.IOException;
+import javax.inject.Inject;
+import javax.sql.DataSource;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * @author Liangchen.Wang
@@ -39,7 +42,7 @@ public class JdbcAutoConfiguration {
                 dataSourceAssign = method.getDeclaringClass().getAnnotation(DataSourceAssign.class);
             }
             String dataSourceName = dataSourceAssign.value();
-            ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,MultiDataSourceContext.INSTANCE.getDataSourceNames().contains(dataSourceName), "The annotated dataSource '{}' does not exist", dataSourceName);
+            ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, MultiDataSourceContext.INSTANCE.getDataSourceNames().contains(dataSourceName), "The annotated dataSource '{}' does not exist", dataSourceName);
             MultiDataSourceContext.INSTANCE.set(dataSourceName);
             try {
                 return methodInvocation.proceed();
@@ -50,26 +53,26 @@ public class JdbcAutoConfiguration {
         return advisor;
     }
 
-    @Deprecated
-    // @Inject
-    public void initSQL(javax.sql.DataSource dataSource) {
-        // 执行初始化SQL
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+    @Inject
+    public void initSQL() {
+        Set<String> dataSourceNames = MultiDataSourceContext.INSTANCE.getDataSourceNames();
+        ResourceDatabasePopulator databasePopulator;
+        DataSource dataSource;
+        AbstractDialect dialect;
         try {
-            // ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders("")
-            Resource[] ddls = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat("ddl.sql"));
-            for (Resource ddl : ddls) {
-                PrettyPrinter.INSTANCE.buffer("init ddl sql script:{}", ddl.toString());
-                databasePopulator.addScript(ddl);
+            for (String dataSourceName : dataSourceNames) {
+                databasePopulator = new ResourceDatabasePopulator();
+                databasePopulator.setSqlScriptEncoding("UTF-8");
+                dialect = MultiDataSourceContext.INSTANCE.getDialect(dataSourceName);
+                Resource[] sqlFiles = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(dialect.getDataSourceType()).concat("_INIT.sql"));
+                for (Resource sqlFile : sqlFiles) {
+                    PrettyPrinter.INSTANCE.buffer("init sql script:{}", sqlFile.toString());
+                    databasePopulator.addScript(sqlFile);
+                }
+                dataSource = MultiDataSourceContext.INSTANCE.getDataSource(dataSourceName);
+                databasePopulator.execute(dataSource);
             }
-            Resource[] dmls = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat("dml.sql"));
-            for (Resource dml : dmls) {
-                PrettyPrinter.INSTANCE.buffer("init dml sql script:{}", dml.toString());
-                databasePopulator.addScript(dml);
-            }
-            databasePopulator.setSqlScriptEncoding("UTF-8");
-            databasePopulator.execute(dataSource);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new MatrixErrorException(e);
         } finally {
             PrettyPrinter.INSTANCE.flush();

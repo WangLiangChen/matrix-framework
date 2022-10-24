@@ -55,7 +55,7 @@ public class ${managerClassName} {
     }
 
 <#if stateColumnMeta??>
-    public void stateTransition(${pkString}, ${stateColumnMeta.modifier} to, ${stateColumnMeta.modifier}... from) {
+    public void stateTransfer(${pkString}, ${stateColumnMeta.modifier} to, ${stateColumnMeta.modifier}... from) {
         ${entityName} entity = ${entityName}.newInstance();
         entity.set${stateColumnMeta.fieldName?cap_first}(to);
         UpdateCriteria<${entityName}> updateCriteria = UpdateCriteria.of(entity)

@@ -1,6 +1,7 @@
-create table if not exists matrix_sequence (
-    sequence_key varchar not null,
-    sequence_number int8 not null,
+create table if not exists matrix_sequence
+(
+    sequence_key    varchar not null,
+    sequence_number int8    not null,
     constraint matrix_sequence_pk primary key (sequence_key)
 );
 comment on table matrix_sequence is '序列生成器';
