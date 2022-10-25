@@ -55,7 +55,7 @@ public class ${managerClassName} {
     }
 
 <#if stateColumnMeta??>
-    public void stateTransfer(${pkString}, ${stateColumnMeta.modifier} to, ${stateColumnMeta.modifier}... from) {
+    public int stateTransfer(${pkString}, ${stateColumnMeta.modifier} to, ${stateColumnMeta.modifier}... from) {
         ${entityName} entity = ${entityName}.newInstance();
         entity.set${stateColumnMeta.fieldName?cap_first}(to);
         UpdateCriteria<${entityName}> updateCriteria = UpdateCriteria.of(entity)
@@ -63,7 +63,7 @@ public class ${managerClassName} {
                 ._equals(${entityName}::get${columnMeta.fieldName?cap_first}, ${columnMeta.fieldName})
     </#list>
                 ._in(${entityName}::get${stateColumnMeta.fieldName?cap_first}, from);
-        repository.update(updateCriteria);
+        return repository.update(updateCriteria);
     }
 
     public List<${entityName}> byStates(${stateColumnMeta.modifier}... states) {

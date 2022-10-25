@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.commons.datetime;
 
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -99,6 +101,17 @@ public enum DateTimeUtil {
 
     public LocalTime timeString2LocalTime(String timeString) {
         return LocalTime.parse(timeString, DEFAULT_TIME_FORMATTER);
+    }
+
+    public long alignSecond() {
+        long ms = System.currentTimeMillis();
+        long difference = 1000 - ms % 1000;
+        ThreadUtil.INSTANCE.sleep(difference);
+        return ms + difference;
+    }
+
+    public LocalDateTime alignLocalDateTimeSecond() {
+        return ms2LocalDateTime(alignSecond());
     }
 
 }
