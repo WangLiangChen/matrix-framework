@@ -394,6 +394,10 @@ public class DDDGenerator {
     }
 
     private void createManager(GeneratorProperties generatorProperties) {
+        // 非聚合根不创建
+        if (!generatorProperties.isAggregateRoot()) {
+            return;
+        }
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
         String packagePathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
                 .append(generatorProperties.getContextPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())

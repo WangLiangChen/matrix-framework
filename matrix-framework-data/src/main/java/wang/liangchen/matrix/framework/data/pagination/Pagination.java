@@ -74,14 +74,14 @@ public class Pagination implements Serializable {
     public void addOrderBy(String orderBy, OrderByDirection orderByDirection, Integer index) {
         ValidationUtil.INSTANCE.notBlank(orderBy, "orderBy must not be blank");
         ValidationUtil.INSTANCE.notNull(orderByDirection, "orderByDirection must not be null");
-        if (null == orderBys) {
-            orderBys = new ArrayList<>();
+        if (null == this.orderBys) {
+            this.orderBys = new ArrayList<>();
         }
         if (null == index) {
-            orderBys.add(new OrderBy(orderBy, orderByDirection));
+            this.orderBys.add(new OrderBy(orderBy, orderByDirection));
             return;
         }
-        orderBys.add(index, new OrderBy(orderBy, orderByDirection));
+        this.orderBys.add(index, new OrderBy(orderBy, orderByDirection));
     }
 
     public void addOrderBy(String orderby, OrderByDirection direction) {
@@ -90,8 +90,8 @@ public class Pagination implements Serializable {
 
     public void addOrderBys(List<OrderBy> orderBys) {
         ValidationUtil.INSTANCE.notEmpty(orderBys, "orderBys must not be empty");
-        if (null == orderBys) {
-            orderBys = new ArrayList<>();
+        if (null == this.orderBys) {
+            this.orderBys = new ArrayList<>();
         }
         this.orderBys.addAll(orderBys);
     }
