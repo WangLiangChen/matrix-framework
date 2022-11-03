@@ -39,7 +39,7 @@ public class DDDGenerator {
     private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
-    private final static String GENERATOR_CONFIG_FILE = "/codegenerator.xml";
+    private final static String GENERATOR_CONFIG_FILE = "codegenerator.xml";
     private static final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private final Configuration freemarkerConfig;
 
@@ -423,7 +423,7 @@ public class DDDGenerator {
     }
 
     private List<GeneratorProperties> resolveConfiguration() {
-        String location = EnvironmentContext.INSTANCE.getLocation(GENERATOR_CONFIG_FILE);
+        String location = EnvironmentContext.INSTANCE.getURI(GENERATOR_CONFIG_FILE).toString();
         Resource resource = resourcePatternResolver.getResource(location);
         Document document;
         try {
