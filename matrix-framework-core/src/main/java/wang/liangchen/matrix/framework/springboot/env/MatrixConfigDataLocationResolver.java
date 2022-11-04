@@ -23,7 +23,6 @@ public class MatrixConfigDataLocationResolver implements ConfigDataLocationResol
 
     @Override
     public List<MatrixConfigDataSource> resolveProfileSpecific(ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) throws ConfigDataLocationNotFoundException {
-        List<String> activeProfiles = profiles.getActive();
-        return Collections.singletonList(new MatrixConfigDataSource(location.getNonPrefixedValue(PREFIX), activeProfiles));
+        return Collections.singletonList(new MatrixConfigDataSource(location.getNonPrefixedValue(PREFIX), profiles.getActive()));
     }
 }

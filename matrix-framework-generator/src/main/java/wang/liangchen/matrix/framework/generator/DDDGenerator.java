@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +48,10 @@ public class DDDGenerator {
         this.standaloneDao = standaloneDao;
         this.freemarkerConfig = new Configuration(Configuration.VERSION_2_3_31);
         this.freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates");
-        this.freemarkerConfig.setDefaultEncoding("UTF-8");
+        String encoding = StandardCharsets.UTF_8.name();
+        this.freemarkerConfig.setDefaultEncoding(encoding);
+        this.freemarkerConfig.setOutputEncoding(encoding);
+        this.freemarkerConfig.setEncoding(Locale.getDefault(), encoding);
         this.freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     }
 
