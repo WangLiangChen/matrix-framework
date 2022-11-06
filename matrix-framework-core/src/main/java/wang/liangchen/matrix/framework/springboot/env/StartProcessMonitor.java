@@ -339,7 +339,7 @@ public class StartProcessMonitor implements
         String configFile = environment.getProperty(CONFIG_FILE);
         if (StringUtil.INSTANCE.isBlank(configFile)) {
             PrettyPrinter.INSTANCE.flush();
-            throw new MatrixWarnException("'config.file' does not exist.");
+            throw new MatrixWarnException("'config.file' does not exist. Matrix Framework properties may not be loaded");
         }
         configFile = EnvironmentContext.INSTANCE.getURI(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);

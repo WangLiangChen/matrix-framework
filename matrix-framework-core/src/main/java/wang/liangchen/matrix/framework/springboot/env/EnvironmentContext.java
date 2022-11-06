@@ -9,7 +9,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.network.URIUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
@@ -28,6 +27,7 @@ public enum EnvironmentContext {
         put("jdbc", "jdbc.*");
         put("logger", "logger.*");
     }};
+    private static final String CLASSPATH = "classpath";
     private static final String YAML = "yaml";
     private static final String YML = "yml";
     private static final String CONFIG_DIRECTORY = "matrix-framework";
@@ -53,8 +53,19 @@ public enum EnvironmentContext {
         return configRootURI;
     }
 
+    public URL getConfigRootURL() {
+        if (null == configRootURL) {
+            throw new MatrixErrorException("configRoot has not been initialized");
+        }
+        return configRootURL;
+    }
+
     public URI getURI(String relativePath) {
         return this.configRootURI.resolve(relativePath);
+    }
+
+    public URL getURL(String relativePath) {
+        return URIUtil.INSTANCE.expendURL(this.configRootURL, relativePath);
     }
 
     /**
@@ -67,50 +78,27 @@ public enum EnvironmentContext {
      */
     List<PropertySource<?>> loadPropertySources(MatrixConfigDataSource matrixConfigDataSource) {
         if (null != this.configRootURI) {
-            PrettyPrinter.INSTANCE.buffer("configRoot has been loaded, {}", this.configRootURI);
+            PrettyPrinter.INSTANCE.buffer("configRoot has been assigned, {}", this.configRootURI);
             return Collections.emptyList();
         }
-        String classPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
         String importPath = matrixConfigDataSource.getConfigRoot();
         List<String> activeProfiles = matrixConfigDataSource.getActiveProfiles();
-
-        // 第一次调用 处理配置的systemPath
-        if (classPath.equals(importPath)) {
+        // 第一次调用 处理配置的systemPath,
+        if (importPath.startsWith(CLASSPATH)) {
             String systemPath = resolveSystemPath();
             if (StringUtil.INSTANCE.isNotBlank(systemPath)) {
                 systemPath = buildProfilePath(systemPath, activeProfiles);
-                PrettyPrinter.INSTANCE.buffer("Resolved configRoot from environment variable: {}", systemPath);
-                List<PropertySource<?>> propertySources = resolveAllPropertySource(systemPath);
-                if (configFiles.size() == propertySources.size()) {
-                    PrettyPrinter.INSTANCE.buffer("Loaded Property from environment variable");
-                    PrettyPrinter.INSTANCE.flush();
-                    return propertySources;
-                }
-            }
-        }
-
-        // 第一次调用 处理 classpath
-        if (classPath.equals(importPath)) {
-            classPath = buildProfilePath(classPath, activeProfiles);
-            PrettyPrinter.INSTANCE.buffer("Resolved configRoot from classpath: {}", classPath);
-            List<PropertySource<?>> propertySources = resolveAllPropertySource(classPath);
-            if (configFiles.size() == propertySources.size()) {
-                PrettyPrinter.INSTANCE.buffer("Loaded Property from classpath");
                 PrettyPrinter.INSTANCE.flush();
-                return propertySources;
+                return resolveAllPropertySource(systemPath);
             }
+            String classPath = buildProfilePath(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX, activeProfiles);
+            PrettyPrinter.INSTANCE.flush();
+            return resolveAllPropertySource(classPath);
         }
         // 第二次调用(如果有显式配置的spring.config.import=matrix://)，处理importPath
         importPath = buildProfilePath(importPath, activeProfiles);
-        PrettyPrinter.INSTANCE.buffer("Resolved configRoot from import: {}", importPath);
-        List<PropertySource<?>> propertySources = resolveAllPropertySource(importPath);
-        if (configFiles.size() == propertySources.size()) {
-            PrettyPrinter.INSTANCE.buffer("Loaded Property from import");
-            PrettyPrinter.INSTANCE.flush();
-            return propertySources;
-        }
         PrettyPrinter.INSTANCE.flush();
-        throw new MatrixWarnException("No Property of matrix-framework found");
+        return resolveAllPropertySource(importPath);
     }
 
     private String buildProfilePath(String path, List<String> activeProfiles) {
@@ -120,10 +108,11 @@ public enum EnvironmentContext {
             PrettyPrinter.INSTANCE.buffer("activeProfiles is: {}", activeProfiles);
             this.profile = this.activeProfiles.isEmpty() ? CONFIG_DIRECTORY
                     : CONFIG_DIRECTORY.concat(Symbol.HYPHEN.getSymbol()).concat(this.activeProfiles.get(0));
-            PrettyPrinter.INSTANCE.buffer("active profile directory: {}", profile);
+            PrettyPrinter.INSTANCE.buffer("active profile path: {}", profile);
         }
         path = path.endsWith(Symbol.URI_SEPARATOR.getSymbol()) ? path : path.concat(Symbol.URI_SEPARATOR.getSymbol());
         path = path.concat(this.profile).concat(Symbol.URI_SEPARATOR.getSymbol());
+        PrettyPrinter.INSTANCE.buffer("Resolved Profile path: {}", path);
         return path;
     }
 
@@ -139,7 +128,7 @@ public enum EnvironmentContext {
             PrettyPrinter.INSTANCE.buffer("'configRoot' is found in 'System.getProperty' : {}", configRoot);
             return configRoot;
         }
-        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'System.getProperty'");
+        PrettyPrinter.INSTANCE.buffer("'configRoot' isn't found in 'EnvironmentVariable'");
         return null;
     }
 
@@ -184,6 +173,9 @@ public enum EnvironmentContext {
     }
 
     private Map<String, Resource[]> resolveAllResources(String resourceLocationPatternPrefix) {
+        if (!resourceLocationPatternPrefix.startsWith(CLASSPATH)) {
+            resourceLocationPatternPrefix = URIUtil.INSTANCE.toURL(resourceLocationPatternPrefix).toString();
+        }
         Map<String, Resource[]> resourceMap = new HashMap<>();
         for (Map.Entry<String, String> entry : configFiles.entrySet()) {
             Resource[] resources = resolveResources(resourceLocationPatternPrefix + entry.getValue());
