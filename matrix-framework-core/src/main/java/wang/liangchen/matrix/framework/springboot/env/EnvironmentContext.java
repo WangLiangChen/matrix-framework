@@ -23,9 +23,11 @@ import java.util.*;
  */
 public enum EnvironmentContext {
     INSTANCE;
+    public static final String JDBC_PREFIX = "jdbc";
+    public static final String LOGGER_PREFIX = "logger";
     private static final Map<String, String> configFiles = new HashMap<String, String>() {{
-        put("jdbc", "jdbc.*");
-        put("logger", "logger.*");
+        put(JDBC_PREFIX, "jdbc.*");
+        put(LOGGER_PREFIX, "logger.*");
     }};
     private static final String CLASSPATH = "classpath";
     private static final String YAML = "yaml";
