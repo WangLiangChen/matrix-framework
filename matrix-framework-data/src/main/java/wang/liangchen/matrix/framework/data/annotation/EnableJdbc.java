@@ -17,6 +17,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -46,6 +47,7 @@ import java.util.*;
 @Documented
 @Import({EnableJdbc.JdbcImportSelector.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@EnableTransactionManagement
 @SuppressWarnings("NullableProblems")
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector, EnvironmentAware {

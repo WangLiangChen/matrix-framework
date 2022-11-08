@@ -10,6 +10,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.thread.ThreadPoolUtil;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 
 import java.util.ArrayList;
@@ -26,8 +27,7 @@ public enum TransactionUtil {
      */
     INSTANCE;
     private final PlatformTransactionManager transactionManager = BeanLoader.INSTANCE.getBean(PlatformTransactionManager.class);
-    private final Executor executor = BeanLoader.INSTANCE.getBean(Executor.class);
-    private final AfterCommitExecutor afterCommitExecutor = new AfterCommitExecutor(executor);
+    private final AfterCommitExecutor afterCommitExecutor = new AfterCommitExecutor();
 
     public void afterCommit(Runnable runnable) {
         afterCommitExecutor.execute(runnable);
@@ -92,8 +92,8 @@ public enum TransactionUtil {
         private static final ThreadLocal<Boolean> registed = ThreadLocal.withInitial(() -> false);
         private final Executor executor;
 
-        public AfterCommitExecutor(Executor executor) {
-            this.executor = executor;
+        public AfterCommitExecutor() {
+            this.executor = ThreadPoolUtil.INSTANCE.getUnboundedExecutor();
         }
 
         @Override
