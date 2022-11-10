@@ -341,7 +341,8 @@ public class StartProcessMonitor implements
             PrettyPrinter.INSTANCE.flush();
             throw new MatrixWarnException("'config.file' does not exist. Matrix Framework properties may not be loaded");
         }
-        configFile = EnvironmentContext.INSTANCE.getURI(configFile).toString();
+
+        configFile = EnvironmentContext.INSTANCE.getURL(configFile).toString();
         System.setProperty(LOGGING_CONFIG, configFile);
         defaultProperties.setProperty(LOGGING_CONFIG, configFile);
         PrettyPrinter.INSTANCE.buffer("set {} is:{}", LOGGING_CONFIG, configFile);

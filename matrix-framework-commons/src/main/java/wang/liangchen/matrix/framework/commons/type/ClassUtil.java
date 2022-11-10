@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,20 +28,20 @@ public enum ClassUtil {
     INSTANCE;
     private static final Map<String, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
     private static final Map<String, MethodAccess> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Object> defaultValue = new HashMap<Class<?>, Object>() {{
-        put(Long.class, 0L);
-        put(Integer.class, 0);
-        put(Short.class, (short) 0);
-        put(Byte.class, (byte) 0);
-        put(Double.class, 0d);
-        put(Float.class, 0f);
-        put(Boolean.class, Boolean.FALSE);
-        put(BigDecimal.class, new BigDecimal(0));
-        put(Timestamp.class, new Timestamp(System.currentTimeMillis()));
-        put(String.class, Symbol.BLANK.getSymbol());
-        put(LocalDate.class, LocalDate.now());
-        put(LocalDateTime.class, LocalDateTime.now());
-        put(Date.class, new Date());
+    private static final Map<Class<?>, Supplier<?>> defaultValue = new HashMap<Class<?>, Supplier<?>>() {{
+        put(Long.class, () -> 0L);
+        put(Integer.class, () -> 0);
+        put(Short.class, () -> (short) 0);
+        put(Byte.class, () -> (byte) 0);
+        put(Double.class, () -> 0d);
+        put(Float.class, () -> 0f);
+        put(Boolean.class, () -> Boolean.FALSE);
+        put(BigDecimal.class, () -> new BigDecimal(0));
+        put(String.class, Symbol.BLANK::getSymbol);
+        put(Timestamp.class, () -> new Timestamp(System.currentTimeMillis()));
+        put(LocalDate.class, LocalDate::now);
+        put(LocalDateTime.class, LocalDateTime::now);
+        put(Date.class, Date::new);
     }};
 
     public Class<?> forName(String className) {
@@ -79,17 +80,17 @@ public enum ClassUtil {
             if (!methodName.startsWith(Symbol.GETTER_PREFIX.getSymbol())) {
                 continue;
             }
-            Object object = methodAccess.invoke(target, methodName);
-            if (null != object) {
+            Object returnValue = methodAccess.invoke(target, methodName);
+            if (null != returnValue) {
                 continue;
             }
             Class<?> returnType = returnTypes[i];
-            object = defaultValue.get(returnType);
-            if (null == object) {
+            Supplier<?> supplier = defaultValue.get(returnType);
+            if (null == supplier) {
                 continue;
             }
             methodName = methodName.replace(Symbol.GETTER_PREFIX.getSymbol(), Symbol.SETTER_PREFIX.getSymbol());
-            methodAccess.invoke(target, methodName, object);
+            methodAccess.invoke(target, methodName, supplier.get());
         }
     }
 

@@ -78,7 +78,7 @@ public class MybatisAutoConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
-        Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getURI("mybatis-config.xml").toString());
+        Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getURL("mybatis-config.xml").toString());
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
         } else {

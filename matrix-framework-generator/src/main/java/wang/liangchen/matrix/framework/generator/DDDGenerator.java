@@ -427,7 +427,7 @@ public class DDDGenerator {
     }
 
     private List<GeneratorProperties> resolveConfiguration() {
-        String location = EnvironmentContext.INSTANCE.getURI(GENERATOR_CONFIG_FILE).toString();
+        String location = EnvironmentContext.INSTANCE.getURL(GENERATOR_CONFIG_FILE).toString();
         Resource resource = resourcePatternResolver.getResource(location);
         Document document;
         try {
