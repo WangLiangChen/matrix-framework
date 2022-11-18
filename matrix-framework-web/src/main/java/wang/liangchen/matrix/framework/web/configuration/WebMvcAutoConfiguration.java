@@ -72,33 +72,43 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
                 // set requestId for response
                 responseWrapper.setHeader(WebContext.REQUEST_ID, requestId);
+                try {
+                    // doFilter with wrapped request and response
+                    filterChain.doFilter(requestWrapper, responseWrapper);
+                    boolean asyncStarted = requestWrapper.isAsyncStarted();
+                    if (asyncStarted) {
+                        responseWrapper.setAsyncRequestStarted(true);
+                        return;
+                    }
+                } catch (Throwable t) {
+                    // catch exception
+                    flushFormattedResponse(response, FormattedResponse.exception(t));
+                    return;
+                }
+                // catch 404
+                if (SC_NOT_FOUND == responseWrapper.getStatusCode()) {
+                    flushFormattedResponse(response, FormattedResponse.failure()
+                            .code(String.valueOf(SC_NOT_FOUND))
+                            .level(ExceptionLevel.ERROR)
+                            .message("Request does not exist: {}", requestURI));
+                    return;
+                }
+
+                // handle void
+                if (0 == responseWrapper.getContentSize()) {
+                    flushFormattedResponse(response, FormattedResponse.success());
+                    return;
+                }
+                flushBytes(response, responseWrapper.getContentAsByteArray());
+            }
+
+            private void flushFormattedResponse(HttpServletResponse response, FormattedResponse<?> formattedResponse) throws IOException {
+                flushBytes(response, formattedResponse.toString().getBytes(StandardCharsets.UTF_8));
+            }
+
+            private void flushBytes(HttpServletResponse response, byte[] bytes) throws IOException {
                 try (ServletOutputStream outputStream = response.getOutputStream()) {
-                    try {
-                        // doFilter with wrapped request and response
-                        filterChain.doFilter(requestWrapper, responseWrapper);
-                    } catch (Throwable t) {
-                        outputStream.write(FormattedResponse.exception(t).toString().getBytes(StandardCharsets.UTF_8));
-                        outputStream.flush();
-                        return;
-                    }
-
-                    // catch 404
-                    if (SC_NOT_FOUND == responseWrapper.getStatusCode()) {
-                        outputStream.write(FormattedResponse.failure()
-                                .code(String.valueOf(SC_NOT_FOUND))
-                                .level(ExceptionLevel.ERROR)
-                                .message("Request does not exist: {}", requestURI).toString().getBytes(StandardCharsets.UTF_8));
-                        outputStream.flush();
-                        return;
-                    }
-
-                    // handle void
-                    if (0 == responseWrapper.getContentSize()) {
-                        outputStream.write(FormattedResponse.success().toString().getBytes(StandardCharsets.UTF_8));
-                        outputStream.flush();
-                        return;
-                    }
-                    outputStream.write(responseWrapper.getContentAsByteArray());
+                    outputStream.write(bytes);
                     outputStream.flush();
                 }
             }

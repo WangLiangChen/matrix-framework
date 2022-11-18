@@ -1,14 +1,17 @@
 package wang.liangchen.matrix.framework.web.controller;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import wang.liangchen.matrix.framework.web.push.PushUtil;
 import wang.liangchen.matrix.framework.web.push.PusherKey;
+import wang.liangchen.matrix.framework.web.push.PusherType;
+import wang.liangchen.matrix.framework.web.response.FormattedResponse;
+
+import java.util.Map;
 
 /**
  * Server Side Event
@@ -17,21 +20,23 @@ import wang.liangchen.matrix.framework.web.push.PusherKey;
  * 异步异常拦截 CallableProcessingInterceptor/DeferredResultProcessingInterceptor/AsyncHandlerInterceptor
  */
 @RestController
-@RequestMapping("push")
+@RequestMapping("/push")
 public class PushController {
-
-    @GetMapping("/")
-    public SseEmitter sse(String name, String group) {
-        return PushUtil.INSTANCE.appendPusher(PusherKey.newInstance(name, group), SseEmitter.class);
+    @GetMapping("/deferredResult")
+    @PostMapping("/deferredResult")
+    public DeferredResult<FormattedResponse<?>> deferredResult(@RequestParam Map<String, String> queryParams, @Nullable @RequestBody String body) {
+        return PushUtil.INSTANCE.appendPusher(PusherType.DeferredResult, PusherKey.newInstance(queryParams, body));
     }
 
-    @GetMapping("/deferredResult")
-    public DeferredResult<?> deferredResult(String name, String group) {
-        return PushUtil.INSTANCE.appendPusher(PusherKey.newInstance(name, group), DeferredResult.class);
+    @GetMapping("/sse")
+    @PostMapping("/sse")
+    public SseEmitter sse(Map<String, String> queryParams, @RequestBody String body) {
+        return PushUtil.INSTANCE.appendPusher(PusherType.DeferredResult, PusherKey.newInstance(queryParams, body));
     }
 
     @GetMapping("/streamingResponseBody")
-    public StreamingResponseBody streamingResponseBody() {
+    @PostMapping("/streamingResponseBody")
+    public StreamingResponseBody streamingResponseBody(Map<String, String> queryParams, @RequestBody String body) {
         // 用于直接将结果写出到Response的OutputStream中； 如文件下载等
         return outputStream -> {
         };

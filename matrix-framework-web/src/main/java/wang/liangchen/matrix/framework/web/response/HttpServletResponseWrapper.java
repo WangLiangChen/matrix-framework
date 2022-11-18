@@ -14,21 +14,40 @@ import java.io.*;
  */
 @SuppressWarnings("NullableProblems")
 public final class HttpServletResponseWrapper extends javax.servlet.http.HttpServletResponseWrapper {
-    private final FastByteArrayOutputStream content = new FastByteArrayOutputStream(1024);
+    /**
+     * 所有针对Response的ServletOutputStream的操作,都会转移到这
+     */
+    private final FastByteArrayOutputStream stealOutputStream = new FastByteArrayOutputStream(1024);
 
-    private ServletOutputStream outputStream;
-    private PrintWriter writer;
+    private final ServletOutputStream servletOutputStreamWrapper;
+    private final PrintWriter printWriterWrapper;
     private int statusCode = HttpServletResponse.SC_OK;
     private Integer contentLength;
+    private boolean asyncRequestStarted;
 
-    public HttpServletResponseWrapper(HttpServletResponse response) {
+    public HttpServletResponseWrapper(HttpServletResponse response) throws IOException {
         super(response);
+        ServletOutputStream servletOutputStream = getResponse().getOutputStream();
+        this.servletOutputStreamWrapper = new ResponseServletOutputStreamWrapper(servletOutputStream);
+        String characterEncoding = getCharacterEncoding();
+        this.printWriterWrapper = (characterEncoding != null ? new ResponsePrintWriterWrapper(characterEncoding) : new ResponsePrintWriterWrapper(WebUtils.DEFAULT_CHARACTER_ENCODING));
     }
 
     @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        return this.servletOutputStreamWrapper;
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        return this.printWriterWrapper;
+    }
+
+
+    @Override
     public void setStatus(int sc) {
-        super.setStatus(sc);
         this.statusCode = sc;
+        super.setStatus(sc);
     }
 
     @Override
@@ -51,22 +70,6 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
         super.sendRedirect(location);
     }
 
-    @Override
-    public ServletOutputStream getOutputStream() throws IOException {
-        if (this.outputStream == null) {
-            this.outputStream = new ResponseServletOutputStream(getResponse().getOutputStream());
-        }
-        return this.outputStream;
-    }
-
-    @Override
-    public PrintWriter getWriter() throws IOException {
-        if (this.writer == null) {
-            String characterEncoding = getCharacterEncoding();
-            this.writer = (characterEncoding != null ? new ResponsePrintWriter(characterEncoding) : new ResponsePrintWriter(WebUtils.DEFAULT_CHARACTER_ENCODING));
-        }
-        return this.writer;
-    }
 
     @Override
     public void flushBuffer() {
@@ -75,8 +78,8 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
 
     @Override
     public void setContentLength(int len) {
-        if (len > this.content.size()) {
-            this.content.resize(len);
+        if (len > this.stealOutputStream.size()) {
+            this.stealOutputStream.resize(len);
         }
         this.contentLength = len;
     }
@@ -87,28 +90,28 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
             throw new IllegalArgumentException("Content-Length exceeds ContentCachingResponseWrapper's maximum (" + Integer.MAX_VALUE + "): " + len);
         }
         int lenInt = (int) len;
-        if (lenInt > this.content.size()) {
-            this.content.resize(lenInt);
+        if (lenInt > this.stealOutputStream.size()) {
+            this.stealOutputStream.resize(lenInt);
         }
         this.contentLength = lenInt;
     }
 
     @Override
     public void setBufferSize(int size) {
-        if (size > this.content.size()) {
-            this.content.resize(size);
+        if (size > this.stealOutputStream.size()) {
+            this.stealOutputStream.resize(size);
         }
     }
 
     @Override
     public void resetBuffer() {
-        this.content.reset();
+        this.stealOutputStream.reset();
     }
 
     @Override
     public void reset() {
         super.reset();
-        this.content.reset();
+        this.stealOutputStream.reset();
     }
 
     /**
@@ -126,7 +129,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
      * @return byte[]
      */
     public byte[] getContentAsByteArray() {
-        return this.content.toByteArray();
+        return this.stealOutputStream.toByteArray();
     }
 
     /**
@@ -136,7 +139,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
      * @since 4.2
      */
     public InputStream getContentInputStream() {
-        return this.content.getInputStream();
+        return this.stealOutputStream.getInputStream();
     }
 
     /**
@@ -146,16 +149,7 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
      * @since 4.2
      */
     public int getContentSize() {
-        return this.content.size();
-    }
-
-    /**
-     * Copy the complete cached body content to the response.
-     *
-     * @throws IOException when body copy error
-     */
-    public void copyBodyToResponse() throws IOException {
-        copyBodyToResponse(true);
+        return this.stealOutputStream.size();
     }
 
     /**
@@ -165,54 +159,77 @@ public final class HttpServletResponseWrapper extends javax.servlet.http.HttpSer
      *                 cached body content
      * @since 4.2
      */
-    void copyBodyToResponse(boolean complete) throws IOException {
-        if (this.content.size() > 0) {
-            HttpServletResponse rawResponse = (HttpServletResponse) getResponse();
-            if ((complete || this.contentLength != null) && !rawResponse.isCommitted()) {
-                rawResponse.setContentLength(complete ? this.content.size() : this.contentLength);
-                this.contentLength = null;
-            }
-            this.content.writeTo(rawResponse.getOutputStream());
-            this.content.reset();
-            if (complete) {
-                super.flushBuffer();
-            }
+    public void copyBodyToResponse(boolean complete) throws IOException {
+        if (this.stealOutputStream.size() <= 0) {
+            return;
+        }
+
+        HttpServletResponse response = (HttpServletResponse) getResponse();
+        if ((complete || this.contentLength != null) && !response.isCommitted()) {
+            response.setContentLength(complete ? this.stealOutputStream.size() : this.contentLength);
+            this.contentLength = null;
+        }
+        this.stealOutputStream.writeTo(response.getOutputStream());
+        this.stealOutputStream.reset();
+        if (complete) {
+            super.flushBuffer();
         }
     }
 
-    private class ResponseServletOutputStream extends ServletOutputStream {
+    public void setAsyncRequestStarted(boolean asyncRequestStarted) {
+        this.asyncRequestStarted = asyncRequestStarted;
+    }
 
-        private final ServletOutputStream os;
+    public boolean isAsyncRequestStarted() {
+        return asyncRequestStarted;
+    }
 
-        public ResponseServletOutputStream(ServletOutputStream os) {
-            this.os = os;
+    private class ResponseServletOutputStreamWrapper extends ServletOutputStream {
+
+        private final ServletOutputStream servletOutputStream;
+
+        public ResponseServletOutputStreamWrapper(ServletOutputStream servletOutputStream) {
+            this.servletOutputStream = servletOutputStream;
         }
 
         @Override
         public void write(int b) throws IOException {
-            content.write(b);
+            stealOutputStream.write(b);
+            if (isAsyncRequestStarted()) {
+                this.servletOutputStream.write(b);
+            }
         }
 
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
-            content.write(b, off, len);
+            stealOutputStream.write(b, off, len);
+            if (isAsyncRequestStarted()) {
+                this.servletOutputStream.write(b, off, len);
+            }
         }
 
         @Override
         public boolean isReady() {
-            return this.os.isReady();
+            return this.servletOutputStream.isReady();
         }
 
         @Override
         public void setWriteListener(WriteListener writeListener) {
-            this.os.setWriteListener(writeListener);
+            this.servletOutputStream.setWriteListener(writeListener);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            if (isAsyncRequestStarted()) {
+                this.servletOutputStream.flush();
+            }
         }
     }
 
-    private class ResponsePrintWriter extends PrintWriter {
+    private class ResponsePrintWriterWrapper extends PrintWriter {
 
-        public ResponsePrintWriter(String characterEncoding) throws UnsupportedEncodingException {
-            super(new OutputStreamWriter(content, characterEncoding));
+        public ResponsePrintWriterWrapper(String characterEncoding) throws UnsupportedEncodingException {
+            super(new OutputStreamWriter(stealOutputStream, characterEncoding));
         }
 
         @Override
