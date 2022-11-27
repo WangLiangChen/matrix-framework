@@ -5,5 +5,5 @@ package wang.liangchen.matrix.framework.ddd.message_pl;
  * Marker interface
  * 查询响应
  */
-public interface IResponse extends IResult{
+public interface IResponse {
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * Marker interface
- * AggregateRoot And RootEntity
+ * AggregateRoot
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

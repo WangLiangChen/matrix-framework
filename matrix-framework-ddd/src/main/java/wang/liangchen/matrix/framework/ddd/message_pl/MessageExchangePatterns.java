@@ -8,7 +8,7 @@ public enum MessageExchangePatterns {
     RequestResponse,
     FireAndForget,
     /**
-     * MQ
+     * MQ publish/subscribe
      */
     RequestStream,
     /**
