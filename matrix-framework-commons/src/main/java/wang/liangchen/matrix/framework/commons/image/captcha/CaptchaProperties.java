@@ -8,6 +8,7 @@ import wang.liangchen.matrix.framework.commons.image.captcha.renderer.NoiseRende
 import wang.liangchen.matrix.framework.commons.image.captcha.renderer.impl.DefaultCharRenderer;
 import wang.liangchen.matrix.framework.commons.image.captcha.renderer.impl.DefaultNoiseRenderer;
 import wang.liangchen.matrix.framework.commons.image.captcha.renderer.impl.FishEyeEffectorRenderer;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -120,8 +121,8 @@ public class CaptchaProperties extends Properties {
             instance = defaultInstance;
         } else {
             try {
-                instance = Class.forName(paramValue).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                instance = ClassUtil.INSTANCE.instantiate(paramValue);
+            } catch (Exception e) {
                 throw new CaptchaConfigurationException(e);
             }
         }
