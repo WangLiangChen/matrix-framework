@@ -1,5 +1,8 @@
 package wang.liangchen.matrix.framework.web.configuration;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -13,14 +16,12 @@ import wang.liangchen.matrix.framework.web.request.HttpServletRequestWrapper;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
 import wang.liangchen.matrix.framework.web.response.HttpServletResponseWrapper;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 
 /**
  * @author LiangChen.Wang

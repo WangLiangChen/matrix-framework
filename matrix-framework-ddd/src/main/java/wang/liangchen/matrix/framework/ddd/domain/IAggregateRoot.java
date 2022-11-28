@@ -5,5 +5,5 @@ package wang.liangchen.matrix.framework.ddd.domain;
  * Marker interface
  * AggregateEntity
  */
-public interface IAggregateRoot<R extends IEntity> extends IEntity {
+public interface IAggregateRoot extends IEntity {
 }

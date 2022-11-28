@@ -77,12 +77,13 @@ public class DDDGenerator {
             createEntity(generatorProperties);
             createManager(generatorProperties);
             createSouthboundAcl(generatorProperties);
+            createSouthboundMessageContractPublishLanguagePackage(generatorProperties);
             createPort(generatorProperties);
             createAdapter(generatorProperties);
             createNorthboundOhs(generatorProperties);
             createLocal(generatorProperties);
             createRemote(generatorProperties);
-            createMessageContractPublishLanguagePackage(generatorProperties);
+            createNorthboundMessageContractPublishLanguagePackage(generatorProperties);
         });
     }
 
@@ -92,7 +93,9 @@ public class DDDGenerator {
         generatorTemplate.setManagerClassName(generatorTemplate.getEntityName() + "Manager");
         generatorTemplate.setSouthboundAclPackage("southbound_acl");
         generatorTemplate.setPortPackage("port");
+        generatorTemplate.setRepositoryClassName(generatorTemplate.getEntityName() + "Repository");
         generatorTemplate.setAdapterPackage("adapter");
+        generatorTemplate.setRepositoryImplClassName(generatorTemplate.getEntityName() + "RepositoryImpl");
         generatorTemplate.setRepositoryPackage("repository");
         generatorTemplate.setClientPackage("client");
         generatorTemplate.setPublisherPackage("publisher");
@@ -118,7 +121,7 @@ public class DDDGenerator {
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("BoundedContext.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
@@ -140,12 +143,39 @@ public class DDDGenerator {
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("SouthBoundAcl.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
     }
+
+    private void createSouthboundMessageContractPublishLanguagePackage(GeneratorProperties generatorProperties) {
+        GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
+        generatorTemplate.setMessageContractPublishLanguageDirection(generatorTemplate.getSouthboundAclPackage());
+        String packagePathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorProperties.getContextPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getSouthboundAclPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getMessageContractPublishLanguagePackage())
+                .toString();
+
+
+        Path packagePath = Paths.get(packagePathName);
+        try {
+            if (Files.notExists(packagePath)) {
+                Files.createDirectories(packagePath);
+            }
+            Path packageInfoFilePath = packagePath.resolve("package-info.java");
+            if (Files.notExists(packageInfoFilePath)) {
+                Files.createFile(packageInfoFilePath);
+                Template template = freemarkerConfig.getTemplate("MessageContractPublishLanguage.ftl");
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
+            }
+        } catch (IOException | TemplateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void createPort(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
@@ -180,7 +210,17 @@ public class DDDGenerator {
             if (Files.notExists(publisherPackagePath)) {
                 Files.createDirectories(publisherPackagePath);
             }
-        } catch (IOException e) {
+            if (!generatorTemplate.isAggregateRoot()) {
+                return;
+            }
+            // 是聚合根
+            Path repositoryFilePath = repositoryPackagePath.resolve(generatorTemplate.getRepositoryClassName() + JAVA);
+            if (Files.notExists(repositoryFilePath)) {
+                Files.createFile(repositoryFilePath);
+                Template template = freemarkerConfig.getTemplate("Repository.ftl");
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(repositoryFilePath), StandardCharsets.UTF_8));
+            }
+        } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
     }
@@ -218,7 +258,17 @@ public class DDDGenerator {
             if (Files.notExists(publisherPackagePath)) {
                 Files.createDirectories(publisherPackagePath);
             }
-        } catch (IOException e) {
+            if (!generatorTemplate.isAggregateRoot()) {
+                return;
+            }
+            // 是聚合根
+            Path repositoryFilePath = repositoryPackagePath.resolve(generatorTemplate.getRepositoryImplClassName() + JAVA);
+            if (Files.notExists(repositoryFilePath)) {
+                Files.createFile(repositoryFilePath);
+                Template template = freemarkerConfig.getTemplate("RepositoryImpl.ftl");
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(repositoryFilePath), StandardCharsets.UTF_8));
+            }
+        } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
     }
@@ -238,7 +288,7 @@ public class DDDGenerator {
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("NorthBoundOhs.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
@@ -307,38 +357,26 @@ public class DDDGenerator {
         }
     }
 
-    private void createMessageContractPublishLanguagePackage(GeneratorProperties generatorProperties) {
+    private void createNorthboundMessageContractPublishLanguagePackage(GeneratorProperties generatorProperties) {
         GeneratorTemplate generatorTemplate = (GeneratorTemplate) generatorProperties;
+        generatorTemplate.setMessageContractPublishLanguageDirection(generatorTemplate.getNorthboundOhsPackage());
         String packagePathName = new StringBuilder().append(generatorProperties.getOutput()).append(Symbol.FILE_SEPARATOR.getSymbol())
                 .append(generatorProperties.getContextPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
+                .append(generatorTemplate.getNorthboundOhsPackage()).append(Symbol.FILE_SEPARATOR.getSymbol())
                 .append(generatorTemplate.getMessageContractPublishLanguagePackage())
                 .toString();
-        String northPackagePathName = new StringBuilder(packagePathName).append(Symbol.FILE_SEPARATOR.getSymbol())
-                .append(generatorTemplate.getNorthPackage())
-                .toString();
-        String southPackagePathName = new StringBuilder(packagePathName).append(Symbol.FILE_SEPARATOR.getSymbol())
-                .append(generatorTemplate.getSouthPackage())
-                .toString();
+
 
         Path packagePath = Paths.get(packagePathName);
-        Path northPackagePath = Paths.get(northPackagePathName);
-        Path southPackagePath = Paths.get(southPackagePathName);
         try {
             if (Files.notExists(packagePath)) {
                 Files.createDirectories(packagePath);
             }
-            if (Files.notExists(northPackagePath)) {
-                Files.createDirectories(northPackagePath);
-            }
-            if (Files.notExists(southPackagePath)) {
-                Files.createDirectories(southPackagePath);
-            }
-
             Path packageInfoFilePath = packagePath.resolve("package-info.java");
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("MessageContractPublishLanguage.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
@@ -359,7 +397,7 @@ public class DDDGenerator {
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("Domain.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
@@ -382,7 +420,7 @@ public class DDDGenerator {
             if (Files.notExists(packageInfoFilePath)) {
                 Files.createFile(packageInfoFilePath);
                 Template template = freemarkerConfig.getTemplate("Aggregate.ftl");
-                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath),StandardCharsets.UTF_8));
+                template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(packageInfoFilePath), StandardCharsets.UTF_8));
             }
             // Entity File
             Path entityFilePath = entityPath.resolve(generatorProperties.getEntityName() + JAVA);
@@ -391,7 +429,7 @@ public class DDDGenerator {
             }
             Files.createFile(entityFilePath);
             Template template = freemarkerConfig.getTemplate("Entity.ftl");
-            template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(entityFilePath),StandardCharsets.UTF_8));
+            template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(entityFilePath), StandardCharsets.UTF_8));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
@@ -420,7 +458,7 @@ public class DDDGenerator {
             }
             Files.createFile(entityFilePath);
             Template template = freemarkerConfig.getTemplate("Manager.ftl");
-            template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(entityFilePath),StandardCharsets.UTF_8));
+            template.process(generatorProperties, new OutputStreamWriter(Files.newOutputStream(entityFilePath), StandardCharsets.UTF_8));
         } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }

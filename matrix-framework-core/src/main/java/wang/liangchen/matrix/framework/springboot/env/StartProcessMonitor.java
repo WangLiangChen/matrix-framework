@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.env;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -36,8 +38,6 @@ import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.context.MessageSourceLoader;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
@@ -94,8 +94,7 @@ public class StartProcessMonitor implements
             ErrorWebFluxAutoConfiguration.class.getName(),
             WebMvcAutoConfiguration.class.getName(),
             WebFluxAutoConfiguration.class.getName(),
-            "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
-            "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration"
+            "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
     };
     private boolean isRunning;
 
@@ -382,7 +381,7 @@ public class StartProcessMonitor implements
                 : DEFAULT_SCAN_PACKAGES.concat(Symbol.COMMA.getSymbol()).concat(autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
         PrettyPrinter.INSTANCE.buffer("scan packages: {}", autoScanPackages);
-        scanner.scan(autoScanArray);
+        //scanner.scan(autoScanArray);
     }
 
     @Override

@@ -4,7 +4,6 @@ import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.*;
 import java.util.Collections;
@@ -21,15 +20,6 @@ public enum NetUtil {
     INSTANCE;
     private final InetAddress inetAddress;
     private static final Pattern IPV4_PATTERN = Pattern.compile("^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$");
-    /**
-     * X-Forwarded-For：Squid服务代理
-     * Proxy-Client-IP：apache服务代理
-     * WL-Proxy-Client-IP：weblogic服务代理
-     * X-Real-IP：nginx服务代理
-     * HTTP_CLIENT_IP：部分代理服务器
-     */
-    private static final String[] PROXIES = {"X-Real-IP", "x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
-    private final static String UNKNOWN = "unknown";
 
 
     NetUtil() {
@@ -126,25 +116,6 @@ public enum NetUtil {
         return IPV4_PATTERN.matcher(ip).matches();
     }
 
-    public String ipFromHttpRequest(HttpServletRequest request) {
-        String ips;
-        // 先从代理中获取
-        for (String proxy : PROXIES) {
-            ips = request.getHeader(proxy);
-            if (StringUtil.INSTANCE.isBlank(ips) || UNKNOWN.equalsIgnoreCase(ips)) {
-                continue;
-            }
-            // 获取到ips,拆开看看,获取第一个不是unknown的ip
-            String[] ipArray = ips.split(Symbol.COMMA.getSymbol());
-            for (String innerIp : ipArray) {
-                if (UNKNOWN.equalsIgnoreCase(innerIp)) {
-                    return innerIp;
-                }
-            }
-        }
-        // 从代理中没获取到
-        return request.getRemoteAddr();
-    }
 
     public Map<String, String> queryString2Map(String queryString) {
         if (StringUtil.INSTANCE.isBlank(queryString)) {

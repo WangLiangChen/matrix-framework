@@ -43,7 +43,7 @@ public class WebFluxAutoConfiguration implements WebFluxConfigurer {
             String dataString = FormattedResponse.exception(ex).toString();
             if (ex instanceof ResponseStatusException) {
                 ResponseStatusException responseStatusException = (ResponseStatusException) ex;
-                if (responseStatusException.getStatus() == HttpStatus.NOT_FOUND) {
+                if (responseStatusException.getStatusCode() == HttpStatus.NOT_FOUND) {
                     dataString = FormattedResponse.failure()
                             .code(HttpStatus.NOT_FOUND.name())
                             .level(ExceptionLevel.ERROR)

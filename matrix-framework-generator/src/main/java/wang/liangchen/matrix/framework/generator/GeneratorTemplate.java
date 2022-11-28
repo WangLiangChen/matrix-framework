@@ -15,7 +15,10 @@ public class GeneratorTemplate extends GeneratorProperties {
     private String managerClassName;
     private String southboundAclPackage;
     private String portPackage;
+    private String repositoryClassName;
+
     private String adapterPackage;
+    private String repositoryImplClassName;
     private String repositoryPackage;
     private String clientPackage;
     private String publisherPackage;
@@ -28,6 +31,8 @@ public class GeneratorTemplate extends GeneratorProperties {
     private String resourcePackage;
     private String subscriberPackage;
     private String messageContractPublishLanguagePackage;
+    private String messageContractPublishLanguageDirection;
+
     private String northPackage;
     private String southPackage;
     private Set<String> imports = new HashSet<>();
@@ -198,5 +203,29 @@ public class GeneratorTemplate extends GeneratorProperties {
 
     public String getManagerClassName() {
         return managerClassName;
+    }
+
+    public void setMessageContractPublishLanguageDirection(String messageContractPublishLanguageDirection) {
+        this.messageContractPublishLanguageDirection = messageContractPublishLanguageDirection;
+    }
+
+    public String getMessageContractPublishLanguageDirection() {
+        return messageContractPublishLanguageDirection;
+    }
+
+    public void setRepositoryClassName(String repositoryClassName) {
+        this.repositoryClassName = repositoryClassName;
+    }
+
+    public String getRepositoryClassName() {
+        return repositoryClassName;
+    }
+
+    public void setRepositoryImplClassName(String repositoryImplClassName) {
+        this.repositoryImplClassName = repositoryImplClassName;
+    }
+
+    public String getRepositoryImplClassName() {
+        return repositoryImplClassName;
     }
 }

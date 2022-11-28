@@ -35,7 +35,6 @@ import java.util.*;
  */
 public class MybatisAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-    private final static String AUTOSCAN_COFIG_FILE = "autoscan.properties";
     private final static String DEFAULT_SCAN_PACKAGE = "wang.liangchen.matrix";
     private static final String scanPackages;
 

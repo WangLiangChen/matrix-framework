@@ -77,10 +77,12 @@ public @interface EnableJdbc {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             instantiateDataSource();
             PrettyPrinter.INSTANCE.flush();
-            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName()
-                    , JdbcAutoConfiguration.class.getName(), MybatisAutoConfiguration.class.getName()
-                    , StandaloneDaoConfiguration.class.getName(), CachedStandaloneDaoConfiguration.class.getName()
-                    , ComponentAutoConfiguration.class.getName()};
+            String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(),
+                    JdbcAutoConfiguration.class.getName(),
+                    MybatisAutoConfiguration.class.getName(),
+                    JpaAutoConfiguration.class.getName(),
+                    StandaloneDaoConfiguration.class.getName(), CachedStandaloneDaoConfiguration.class.getName(),
+                    ComponentAutoConfiguration.class.getName()};
             // 设置全局jdbc状态
             DataStatus.INSTANCE.setJdbcEnabled(true);
             return imports;

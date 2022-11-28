@@ -20,7 +20,7 @@
         <version.reflectasm>1.11.9</version.reflectasm>
         <version.jose.jwt>9.24.3</version.jose.jwt>
         <version.el>3.0.0</version.el>
-        <version.hibernate.validator>6.2.5.Final</version.hibernate.validator>
+        <version.hibernate.validator>8.0.0.Final</version.hibernate.validator>
         <version.protostuff>1.8.0</version.protostuff>
     </properties>
     <dependencyManagement>
@@ -89,12 +89,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- logging provided -->
         <dependency>
             <groupId>org.slf4j</groupId>

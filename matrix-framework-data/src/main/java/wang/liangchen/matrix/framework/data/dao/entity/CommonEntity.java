@@ -1,9 +1,9 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
 import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 
-import javax.persistence.Column;
-import javax.persistence.Version;
 import java.time.LocalDateTime;
 
 /**

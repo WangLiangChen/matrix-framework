@@ -1,10 +1,12 @@
-package wang.liangchen.matrix.framework.commons.network;
+package wang.liangchen.matrix.framework.web.utils;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -16,6 +18,15 @@ import java.nio.charset.Charset;
 public enum CookieUtil {
     // instance;
     INSTANCE;
+    /**
+     * X-Forwarded-For：Squid服务代理
+     * Proxy-Client-IP：apache服务代理
+     * WL-Proxy-Client-IP：weblogic服务代理
+     * X-Real-IP：nginx服务代理
+     * HTTP_CLIENT_IP：部分代理服务器
+     */
+    private static final String[] PROXIES = {"X-Real-IP", "x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
+    private final static String UNKNOWN = "unknown";
 
     public String getCookieValue(HttpServletRequest request, String cookieName) {
         return getCookieValue(request, cookieName, null);
@@ -77,5 +88,24 @@ public enum CookieUtil {
 
     public String getDomainName(HttpServletRequest request) {
         return request.getServerName().concat(":").concat(String.valueOf(request.getServerPort()));
+    }
+    public String ipFromHttpRequest(HttpServletRequest request) {
+        String ips;
+        // 先从代理中获取
+        for (String proxy : PROXIES) {
+            ips = request.getHeader(proxy);
+            if (StringUtil.INSTANCE.isBlank(ips) || UNKNOWN.equalsIgnoreCase(ips)) {
+                continue;
+            }
+            // 获取到ips,拆开看看,获取第一个不是unknown的ip
+            String[] ipArray = ips.split(Symbol.COMMA.getSymbol());
+            for (String innerIp : ipArray) {
+                if (UNKNOWN.equalsIgnoreCase(innerIp)) {
+                    return innerIp;
+                }
+            }
+        }
+        // 从代理中没获取到
+        return request.getRemoteAddr();
     }
 }

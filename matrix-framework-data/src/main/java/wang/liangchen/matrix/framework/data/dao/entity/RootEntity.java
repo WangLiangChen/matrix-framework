@@ -1,13 +1,13 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
 
+import jakarta.persistence.Transient;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.EntityGetter;
 import wang.liangchen.matrix.framework.data.dao.criteria.TableMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.TableMetas;
 
-import javax.persistence.Transient;
 import java.util.HashMap;
 import java.util.Map;
 

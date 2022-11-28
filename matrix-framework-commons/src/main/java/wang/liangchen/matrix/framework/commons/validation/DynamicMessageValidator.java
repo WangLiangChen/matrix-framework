@@ -1,7 +1,8 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
 
 /**
  * @author Liangchen.Wang 2022-10-13 9:22

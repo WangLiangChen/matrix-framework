@@ -1,10 +1,10 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
+import jakarta.persistence.Transient;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
-import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
