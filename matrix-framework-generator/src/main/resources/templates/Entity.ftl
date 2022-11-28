@@ -13,7 +13,7 @@ import wang.liangchen.matrix.framework.ddd.domain.AggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.IAggregateRoot;
 </#if>
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 <#list imports as importPackage>
 import ${importPackage};
 </#list>
