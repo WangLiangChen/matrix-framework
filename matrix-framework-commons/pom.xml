@@ -21,7 +21,7 @@
         <version.asm>9.3</version.asm>
         <version.reflectasm>1.11.9</version.reflectasm>
         <version.jose.jwt>9.24.3</version.jose.jwt>
-        <version.el>3.0.0</version.el>
+        <version.el>5.0.0-M1</version.el>
         <version.hibernate.validator>7.0.5.Final</version.hibernate.validator>
         <version.protostuff>1.8.0</version.protostuff>
     </properties>
@@ -44,13 +44,8 @@
             </dependency>
             <!-- el for hibernate validator -->
             <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>${version.el}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.glassfish</groupId>
-                <artifactId>javax.el</artifactId>
+                <artifactId>jakarta.el</artifactId>
                 <version>${version.el}</version>
             </dependency>
             <dependency>
@@ -124,12 +119,8 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
+            <artifactId>jakarta.el</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

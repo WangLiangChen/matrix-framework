@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.configuration;
 
+import jakarta.inject.Inject;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -18,7 +19,6 @@ import wang.liangchen.matrix.framework.data.aop.advisor.MultiDataSourceBeanFacto
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.util.Set;

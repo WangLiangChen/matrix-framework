@@ -1,11 +1,11 @@
 package ${basePackage}.${contextPackage}.${southboundAclPackage}.${adapterPackage}.repository;
 
+import jakarta.inject.Inject;
 import org.springframework.stereotype.Repository;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import ${basePackage}.${contextPackage}.${domainPackage}.${aggregatePackage}.${entityName};
 import ${basePackage}.${contextPackage}.${southboundAclPackage}.${portPackage}.repository.${repositoryClassName};
 
-import javax.inject.Inject;
 
 /**
  * @author ${author}

@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -12,7 +13,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
 import wang.liangchen.matrix.framework.data.dao.criteria.SqlBuilder;
 
-import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.List;
