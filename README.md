@@ -225,7 +225,7 @@ public class ExampleClass {
 <dependency>
     <groupId>wang.liangchen.matrix</groupId>
     <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
