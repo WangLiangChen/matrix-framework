@@ -1,11 +1,11 @@
 package wang.liangchen.matrix.framework.web.request;
 
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.WebUtils;
 
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.*;
  * @author LiangChen.Wang
  * 弥补body只能读取一次的缺陷
  */
-public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpServletRequestWrapper {
+public final class HttpServletRequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
 
     private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 

@@ -1,11 +1,11 @@
 package wang.liangchen.matrix.framework.web.response;
 
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.util.WebUtils;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 /**
@@ -13,7 +13,7 @@ import java.io.*;
  * 弥补body只能读取一次的不足
  */
 @SuppressWarnings("NullableProblems")
-public final class HttpServletResponseWrapper extends jakarta.servlet.http.HttpServletResponseWrapper {
+public final class HttpServletResponseWrapper extends javax.servlet.http.HttpServletResponseWrapper {
     /**
      * 所有针对Response的ServletOutputStream的操作,都会转移到这
      */

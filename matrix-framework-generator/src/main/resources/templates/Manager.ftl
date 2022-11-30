@@ -1,6 +1,6 @@
 package ${basePackage}.${contextPackage}.${domainPackage}.${aggregatePackage};
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.ddd.domain.DomainService;
 import wang.liangchen.matrix.framework.ddd.domain.IDomainService;

@@ -5,21 +5,21 @@
     <parent>
         <artifactId>matrix-framework</artifactId>
         <groupId>wang.liangchen.matrix</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>matrix-framework-core</artifactId>
     <properties>
-        <version.inject>2.0.1</version.inject>
+        <version.inject>1</version.inject>
         <version.annotations>4.7.3</version.annotations>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>jakarta.inject</groupId>
-                <artifactId>jakarta.inject-api</artifactId>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
                 <version>${version.inject}</version>
             </dependency>
             <dependency>
@@ -47,8 +47,8 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.spotbugs</groupId>

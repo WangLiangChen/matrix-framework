@@ -1,9 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao;
 
 
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +10,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
 import wang.liangchen.matrix.framework.data.dao.criteria.SqlBuilder;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.List;
