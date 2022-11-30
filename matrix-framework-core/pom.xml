@@ -12,7 +12,7 @@
     <artifactId>matrix-framework-core</artifactId>
     <properties>
         <version.inject>2.0.1</version.inject>
-        <version.annotations>4.7.2</version.annotations>
+        <version.annotations>4.7.3</version.annotations>
     </properties>
 
     <dependencyManagement>
