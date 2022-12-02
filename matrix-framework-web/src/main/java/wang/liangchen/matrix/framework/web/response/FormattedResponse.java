@@ -22,7 +22,8 @@ import java.util.Locale;
 public final class FormattedResponse<T> implements Serializable {
     private final static Logger logger = LoggerFactory.getLogger(FormattedResponse.class);
     private final static ObjectMapper objectMapper = new ObjectMapper();
-    private final static String DEFAULT_MESSAGE = "System Error!";
+    private final static String DEFAULT_MESSAGE = "System error. Please try again later or contact your system administrator.";
+    private final static String DEFAULT_MESSAGE_I18N = "SystemError";
     /**
      * 业务成功失败标识
      */
@@ -131,21 +132,20 @@ public final class FormattedResponse<T> implements Serializable {
 
     public static <T> FormattedResponse<T> exception(Throwable throwable) {
         FormattedResponse<T> failure = failure();
-        // default message
-        failure.message(DEFAULT_MESSAGE);
         if (throwable instanceof MatrixRuntimeException) {
             MatrixRuntimeException ex = (MatrixRuntimeException) throwable;
-            failure.message = ex.getMessage();
             failure.code = ex.getCode();
-            failure.i18n = ex.getI18n();
             failure.locale = ex.getLocale();
+            failure.code = ex.getCode();
+            failure.message = ex.getMessage();
+            failure.i18n = ex.getI18n();
         }
         if (throwable instanceof MatrixInfoException) {
             logger.debug(throwable.getMessage(), throwable);
             failure.level = ExceptionLevel.INFO;
             return failure;
         }
-        // populate stacktrace
+        // populate debug stacktrace
         failure.debug(stackTraceString(throwable, new StringBuilder()));
         if (throwable instanceof MatrixWarnException) {
             logger.info(throwable.getMessage(), throwable);
@@ -155,6 +155,10 @@ public final class FormattedResponse<T> implements Serializable {
         // MatrixErrorException or other Exception
         logger.error(throwable.getMessage(), throwable);
         failure.level = ExceptionLevel.ERROR;
+        failure.i18n(DEFAULT_MESSAGE_I18N);
+        String errorMessage = StringUtil.INSTANCE.isBlank(failure.code) ? DEFAULT_MESSAGE :
+                DEFAULT_MESSAGE.concat("(").concat(failure.code).concat(")");
+        failure.message(errorMessage);
         return failure;
     }
 
