@@ -73,6 +73,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response);
                 // set requestId for response
                 responseWrapper.setHeader(WebContext.REQUEST_ID, requestId);
+                response.setHeader(WebContext.REQUEST_ID, requestId);
+
                 try {
                     // doFilter with wrapped request and response
                     filterChain.doFilter(requestWrapper, responseWrapper);
@@ -81,9 +83,9 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                         responseWrapper.setAsyncRequestStarted(true);
                         return;
                     }
-                } catch (Throwable t) {
+                } catch (Throwable throwable) {
                     // catch exception
-                    flushFormattedResponse(response, FormattedResponse.exception(t));
+                    flushFormattedResponse(response, FormattedResponse.exception(throwable));
                     return;
                 }
                 // catch 404
@@ -111,14 +113,11 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                 try (ServletOutputStream outputStream = response.getOutputStream()) {
                     outputStream.write(bytes);
                     outputStream.flush();
+                } finally {
+                    // remove ThreadLocal when flushed
+                    WebContext.INSTANCE.remove();
+                    ValidationUtil.INSTANCE.removeLocale();
                 }
-            }
-
-            @Override
-            public void destroy() {
-                // remove ThreadLocal
-                WebContext.INSTANCE.remove();
-                ValidationUtil.INSTANCE.removeLocale();
             }
         };
     }

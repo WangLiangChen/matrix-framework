@@ -15,9 +15,9 @@ public abstract class AbstractLock implements Lock {
     /**
      * 当前线程持有的锁
      */
-    private final static ThreadLocal<Set<String>> currentThreadHoldLocks = ThreadLocal.withInitial(HashSet::new);
+    private final static ThreadLocal<Set<LockConfiguration.LockKey>> currentThreadHoldLocks = ThreadLocal.withInitial(HashSet::new);
     private final LockConfiguration lockConfiguration;
-    private final String lockKey;
+    private final LockConfiguration.LockKey lockKey;
 
     protected AbstractLock(LockConfiguration lockConfiguration) {
         this.lockConfiguration = ValidationUtil.INSTANCE.notNull(lockConfiguration);
@@ -56,7 +56,7 @@ public abstract class AbstractLock implements Lock {
     }
 
     @Override
-    public String lockKey() {
+    public LockConfiguration.LockKey lockKey() {
         return lockKey;
     }
 }

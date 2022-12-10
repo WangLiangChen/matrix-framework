@@ -17,7 +17,7 @@ import java.time.ZoneId;
  */
 public class UpdateLockImpl extends AbstractRdbmsLock {
     private final Logger logger = LoggerFactory.getLogger(UpdateLockImpl.class);
-    private final String UPDATE_SQL = "update matrix_lock set lock_at=?,lock_expire=?,lock_owner=? where lock_key=? and lock_expire<=?";
+    private final String UPDATE_SQL = "update matrix_lock set lock_at=?,lock_expire=?,lock_owner=? where lock_group=? and lock_key=? and lock_expire<=?";
 
 
     protected UpdateLockImpl(LockConfiguration lockConfiguration, Connection connection) {
@@ -25,7 +25,7 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
     }
 
     @Override
-    protected boolean executeBlockingSQL(final Connection connection, final String lockKey) {
+    protected boolean executeBlockingSQL(final Connection connection, final LockConfiguration.LockKey lockKey) {
         logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
         if (inserted(connection, lockKey)) {
             logger.debug("Lock '{}' is inserted.", lockKey);
@@ -46,7 +46,7 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
         return false;
     }
 
-    protected boolean lockByUpdate(Connection connection, String lockKey) {
+    protected boolean lockByUpdate(Connection connection, LockConfiguration.LockKey lockKey) {
         PreparedStatement preparedStatement = null;
         LocalDateTime now = LocalDateTime.now();
         try {
@@ -54,8 +54,9 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
             preparedStatement.setObject(1, now);
             preparedStatement.setObject(2, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
             preparedStatement.setString(3, NetUtil.INSTANCE.getLocalHostName());
-            preparedStatement.setString(4, lockKey);
-            preparedStatement.setObject(5, now);
+            preparedStatement.setString(4, lockKey.getLockGroup());
+            preparedStatement.setString(5, lockKey.getLockKey());
+            preparedStatement.setObject(6, now);
             // obtained lock, go
             return preparedStatement.executeUpdate() == 1;
         } catch (SQLException e) {

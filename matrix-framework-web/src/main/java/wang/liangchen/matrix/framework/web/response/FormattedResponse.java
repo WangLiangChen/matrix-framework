@@ -131,6 +131,7 @@ public final class FormattedResponse<T> implements Serializable {
     }
 
     public static <T> FormattedResponse<T> exception(Throwable throwable) {
+        throwable = resolveMatrixRuntimeException(throwable);
         FormattedResponse<T> failure = failure();
         if (throwable instanceof MatrixRuntimeException) {
             MatrixRuntimeException ex = (MatrixRuntimeException) throwable;
@@ -220,5 +221,18 @@ public final class FormattedResponse<T> implements Serializable {
             }
         }
         return stackTraceString(throwable.getCause(), messageContainer);
+    }
+
+    private static Throwable resolveMatrixRuntimeException(Throwable throwable) {
+        Throwable current = throwable;
+        while (true) {
+            if (current instanceof MatrixRuntimeException) {
+                return current;
+            }
+            if (null == current) {
+                return throwable;
+            }
+            current = current.getCause();
+        }
     }
 }
