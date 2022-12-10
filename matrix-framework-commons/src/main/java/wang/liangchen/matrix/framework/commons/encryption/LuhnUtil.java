@@ -60,6 +60,7 @@ public enum LuhnUtil {
         char[] chars = string.toCharArray();
         int[] array = new int[chars.length];
         for (int i = 0; i < chars.length; i++) {
+            // 48 -> 0,数值就是相对于48的偏移量
             array[i] = (byte) chars[i] - 48;
         }
         return array;
