@@ -381,7 +381,7 @@ public class StartProcessMonitor implements
                 : DEFAULT_SCAN_PACKAGES.concat(Symbol.COMMA.getSymbol()).concat(autoScanPackages);
         String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
         PrettyPrinter.INSTANCE.buffer("scan packages: {}", autoScanPackages);
-        scanner.scan(autoScanArray);
+        // scanner.scan(autoScanArray);
     }
 
     @Override
