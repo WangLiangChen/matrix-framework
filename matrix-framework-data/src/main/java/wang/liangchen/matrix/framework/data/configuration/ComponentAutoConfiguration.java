@@ -9,7 +9,7 @@ import wang.liangchen.matrix.framework.data.dao.impl.SequenceDaoImpl;
  */
 
 public class ComponentAutoConfiguration {
-    @Bean
+    @Bean("Matrix_Data_SequenceDao")
     public ISequenceDao sequenceDao() {
         return new SequenceDaoImpl();
     }

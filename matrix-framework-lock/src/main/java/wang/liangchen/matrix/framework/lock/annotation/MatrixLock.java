@@ -9,6 +9,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface MatrixLock {
+    String lockGroup();
+
     String lockKey();
 
     /**

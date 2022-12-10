@@ -33,12 +33,13 @@ public enum LockConfigurationResolver {
         if (null == annotation) {
             return null;
         }
+        String lockGroup = annotation.lockGroup();
         String lockKey = annotation.lockKey();
         String lockAtLeastString = annotation.lockAtLeast();
         String lockAtMostString = annotation.lockAtMost();
         Duration lockAtLeast = DurationResolver.INSTANCE.resolve(lockAtLeastString);
         Duration lockAtMost = DurationResolver.INSTANCE.resolve(lockAtMostString);
-        return new LockConfiguration(lockKey, Instant.now(), lockAtLeast, lockAtMost);
+        return new LockConfiguration(LockConfiguration.LockKey.newLockKey(lockGroup, lockKey), Instant.now(), lockAtLeast, lockAtMost);
     }
 
     private MatrixLock resolveAnnotation(Object target, Method method) {

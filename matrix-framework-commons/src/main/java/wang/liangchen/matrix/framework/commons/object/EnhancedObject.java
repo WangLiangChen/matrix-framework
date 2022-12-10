@@ -49,7 +49,7 @@ public class EnhancedObject implements Serializable {
         return object;
     }
 
-    public static <T extends EnhancedObject> T valueOf(Object source, Class<T> clazz) {
+    public static <T> T valueOf(Object source, Class<T> clazz) {
         return ObjectUtil.INSTANCE.copyProperties(source, clazz);
     }
 

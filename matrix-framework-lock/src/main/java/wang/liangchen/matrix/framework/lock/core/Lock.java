@@ -10,5 +10,5 @@ public interface Lock {
 
     LockConfiguration lockConfiguration();
 
-    String lockKey();
+    LockConfiguration.LockKey lockKey();
 }

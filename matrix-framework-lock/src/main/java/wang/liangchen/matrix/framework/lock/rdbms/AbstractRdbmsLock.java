@@ -21,10 +21,10 @@ import java.util.Set;
  */
 public abstract class AbstractRdbmsLock extends AbstractLock {
     private final static Logger logger = LoggerFactory.getLogger(AbstractRdbmsLock.class);
-    private final static Set<String> insertedLock = new HashSet<>();
-    private final String SELECT_SQL = "select 0 from matrix_lock where lock_key = ?";
-    private final String INSERT_SQL = "insert into matrix_lock values(?,?,?,?)";
-    private final String UNLOCK_SQL = "update matrix_lock SET lock_expire = ? WHERE lock_key = ?";
+    private final static Set<LockConfiguration.LockKey> insertedLock = new HashSet<>();
+    private final String SELECT_SQL = "select 0 from matrix_lock where lock_group=? and lock_key = ?";
+    private final String INSERT_SQL = "insert into matrix_lock values(?,?,?,?,?)";
+    private final String UNLOCK_SQL = "update matrix_lock SET lock_expire = ? WHERE lock_group=? and lock_key = ?";
     private final Connection connection;
 
     protected AbstractRdbmsLock(LockConfiguration lockConfiguration, Connection connection) {
@@ -32,9 +32,9 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         this.connection = ValidationUtil.INSTANCE.notNull(connection);
     }
 
-    protected abstract boolean executeBlockingSQL(Connection connection, String lockKey);
+    protected abstract boolean executeBlockingSQL(Connection connection, LockConfiguration.LockKey lockKey);
 
-    protected boolean inserted(Connection connection, String lockKey) {
+    protected boolean inserted(Connection connection, LockConfiguration.LockKey lockKey) {
         if (insertedLock.contains(lockKey)) {
             return true;
         }
@@ -42,7 +42,8 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         ResultSet resultSet = null;
         try {
             preparedStatement = connection.prepareStatement(SELECT_SQL);
-            preparedStatement.setString(1, lockKey);
+            preparedStatement.setString(1, lockKey.getLockGroup());
+            preparedStatement.setString(2, lockKey.getLockKey());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 insertedLock.add(lockKey);
@@ -57,14 +58,15 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         return false;
     }
 
-    protected boolean lockByInsert(Connection connection, String lockKey) {
+    protected boolean lockByInsert(Connection connection, LockConfiguration.LockKey lockKey) {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(INSERT_SQL);
-            preparedStatement.setString(1, lockKey);
-            preparedStatement.setObject(2, LocalDateTime.ofInstant(lockConfiguration().getLockAt(), ZoneId.systemDefault()));
-            preparedStatement.setObject(3, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
-            preparedStatement.setString(4, NetUtil.INSTANCE.getLocalHostName());
+            preparedStatement.setString(1, lockKey.getLockGroup());
+            preparedStatement.setString(2, lockKey.getLockKey());
+            preparedStatement.setObject(3, LocalDateTime.ofInstant(lockConfiguration().getLockAt(), ZoneId.systemDefault()));
+            preparedStatement.setObject(4, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
+            preparedStatement.setString(5, NetUtil.INSTANCE.getLocalHostName());
             // obtained lock, go
             if (preparedStatement.executeUpdate() == 1) {
                 insertedLock.add(lockKey);
@@ -87,7 +89,7 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
 
     @Override
     protected boolean doLock() {
-        String lockKey = lockKey();
+        LockConfiguration.LockKey lockKey = lockKey();
         return executeBlockingSQL(connection, lockKey);
     }
 
@@ -97,7 +99,9 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
         try {
             preparedStatement = connection.prepareStatement(UNLOCK_SQL);
             preparedStatement.setObject(1, LocalDateTime.ofInstant(lockConfiguration().getUnLockInstant(), ZoneId.systemDefault()));
-            preparedStatement.setString(2, lockKey());
+            LockConfiguration.LockKey lockKey = lockKey();
+            preparedStatement.setString(2, lockKey.getLockGroup());
+            preparedStatement.setString(3, lockKey.getLockKey());
             int rows = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());

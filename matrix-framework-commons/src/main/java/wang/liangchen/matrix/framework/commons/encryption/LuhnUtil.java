@@ -9,23 +9,23 @@ public enum LuhnUtil {
      */
     INSTANCE;
 
-    public String generate(String string, int bit) {
-        String result = string;
-        for (int i = 0; i < bit; i++) {
+    public String generate(String numberString, int checkBit) {
+        String result = numberString;
+        for (int i = 0; i < checkBit; i++) {
             result = generate(result);
         }
         return result;
     }
 
-    public String generate(String string) {
-        int digit = 10 - doLuhn(string, true) % 10;
+    public String generate(String numberString) {
+        int digit = 10 - doLuhn(numberString, true) % 10;
         digit = digit == 10 ? 0 : digit;
-        return String.format("%s%d", string, digit);
+        return String.format("%s%d", numberString, digit);
     }
 
-    public boolean validate(String string, int bit) {
-        for (int i = 0; i < bit; i++) {
-            String sub = string.substring(0, string.length() - i);
+    public boolean validate(String numberString, int checkBit) {
+        for (int i = 0; i < checkBit; i++) {
+            String sub = numberString.substring(0, numberString.length() - i);
             boolean validate = validate(sub);
             if (!validate) {
                 return false;
@@ -34,8 +34,8 @@ public enum LuhnUtil {
         return true;
     }
 
-    public boolean validate(String string) {
-        return doLuhn(string, false) % 10 == 0;
+    public boolean validate(String numberString) {
+        return doLuhn(numberString, false) % 10 == 0;
     }
 
 
@@ -60,6 +60,7 @@ public enum LuhnUtil {
         char[] chars = string.toCharArray();
         int[] array = new int[chars.length];
         for (int i = 0; i < chars.length; i++) {
+            // 48 -> 0,数值就是相对于48的偏移量
             array[i] = (byte) chars[i] - 48;
         }
         return array;

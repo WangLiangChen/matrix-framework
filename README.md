@@ -181,7 +181,7 @@ public class ExampleClass {
     @Inject
     ISequenceDao sequenceDao;
 
-    public Long sequence() {
+    public Long sequenceKey() {
         return sequenceDao.sequenceNumber(sequenceKey, initialValue);
     }
 }
