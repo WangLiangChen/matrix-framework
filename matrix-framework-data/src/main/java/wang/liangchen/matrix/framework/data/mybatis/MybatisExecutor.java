@@ -87,7 +87,7 @@ public enum MybatisExecutor {
             // 去除最后一个逗号
             sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
             sqlBuilder.append(")values");
-            sqlBuilder.append("<foreach collection=\"list\" item=\"item\" separator=\",\">");
+            sqlBuilder.append("<foreach collection=\"collection\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             columnMetas.values().forEach(columnMeta -> {
                 String typeHandler = "";
