@@ -1,7 +1,7 @@
 org.springframework.context.ApplicationContextInitializer=\
   wang.liangchen.matrix.framework.springboot.env.StartProcessMonitor
 org.springframework.boot.SpringApplicationRunListener=\
-  wang.liangchen.matrix.framework.springboot.env.StartProcessMonitor
+  wang.liangchen.matrix.framework.springboot.env.StartProcessRunListener
 org.springframework.boot.env.EnvironmentPostProcessor=\
   wang.liangchen.matrix.framework.springboot.env.StartProcessMonitor
 org.springframework.context.ApplicationListener=\

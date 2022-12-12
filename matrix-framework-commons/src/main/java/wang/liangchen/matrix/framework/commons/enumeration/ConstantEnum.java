@@ -18,6 +18,10 @@ public class ConstantEnum implements Serializable {
     private final String name;
     private final String value;
 
+    public ConstantEnum() {
+        this(Symbol.BLANK.getSymbol(), Symbol.BLANK.getSymbol());
+    }
+
     public ConstantEnum(String name, String value) {
         this.name = name;
         this.value = value;
@@ -25,7 +29,7 @@ public class ConstantEnum implements Serializable {
     }
 
     public static <T extends ConstantEnum> T valueOf(String name) {
-        ValidationUtil.INSTANCE.notBlank(name);
+        ValidationUtil.INSTANCE.notNull(name);
         return ObjectUtil.INSTANCE.cast(map.get(name));
     }
 
@@ -44,5 +48,10 @@ public class ConstantEnum implements Serializable {
 
     public String value() {
         return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

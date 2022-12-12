@@ -5,9 +5,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.web.annotation.EnableWeb;
@@ -19,11 +21,12 @@ import java.util.stream.Collectors;
 /**
  * @author Liangchen.Wang
  */
-public class WebStartProcessMonitor implements SpringApplicationRunListener {
-    public WebStartProcessMonitor() {
-    }
+public class WebStartProcessMonitor implements SpringApplicationRunListener, Ordered {
+    private final static String STARTING = Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> Matrix Framework-Web is Starting <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol();
 
     public WebStartProcessMonitor(SpringApplication springApplication, String[] args) {
+        // 打印系统开始启动信息
+        System.out.println(STARTING);
         handleEnableWeb(springApplication);
     }
 
@@ -58,5 +61,10 @@ public class WebStartProcessMonitor implements SpringApplicationRunListener {
         if (EnableWeb.WebType.WEBFLUX == enableWeb.webType()) {
             springApplication.setWebApplicationType(WebApplicationType.REACTIVE);
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }
