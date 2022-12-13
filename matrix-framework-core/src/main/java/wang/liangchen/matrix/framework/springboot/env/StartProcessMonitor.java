@@ -4,7 +4,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
@@ -29,6 +33,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
@@ -53,6 +58,9 @@ import java.util.Properties;
 @EnableScheduling
 public class StartProcessMonitor implements
         EnvironmentPostProcessor,
+        BeanPostProcessor,
+        BeanFactoryPostProcessor,
+        BeanDefinitionRegistryPostProcessor,
         ApplicationContextInitializer<ConfigurableApplicationContext>,
         ApplicationListener<ApplicationEvent>,
         SmartLifecycle,
@@ -72,6 +80,7 @@ public class StartProcessMonitor implements
         Ordered {
     private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix";
     private final static String STARTED = Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> Matrix Framework is Started <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol();
+    private final static String TASKSCHEDULER_THREAD_PREFIX = "taskScheduler-";
     private final static Class<?>[] events = new Class[]{
             ApplicationStartingEvent.class,
             ApplicationEnvironmentPreparedEvent.class,
@@ -99,8 +108,7 @@ public class StartProcessMonitor implements
 
     @Override
     public void run(String... args) {
-        PrettyPrinter.INSTANCE.buffer("Overrided from CommandLineRunner")
-                .buffer("args:" + Arrays.asList(args)).flush();
+        PrettyPrinter.INSTANCE.buffer("Overrided from CommandLineRunner").buffer("args:" + Arrays.asList(args)).flush();
     }
 
     @Override
@@ -122,6 +130,30 @@ public class StartProcessMonitor implements
         PrettyPrinter.INSTANCE.flush();
     }
 
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (bean instanceof ThreadPoolTaskScheduler) {
+            ((ThreadPoolTaskScheduler) bean).setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
+        }
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        PrettyPrinter.INSTANCE.buffer("Overrided from BeanFactoryPostProcessor");
+        PrettyPrinter.INSTANCE.flush();
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        PrettyPrinter.INSTANCE.buffer("Overrided from BeanDefinitionRegistryPostProcessor");
+        PrettyPrinter.INSTANCE.flush();
+    }
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

@@ -24,8 +24,12 @@ public enum ConnectionManager {
     private final DataSource dataSource = BeanLoader.INSTANCE.getBean("dataSource");
 
     public Connection springManagedConnection() {
+        return springManagedConnection(this.dataSource);
+    }
+
+    public Connection springManagedConnection(DataSource dataSource) {
         try {
-            return DataSourceUtils.doGetConnection(this.dataSource);
+            return DataSourceUtils.doGetConnection(dataSource);
         } catch (SQLException ex) {
             throw new MatrixErrorException(ex);
         }
@@ -44,16 +48,28 @@ public enum ConnectionManager {
     }
 
     public <T> T executeInSpringManagedConnection(Callback<T> callback) {
-        Connection connection = springManagedConnection();
+        return executeInSpringManagedConnection(this.dataSource, callback);
+    }
+
+    public <T> T executeInSpringManagedConnection(DataSource dataSource, Callback<T> callback) {
+        Connection connection = springManagedConnection(dataSource);
         return callback.execute(connection);
     }
 
     public <T> T executeInNonManagedConnection(Callback<T> callback) {
-        return executeInNonManagedConnection(callback, Connection.TRANSACTION_REPEATABLE_READ);
+        return executeInNonManagedConnection(this.dataSource, callback);
     }
 
     public <T> T executeInNonManagedConnection(Callback<T> callback, int transactionIsolation) {
-        Connection connection = nonManagedConnection();
+        return executeInNonManagedConnection(this.dataSource, callback, transactionIsolation);
+    }
+
+    public <T> T executeInNonManagedConnection(DataSource dataSource, Callback<T> callback) {
+        return executeInNonManagedConnection(dataSource, callback, Connection.TRANSACTION_REPEATABLE_READ);
+    }
+
+    public <T> T executeInNonManagedConnection(DataSource dataSource, Callback<T> callback, int transactionIsolation) {
+        Connection connection = nonManagedConnection(dataSource);
         try {
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(transactionIsolation);
@@ -70,6 +86,35 @@ public enum ConnectionManager {
             throw new MatrixErrorException(e);
         } finally {
             closeConnection(connection, this.dataSource);
+        }
+    }
+
+    public void disableAutoCommit(Connection connection) {
+        if (null == connection) {
+            return;
+        }
+        try {
+            boolean autoCommit = connection.getAutoCommit();
+            if (autoCommit) {
+                connection.setAutoCommit(false);
+            }
+        } catch (SQLException e) {
+            logger.error("Couldn't disableAutoCommit jdbc connection. ", e);
+        }
+    }
+
+    public void enableAutoCommit(Connection connection) {
+        if (null == connection) {
+            return;
+        }
+        try {
+            boolean autoCommit = connection.getAutoCommit();
+            if (autoCommit) {
+                return;
+            }
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            logger.error("Couldn't enableAutoCommit jdbc connection. ", e);
         }
     }
 

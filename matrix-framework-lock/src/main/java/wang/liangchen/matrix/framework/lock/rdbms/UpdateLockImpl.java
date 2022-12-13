@@ -6,6 +6,7 @@ import wang.liangchen.matrix.framework.commons.network.NetUtil;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,8 +21,8 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
     private final String UPDATE_SQL = "update matrix_lock set lock_at=?,lock_expire=?,lock_owner=? where lock_group=? and lock_key=? and lock_expire<=?";
 
 
-    protected UpdateLockImpl(LockConfiguration lockConfiguration, Connection connection) {
-        super(lockConfiguration, connection);
+    protected UpdateLockImpl(LockConfiguration lockConfiguration, DataSource dataSource) {
+        super(lockConfiguration, dataSource);
     }
 
     @Override

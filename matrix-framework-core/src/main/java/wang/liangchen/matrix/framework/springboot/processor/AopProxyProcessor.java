@@ -7,7 +7,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextAware, Ordered {
-    private final static String TASKSCHEDULER_THREAD_PREFIX = "taskScheduler-";
     private ApplicationContext applicationContext;
 
     @Override
@@ -28,9 +26,6 @@ public class AopProxyProcessor implements BeanPostProcessor, ApplicationContextA
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if(bean instanceof ThreadPoolTaskScheduler){
-            ((ThreadPoolTaskScheduler)bean).setThreadNamePrefix(TASKSCHEDULER_THREAD_PREFIX);
-        }
         return bean;
     }
 
