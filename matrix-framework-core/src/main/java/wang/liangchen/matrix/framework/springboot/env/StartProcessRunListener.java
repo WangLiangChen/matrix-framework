@@ -8,9 +8,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import sun.misc.Unsafe;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Set;
@@ -35,6 +37,19 @@ public class StartProcessRunListener implements SpringApplicationRunListener, Or
         SpringApplication.getShutdownHandlers().add(() -> System.out.println(CLOSED));
         // 打印系统开始启动信息
         System.out.println(STARTING);
+
+        // Suppresses Illegal reflective Access Warning
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe u = (Unsafe) theUnsafe.get(null);
+
+            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Throwable t) {
+            // from lombok:We shall ignore it; the effect of this code failing is that the user gets to see a warning they remove with various --add-opens magic.
+        }
 
         PrettyPrinter.INSTANCE.buffer("args are:{}", Arrays.asList(args).toString());
         springApplication.setBannerMode(Banner.Mode.OFF);

@@ -1,18 +1,17 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
-import org.springframework.util.ReflectionUtils;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -115,7 +114,7 @@ public enum CriteriaResolver {
             Map<String, ColumnMeta> columnMetas = abstractCriteria.getTableMeta().getColumnMetas();
             for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
                 Object[] originalSqlValues = criteriaMeta.getSqlValues();
-                // 因为解析过程或习惯sqlValues中的值，所以复制一份
+                // 因为解析过程或修改sqlValues中的值，所以复制一份
                 sqlValues = Arrays.copyOf(originalSqlValues, originalSqlValues.length);
                 filedName = resoveEntityGetter(criteriaMeta.getColumn());
                 // 任意值为空 跳过
@@ -177,24 +176,6 @@ public enum CriteriaResolver {
                 }
             }
         }
-        // 处理ANDS
-        List<AbstractCriteria<E>> ANDS = abstractCriteria.getANDS();
-        if (CollectionUtil.INSTANCE.isNotEmpty(ANDS)) {
-            for (AbstractCriteria<E> builder : ANDS) {
-                sqlBuilder.append(AND).append(Symbol.OPEN_PAREN.getSymbol());
-                resovle(builder, sqlBuilder, values, counter);
-                sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
-            }
-        }
-        // 处理ORS
-        List<AbstractCriteria<E>> ORS = abstractCriteria.getORS();
-        if (CollectionUtil.INSTANCE.isNotEmpty(ORS)) {
-            for (AbstractCriteria<E> innerAbstractCriteria : ORS) {
-                sqlBuilder.append(OR).append(Symbol.OPEN_PAREN.getSymbol());
-                resovle(innerAbstractCriteria, sqlBuilder, values, counter);
-                sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
-            }
-        }
     }
 
     private boolean parseSqlValues(Object[] sqlValues, Object entity, String fileldName) {
@@ -207,18 +188,14 @@ public enum CriteriaResolver {
                 skip = true;
                 break;
             }
+            // 当使用实体对象而非实体类型构造时,sqlValue为实体类型,需要根据实体类型从属性中取值.
             if (sqlValues[i] instanceof Class) {
-                // 反射获取属性值
-                Field field = ReflectionUtils.findField((Class<?>) sqlValues[i], fileldName);
-                field.setAccessible(true);
-                try {
-                    sqlValues[i] = field.get(entity);
-                    if (null == sqlValues[i]) {
-                        skip = true;
-                        break;
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new MatrixErrorException(e);
+                String getMethodName = StringUtil.INSTANCE.getGetter(fileldName);
+                Object fieldValue = ClassUtil.INSTANCE.invokeGetter(entity, getMethodName);
+                sqlValues[i] = fieldValue;
+                if (null == sqlValues[i]) {
+                    skip = true;
+                    break;
                 }
             }
 

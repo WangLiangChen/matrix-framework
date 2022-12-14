@@ -22,8 +22,6 @@ import java.util.List;
  */
 abstract class AbstractCriteria<E extends RootEntity> {
     private final List<CriteriaMeta<E>> CRITERIAMETAS = new ArrayList<>();
-    private final List<AbstractCriteria<E>> ORS = new ArrayList<>();
-    private final List<AbstractCriteria<E>> ANDS = new ArrayList<>();
 
     private final E entity;
     private final Class<E> entityClass;
@@ -234,28 +232,10 @@ abstract class AbstractCriteria<E extends RootEntity> {
         return this;
     }
 
-    protected AbstractCriteria<E> _OR(SubCriteria<E> subCriteria) {
-        ORS.add(subCriteria);
-        return this;
-    }
-
-    protected AbstractCriteria<E> _AND(SubCriteria<E> subCriteria) {
-        ANDS.add(subCriteria);
-        return this;
-    }
-
-
     protected List<CriteriaMeta<E>> getCRITERIAMETAS() {
         return CRITERIAMETAS;
     }
 
-    protected List<AbstractCriteria<E>> getORS() {
-        return ORS;
-    }
-
-    protected List<AbstractCriteria<E>> getANDS() {
-        return ANDS;
-    }
 
     public E getEntity() {
         return entity;

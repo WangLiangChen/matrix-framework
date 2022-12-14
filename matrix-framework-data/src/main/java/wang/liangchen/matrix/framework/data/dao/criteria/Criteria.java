@@ -294,16 +294,6 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return (Criteria<E>) super._notEndWith(column, sqlValue);
     }
 
-    @Override
-    public Criteria<E> _OR(SubCriteria<E> subCriteria) {
-        return (Criteria<E>) super._OR(subCriteria);
-    }
-
-    @Override
-    public Criteria<E> _AND(SubCriteria<E> subCriteria) {
-        return (Criteria<E>) super._AND(subCriteria);
-    }
-
     public Set<String> getResultColumns() {
         return resultColumns;
     }
