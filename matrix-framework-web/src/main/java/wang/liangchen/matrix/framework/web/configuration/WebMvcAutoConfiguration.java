@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.web.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +7,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -36,14 +34,6 @@ import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
     //注册filter,@WebFilter需要在Configuration类上@ServletComponentScan
     @Bean
-    public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
-        ObjectMapper objectMapper = builder.createXmlMapper(false).build();
-        // 加载自定义的SPI
-        objectMapper.findAndRegisterModules();
-        return objectMapper;
-    }
-
-    @Bean
     public FilterRegistrationBean<Filter> rootFilter(final LocaleResolver localeResolver) {
         FilterRegistrationBean<Filter> filterFilterRegistrationBean = new FilterRegistrationBean<>(createRootFilter(localeResolver));
         filterFilterRegistrationBean.setEnabled(true);
@@ -65,8 +55,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
                 // resolve and set locale
                 Locale locale = localeResolver.resolveLocale(request);
-                WebContext.INSTANCE.setLocale(locale);
                 ValidationUtil.INSTANCE.setLocale(locale);
+                WebContext.INSTANCE.setLocale(locale);
 
                 // resolve and set requestId
                 String requestId = request.getHeader(WebContext.REQUEST_ID);

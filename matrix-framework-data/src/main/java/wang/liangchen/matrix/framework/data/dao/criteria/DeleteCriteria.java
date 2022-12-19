@@ -1,15 +1,19 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     private boolean flushCache = true;
+    private final Map<EntityGetter<E>, Object> markDeleteField = new HashMap<>();
 
     private DeleteCriteria(Class<E> entityClass) {
         super(entityClass);
@@ -22,6 +26,13 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
 
     public DeleteCriteria<E> disableCache() {
         this.flushCache = false;
+        return this;
+    }
+
+    public DeleteCriteria<E> markDelete(EntityGetter<E> column, Object sqlValue) {
+        ValidationUtil.INSTANCE.notNull(sqlValue);
+        ValidationUtil.INSTANCE.isEmpty(markDeleteField);
+        markDeleteField.put(column, sqlValue);
         return this;
     }
 
