@@ -1,7 +1,5 @@
 package wang.liangchen.matrix.framework.springboot.env;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -45,6 +43,8 @@ import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.context.MessageSourceLoader;
 import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.Properties;
 

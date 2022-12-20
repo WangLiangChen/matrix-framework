@@ -17,7 +17,7 @@ public class JsonFieldDeserializer extends JsonDeserializer<JsonField> {
 
     @Override
     public JsonField deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException, JacksonException {
-        Map<String, Object> innerMap = jsonParser.getCodec().readValue(jsonParser, new TypeReference<>() {
+        Map<String, Object> innerMap = jsonParser.getCodec().readValue(jsonParser, new TypeReference<Map<String, Object>>() {
         });
         return JsonField.newInstance(innerMap);
     }
