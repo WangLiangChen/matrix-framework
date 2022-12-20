@@ -47,7 +47,7 @@ public enum ObjectUtil {
     /**
      * String,Collection,Map,Array,Iterator,Iterrable
      *
-     * @param object
+     * @param object checked target
      * @return if empty
      */
     public boolean isEmpty(Object object) {
