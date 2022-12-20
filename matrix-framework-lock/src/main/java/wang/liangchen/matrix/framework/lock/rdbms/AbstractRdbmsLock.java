@@ -9,6 +9,7 @@ import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect
 import wang.liangchen.matrix.framework.lock.core.AbstractLock;
 import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,11 +26,11 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
     private final String SELECT_SQL = "select 0 from matrix_lock where lock_group=? and lock_key = ?";
     private final String INSERT_SQL = "insert into matrix_lock values(?,?,?,?,?)";
     private final String UNLOCK_SQL = "update matrix_lock SET lock_expire = ? WHERE lock_group=? and lock_key = ?";
-    private final Connection connection;
+    private final DataSource dataSource;
 
-    protected AbstractRdbmsLock(LockConfiguration lockConfiguration, Connection connection) {
+    protected AbstractRdbmsLock(LockConfiguration lockConfiguration, DataSource dataSource) {
         super(lockConfiguration);
-        this.connection = ValidationUtil.INSTANCE.notNull(connection);
+        this.dataSource = ValidationUtil.INSTANCE.notNull(dataSource);
     }
 
     protected abstract boolean executeBlockingSQL(Connection connection, LockConfiguration.LockKey lockKey);
@@ -90,28 +91,28 @@ public abstract class AbstractRdbmsLock extends AbstractLock {
     @Override
     protected boolean doLock() {
         LockConfiguration.LockKey lockKey = lockKey();
-        return executeBlockingSQL(connection, lockKey);
+        return ConnectionManager.INSTANCE.executeInNonManagedConnection(this.dataSource, (connection) -> executeBlockingSQL(connection, lockKey), Connection.TRANSACTION_READ_COMMITTED);
     }
 
     @Override
     protected void doUnlock() {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(UNLOCK_SQL);
-            preparedStatement.setObject(1, LocalDateTime.ofInstant(lockConfiguration().getUnLockInstant(), ZoneId.systemDefault()));
-            LockConfiguration.LockKey lockKey = lockKey();
-            preparedStatement.setString(2, lockKey.getLockGroup());
-            preparedStatement.setString(3, lockKey.getLockKey());
-            int rows = preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            logger.error(e.getMessage());
-        } finally {
-            ConnectionManager.INSTANCE.closeStatement(preparedStatement);
-        }
-    }
-
-    public Connection getConnection() {
-        return connection;
+        ConnectionManager.INSTANCE.executeInNonManagedConnection(this.dataSource, (connection) -> {
+            PreparedStatement preparedStatement = null;
+            int rows = 0;
+            try {
+                preparedStatement = connection.prepareStatement(UNLOCK_SQL);
+                preparedStatement.setObject(1, LocalDateTime.ofInstant(lockConfiguration().getUnLockInstant(), ZoneId.systemDefault()));
+                LockConfiguration.LockKey lockKey = lockKey();
+                preparedStatement.setString(2, lockKey.getLockGroup());
+                preparedStatement.setString(3, lockKey.getLockKey());
+                rows = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                logger.error(e.getMessage());
+            } finally {
+                ConnectionManager.INSTANCE.closeStatement(preparedStatement);
+            }
+            return rows;
+        }, Connection.TRANSACTION_READ_COMMITTED);
     }
 
 }

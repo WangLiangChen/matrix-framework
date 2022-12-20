@@ -44,6 +44,12 @@ public enum ObjectUtil {
         return object.getClass().isArray();
     }
 
+    /**
+     * String,Collection,Map,Array,Iterator,Iterrable
+     *
+     * @param object
+     * @return if empty
+     */
     public boolean isEmpty(Object object) {
         if (null == object) {
             return true;
@@ -66,7 +72,7 @@ public enum ObjectUtil {
         if (object instanceof Iterable) {
             return !((Iterable<?>) object).iterator().hasNext();
         }
-        return true;
+        throw new MatrixWarnException("Unsupported type: " + object.getClass());
     }
 
     public boolean isNotEmpty(Object object) {

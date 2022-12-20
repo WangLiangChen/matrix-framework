@@ -32,7 +32,7 @@ public class CacheOperator {
 
     public <R, E extends RootEntity> R load(Class<E> entityClass, Object cacheKey, Supplier<R> valueLoader) {
         return optionalCache(entityClass)
-                .map(cache -> cache.get(cacheKey, () -> valueLoader.get()))
+                .map(cache -> cache.get(cacheKey, valueLoader::get))
                 .orElseGet(valueLoader);
 
     }

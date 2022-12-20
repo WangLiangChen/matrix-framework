@@ -2,11 +2,9 @@ package wang.liangchen.matrix.framework.data.mybatis.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import wang.liangchen.matrix.framework.springboot.jackson.DefaultObjectMapper;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -19,16 +17,11 @@ import java.sql.SQLException;
  * @author Liangchen.Wang 2022-09-01 6:51
  */
 public class JsonTypeHandler extends BaseTypeHandler<Object> {
-    private final static ObjectMapper objectMapper = new ObjectMapper();
-    private final static TypeFactory typeFactory = objectMapper.getTypeFactory();
 
     private final Class<?> resultClass;
     private final Type resultType;
     private final Class<?>[] actualClasses;
 
-    static {
-        objectMapper.registerModule(new JavaTimeModule());
-    }
 
     public JsonTypeHandler(Class<?> resultClass) {
         this.resultClass = resultClass;
@@ -54,7 +47,7 @@ public class JsonTypeHandler extends BaseTypeHandler<Object> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
         try {
-            String jsonString = objectMapper.writeValueAsString(parameter);
+            String jsonString = DefaultObjectMapper.INSTANCE.objectMapper().writeValueAsString(parameter);
             ps.setObject(i, jsonString);
         } catch (JsonProcessingException e) {
             throw new SQLException(e);
@@ -79,10 +72,10 @@ public class JsonTypeHandler extends BaseTypeHandler<Object> {
     private Object jsonString2Object(String jsonString) throws SQLException {
         try {
             if (null == this.actualClasses) {
-                return objectMapper.readValue(jsonString, resultClass);
+                return DefaultObjectMapper.INSTANCE.objectMapper().readValue(jsonString, resultClass);
             }
-            JavaType javaType = typeFactory.constructParametricType(resultClass, this.actualClasses);
-            return objectMapper.readValue(jsonString, javaType);
+            JavaType javaType = DefaultObjectMapper.INSTANCE.typeFactory().constructParametricType(resultClass, this.actualClasses);
+            return DefaultObjectMapper.INSTANCE.objectMapper().readValue(jsonString, javaType);
         } catch (JsonProcessingException e) {
             throw new SQLException(e);
         }

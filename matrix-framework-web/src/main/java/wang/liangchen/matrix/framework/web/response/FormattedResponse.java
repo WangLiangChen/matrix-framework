@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.web.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -10,6 +9,7 @@ import wang.liangchen.matrix.framework.commons.runtime.MessageWrapper;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.springboot.jackson.DefaultObjectMapper;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 
 import java.io.Serializable;
@@ -21,7 +21,6 @@ import java.util.Locale;
  */
 public final class FormattedResponse<T> implements Serializable {
     private final static Logger logger = LoggerFactory.getLogger(FormattedResponse.class);
-    private final static ObjectMapper objectMapper = new ObjectMapper();
     private final static String DEFAULT_MESSAGE = "System error. Please try again later or contact your system administrator.";
     private final static String DEFAULT_MESSAGE_I18N = "SystemError";
     /**
@@ -202,7 +201,7 @@ public final class FormattedResponse<T> implements Serializable {
     @Override
     public String toString() {
         try {
-            return objectMapper.writeValueAsString(this);
+            return DefaultObjectMapper.INSTANCE.objectMapper().writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new MatrixErrorException(e);
         }

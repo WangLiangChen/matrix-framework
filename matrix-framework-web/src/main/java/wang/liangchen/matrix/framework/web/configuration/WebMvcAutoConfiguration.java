@@ -55,8 +55,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
                 // resolve and set locale
                 Locale locale = localeResolver.resolveLocale(request);
-                WebContext.INSTANCE.setLocale(locale);
                 ValidationUtil.INSTANCE.setLocale(locale);
+                WebContext.INSTANCE.setLocale(locale);
 
                 // resolve and set requestId
                 String requestId = request.getHeader(WebContext.REQUEST_ID);

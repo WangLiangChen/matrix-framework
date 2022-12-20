@@ -1,12 +1,16 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -22,240 +26,217 @@ import java.util.List;
  */
 abstract class AbstractCriteria<E extends RootEntity> {
     private final List<CriteriaMeta<E>> CRITERIAMETAS = new ArrayList<>();
-    private final List<AbstractCriteria<E>> ORS = new ArrayList<>();
-    private final List<AbstractCriteria<E>> ANDS = new ArrayList<>();
 
     private final E entity;
     private final Class<E> entityClass;
     private final TableMeta tableMeta;
+    private final Map<String, ColumnMeta> columnMetas;
 
 
     @SuppressWarnings("unchecked")
     protected AbstractCriteria(E entity) {
-        this.entity = entity;
+        this.entity = ValidationUtil.INSTANCE.notNull(entity);
         this.entityClass = (Class<E>) entity.getClass();
         tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+        this.columnMetas = tableMeta.getColumnMetas();
     }
 
     protected AbstractCriteria(Class<E> entityClass) {
         this.entity = null;
         this.entityClass = entityClass;
         tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+        this.columnMetas = tableMeta.getColumnMetas();
     }
 
     // =====================equals========================
-    protected AbstractCriteria<E> _equals(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, column, entityClass));
+    protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.EQUALS, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _equals(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _equals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================notEquals========================
-    protected AbstractCriteria<E> _notEquals(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, column, entityClass));
+    protected AbstractCriteria<E> _notEquals(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.NOTEQUALS, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _notEquals(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _notEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _notEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================in========================
-    protected AbstractCriteria<E> _in(EntityGetter<E> column, Object... values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, column, values));
+    protected AbstractCriteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
-    protected AbstractCriteria<E> _in(EntityGetter<E> column, Collection<?> values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, column, values));
+    protected AbstractCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
     // =====================notIn========================
-    protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Object... values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
+    protected AbstractCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
-    protected AbstractCriteria<E> _notIn(EntityGetter<E> column, Collection<?> values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, column, values));
+    protected AbstractCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
     // =====================greaterThan========================
-    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, column, entityClass));
+    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.GREATERTHAN, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, column, sqlValue));
+    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, column, sqlValue));
+    protected AbstractCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================greaterThanOrEauals========================
-    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, column, entityClass));
+    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.GREATERTHAN_OR_EQUALS, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================_lessThan========================
-    protected AbstractCriteria<E> _lessThan(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, column, entityClass));
+    protected AbstractCriteria<E> _lessThan(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.LESSTHAN, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _lessThan(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, column, sqlValue));
+    protected AbstractCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _lessThan(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, column, sqlValue));
+    protected AbstractCriteria<E> _lessThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================-========================
-    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> column) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,entity, "Unsupported call,entity must not be null");
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, column, entityClass));
+    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter) {
+        addCriteriaMeta(Operator.LESSTHAN_OR_EQUALS, fieldGetter);
         return this;
     }
 
-    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> column, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, column, sqlValue));
+    protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================_isNull========================
-    protected AbstractCriteria<E> _isNull(EntityGetter<E> column) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNULL, column));
+    protected AbstractCriteria<E> _isNull(EntityGetter<E> fieldGetter) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNULL, resoveEntityGetter(fieldGetter)));
         return this;
     }
 
     // =====================_isNotNull========================
-    protected AbstractCriteria<E> _isNotNull(EntityGetter<E> column) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNOTNULL, column));
+    protected AbstractCriteria<E> _isNotNull(EntityGetter<E> fieldGetter) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNOTNULL, resoveEntityGetter(fieldGetter)));
         return this;
     }
 
     // =====================_between========================
-    protected AbstractCriteria<E> _between(EntityGetter<E> column, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, column, valueMin, valueMax));
+    protected AbstractCriteria<E> _between(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
-    protected AbstractCriteria<E> _between(EntityGetter<E> column, Object valueMin, Object valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, column, valueMin, valueMax));
+    protected AbstractCriteria<E> _between(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
 
     // =====================_notBetween========================
-    protected AbstractCriteria<E> _notBetween(EntityGetter<E> column, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, column, valueMin, valueMax));
+    protected AbstractCriteria<E> _notBetween(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
-    protected AbstractCriteria<E> _notBetween(EntityGetter<E> column, Object valueMin, Object valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, column, valueMin, valueMax));
+    protected AbstractCriteria<E> _notBetween(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
     // =====================_contains========================
-    protected AbstractCriteria<E> _contains(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.CONTAINS, column, sqlValue));
+    protected AbstractCriteria<E> _contains(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.CONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================_notContains========================
-    protected AbstractCriteria<E> _notContains(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTCONTAINS, column, sqlValue));
+    protected AbstractCriteria<E> _notContains(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTCONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _startWith(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.STARTWITH, column, sqlValue));
+    protected AbstractCriteria<E> _startWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.STARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _notStartWith(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTSTARTWITH, column, sqlValue));
+    protected AbstractCriteria<E> _notStartWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTSTARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _endWith(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ENDWITH, column, sqlValue));
+    protected AbstractCriteria<E> _endWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
-    protected AbstractCriteria<E> _notEndWith(EntityGetter<E> column, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTENDWITH, column, sqlValue));
+    protected AbstractCriteria<E> _notEndWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
-
-    protected AbstractCriteria<E> _OR(SubCriteria<E> subCriteria) {
-        ORS.add(subCriteria);
-        return this;
-    }
-
-    protected AbstractCriteria<E> _AND(SubCriteria<E> subCriteria) {
-        ANDS.add(subCriteria);
-        return this;
-    }
-
 
     protected List<CriteriaMeta<E>> getCRITERIAMETAS() {
         return CRITERIAMETAS;
     }
 
-    protected List<AbstractCriteria<E>> getORS() {
-        return ORS;
-    }
-
-    protected List<AbstractCriteria<E>> getANDS() {
-        return ANDS;
-    }
 
     public E getEntity() {
         return entity;
@@ -267,5 +248,23 @@ abstract class AbstractCriteria<E extends RootEntity> {
 
     protected TableMeta getTableMeta() {
         return tableMeta;
+    }
+
+    protected Map<String, ColumnMeta> getColumnMetas() {
+        return columnMetas;
+    }
+
+    private <E extends RootEntity> ColumnMeta resoveEntityGetter(EntityGetter<E> entityGetter) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
+        return columnMetas.get(fieldName);
+    }
+
+    private void addCriteriaMeta(Operator operator, EntityGetter<E> fieldGetter) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "Unsupported call,entity must not be null");
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        String getterName = StringUtil.INSTANCE.getGetter(fieldName);
+        Object fieldValue = ClassUtil.INSTANCE.invokeGetter(entity, getterName);
+        ColumnMeta columnMeta = columnMetas.get(fieldName);
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(operator, columnMeta, fieldValue));
     }
 }

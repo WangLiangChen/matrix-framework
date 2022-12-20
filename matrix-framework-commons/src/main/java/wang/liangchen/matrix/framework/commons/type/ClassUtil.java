@@ -87,7 +87,13 @@ public enum ClassUtil {
             Class<?> returnType = returnTypes[i];
             Supplier<?> supplier = defaultValue.get(returnType);
             if (null == supplier) {
-                continue;
+                supplier = () -> {
+                    try {
+                        return instantiate(returnType);
+                    } catch (Exception e) {
+                        return null;
+                    }
+                };
             }
             methodName = methodName.replace(Symbol.GETTER_PREFIX.getSymbol(), Symbol.SETTER_PREFIX.getSymbol());
             methodAccess.invoke(target, methodName, supplier.get());

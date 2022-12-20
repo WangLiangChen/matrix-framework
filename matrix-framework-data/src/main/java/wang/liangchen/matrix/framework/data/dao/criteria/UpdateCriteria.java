@@ -24,8 +24,8 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public UpdateCriteria<E> forceUpdate(EntityGetter<E> column, Object value) {
-        forceUpdateFields.put(column, value);
+    public UpdateCriteria<E> forceUpdate(EntityGetter<E> fieldGetter, Object value) {
+        forceUpdateFields.put(fieldGetter, value);
         return this;
     }
 
@@ -35,173 +35,173 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _equals(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._equals(column);
+    public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._equals(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _equals(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._equals(column, sqlValue);
+    public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._equals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _equals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._equals(column, sqlValue);
+    public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._equals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _notEquals(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._notEquals(column);
+    public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._notEquals(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _notEquals(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._notEquals(column, sqlValue);
+    public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._notEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _notEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._notEquals(column, sqlValue);
+    public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._notEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _in(EntityGetter<E> column, Object... values) {
-        return (UpdateCriteria<E>) super._in(column, values);
+    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
+        return (UpdateCriteria<E>) super._in(fieldGetter, values);
     }
 
     @Override
-    public UpdateCriteria<E> _in(EntityGetter<E> column, Collection<?> values) {
-        return (UpdateCriteria<E>) super._in(column, values);
+    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
+        return (UpdateCriteria<E>) super._in(fieldGetter, values);
     }
 
     @Override
-    public UpdateCriteria<E> _notIn(EntityGetter<E> column, Object... values) {
-        return (UpdateCriteria<E>) super._notIn(column, values);
+    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
+        return (UpdateCriteria<E>) super._notIn(fieldGetter, values);
     }
 
     @Override
-    public UpdateCriteria<E> _notIn(EntityGetter<E> column, Collection<?> values) {
-        return (UpdateCriteria<E>) super._notIn(column, values);
+    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
+        return (UpdateCriteria<E>) super._notIn(fieldGetter, values);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThan(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._greaterThan(column);
+    public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._greaterThan(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThan(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._greaterThan(column, sqlValue);
+    public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._greaterThan(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThan(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._greaterThan(column, sqlValue);
+    public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._greaterThan(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._greaterThanOrEquals(column);
+    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._greaterThanOrEquals(column, sqlValue);
+    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._greaterThanOrEquals(column, sqlValue);
+    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThan(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._lessThan(column);
+    public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._lessThan(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThan(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._lessThan(column, sqlValue);
+    public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._lessThan(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThan(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._lessThan(column, sqlValue);
+    public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._lessThan(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._lessThanOrEquals(column);
+    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._lessThanOrEquals(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> column, Object sqlValue) {
-        return (UpdateCriteria<E>) super._lessThanOrEquals(column, sqlValue);
+    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
+        return (UpdateCriteria<E>) super._lessThanOrEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> column, EntityGetter<E> sqlValue) {
-        return (UpdateCriteria<E>) super._lessThanOrEquals(column, sqlValue);
+    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
+        return (UpdateCriteria<E>) super._lessThanOrEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _isNull(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._isNull(column);
+    public UpdateCriteria<E> _isNull(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._isNull(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _isNotNull(EntityGetter<E> column) {
-        return (UpdateCriteria<E>) super._isNotNull(column);
+    public UpdateCriteria<E> _isNotNull(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._isNotNull(fieldGetter);
     }
 
     @Override
-    public UpdateCriteria<E> _between(EntityGetter<E> column, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        return (UpdateCriteria<E>) super._between(column, valueMin, valueMax);
+    public UpdateCriteria<E> _between(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
+        return (UpdateCriteria<E>) super._between(fieldGetter, valueMin, valueMax);
     }
 
     @Override
-    public UpdateCriteria<E> _between(EntityGetter<E> column, Object valueMin, Object valueMax) {
-        return (UpdateCriteria<E>) super._between(column, valueMin, valueMax);
+    public UpdateCriteria<E> _between(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
+        return (UpdateCriteria<E>) super._between(fieldGetter, valueMin, valueMax);
     }
 
     @Override
-    public UpdateCriteria<E> _notBetween(EntityGetter<E> column, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        return (UpdateCriteria<E>) super._notBetween(column, valueMin, valueMax);
+    public UpdateCriteria<E> _notBetween(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
+        return (UpdateCriteria<E>) super._notBetween(fieldGetter, valueMin, valueMax);
     }
 
     @Override
-    public UpdateCriteria<E> _notBetween(EntityGetter<E> column, Object valueMin, Object valueMax) {
-        return (UpdateCriteria<E>) super._notBetween(column, valueMin, valueMax);
+    public UpdateCriteria<E> _notBetween(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
+        return (UpdateCriteria<E>) super._notBetween(fieldGetter, valueMin, valueMax);
     }
 
     @Override
-    public UpdateCriteria<E> _contains(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._contains(column, sqlValue);
+    public UpdateCriteria<E> _contains(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._contains(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _notContains(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._notContains(column, sqlValue);
+    public UpdateCriteria<E> _notContains(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notContains(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _startWith(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._startWith(column, sqlValue);
+    public UpdateCriteria<E> _startWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._startWith(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _notStartWith(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._notStartWith(column, sqlValue);
+    public UpdateCriteria<E> _notStartWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notStartWith(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _endWith(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._endWith(column, sqlValue);
+    public UpdateCriteria<E> _endWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._endWith(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _notEndWith(EntityGetter<E> column, String sqlValue) {
-        return (UpdateCriteria<E>) super._notEndWith(column, sqlValue);
+    public UpdateCriteria<E> _notEndWith(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
     public Map<EntityGetter<E>, Object> getForceUpdateFields() {

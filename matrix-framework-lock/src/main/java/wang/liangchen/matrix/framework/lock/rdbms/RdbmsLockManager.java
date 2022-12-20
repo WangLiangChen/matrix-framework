@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.lock.rdbms;
 
-import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.lock.core.*;
 
 import javax.sql.DataSource;
@@ -17,7 +16,7 @@ public class RdbmsLockManager implements LockManager {
 
     @Override
     public Lock getLock(LockConfiguration lockConfiguration) {
-        return new UpdateLockImpl(lockConfiguration, ConnectionManager.INSTANCE.nonManagedConnection(this.dataSource));
+        return new UpdateLockImpl(lockConfiguration, this.dataSource);
     }
 
     @Override

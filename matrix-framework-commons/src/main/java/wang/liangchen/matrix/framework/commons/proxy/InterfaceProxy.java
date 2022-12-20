@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.commons.proxy;
 
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -27,7 +28,7 @@ public class InterfaceProxy {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args)   {
+        public Object invoke(Object proxy, Method method, Object[] args) {
             //在这里写方法实现
             return null;
         }
