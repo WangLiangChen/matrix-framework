@@ -17,7 +17,6 @@
         <version.commons.pool2>2.11.1</version.commons.pool2>
         <version.commons.exec>1.3</version.commons.exec>
         <version.transmittable-threadlocal>2.14.2</version.transmittable-threadlocal>
-        <version.cglib>3.3.0</version.cglib>
         <version.asm>9.4</version.asm>
         <version.reflectasm>1.11.9</version.reflectasm>
         <version.jose.jwt>9.25.6</version.jose.jwt>
@@ -46,11 +45,6 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>transmittable-thread-local</artifactId>
                 <version>${version.transmittable-threadlocal}</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>${version.cglib}</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -119,10 +113,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>transmittable-thread-local</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

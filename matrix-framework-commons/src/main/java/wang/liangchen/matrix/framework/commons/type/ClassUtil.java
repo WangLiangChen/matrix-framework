@@ -4,6 +4,8 @@ import com.esotericsoftware.reflectasm.ConstructorAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -26,9 +28,9 @@ public enum ClassUtil {
      * instance
      */
     INSTANCE;
-    private static final Map<String, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
-    private static final Map<String, MethodAccess> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Supplier<?>> defaultValue = new HashMap<Class<?>, Supplier<?>>() {{
+    private static final Map<Class<?>, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, MethodAccessor> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
+    public static final Map<Class<?>, Supplier<?>> TYPE_DEFAULT_VALUE = new HashMap<>() {{
         put(Long.class, () -> 0L);
         put(Integer.class, () -> 0);
         put(Short.class, () -> (short) 0);
@@ -62,42 +64,50 @@ public enum ClassUtil {
     }
 
     public void invokeSetter(Object target, String setterMethod, Object... args) {
-        MethodAccess methodAccess = methodAccess(target.getClass());
-        methodAccess.invoke(target, setterMethod, args);
+        MethodAccessor methodAccessor = methodAccessor(target.getClass());
+        Map<String, Integer> setters = methodAccessor.getSetters();
+        Integer index = setters.get(setterMethod);
+        ValidationUtil.INSTANCE.notNull(index, "setter does not exist:{}", setterMethod);
+        MethodAccess methodAccess = methodAccessor.getMethodAccess();
+        methodAccess.invoke(target, index, args);
     }
 
     public Object invokeGetter(Object target, String getterMethod) {
-        MethodAccess methodAccess = methodAccess(target.getClass());
-        return methodAccess.invoke(target, getterMethod);
+        MethodAccessor methodAccessor = methodAccessor(target.getClass());
+        Map<String, Integer> getters = methodAccessor.getGetters();
+        Integer index = getters.get(getterMethod);
+        ValidationUtil.INSTANCE.notNull(index, "getter does not exist:{}", getterMethod);
+        MethodAccess methodAccess = methodAccessor.getMethodAccess();
+        return methodAccess.invoke(target, index);
     }
 
     public void initializeFields(Object target) {
-        MethodAccess methodAccess = methodAccess(target.getClass());
-        String[] methodNames = methodAccess.getMethodNames();
-        Class<?>[] returnTypes = methodAccess.getReturnTypes();
-        for (int i = 0; i < methodNames.length; i++) {
-            String methodName = methodNames[i];
-            if (!methodName.startsWith(Symbol.GETTER_PREFIX.getSymbol())) {
-                continue;
-            }
-            Object returnValue = methodAccess.invoke(target, methodName);
+        MethodAccessor methodAccessor = methodAccessor(target.getClass());
+        MethodAccess methodAccess = methodAccessor.getMethodAccess();
+        Map<String, Integer> getters = methodAccessor.getGetters();
+        Map<String, Integer> setters = methodAccessor.getSetters();
+        Class[] returnTypes = methodAccess.getReturnTypes();
+        getters.forEach((getter, getterIndex) -> {
+            Object returnValue = methodAccess.invoke(target, getterIndex);
             if (null != returnValue) {
-                continue;
+                return;
             }
-            Class<?> returnType = returnTypes[i];
-            Supplier<?> supplier = defaultValue.get(returnType);
-            if (null == supplier) {
-                supplier = () -> {
-                    try {
-                        return instantiate(returnType);
-                    } catch (Exception e) {
-                        return null;
-                    }
-                };
+            String fieldName = getter.substring(3);
+            String setter = StringUtil.INSTANCE.getSetter(fieldName);
+            Integer setterIndex = setters.get(setter);
+            if (null == setterIndex) {
+                return;
             }
-            methodName = methodName.replace(Symbol.GETTER_PREFIX.getSymbol(), Symbol.SETTER_PREFIX.getSymbol());
-            methodAccess.invoke(target, methodName, supplier.get());
-        }
+            Class<?> returnType = returnTypes[getterIndex];
+            Supplier<?> supplier = TYPE_DEFAULT_VALUE.getOrDefault(returnType, () -> {
+                try {
+                    return instantiate(returnType);
+                } catch (Exception e) {
+                    return null;
+                }
+            });
+            methodAccess.invoke(target, setterIndex, supplier.get());
+        });
     }
 
     public List<Field> declaredFields(final Class<?> clazz, Predicate<Field> fieldFilter) {
@@ -132,11 +142,11 @@ public enum ClassUtil {
     }
 
     public <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
-        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> ConstructorAccess.get(targetClass));
+        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass, key -> ConstructorAccess.get(targetClass));
     }
 
-    public MethodAccess methodAccess(Class<?> targetClass) {
-        return METHOD_ACCESS_CACHE.computeIfAbsent(targetClass.getName(), key -> MethodAccess.get(targetClass));
+    public MethodAccessor methodAccessor(Class<?> targetClass) {
+        return METHOD_ACCESS_CACHE.computeIfAbsent(targetClass, key -> new MethodAccessor(MethodAccess.get(targetClass)));
     }
 
     private List<Class<?>> populateSuperClasses(final Class<?> clazz, Predicate<Class<?>> classFilter) {
@@ -150,6 +160,40 @@ public enum ClassUtil {
             return container;
         }
         return container.stream().filter(classFilter).collect(Collectors.toList());
+    }
+
+    public static class MethodAccessor {
+        private final MethodAccess methodAccess;
+        private final Map<String, Integer> getters;
+        private final Map<String, Integer> setters;
+
+        public MethodAccessor(MethodAccess methodAccess) {
+            this.methodAccess = methodAccess;
+            getters = new HashMap<>();
+            setters = new HashMap<>();
+            String[] methodNames = this.methodAccess.getMethodNames();
+            for (int i = 0, n = methodNames.length; i < n; i++) {
+                String methodName = methodNames[i];
+                if (methodName.startsWith(Symbol.GETTER_PREFIX.getSymbol())) {
+                    getters.put(methodName, i);
+                }
+                if (methodName.startsWith(Symbol.SETTER_PREFIX.getSymbol())) {
+                    setters.put(methodName, i);
+                }
+            }
+        }
+
+        public MethodAccess getMethodAccess() {
+            return methodAccess;
+        }
+
+        public Map<String, Integer> getGetters() {
+            return getters;
+        }
+
+        public Map<String, Integer> getSetters() {
+            return setters;
+        }
     }
 
 }
