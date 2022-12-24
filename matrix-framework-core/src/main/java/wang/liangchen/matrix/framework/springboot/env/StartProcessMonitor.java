@@ -123,7 +123,7 @@ public class StartProcessMonitor implements
         Properties defaultProperties = new Properties();
         populateDefaultProperties(defaultProperties);
         // logger
-        handleLogger(environment, defaultProperties);
+        // handleLogger(environment, defaultProperties);
         // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
         PrettyPrinter.INSTANCE.buffer("set defaultProperties");
         environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));

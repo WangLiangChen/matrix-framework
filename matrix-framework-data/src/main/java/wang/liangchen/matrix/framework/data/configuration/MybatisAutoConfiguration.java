@@ -25,7 +25,6 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ConstantEnumTypeHandler;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
-import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import java.io.IOException;
 import java.util.*;
@@ -77,12 +76,14 @@ public class MybatisAutoConfiguration {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
+        /*
         Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getURL("mybatis-config.xml").toString());
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
         } else {
             PrettyPrinter.INSTANCE.buffer("can't find mybatis-config.xml,use default configuration");
         }
+         */
         // other config
         Properties mybatisConfiguration = new Properties();
         mybatisConfiguration.put("cacheEnabled", false);

@@ -25,9 +25,8 @@ public enum EnvironmentContext {
     INSTANCE;
     public static final String JDBC_PREFIX = "jdbc";
     public static final String LOGGER_PREFIX = "logger";
-    private static final Map<String, String> configFiles = new HashMap<String, String>() {{
+    private static final Map<String, String> configFiles = new HashMap<>() {{
         put(JDBC_PREFIX, "jdbc.*");
-        put(LOGGER_PREFIX, "logger.*");
     }};
     private static final String CLASSPATH = "classpath";
     private static final String YAML = "yaml";
@@ -85,7 +84,7 @@ public enum EnvironmentContext {
         }
         String importPath = matrixConfigDataSource.getConfigRoot();
         List<String> activeProfiles = matrixConfigDataSource.getActiveProfiles();
-        // 第一次调用 处理配置的systemPath,
+        // 第一次调用返回 'classpath*:',则转为处理配置的systemPath
         if (importPath.startsWith(CLASSPATH)) {
             String systemPath = resolveSystemPath();
             if (StringUtil.INSTANCE.isNotBlank(systemPath)) {
@@ -97,7 +96,7 @@ public enum EnvironmentContext {
             PrettyPrinter.INSTANCE.flush();
             return resolveAllPropertySource(classPath);
         }
-        // 第二次调用(如果有显式配置的spring.config.import=matrix://)，处理importPath
+        // 第二次调用(如果有显式配置的spring.config.import=matrix://),处理importPath
         importPath = buildProfilePath(importPath, activeProfiles);
         PrettyPrinter.INSTANCE.flush();
         return resolveAllPropertySource(importPath);
@@ -135,6 +134,9 @@ public enum EnvironmentContext {
     }
 
     private List<PropertySource<?>> resolveAllPropertySource(String resourceLocationPatternPrefix) {
+        if (!resourceLocationPatternPrefix.startsWith(CLASSPATH)) {
+            resourceLocationPatternPrefix = URIUtil.INSTANCE.toURL(resourceLocationPatternPrefix).toString();
+        }
         Map<String, Resource[]> resourceMap = resolveAllResources(resourceLocationPatternPrefix);
         List<PropertySource<?>> propertySources = new ArrayList<>();
         for (Map.Entry<String, Resource[]> entry : resourceMap.entrySet()) {
@@ -175,9 +177,6 @@ public enum EnvironmentContext {
     }
 
     private Map<String, Resource[]> resolveAllResources(String resourceLocationPatternPrefix) {
-        if (!resourceLocationPatternPrefix.startsWith(CLASSPATH)) {
-            resourceLocationPatternPrefix = URIUtil.INSTANCE.toURL(resourceLocationPatternPrefix).toString();
-        }
         Map<String, Resource[]> resourceMap = new HashMap<>();
         for (Map.Entry<String, String> entry : configFiles.entrySet()) {
             Resource[] resources = resolveResources(resourceLocationPatternPrefix + entry.getValue());
