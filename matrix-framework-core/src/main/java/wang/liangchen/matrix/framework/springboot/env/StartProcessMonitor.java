@@ -100,6 +100,7 @@ public class StartProcessMonitor implements
             "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
     };
     private boolean isRunning;
+    private static boolean initialized = false;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -157,6 +158,12 @@ public class StartProcessMonitor implements
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        // 在使用SpringCloud的场景下,该方法会被调用两次,故而判断一下.
+        boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
+        if (containsBootstrap) {
+            return;
+        }
+
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
         // 初始化BeanLoader
         BeanLoader.INSTANCE.setApplicationContext(applicationContext);
@@ -168,6 +175,7 @@ public class StartProcessMonitor implements
         // sacan package
         hanldeScanPackages(applicationContext);
         PrettyPrinter.INSTANCE.flush();
+
     }
 
     @Override
