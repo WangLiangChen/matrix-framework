@@ -359,7 +359,7 @@ public enum ObjectUtil {
     }
 
     public Boolean castToBoolean(Object object, Boolean defaultValue) {
-        if (object == null) {
+        if (null == object) {
             return defaultValue;
         }
         if (object instanceof Boolean) {
@@ -377,7 +377,7 @@ public enum ObjectUtil {
         if (object instanceof String) {
             String string = (String) object;
             if (string.length() == 0 || "null".equals(string) || "NULL".equals(string)) {
-                return null;
+                return defaultValue;
             }
             if ("true".equalsIgnoreCase(string) || "1".equals(string)) {
                 return Boolean.TRUE;

@@ -37,6 +37,8 @@ public enum EnvironmentContext {
     private static final PropertiesPropertySourceLoader propertiesPropertySourceLoader = new PropertiesPropertySourceLoader();
     private static final YamlPropertySourceLoader yamlPropertySourceLoader = new YamlPropertySourceLoader();
 
+    private URI defaultConfigRootURI;
+    private URL defaultConfigRootURL;
     private URI configRootURI;
     private URL configRootURL;
     private Environment environment;
@@ -47,26 +49,28 @@ public enum EnvironmentContext {
         this.environment = environment;
     }
 
+    public void defaultConfigRootURI(URI defaultConfigRootURI) {
+        this.defaultConfigRootURI = defaultConfigRootURI;
+    }
+
+    public void defaultConfigRootURL(URL defaultConfigRootURL) {
+        this.defaultConfigRootURL = defaultConfigRootURL;
+    }
+
     public URI getConfigRootURI() {
-        if (null == configRootURI) {
-            throw new MatrixErrorException("configRoot has not been initialized");
-        }
-        return configRootURI;
+        return null == this.configRootURI ? this.defaultConfigRootURI : this.configRootURI;
     }
 
     public URL getConfigRootURL() {
-        if (null == configRootURL) {
-            throw new MatrixErrorException("configRoot has not been initialized");
-        }
-        return configRootURL;
+        return null == this.configRootURL ? this.defaultConfigRootURL : this.configRootURL;
     }
 
     public URI getURI(String relativePath) {
-        return this.configRootURI.resolve(relativePath);
+        return this.getConfigRootURI().resolve(relativePath);
     }
 
     public URL getURL(String relativePath) {
-        return URIUtil.INSTANCE.expendURL(this.configRootURL, relativePath);
+        return URIUtil.INSTANCE.expendURL(this.getConfigRootURL(), relativePath);
     }
 
     /**
@@ -137,20 +141,40 @@ public enum EnvironmentContext {
         if (!resourceLocationPatternPrefix.startsWith(CLASSPATH)) {
             resourceLocationPatternPrefix = URIUtil.INSTANCE.toURL(resourceLocationPatternPrefix).toString();
         }
-        Map<String, Resource[]> resourceMap = resolveAllResources(resourceLocationPatternPrefix);
+        resolveConfigRoot(resourceLocationPatternPrefix);
+        if (null == this.configRootURI) {
+            return Collections.emptyList();
+        }
+
+        Map<String, Resource[]> resourceMap = resolveAllResources();
         List<PropertySource<?>> propertySources = new ArrayList<>();
         for (Map.Entry<String, Resource[]> entry : resourceMap.entrySet()) {
             for (Resource resource : entry.getValue()) {
-                if (null == this.configRootURI) {
-                    resolveConfigRoot(resource);
-                }
                 propertySources.addAll(resolvePropertySource(resource, entry.getKey()));
             }
         }
         return propertySources;
     }
 
+    private void resolveConfigRoot(String resourceLocationPatternPrefix) {
+        if (null != this.configRootURI) {
+            return;
+        }
+        try {
+            Resource[] resources = resourcePatternResolver.getResources(resourceLocationPatternPrefix);
+            if (resources.length == 0) {
+                return;
+            }
+            resolveConfigRoot(resources[0]);
+        } catch (IOException e) {
+            throw new MatrixErrorException(e);
+        }
+    }
+
     private void resolveConfigRoot(Resource resource) {
+        if (null != this.configRootURI) {
+            return;
+        }
         try {
             String uri = resource.getURI().toString();
             uri = uri.substring(0, uri.lastIndexOf('/'));
@@ -176,10 +200,11 @@ public enum EnvironmentContext {
         }
     }
 
-    private Map<String, Resource[]> resolveAllResources(String resourceLocationPatternPrefix) {
+    private Map<String, Resource[]> resolveAllResources() {
         Map<String, Resource[]> resourceMap = new HashMap<>();
         for (Map.Entry<String, String> entry : configFiles.entrySet()) {
-            Resource[] resources = resolveResources(resourceLocationPatternPrefix + entry.getValue());
+            String resourceLocationPattern = this.configRootURL + entry.getValue();
+            Resource[] resources = resolveResources(resourceLocationPattern);
             resourceMap.put(entry.getKey(), resources);
         }
         return resourceMap;
