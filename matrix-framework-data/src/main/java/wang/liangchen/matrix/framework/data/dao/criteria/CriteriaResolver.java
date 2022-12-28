@@ -26,7 +26,13 @@ public enum CriteriaResolver {
     private final static String OR = " or ";
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
-        CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
+        CriteriaParameter<E> criteriaParameter;
+        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+            criteriaParameter = new DeleteCriteriaParameter<>(deleteCriteria.getDeleteColumnName(), deleteCriteria.getDeleteValue());
+        } else {
+            criteriaParameter = new CriteriaParameter<>();
+        }
+
         criteriaParameter.setEntity(abstractCriteria.getEntity());
         criteriaParameter.setEntityClass(abstractCriteria.getEntityClass());
 
@@ -43,15 +49,13 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(sqlBuilder.toString());
         criteriaParameter.setWhereSqlValues(values);
 
-        if (abstractCriteria instanceof Criteria) {
-            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
+        if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof UpdateCriteria) {
-            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
+        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
             populateForceUpdate(updateCriteria, criteriaParameter);
         }
         return criteriaParameter;

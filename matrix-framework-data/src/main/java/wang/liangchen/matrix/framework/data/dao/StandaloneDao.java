@@ -54,7 +54,7 @@ public class StandaloneDao extends AbstractDao {
 
     @Override
     public <E extends RootEntity> int delete(DeleteCriteria<E> deleteCriteria) {
-        CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(deleteCriteria);
+        DeleteCriteriaParameter<E> criteriaParameter = (DeleteCriteriaParameter<E>) CriteriaResolver.INSTANCE.resolve(deleteCriteria);
         int rows = MybatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
         if (deleteCriteria.isFlushCache()) {
             clearCache(deleteCriteria.getEntityClass());

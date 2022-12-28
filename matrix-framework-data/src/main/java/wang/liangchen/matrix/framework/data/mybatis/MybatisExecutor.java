@@ -145,22 +145,20 @@ public enum MybatisExecutor {
         return rows;
     }
 
-    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
+    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final DeleteCriteriaParameter<E> criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
         String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
-            ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
             sqlBuilder.append("<script>");
-            if (null == columnDeleteMeta) {
-                sqlBuilder.append("delete from ").append(tableMeta.getTableName());
-            } else {
-                // 通过扩展字段 增加deleteValue
-                criteriaParameter.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
-                sqlBuilder.append("update ").append(tableMeta.getTableName());
-                sqlBuilder.append(" set ");
-                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
-            }
+            sqlBuilder.append("<choose><when test=\"null==deleteColumnName\">");
+            sqlBuilder.append("delete from ").append(tableMeta.getTableName());
+            sqlBuilder.append("</when><otherwise>");
+
+            sqlBuilder.append("update ").append(tableMeta.getTableName());
+            sqlBuilder.append(" set ");
+            sqlBuilder.append("${deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{deleteValue}");
+            sqlBuilder.append("</otherwise></choose>");
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
