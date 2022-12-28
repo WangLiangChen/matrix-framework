@@ -8,9 +8,18 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ResourceUtils;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.network.URIUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 
+import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Set;
@@ -46,6 +55,25 @@ public class StartProcessRunListener implements SpringApplicationRunListener, Or
         excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName())
                 .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).collect(Collectors.toSet());
         PrettyPrinter.INSTANCE.buffer("set excludeScanPackages={}", excludeScanPackages);
+
+        // set default config url
+        Field primarySourcesField = ReflectionUtils.findField(SpringApplication.class, "primarySources");
+        primarySourcesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Set<Class<?>> primarySources = (Set<Class<?>>) ReflectionUtils.getField(primarySourcesField, springApplication);
+        primarySources.stream().findAny().ifPresent(clazz -> {
+            String classpath = StringUtil.INSTANCE.package2Path(clazz.getName()).concat(".class");
+            try {
+                String classURLString = ResourceUtils.getURL("classpath:".concat(classpath)).toString();
+                classURLString = classURLString.replace(classpath, "");
+                URI classURI = URIUtil.INSTANCE.toURI(classURLString);
+                URL classURL = URIUtil.INSTANCE.toURL(classURLString);
+                EnvironmentContext.INSTANCE.defaultConfigRootURI(classURI);
+                EnvironmentContext.INSTANCE.defaultConfigRootURL(classURL);
+            } catch (FileNotFoundException e) {
+                throw new MatrixErrorException(e);
+            }
+        });
         PrettyPrinter.INSTANCE.flush();
     }
 
@@ -57,7 +85,7 @@ public class StartProcessRunListener implements SpringApplicationRunListener, Or
     @Override
     public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
         PrettyPrinter.INSTANCE.buffer("Overrided from SpringApplicationRunListener");
-        // 设置默认的配置根路径 classpath
+        // 设置默认的配置根路径 classpath*, 为了必须至少调用一次ConfigDataLoader来初始化EnvironmentContext
         environment.getSystemProperties().put(SPRING_CONFIG_IMPORT, "matrix://".concat(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX));
         PrettyPrinter.INSTANCE.buffer("set spring.config.import={}", environment.getProperty(SPRING_CONFIG_IMPORT));
         PrettyPrinter.INSTANCE.flush();

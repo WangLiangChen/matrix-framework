@@ -1,21 +1,21 @@
 package wang.liangchen.matrix.framework.commons.object;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
-import net.sf.cglib.beans.BeanCopier;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 /**
@@ -26,7 +26,6 @@ public enum ObjectUtil {
      * instance
      */
     INSTANCE;
-    private final static Map<CopierId, BeanCopier> BEANCOPIER_CACHE = new ConcurrentHashMap<>();
     private static final Schema<ProtostuffWrapper> PROTOSTUFF_WRAPPER_SCHEMA = RuntimeSchema.getSchema(ProtostuffWrapper.class);
 
     public boolean isNull(Object object) {
@@ -360,7 +359,7 @@ public enum ObjectUtil {
     }
 
     public Boolean castToBoolean(Object object, Boolean defaultValue) {
-        if (object == null) {
+        if (null == object) {
             return defaultValue;
         }
         if (object instanceof Boolean) {
@@ -378,7 +377,7 @@ public enum ObjectUtil {
         if (object instanceof String) {
             String string = (String) object;
             if (string.length() == 0 || "null".equals(string) || "NULL".equals(string)) {
-                return null;
+                return defaultValue;
             }
             if ("true".equalsIgnoreCase(string) || "1".equals(string)) {
                 return Boolean.TRUE;
@@ -415,17 +414,9 @@ public enum ObjectUtil {
         if (CollectionUtil.INSTANCE.isEmpty(sources)) {
             return new ArrayList<>(0);
         }
-        BeanCopier beanCopier = null;
         List<T> targets = new ArrayList<>(sources.size());
         for (S source : sources) {
-            if (null == beanCopier) {
-                Class<?> sourceClass = source.getClass();
-                CopierId copierId = new CopierId(sourceClass, targetClass);
-                beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
-                        key -> BeanCopier.create(sourceClass, targetClass, false));
-            }
-            T target = ClassUtil.INSTANCE.instantiate(targetClass);
-            beanCopier.copy(source, target, null);
+            T target = copyProperties(source, targetClass);
             if (null != consumer) {
                 consumer.accept(source, target);
             }
@@ -435,22 +426,30 @@ public enum ObjectUtil {
     }
 
     public <T> T copyProperties(Object source, Class<T> targetClass) {
-        Class<?> sourceClass = source.getClass();
-        CopierId copierId = new CopierId(sourceClass, targetClass);
-        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
-                key -> BeanCopier.create(sourceClass, targetClass, false));
         T target = ClassUtil.INSTANCE.instantiate(targetClass);
-        beanCopier.copy(source, target, null);
+        copyProperties(source, target);
         return target;
     }
 
     public void copyProperties(Object source, Object target) {
-        Class<?> sourceClass = source.getClass();
-        Class<?> targetClass = target.getClass();
-        CopierId copierId = new CopierId(sourceClass, targetClass);
-        BeanCopier beanCopier = BEANCOPIER_CACHE.computeIfAbsent(copierId,
-                key -> BeanCopier.create(sourceClass, targetClass, false));
-        beanCopier.copy(source, target, null);
+        ValidationUtil.INSTANCE.notNull(source, "source must not be null");
+        ValidationUtil.INSTANCE.notNull(target, "target must not be null");
+        ClassUtil.MethodAccessor sourceMethodAccessor = ClassUtil.INSTANCE.methodAccessor(source.getClass());
+        ClassUtil.MethodAccessor targetMethodAccessor = ClassUtil.INSTANCE.methodAccessor(target.getClass());
+        MethodAccess sourceMethodAccess = sourceMethodAccessor.getMethodAccess();
+        MethodAccess targetMethodAccess = targetMethodAccessor.getMethodAccess();
+        Map<String, Integer> getters = sourceMethodAccessor.getGetters();
+        Map<String, Integer> setters = targetMethodAccessor.getSetters();
+        setters.forEach((setter, setterIndex) -> {
+            String fieldName = setter.substring(3);
+            String getter = StringUtil.INSTANCE.getGetter(fieldName);
+            Integer getterIndex = getters.get(getter);
+            if (null == getterIndex) {
+                return;
+            }
+            Object returnValue = sourceMethodAccess.invoke(source, getterIndex);
+            targetMethodAccess.invoke(target, setterIndex, returnValue);
+        });
     }
 
     public <T> byte[] protostuffSerializer(T object) {

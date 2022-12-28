@@ -26,7 +26,13 @@ public enum CriteriaResolver {
     private final static String OR = " or ";
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
-        CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
+        CriteriaParameter<E> criteriaParameter;
+        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+            criteriaParameter = new DeleteCriteriaParameter<>(deleteCriteria.getDeleteColumnName(), deleteCriteria.getDeleteValue());
+        } else {
+            criteriaParameter = new CriteriaParameter<>();
+        }
+
         criteriaParameter.setEntity(abstractCriteria.getEntity());
         criteriaParameter.setEntityClass(abstractCriteria.getEntityClass());
 
@@ -43,15 +49,13 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(sqlBuilder.toString());
         criteriaParameter.setWhereSqlValues(values);
 
-        if (abstractCriteria instanceof Criteria) {
-            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
+        if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof UpdateCriteria) {
-            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
+        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
             populateForceUpdate(updateCriteria, criteriaParameter);
         }
         return criteriaParameter;
@@ -105,23 +109,20 @@ public enum CriteriaResolver {
         List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
         if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
             ColumnMeta columnMeta;
-            String filedName;
             String columnName;
+            String[] placeholders;
             Object[] sqlValues;
             String placeholder = null;
             Operator operator;
             for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
                 columnMeta = criteriaMeta.getColumnMeta();
-                filedName = columnMeta.getFieldName();
                 columnName = columnMeta.getColumnName();
-                Object[] originalSqlValues = criteriaMeta.getSqlValues();
-                // 因为解析过程或修改sqlValues中的值，所以复制一份
-                sqlValues = Arrays.copyOf(originalSqlValues, originalSqlValues.length);
+                sqlValues = criteriaMeta.getSqlValues();
+                placeholders = new String[sqlValues.length];
                 for (int i = 0; i < sqlValues.length; i++) {
-                    Object sqlValue = sqlValues[i];
                     placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
-                    sqlValues[i] = String.format("#{whereSqlValues.%s}", placeholder);
-                    values.put(placeholder, sqlValue);
+                    placeholders[i] = String.format("#{whereSqlValues.%s}", placeholder);
+                    values.put(placeholder, sqlValues[i]);
                 }
                 operator = criteriaMeta.getOperator();
                 sqlBuilder.append(AND).append(columnName).append(operator.getOperator());
@@ -129,12 +130,12 @@ public enum CriteriaResolver {
                     case IN:
                     case NOTIN:
                         sqlBuilder.append(Symbol.OPEN_PAREN.getSymbol());
-                        sqlBuilder.append(Arrays.stream(sqlValues).map(String::valueOf).collect(Collectors.joining(Symbol.COMMA.getSymbol())));
+                        sqlBuilder.append(Arrays.stream(placeholders).map(String::valueOf).collect(Collectors.joining(Symbol.COMMA.getSymbol())));
                         sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
                         break;
                     case BETWEEN:
                     case NOTBETWEEN:
-                        sqlBuilder.append(sqlValues[0]).append(AND).append(sqlValues[1]);
+                        sqlBuilder.append(placeholders[0]).append(AND).append(placeholders[1]);
                         break;
                     case ISNULL:
                     case ISNOTNULL:
@@ -144,24 +145,24 @@ public enum CriteriaResolver {
                         Object object = values.get(placeholder);
                         object = String.format("%%%s%%", object);
                         values.put(placeholder, object);
-                        sqlBuilder.append(sqlValues[0]);
+                        sqlBuilder.append(placeholders[0]);
                         break;
                     case STARTWITH:
                     case NOTSTARTWITH:
                         object = values.get(placeholder);
                         object = String.format("%s%%", object);
                         values.put(placeholder, object);
-                        sqlBuilder.append(sqlValues[0]);
+                        sqlBuilder.append(placeholders[0]);
                         break;
                     case ENDWITH:
                     case NOTENDWITH:
                         object = values.get(placeholder);
                         object = String.format("%%%s", object);
                         values.put(placeholder, object);
-                        sqlBuilder.append(sqlValues[0]);
+                        sqlBuilder.append(placeholders[0]);
                         break;
                     default:
-                        sqlBuilder.append(sqlValues[0]);
+                        sqlBuilder.append(placeholders[0]);
                         break;
                 }
             }

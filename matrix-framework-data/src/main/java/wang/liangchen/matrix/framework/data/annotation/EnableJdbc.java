@@ -13,9 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.*;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -90,6 +88,9 @@ public @interface EnableJdbc {
 
         private void instantiateDataSource() {
             MapPropertySource jdbc = (MapPropertySource) environment.getPropertySources().get(EnvironmentContext.JDBC_PREFIX);
+            if (null == jdbc) {
+                jdbc = resolveJdbcMapPropertySource(environment.getPropertySources());
+            }
             String[] propertyNames = jdbc.getPropertyNames();
 
             Map<String, Properties> dataSourcePropertiesMap = new HashMap<>();
@@ -142,6 +143,24 @@ public @interface EnableJdbc {
                 binder.bind(EXTRA_ITEM, Bindable.ofInstance(dataSource));
                 MultiDataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource, dialect);
             });
+        }
+
+        private MapPropertySource resolveJdbcMapPropertySource(MutablePropertySources propertySources) {
+            Map<String, Object> source = new HashMap<>();
+            MapPropertySource mapPropertySource = new MapPropertySource("jdbc", source);
+            for (PropertySource<?> propertySource : propertySources) {
+                if (!(propertySource instanceof EnumerablePropertySource<?>)) {
+                    continue;
+                }
+                EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
+                String[] propertyNames = enumerablePropertySource.getPropertyNames();
+                for (String propertyName : propertyNames) {
+                    if (propertyName.startsWith("jdbc")) {
+                        source.putIfAbsent(propertyName.substring(propertyName.indexOf('.') + 1), enumerablePropertySource.getProperty(propertyName));
+                    }
+                }
+            }
+            return mapPropertySource;
         }
 
         private void validateConfiguration(Map<String, Properties> dataSourcePropertiesMap) {

@@ -214,7 +214,7 @@ public enum StringUtil {
         if (null == pack) {
             return null;
         }
-        return pack.replaceAll(DOT_REPLACEMENT, Matcher.quoteReplacement(Symbol.FILE_SEPARATOR.getSymbol()));
+        return pack.replaceAll(DOT_REPLACEMENT, Matcher.quoteReplacement(Symbol.URI_SEPARATOR.getSymbol()));
     }
 
     public String getGetter(String fieldName) {

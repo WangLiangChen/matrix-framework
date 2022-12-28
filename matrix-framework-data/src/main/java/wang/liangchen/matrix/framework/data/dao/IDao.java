@@ -25,7 +25,7 @@ public interface IDao {
      * </pre>
      *
      * @param primaryKey Entity object to delete
-     * @param <E>    Subclass of RootEntity
+     * @param <E>        Subclass of RootEntity
      * @return Number of rows deleted
      */
     <E extends RootEntity> int delete(E primaryKey);
@@ -33,11 +33,10 @@ public interface IDao {
     /**
      * <pre>
      * delete by query criteria
-     * If there is a field using annotation '@ColumnMarkDelete',the row will not be physically deleted
      * </pre>
      *
      * @param deleteCriteria Constructed query criteria
-     * @param <E>      Subclass of RootEntity
+     * @param <E>            Subclass of RootEntity
      * @return Number of rows deleted
      */
     <E extends RootEntity> int delete(DeleteCriteria<E> deleteCriteria);

@@ -100,6 +100,7 @@ public class StartProcessMonitor implements
             "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
     };
     private boolean isRunning;
+    private static boolean initialized = false;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -123,7 +124,7 @@ public class StartProcessMonitor implements
         Properties defaultProperties = new Properties();
         populateDefaultProperties(defaultProperties);
         // logger
-        handleLogger(environment, defaultProperties);
+        // handleLogger(environment, defaultProperties);
         // 因加载顺序的原因,此时使用springApplication.setDefaultProperties()无效
         PrettyPrinter.INSTANCE.buffer("set defaultProperties");
         environment.getPropertySources().addLast(new PropertiesPropertySource("defaultProperties", defaultProperties));
@@ -157,6 +158,12 @@ public class StartProcessMonitor implements
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        // 在使用SpringCloud的场景下,该方法会被调用两次,故而判断一下.
+        boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
+        if (containsBootstrap) {
+            return;
+        }
+
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
         // 初始化BeanLoader
         BeanLoader.INSTANCE.setApplicationContext(applicationContext);
@@ -168,6 +175,7 @@ public class StartProcessMonitor implements
         // sacan package
         hanldeScanPackages(applicationContext);
         PrettyPrinter.INSTANCE.flush();
+
     }
 
     @Override

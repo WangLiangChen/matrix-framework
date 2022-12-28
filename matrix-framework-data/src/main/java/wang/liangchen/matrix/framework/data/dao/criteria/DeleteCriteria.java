@@ -1,19 +1,18 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     private boolean flushCache = true;
-    private final Map<EntityGetter<E>, Object> markDeleteField = new HashMap<>();
+    private String deleteColumnName;
+    private Object deleteValue;
 
     private DeleteCriteria(Class<E> entityClass) {
         super(entityClass);
@@ -30,7 +29,11 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     public DeleteCriteria<E> markDelete(EntityGetter<E> fieldGetter, Object sqlValue) {
-        throw new MatrixWarnException("not yet supported");
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
+        this.deleteColumnName = columnMeta.getColumnName();
+        this.deleteValue = sqlValue;
+        return this;
     }
 
     @Override
@@ -205,5 +208,13 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
 
     public boolean isFlushCache() {
         return flushCache;
+    }
+
+    public String getDeleteColumnName() {
+        return deleteColumnName;
+    }
+
+    public Object getDeleteValue() {
+        return deleteValue;
     }
 }
