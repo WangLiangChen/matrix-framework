@@ -25,7 +25,7 @@ public enum EnvironmentContext {
     INSTANCE;
     public static final String JDBC_PREFIX = "jdbc";
     public static final String LOGGER_PREFIX = "logger";
-    private static final Map<String, String> configFiles = new HashMap<>() {{
+    private static final Map<String, String> configFiles = new HashMap<String, String>() {{
         put(JDBC_PREFIX, "jdbc.*");
     }};
     private static final String CLASSPATH = "classpath";

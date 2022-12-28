@@ -30,7 +30,7 @@ public enum ClassUtil {
     INSTANCE;
     private static final Map<Class<?>, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, MethodAccessor> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
-    public static final Map<Class<?>, Supplier<?>> TYPE_DEFAULT_VALUE = new HashMap<>() {{
+    public static final Map<Class<?>, Supplier<?>> TYPE_DEFAULT_VALUE = new HashMap<Class<?>, Supplier<?>>() {{
         put(Long.class, () -> 0L);
         put(Integer.class, () -> 0);
         put(Short.class, () -> (short) 0);

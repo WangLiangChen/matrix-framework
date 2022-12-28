@@ -27,7 +27,8 @@ public enum CriteriaResolver {
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
         CriteriaParameter<E> criteriaParameter;
-        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+        if (abstractCriteria instanceof DeleteCriteria) {
+            DeleteCriteria<E> deleteCriteria = (DeleteCriteria<E>) abstractCriteria;
             criteriaParameter = new DeleteCriteriaParameter<>(deleteCriteria.getDeleteColumnName(), deleteCriteria.getDeleteValue());
         } else {
             criteriaParameter = new CriteriaParameter<>();
@@ -49,13 +50,15 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(sqlBuilder.toString());
         criteriaParameter.setWhereSqlValues(values);
 
-        if (abstractCriteria instanceof Criteria<E> criteria) {
+        if (abstractCriteria instanceof Criteria) {
+            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
+        if (abstractCriteria instanceof UpdateCriteria) {
+            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
             populateForceUpdate(updateCriteria, criteriaParameter);
         }
         return criteriaParameter;
