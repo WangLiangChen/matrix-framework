@@ -11,7 +11,13 @@ import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 public class GeneratorConfiguration {
     @Bean
     @ConditionalOnBean(StandaloneDao.class)
-    public DDDGenerator domainGenerator(StandaloneDao standaloneDao){
+    public DDDGenerator domainGenerator(StandaloneDao standaloneDao) {
         return new DDDGenerator(standaloneDao);
+    }
+
+    @Bean
+    @ConditionalOnBean(StandaloneDao.class)
+    public DDDStyleGenerator dddStyleGenerator(StandaloneDao standaloneDao) {
+        return new DDDStyleGenerator(standaloneDao);
     }
 }
