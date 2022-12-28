@@ -5,7 +5,7 @@
     <parent>
         <artifactId>matrix-framework</artifactId>
         <groupId>wang.liangchen.matrix</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
 
     <properties>
         <version.mybatis>3.0.1</version.mybatis>
-        <version.cache>2.0.0-SNAPSHOT</version.cache>
+        <version.cache>1.0.0-SNAPSHOT</version.cache>
     </properties>
 
     <dependencies>
