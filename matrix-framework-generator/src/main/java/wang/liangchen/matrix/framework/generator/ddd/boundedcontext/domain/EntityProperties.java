@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.generator;
+package wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain;
 
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 
