@@ -6,10 +6,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
@@ -23,9 +20,7 @@ import java.util.Set;
 /**
  * @author LiangChen.Wang
  */
-@Component
 public class DataBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
-    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
