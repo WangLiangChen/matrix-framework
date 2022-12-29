@@ -41,7 +41,6 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.context.MessageSourceLoader;
-import wang.liangchen.matrix.framework.springboot.processor.HighestPriorityBeanDefinitionRegistryPostProcessor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -100,7 +99,6 @@ public class StartProcessMonitor implements
             "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
     };
     private boolean isRunning;
-    private static boolean initialized = false;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -159,23 +157,18 @@ public class StartProcessMonitor implements
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         // 在使用SpringCloud的场景下,该方法会被调用两次,故而判断一下.
-        boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
+        /*boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
         if (containsBootstrap) {
             return;
-        }
+        }*/
 
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
         // 初始化BeanLoader
         BeanLoader.INSTANCE.setApplicationContext(applicationContext);
         PrettyPrinter.INSTANCE.buffer("Initialized BeanLoader");
-
-        // 注册一个优先级非常高的BeanFactoryPostProcessor
-        applicationContext.getBeanFactory().registerSingleton("highestPriorityBeanDefinitionRegistryPostProcessor", new HighestPriorityBeanDefinitionRegistryPostProcessor());
-        PrettyPrinter.INSTANCE.buffer("register HighestPriorityBeanDefinitionRegistryPostProcessor");
         // sacan package
         hanldeScanPackages(applicationContext);
         PrettyPrinter.INSTANCE.flush();
-
     }
 
     @Override

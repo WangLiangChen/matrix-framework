@@ -8,6 +8,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 
 /**
@@ -18,6 +19,7 @@ import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
  *
  * @author LiangChen.Wang 2020/9/15
  */
+@Component
 public class HighestPriorityBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, PriorityOrdered, EnvironmentAware, BeanClassLoaderAware {
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
