@@ -105,7 +105,7 @@ public class DDDStyleGenerator {
         String boundedContextName = boundedContext.getAttribute("name");
         ValidationUtil.INSTANCE.notBlank(boundedContextName, "The 'name' attribute of the bounded context must not be blank");
         String basePackage = boundedContext.getAttribute("package");
-        ValidationUtil.INSTANCE.notBlank(boundedContextName, "The 'package' attribute of the bounded context must not be blank");
+        ValidationUtil.INSTANCE.notBlank(basePackage, "The 'package' attribute of the bounded context must not be blank");
         String datasource = boundedContext.getAttribute("datasource");
         String author = boundedContext.getAttribute("author");
         String output = boundedContext.getAttribute("output");
@@ -145,7 +145,7 @@ public class DDDStyleGenerator {
                 // 填充自身属性
                 Element entityElement = (Element) entities.item(k);
                 String tableName = entityElement.getAttribute("table-name");
-                ValidationUtil.INSTANCE.notBlank(boundedContextName, "The 'table-name' attribute of the entity must not be blank");
+                ValidationUtil.INSTANCE.notBlank(tableName, "The 'table-name' attribute of the entity must not be blank");
                 entityProperties.setTableName(tableName);
                 String entityName = entityElement.getAttribute("name");
                 entityName = StringUtil.INSTANCE.isBlank(entityName) ? StringUtil.INSTANCE.underline2UpperCamelCase(tableName) : entityName;
