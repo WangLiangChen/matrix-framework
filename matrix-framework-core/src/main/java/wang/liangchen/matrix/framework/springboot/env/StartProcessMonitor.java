@@ -156,11 +156,8 @@ public class StartProcessMonitor implements
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        // 在使用SpringCloud的场景下,该方法会被调用两次,故而判断一下.
-        /*boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
-        if (containsBootstrap) {
-            return;
-        }*/
+        // 可以使用下面的语句判断是否springcloud
+        // boolean containsBootstrap = applicationContext.getEnvironment().getPropertySources().contains("bootstrap");
 
         PrettyPrinter.INSTANCE.buffer("Overrided from ApplicationContextInitializer");
         // 初始化BeanLoader
@@ -319,28 +316,11 @@ public class StartProcessMonitor implements
     }
 
     private void hanldeScanPackages(ConfigurableApplicationContext applicationContext) {
-        // 处理自动扫描和排除扫描项目
+        // 扫描框架包
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) applicationContext.getBeanFactory();
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
-        // 获取要排除扫描的包
-        if (CollectionUtil.INSTANCE.isNotEmpty(StartProcessRunListener.excludeScanPackages)) {
-            scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
-                String className = metadataReader.getClassMetadata().getClassName();
-                for (String excludeScanPackage : StartProcessRunListener.excludeScanPackages) {
-                    return className.startsWith(excludeScanPackage);
-                }
-                return false;
-            });
-        }
-        // 获取扫描配置
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        String autoScanPackages = environment.getProperty("packages");
-        autoScanPackages = StringUtil.INSTANCE.isBlank(autoScanPackages) ? DEFAULT_SCAN_PACKAGES
-                : DEFAULT_SCAN_PACKAGES.concat(Symbol.COMMA.getSymbol()).concat(autoScanPackages);
-        String[] autoScanArray = autoScanPackages.split(Symbol.COMMA.getSymbol());
-        PrettyPrinter.INSTANCE.buffer("scan packages: {}", autoScanPackages);
-        scanner.scan(autoScanArray);
+        scanner.scan(DEFAULT_SCAN_PACKAGES);
     }
 
     @Override
