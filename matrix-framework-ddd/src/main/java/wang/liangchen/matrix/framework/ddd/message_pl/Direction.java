@@ -5,6 +5,6 @@ package wang.liangchen.matrix.framework.ddd.message_pl;
  */
 public enum Direction {
     NONE,
-    North,
-    South
+    NORTH,
+    SOUTH
 }
