@@ -50,14 +50,14 @@ import java.util.stream.Collectors;
 /**
  * @author Liangchen.Wang 2022-12-28 18:31
  */
-public class DDDStyleGenerator {
+public class DDDGenerator {
     private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "ddd-generator.xml";
     private final Configuration freemarkerConfig;
 
-    public DDDStyleGenerator(StandaloneDao standaloneDao) {
+    public DDDGenerator(StandaloneDao standaloneDao) {
         this.standaloneDao = standaloneDao;
         this.freemarkerConfig = new Configuration(Configuration.VERSION_2_3_31);
         this.freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates/ddd");
