@@ -12,8 +12,9 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -24,10 +25,11 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.utils.PrettyPrinter;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ConstantEnumTypeHandler;
-import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
+import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2021-10-20 11:37
@@ -35,17 +37,7 @@ import java.util.*;
 public class MybatisAutoConfiguration {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private final static String DEFAULT_SCAN_PACKAGE = "wang.liangchen.matrix";
-    private static final String scanPackages;
 
-    static {
-        Environment environment = BeanLoader.INSTANCE.getBean(Environment.class);
-        String mybatis = environment.getProperty("mybatis");
-        if (StringUtil.INSTANCE.isBlank(mybatis)) {
-            scanPackages = DEFAULT_SCAN_PACKAGE;
-        } else {
-            scanPackages = String.format("%s,%s", DEFAULT_SCAN_PACKAGE, mybatis);
-        }
-    }
 
     /*
     MapperScannerConfigurer 是 BeanFactoryPostProcessor 的一个实现，这类Bean会特别早的被初始化。会导致其所在的Configuration，也就是本类过早初始化
@@ -56,9 +48,10 @@ public class MybatisAutoConfiguration {
     另外，通过@Bean使用BeanPostProcessor和BeanFactoryPostProcessor定义时要特别小心。 通常应将这些声明为静态@Bean方法，而不触发其包含的配置类的实例化。 否则，@Autowired和@Value不适用于配置类本身，因为它太早被创建为Bean实例。
     */
     @Bean
-    public static MapperScannerConfigurer mapperScannerConfigurer() {
+    public static MapperScannerConfigurer mapperScannerConfigurer(BeanFactory beanFactory) {
+        String scanPackages = resolveScanPackages(beanFactory);
         MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
-        //mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
+        mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
         mapperScannerConfigurer.setSqlSessionTemplateBeanName("sqlSessionTemplate");
         // 指定扫描的类型,只扫描有注解的接口
         // mapperScannerConfigurer.setMarkerInterface(IAbstractDao.class);
@@ -69,21 +62,19 @@ public class MybatisAutoConfiguration {
         return mapperScannerConfigurer;
     }
 
-
     @Bean
-    public SqlSessionFactoryBean sqlSessionFactory(javax.sql.DataSource dataSource, @Nullable Interceptor[] interceptors) {
+    public SqlSessionFactoryBean sqlSessionFactory(BeanFactory beanFactory, javax.sql.DataSource dataSource, @Nullable Interceptor[] interceptors) {
+        String scanPackages = resolveScanPackages(beanFactory);
         // set DataSource
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // set ConfigLocation
-        /*
         Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getURL("mybatis-config.xml").toString());
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
         } else {
             PrettyPrinter.INSTANCE.buffer("can't find mybatis-config.xml,use default configuration");
         }
-         */
         // other config
         Properties mybatisConfiguration = new Properties();
         mybatisConfiguration.put("cacheEnabled", false);
@@ -96,7 +87,7 @@ public class MybatisAutoConfiguration {
         String[] packages = scanPackages.split(Symbol.COMMA.getSymbol());
         List<Resource> mapperLocations = new ArrayList<>();
         for (String pack : packages) {
-            pack = pack.replace('.', '/');
+            pack = StringUtil.INSTANCE.package2Path(pack);
             try {
                 Resource[] mappers = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(pack).concat("/**/*.mapper.xml"));
                 mapperLocations.addAll(Arrays.asList(mappers));
@@ -151,5 +142,12 @@ public class MybatisAutoConfiguration {
                 };
             }
         });
+    }
+
+    private static String resolveScanPackages(BeanFactory beanFactory) {
+        List<String> packages = AutoConfigurationPackages.get(beanFactory);
+        packages = packages.stream().filter(e -> !e.startsWith(DEFAULT_SCAN_PACKAGE)).collect(Collectors.toList());
+        packages.add(0, DEFAULT_SCAN_PACKAGE);
+        return packages.stream().collect(Collectors.joining(Symbol.COMMA.getSymbol()));
     }
 }

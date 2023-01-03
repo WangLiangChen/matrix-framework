@@ -1,6 +1,8 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
-import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
@@ -9,6 +11,7 @@ import java.util.Collection;
  * @author Liangchen.Wang 2022-04-16 21:29
  */
 public class CriteriaMeta<E extends RootEntity> {
+    private final static Logger logger = LoggerFactory.getLogger(CriteriaMeta.class);
     private final Operator operator;
     private final ColumnMeta columnMeta;
     private final Object[] sqlValues;
@@ -20,11 +23,15 @@ public class CriteriaMeta<E extends RootEntity> {
     }
 
     public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, ColumnMeta columnMeta, Object... sqlValues) {
-        if (Operator.IN == operator || Operator.NOTIN == operator) {
-            ValidationUtil.INSTANCE.notEmpty(sqlValues, "values must not be empty.field: {}", columnMeta.getFieldName());
+        if (CollectionUtil.INSTANCE.isEmpty(sqlValues)) {
+            logger.debug("* The value of {} contains null,so this criteria '{}' is ignored", columnMeta.getFieldName(), operator.getOperator());
+            return null;
         }
         for (Object sqlValue : sqlValues) {
-            ValidationUtil.INSTANCE.notNull(sqlValue, "value must not be null.field: {}", columnMeta.getFieldName());
+            if (null == sqlValue) {
+                logger.debug("* The value of '{}' contains null,so this criteria '{}' is ignored", columnMeta.getFieldName(), operator.getOperator());
+                return null;
+            }
         }
         return new CriteriaMeta<>(operator, columnMeta, sqlValues);
     }

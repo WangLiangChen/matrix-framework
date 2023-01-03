@@ -25,7 +25,15 @@ import java.util.Map;
  * _contains       _notContains
  */
 abstract class AbstractCriteria<E extends RootEntity> {
-    private final List<CriteriaMeta<E>> CRITERIAMETAS = new ArrayList<>();
+    private final List<CriteriaMeta<E>> CRITERIAMETAS = new ArrayList<>() {
+        @Override
+        public boolean add(CriteriaMeta<E> criteriaMeta) {
+            if (null == criteriaMeta) {
+                return false;
+            }
+            return super.add(criteriaMeta);
+        }
+    };
 
     private final E entity;
     private final Class<E> entityClass;
