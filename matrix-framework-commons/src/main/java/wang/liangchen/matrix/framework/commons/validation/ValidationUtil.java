@@ -1,5 +1,9 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -10,10 +14,8 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -59,6 +61,31 @@ public enum ValidationUtil {
         VALIDATOR_FACTORY.close();
     }
 
+    public String resolveDynamicMessage(String dynamicMessage, Object... args) {
+        return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
+    }
+
+    public String resolveDynamicMessage(DynamicMessage dynamicMessage, Object... args) {
+        Set<ConstraintViolation<DynamicMessage>> results = VALIDATOR.validate(dynamicMessage);
+        if (CollectionUtil.INSTANCE.isEmpty(results)) {
+            return Symbol.BLANK.getSymbol();
+        }
+        for (ConstraintViolation<DynamicMessage> result : results) {
+            return StringUtil.INSTANCE.format(result.getMessage(), args);
+        }
+        return Symbol.BLANK.getSymbol();
+    }
+
+    public <T extends RuntimeException> void throwException(Class<T> exceptionClass, String message, Object... args) {
+        try {
+            Constructor<T> constructor = exceptionClass.getConstructor(String.class);
+            throw constructor.newInstance(resolveDynamicMessage(message, args));
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+            throw new MatrixErrorException("The class of exception has't Constructor(String message)");
+        }
+    }
+
     public <T> T validate(ExceptionLevel exceptionLevel, T object, Class<?>... groups) {
         Set<ConstraintViolation<T>> results = VALIDATOR.validate(object, groups);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
@@ -67,9 +94,6 @@ public enum ValidationUtil {
         StringBuilder messageBuilder = new StringBuilder();
         results.forEach(e -> {
             messageBuilder.append(e.getMessage());
-            if (object instanceof DynamicMessage) {
-                return;
-            }
             messageBuilder.append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
         });
         throwException(exceptionLevel, messageBuilder.toString());
@@ -281,7 +305,7 @@ public enum ValidationUtil {
     }
 
     private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
-        validate(exceptionLevel, DynamicMessage.newInstantce(message, args));
+        throwException(exceptionLevel, resolveDynamicMessage(message, args));
     }
 
     public void throwException(ExceptionLevel exceptionLevel, String message) {
