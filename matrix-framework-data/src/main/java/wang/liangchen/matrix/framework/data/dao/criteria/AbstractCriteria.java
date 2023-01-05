@@ -57,7 +57,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
         this.columnMetas = tableMeta.getColumnMetas();
     }
 
-    public AbstractCriteria<E> ignoreStringBlank() {
+    protected AbstractCriteria<E> ignoreStringBlank() {
         this.ignoreStringBlank = true;
         return this;
     }

@@ -125,6 +125,11 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     @Override
+    public Criteria<E> ignoreStringBlank() {
+        return (Criteria<E>) super.ignoreStringBlank();
+    }
+
+    @Override
     public Criteria<E> _equals(EntityGetter<E> fieldGetter) {
         return (Criteria<E>) super._equals(fieldGetter);
     }

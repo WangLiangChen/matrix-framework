@@ -35,6 +35,11 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> ignoreStringBlank() {
+        return (UpdateCriteria<E>) super.ignoreStringBlank();
+    }
+
+    @Override
     public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter) {
         return (UpdateCriteria<E>) super._equals(fieldGetter);
     }
