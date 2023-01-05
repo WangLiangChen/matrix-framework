@@ -12,17 +12,19 @@ import java.util.Collection;
  */
 public class CriteriaMeta<E extends RootEntity> {
     private final static Logger logger = LoggerFactory.getLogger(CriteriaMeta.class);
+    private final AbstractCriteria<E> criteria;
     private final Operator operator;
     private final ColumnMeta columnMeta;
     private final Object[] sqlValues;
 
-    private CriteriaMeta(Operator operator, ColumnMeta columnMeta, Object[] sqlValues) {
+    private CriteriaMeta(AbstractCriteria<E> criteria, Operator operator, ColumnMeta columnMeta, Object[] sqlValues) {
+        this.criteria = criteria;
         this.operator = operator;
         this.columnMeta = columnMeta;
         this.sqlValues = sqlValues;
     }
 
-    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, ColumnMeta columnMeta, Object... sqlValues) {
+    public static <E extends RootEntity> CriteriaMeta<E> getInstance(AbstractCriteria<E> criteria, Operator operator, ColumnMeta columnMeta, Object... sqlValues) {
         if (CollectionUtil.INSTANCE.isEmpty(sqlValues)) {
             logger.debug("* The value of {} contains null,so this criteria '{}' is ignored", columnMeta.getFieldName(), operator.getOperator());
             return null;
@@ -32,12 +34,16 @@ public class CriteriaMeta<E extends RootEntity> {
                 logger.debug("* The value of '{}' contains null,so this criteria '{}' is ignored", columnMeta.getFieldName(), operator.getOperator());
                 return null;
             }
+            if (sqlValue instanceof String && ((String) sqlValue).isEmpty()) {
+                logger.debug("* The value of '{}' is blank,so this criteria '{}' is ignored", columnMeta.getFieldName(), operator.getOperator());
+                return null;
+            }
         }
-        return new CriteriaMeta<>(operator, columnMeta, sqlValues);
+        return new CriteriaMeta<>(criteria, operator, columnMeta, sqlValues);
     }
 
-    public static <E extends RootEntity> CriteriaMeta<E> getInstance(Operator operator, ColumnMeta columnMeta, Collection<?> sqlValues) {
-        return new CriteriaMeta<>(operator, columnMeta, sqlValues.toArray());
+    public static <E extends RootEntity> CriteriaMeta<E> getInstance(AbstractCriteria<E> criteria, Operator operator, ColumnMeta columnMeta, Collection<?> sqlValues) {
+        return getInstance(criteria, operator, columnMeta, sqlValues.toArray());
     }
 
     public Operator getOperator() {
