@@ -5,11 +5,10 @@ import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * @author LiangChen.Wang
@@ -29,7 +28,7 @@ public final class PaginationResult<E> {
     }
 
     public void setDatas(List<E> datas) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,datas, "datas must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, datas, "datas must not be null");
         this.datas = datas;
     }
 
@@ -38,7 +37,7 @@ public final class PaginationResult<E> {
     }
 
     public void setTotalRecords(Integer totalRecord) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,totalRecord, "totalRecord must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, totalRecord, "totalRecord must not be null");
         this.totalRecords = totalRecord;
     }
 
@@ -47,7 +46,7 @@ public final class PaginationResult<E> {
     }
 
     public void setPageNumber(Integer pageNumber) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,pageNumber, "pageNumber must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, pageNumber, "pageNumber must not be null");
         this.pageNumber = pageNumber;
     }
 
@@ -56,39 +55,24 @@ public final class PaginationResult<E> {
     }
 
     public void setPageSize(Integer pageSize) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN,pageSize, "pageSize must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, pageSize, "pageSize must not be null");
         this.pageSize = pageSize;
-    }
-
-    public void loopDatas(Consumer<E> consumer) {
-        if (CollectionUtil.INSTANCE.isEmpty(datas) || null == consumer) {
-            return;
-        }
-        datas.forEach(consumer);
     }
 
     public <T> PaginationResult<T> to(Class<T> targetClass) {
         return to(targetClass, null);
     }
 
-    private <T> PaginationResult<T> to(Class<T> targetClass, Consumer<T> consumer) {
+    public <T> PaginationResult<T> to(Class<T> targetClass, BiConsumer<E, T> biConsumer) {
         PaginationResult<T> paginationResult = new PaginationResult<>();
         paginationResult.setTotalRecords(this.totalRecords);
         paginationResult.setPageNumber(this.pageNumber);
         paginationResult.setPageSize(this.pageSize);
-        if (CollectionUtil.INSTANCE.isEmpty(datas)) {
+        if (CollectionUtil.INSTANCE.isEmpty(this.datas)) {
             paginationResult.setDatas(Collections.emptyList());
             return paginationResult;
         }
-        List<T> targetList = new ArrayList<>(datas.size());
-        datas.forEach(sourceObject -> {
-            T targetObject = ObjectUtil.INSTANCE.copyProperties(sourceObject, targetClass);
-            targetList.add(targetObject);
-            if (null != consumer) {
-                consumer.accept(targetObject);
-            }
-        });
-        paginationResult.setDatas(targetList);
+        paginationResult.setDatas(ObjectUtil.INSTANCE.copyProperties(datas, targetClass, biConsumer));
         return paginationResult;
     }
 

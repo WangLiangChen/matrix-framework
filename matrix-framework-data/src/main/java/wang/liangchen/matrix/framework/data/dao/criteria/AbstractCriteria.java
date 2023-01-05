@@ -39,6 +39,7 @@ abstract class AbstractCriteria<E extends RootEntity> {
     private final Class<E> entityClass;
     private final TableMeta tableMeta;
     private final Map<String, ColumnMeta> columnMetas;
+    private boolean ignoreStringBlank = false;
 
 
     @SuppressWarnings("unchecked")
@@ -56,6 +57,11 @@ abstract class AbstractCriteria<E extends RootEntity> {
         this.columnMetas = tableMeta.getColumnMetas();
     }
 
+    public AbstractCriteria<E> ignoreStringBlank() {
+        this.ignoreStringBlank = true;
+        return this;
+    }
+
     // =====================equals========================
     protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter) {
         addCriteriaMeta(Operator.EQUALS, fieldGetter);
@@ -63,12 +69,12 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
@@ -79,34 +85,34 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _notEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTEQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================in========================
     protected AbstractCriteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, resoveEntityGetter(fieldGetter), values));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.IN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
     protected AbstractCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.IN, resoveEntityGetter(fieldGetter), values));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.IN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
     // =====================notIn========================
     protected AbstractCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
     protected AbstractCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTIN, resoveEntityGetter(fieldGetter), values));
         return this;
     }
 
@@ -117,12 +123,12 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.GREATERTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
@@ -133,12 +139,12 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.GREATERTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
@@ -149,12 +155,12 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _lessThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.LESSTHAN, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
@@ -165,79 +171,79 @@ abstract class AbstractCriteria<E extends RootEntity> {
     }
 
     protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.LESSTHAN_OR_EQUALS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================_isNull========================
     protected AbstractCriteria<E> _isNull(EntityGetter<E> fieldGetter) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNULL, resoveEntityGetter(fieldGetter)));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.ISNULL, resoveEntityGetter(fieldGetter)));
         return this;
     }
 
     // =====================_isNotNull========================
     protected AbstractCriteria<E> _isNotNull(EntityGetter<E> fieldGetter) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ISNOTNULL, resoveEntityGetter(fieldGetter)));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.ISNOTNULL, resoveEntityGetter(fieldGetter)));
         return this;
     }
 
     // =====================_between========================
     protected AbstractCriteria<E> _between(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
     protected AbstractCriteria<E> _between(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.BETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
 
     // =====================_notBetween========================
     protected AbstractCriteria<E> _notBetween(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
     protected AbstractCriteria<E> _notBetween(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTBETWEEN, resoveEntityGetter(fieldGetter), valueMin, valueMax));
         return this;
     }
 
     // =====================_contains========================
     protected AbstractCriteria<E> _contains(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.CONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.CONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     // =====================_notContains========================
     protected AbstractCriteria<E> _notContains(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTCONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTCONTAINS, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _startWith(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.STARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.STARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _notStartWith(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTSTARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTSTARTWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _endWith(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.ENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.ENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
     protected AbstractCriteria<E> _notEndWith(EntityGetter<E> fieldGetter, String sqlValue) {
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(Operator.NOTENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, Operator.NOTENDWITH, resoveEntityGetter(fieldGetter), sqlValue));
         return this;
     }
 
@@ -273,6 +279,6 @@ abstract class AbstractCriteria<E extends RootEntity> {
         String getterName = StringUtil.INSTANCE.getGetter(fieldName);
         Object fieldValue = ClassUtil.INSTANCE.invokeGetter(entity, getterName);
         ColumnMeta columnMeta = columnMetas.get(fieldName);
-        CRITERIAMETAS.add(CriteriaMeta.getInstance(operator, columnMeta, fieldValue));
+        CRITERIAMETAS.add(CriteriaMeta.getInstance(this, operator, columnMeta, fieldValue));
     }
 }

@@ -78,8 +78,13 @@ public class Tier3Generator {
         // 补充service信息
         entityProperties.setServicePackage(entityProperties.getBasePackage().concat(Symbol.DOT.getSymbol()).concat("service"));
         entityProperties.setServiceName("I".concat(entityProperties.getEntityName()).concat("Service"));
-        entityProperties.setServiceImplPackage(entityProperties.getServicePackage().concat(Symbol.DOT.getSymbol()).concat("impl"));
-        entityProperties.setServiceImplName(entityProperties.getEntityName().concat("ServiceImpl"));
+        if (entityProperties.getIgnoreInterface()) {
+            entityProperties.setServiceImplPackage(entityProperties.getServicePackage());
+            entityProperties.setServiceImplName(entityProperties.getEntityName().concat("Service"));
+        } else {
+            entityProperties.setServiceImplPackage(entityProperties.getServicePackage().concat(Symbol.DOT.getSymbol()).concat("impl"));
+            entityProperties.setServiceImplName(entityProperties.getEntityName().concat("ServiceImpl"));
+        }
         // Request
         entityProperties.setRequestPackage(entityProperties.getServicePackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
         entityProperties.setRequestName(entityProperties.getEntityName().concat("Request"));
@@ -87,10 +92,15 @@ public class Tier3Generator {
         entityProperties.setResponsePackage(entityProperties.getServicePackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
         entityProperties.setResponseName(entityProperties.getEntityName().concat("Response"));
 
-        // create interface
-        createFile(entityProperties.getOutput(), entityProperties.getServicePackage(), entityProperties.getServiceName().concat(".java"), "Service.ftl", entityProperties);
-        // create impl
-        createFile(entityProperties.getOutput(), entityProperties.getServiceImplPackage(), entityProperties.getServiceImplName().concat(".java"), "ServiceImpl.ftl", entityProperties);
+        if (entityProperties.getIgnoreInterface()) {
+            // create impl
+            createFile(entityProperties.getOutput(), entityProperties.getServiceImplPackage(), entityProperties.getServiceImplName().concat(".java"), "ServiceImplWithoutInterface.ftl", entityProperties);
+        } else {
+            // create interface
+            createFile(entityProperties.getOutput(), entityProperties.getServicePackage(), entityProperties.getServiceName().concat(".java"), "Service.ftl", entityProperties);
+            // create impl
+            createFile(entityProperties.getOutput(), entityProperties.getServiceImplPackage(), entityProperties.getServiceImplName().concat(".java"), "ServiceImpl.ftl", entityProperties);
+        }
     }
 
     private void createRequest(EntityProperties entityProperties) {
@@ -105,7 +115,11 @@ public class Tier3Generator {
         // 补充controller信息
         entityProperties.setControllerPackage(entityProperties.getBasePackage().concat(Symbol.DOT.getSymbol()).concat("controller"));
         entityProperties.setControllerName(entityProperties.getEntityName().concat("Controller"));
-        createFile(entityProperties.getOutput(), entityProperties.getControllerPackage(), entityProperties.getControllerName().concat(".java"), "Controller.ftl", entityProperties);
+        String templateName="Controller.ftl";
+        if(entityProperties.getIgnoreInterface()){
+            templateName="ControllerWithoutInterface.ftl";
+        }
+        createFile(entityProperties.getOutput(), entityProperties.getControllerPackage(), entityProperties.getControllerName().concat(".java"), templateName, entityProperties);
     }
 
     private List<EntityProperties> resolveConfiguration() {
@@ -143,6 +157,7 @@ public class Tier3Generator {
             entityProperties.setDatasource(datasource);
             entityProperties.setAuthor(author);
             entityProperties.setOutput(output);
+            entityProperties.setIgnoreInterface(Boolean.TRUE);
             // 填充自身属性
             Element entityElement = (Element) entities.item(k);
             String tableName = entityElement.getAttribute("table-name");

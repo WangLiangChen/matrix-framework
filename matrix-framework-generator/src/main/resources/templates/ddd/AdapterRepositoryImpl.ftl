@@ -14,7 +14,7 @@ public class ${adapterRepositoryName} implements ${portRepositoryName} {
     private final StandaloneDao standaloneDao;
 
     @Inject
-    public StaffRepositoryImpl(StandaloneDao standaloneDao) {
+    public ${adapterRepositoryName}(StandaloneDao standaloneDao) {
         this.standaloneDao = standaloneDao;
     }
 }

@@ -8,6 +8,7 @@ public class EntitiesProperties {
     private String datasource;
     private String author;
     private String output;
+    private Boolean ignoreInterface;
 
     public String getBasePackage() {
         return basePackage;
@@ -39,5 +40,13 @@ public class EntitiesProperties {
 
     public void setOutput(String output) {
         this.output = output;
+    }
+
+    public Boolean getIgnoreInterface() {
+        return ignoreInterface;
+    }
+
+    public void setIgnoreInterface(Boolean ignoreInterface) {
+        this.ignoreInterface = ignoreInterface;
     }
 }
