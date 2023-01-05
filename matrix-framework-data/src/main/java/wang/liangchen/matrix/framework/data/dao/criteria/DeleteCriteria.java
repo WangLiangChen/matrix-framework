@@ -37,6 +37,11 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public DeleteCriteria<E> ignoreStringBlank() {
+        return (DeleteCriteria<E>) super.ignoreStringBlank();
+    }
+
+    @Override
     public DeleteCriteria<E> _equals(EntityGetter<E> fieldGetter) {
         return (DeleteCriteria<E>) super._equals(fieldGetter);
     }
