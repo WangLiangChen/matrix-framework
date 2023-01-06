@@ -80,6 +80,9 @@ public class ${serviceImplName} {
                 ._equals(${entityName}::get${columnMeta.fieldName?cap_first}, ${columnMeta.fieldName})<#if !(columnMeta_has_next)>;</#if>
     </#list>
         ${entityName} entity = this.standaloneDao.select(criteria);
+        if (null == entity) {
+            return null;
+        }
         //transform Entity to Response
         return entity.to(${responseName}.class);
     }
