@@ -71,11 +71,12 @@ public class QueryParameter extends EnhancedObject {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", QueryParameter.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", "QueryParameter[", "]")
                 .add("pagination=" + pagination)
                 .add("distinct=" + distinct)
                 .add("forUpdate=" + forUpdate)
                 .add("resultColumns=" + resultColumns)
+                .add(super.toString())
                 .toString();
     }
 }

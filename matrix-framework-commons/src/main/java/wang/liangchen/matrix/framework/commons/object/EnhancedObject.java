@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
@@ -55,5 +56,12 @@ public class EnhancedObject implements Serializable {
 
     public void initializeFields() {
         ClassUtil.INSTANCE.initializeFields(this);
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", "EnhancedObject[", "]")
+                .add("extendedFields=" + extendedFields)
+                .toString();
     }
 }

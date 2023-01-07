@@ -48,7 +48,7 @@ public final class OrderBy implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OrderBy.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", "OrderBy[", "]")
                 .add("orderBy='" + orderBy + "'")
                 .add("direction='" + direction + "'")
                 .toString();
