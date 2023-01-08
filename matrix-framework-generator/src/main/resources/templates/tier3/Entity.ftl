@@ -14,6 +14,8 @@ import jakarta.persistence.*;
 <#list imports as importPackage>
 import ${importPackage};
 </#list>
+import java.util.Collection;
+import java.util.function.BiConsumer;
 
 /**
  * ${tableComment!}
@@ -63,12 +65,21 @@ public class ${entityName} extends RootEntity {
         return ObjectUtil.INSTANCE.copyProperties(source, ${entityName}.class);
     }
 
+    public static <S> Collection<${entityName}> valuesOf(Collection<S> sources) {
+        return ObjectUtil.INSTANCE.copyProperties(sources, ${entityName}.class);
+    }
+
+    public static <S> Collection<${entityName}> valuesOf(Collection<S> sources, BiConsumer<S, ${entityName}> biConsumer) {
+        return ObjectUtil.INSTANCE.copyProperties(sources, ${entityName}.class, biConsumer);
+    }
+
     public static ${entityName} newInstance() {
         return ClassUtil.INSTANCE.instantiate(${entityName}.class);
     }
+
     public static ${entityName} newInstance(boolean initializeFields) {
         ${entityName} entity = ClassUtil.INSTANCE.instantiate(${entityName}.class);
-        if(initializeFields) {
+        if (initializeFields) {
             entity.initializeFields();
         }
         return entity;

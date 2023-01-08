@@ -1,11 +1,14 @@
 package wang.liangchen.matrix.framework.commons.object;
 
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
@@ -50,8 +53,18 @@ public class EnhancedObject implements Serializable {
         return object;
     }
 
-    public static <T> T valueOf(Object source, Class<T> clazz) {
+    public static <S, T> T valueOf(S source, Class<T> clazz) {
+        ValidationUtil.INSTANCE.notNull(source);
         return ObjectUtil.INSTANCE.copyProperties(source, clazz);
+    }
+
+    public static <S, T> Collection<T> valuesOf(Collection<S> sources, Class<T> clazz) {
+        ValidationUtil.INSTANCE.notNull(sources);
+        return ObjectUtil.INSTANCE.copyProperties(sources, clazz);
+    }
+
+    public static <S, T> Collection<T> valuesOf(Collection<S> sources, Class<T> clazz, BiConsumer<S, T> biConsumer) {
+        return ObjectUtil.INSTANCE.copyProperties(sources, clazz, biConsumer);
     }
 
     public void initializeFields() {

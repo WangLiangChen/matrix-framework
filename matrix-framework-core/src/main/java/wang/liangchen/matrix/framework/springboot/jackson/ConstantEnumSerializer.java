@@ -13,6 +13,6 @@ import java.io.IOException;
 public class ConstantEnumSerializer extends JsonSerializer<ConstantEnum> {
     @Override
     public void serialize(ConstantEnum constantEnum, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
-        jsonGenerator.writeString(constantEnum.name());
+        jsonGenerator.writeString(constantEnum.key());
     }
 }

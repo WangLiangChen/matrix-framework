@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,35 +16,31 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConstantEnum implements Serializable {
     private final static Map<String, ? super ConstantEnum> map = new ConcurrentHashMap<>(16);
-    private final String name;
+    private final String key;
     private final String value;
 
-    public ConstantEnum() {
-        this(Symbol.BLANK.getSymbol(), Symbol.BLANK.getSymbol());
-    }
-
-    public ConstantEnum(String name, String value) {
-        this.name = name;
+    public ConstantEnum(String key, String value) {
+        this.key = key;
         this.value = value;
-        map.put(this.name, this);
+        map.put(this.key, this);
     }
 
-    public static <T extends ConstantEnum> T valueOf(String name) {
-        ValidationUtil.INSTANCE.notNull(name);
-        return ObjectUtil.INSTANCE.cast(map.get(name));
+    public static <T extends ConstantEnum> T valueOf(String key) {
+        ValidationUtil.INSTANCE.notBlank(key);
+        return ObjectUtil.INSTANCE.cast(map.get(key));
     }
 
-    public static String value(String name) {
-        ValidationUtil.INSTANCE.notBlank(name);
-        Object object = map.get(name);
+    public static String value(String key) {
+        ValidationUtil.INSTANCE.notBlank(key);
+        Object object = map.get(key);
         if (null == object) {
             return null;
         }
         return ((ConstantEnum) object).value;
     }
 
-    public String name() {
-        return this.name;
+    public String key() {
+        return this.key;
     }
 
     public String value() {
@@ -52,6 +49,9 @@ public class ConstantEnum implements Serializable {
 
     @Override
     public String toString() {
-        return this.name;
+        return new StringJoiner(", ", this.getClass().getSimpleName() + "[", "]")
+                .add("key='" + key + "'")
+                .add("value='" + value + "'")
+                .toString();
     }
 }

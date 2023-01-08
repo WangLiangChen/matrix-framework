@@ -16,6 +16,7 @@ import wang.liangchen.matrix.framework.data.dao.criteria.DeleteCriteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
+import java.util.Collection;
 import java.util.List;
 <#assign pkString=''>
 <#list pkColumnMetas as columnMeta>
@@ -36,16 +37,34 @@ public class ${serviceImplName} {
     }
 
     public void insert(${requestName} request) {
-        ValidationUtil.INSTANCE.validate(ExceptionLevel.INFO, request, InsertGroup.class);
-        // transform Request to Entity
+        // validate fields by validator
+        ValidationUtil.INSTANCE.validate(ExceptionLevel.INFO, request);
+        // transform to entity
         ${entityName} entity = ${entityName}.valueOf(request);
+        // TODO Assign values to fields
+
+        // Initialize default value which value is null
+        entity.initializeFields();
         this.standaloneDao.insert(entity);
+    }
+
+    public void insert(Collection<${requestName}> requests) {
+        // validate empty by validator
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.INFO, requests);
+        // transform to entities and process every entity
+        Collection<${entityName}> entities = ${entityName}.valuesOf(requests, (source, target) -> {
+            // TODO Assign values to fields
+
+            // Initialize default value which value is null
+            target.initializeFields();
+        });
+        this.standaloneDao.insert(entities);
     }
 
     public void delete(${pkString}) {
         DeleteCriteria<${entityName}> criteria = DeleteCriteria.of(${entityName}.class)
-                // mark delete & Tombstone
-                //.markDelete()
+                // logically deleted
+                // .markDelete()
     <#list pkColumnMetas as columnMeta>
                 ._equals(${entityName}::get${columnMeta.fieldName?cap_first}, ${columnMeta.fieldName})<#if !(columnMeta_has_next)>;</#if>
     </#list>
@@ -54,14 +73,18 @@ public class ${serviceImplName} {
 
     public void update(${requestName} request) {
         ValidationUtil.INSTANCE.validate(ExceptionLevel.INFO, request, UpdateGroup.class);
-        // transform Request to Entity
+        // validate primary key
+    <#list pkColumnMetas as columnMeta>
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.INFO, request.get${columnMeta.fieldName?cap_first}());
+    </#list>
+        // transform to entity
         ${entityName} entity = ${entityName}.valueOf(request);
         this.standaloneDao.update(entity);
     }
 
     public int updateByCriteria(${requestName} request) {
         ValidationUtil.INSTANCE.notNull(request);
-        // transform Request to Entity
+        // transform to entity
         ${entityName} entity = ${entityName}.newInstance();
         // TODO 将要更新的字段设置到entity
         // entity.

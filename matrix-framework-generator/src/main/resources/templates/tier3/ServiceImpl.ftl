@@ -29,9 +29,14 @@ public class ${serviceImplName} implements ${serviceName} {
     }
     @Override
     public void insert(${requestName} request) {
+        // validate fields by validator
         ValidationUtil.INSTANCE.validate(ExceptionLevel.INFO, request);
-        // transform Request to Entity
-        ${entityName} entity = request.toEntity();
+        // transform to entity
+        ${entityName} entity = ${entityName}.valueOf(request);
+        // TODO Assign values to fields
+
+        // Initialize default value which value is null
+        entity.initializeFields();
         this.standaloneDao.insert(entity);
     }
 

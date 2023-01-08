@@ -23,7 +23,7 @@ public class StateEnum extends ConstantEnum {
     public final static StateEnum DISABLE = new StateEnum("DISABLE", "禁用");
 
 
-    public StateEnum(String name, String value) {
-        super(name, value);
+    public StateEnum(String key, String value) {
+        super(key, value);
     }
 }
