@@ -79,6 +79,9 @@ public class ${serviceImplName} {
     </#list>
         // transform to entity
         ${entityName} entity = ${entityName}.valueOf(request);
+        // Two ways to set columns that force updates, such as updating to null
+        // entity.addForceUpdateColumn();
+        // entity.addExtendedField();
         this.standaloneDao.update(entity);
     }
 
@@ -122,6 +125,7 @@ public class ${serviceImplName} {
         Criteria<${entityName}> criteria = Criteria.of(${entityName}.class);
         // TODO 构造查询条件
         List<${entityName}> entities = this.standaloneDao.list(criteria);
+        // transform Entity to Response
         // return ObjectUtil.INSTANCE.copyProperties(entities, ${responseName}.class, (source, target) -> {});
         return ObjectUtil.INSTANCE.copyProperties(entities, ${responseName}.class);
     }
