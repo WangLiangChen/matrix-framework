@@ -25,7 +25,7 @@ public class ConstantEnumTypeHandler extends BaseTypeHandler<ConstantEnum> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, ConstantEnum parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, parameter.name());
+        ps.setString(i, parameter.key());
     }
 
     @Override

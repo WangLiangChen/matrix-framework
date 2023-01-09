@@ -79,7 +79,7 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", CriteriaParameter.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", "CriteriaParameter[", "]")
                 .add("dataSourceType='" + dataSourceType + "'")
                 .add("tableName='" + tableName + "'")
                 .add("whereSql='" + whereSql + "'")
@@ -91,7 +91,7 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
         String cacheKey = toString();
         logger.debug("CacheKey: {}", cacheKey);
         cacheKey = DigestSignUtil.INSTANCE.digest(DigestAlgorithm.MD5, cacheKey);
-        logger.debug("SimpleCacheKey: {}", cacheKey);
+        logger.debug("Digested CacheKey: {}", cacheKey);
         return cacheKey;
     }
 }

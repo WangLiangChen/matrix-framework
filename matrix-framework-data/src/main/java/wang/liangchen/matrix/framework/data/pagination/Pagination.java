@@ -103,7 +103,7 @@ public class Pagination implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Pagination.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", "Pagination[", "]")
                 .add("pageNumber=" + pageNumber)
                 .add("pageSize=" + pageSize)
                 .add("orderBys=" + orderBys)
