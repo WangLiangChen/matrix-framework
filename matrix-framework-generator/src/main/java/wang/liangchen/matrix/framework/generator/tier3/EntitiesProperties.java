@@ -9,6 +9,14 @@ public class EntitiesProperties {
     private String author;
     private String output;
     private Boolean ignoreInterface;
+    private String javaPackage = "jakarta";
+
+    public EntitiesProperties() {
+        int javaVersion = Integer.parseInt(System.getProperty("java.specification.version"));
+        if (javaVersion < 17) {
+            this.javaPackage = "javax";
+        }
+    }
 
     public String getBasePackage() {
         return basePackage;
@@ -49,4 +57,9 @@ public class EntitiesProperties {
     public void setIgnoreInterface(Boolean ignoreInterface) {
         this.ignoreInterface = ignoreInterface;
     }
+
+    public String getJavaPackage() {
+        return javaPackage;
+    }
+
 }

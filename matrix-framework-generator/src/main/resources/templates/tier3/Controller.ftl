@@ -1,7 +1,7 @@
 package ${controllerPackage};
 
 import ${servicePackage}.${serviceName};
-import jakarta.inject.Inject;
+import ${javaPackage}.inject.Inject;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

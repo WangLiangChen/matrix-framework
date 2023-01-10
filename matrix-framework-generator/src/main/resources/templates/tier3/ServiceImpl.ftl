@@ -4,7 +4,7 @@ import ${entityPackage}.${entityName};
 import ${servicePackage}.${serviceName};
 import ${requestPackage}.${requestName};
 import ${responsePackage}.${responseName};
-import jakarta.inject.Inject;
+import ${javaPackage}.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;

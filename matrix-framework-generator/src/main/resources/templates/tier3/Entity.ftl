@@ -10,7 +10,7 @@ import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.annotation.ColumnState;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
-import jakarta.persistence.*;
+import ${javaPackage}.persistence.*;
 <#list imports as importPackage>
 import ${importPackage};
 </#list>

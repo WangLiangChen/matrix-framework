@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  wang.liangchen.matrix.framework.generator.GeneratorConfiguration
