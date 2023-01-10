@@ -3,7 +3,7 @@ package ${serviceImplPackage};
 import ${entityPackage}.${entityName};
 import ${requestPackage}.${requestName};
 import ${responsePackage}.${responseName};
-import jakarta.inject.Inject;
+import ${javaPackage}.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;

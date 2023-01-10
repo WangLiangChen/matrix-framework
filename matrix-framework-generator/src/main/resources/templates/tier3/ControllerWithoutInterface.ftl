@@ -3,7 +3,7 @@ package ${controllerPackage};
 import ${serviceImplPackage}.${serviceImplName};
 import ${requestPackage}.${requestName};
 import ${responsePackage}.${responseName};
-import jakarta.inject.Inject;
+import ${javaPackage}.inject.Inject;
 import org.springframework.web.bind.annotation.*;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
