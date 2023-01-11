@@ -316,10 +316,20 @@ public class StartProcessMonitor implements
     }
 
     private void hanldeScanPackages(ConfigurableApplicationContext applicationContext) {
-        // 扫描框架包
+        // 扫描框架包和排除子框架包(如matrix-cache)
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) applicationContext.getBeanFactory();
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
+        // 获取StartProcessRunListener中设置的要排除扫描的包
+        if (CollectionUtil.INSTANCE.isNotEmpty(StartProcessRunListener.excludeScanPackages)) {
+            scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
+                String className = metadataReader.getClassMetadata().getClassName();
+                for (String excludeScanPackage : StartProcessRunListener.excludeScanPackages) {
+                    return className.startsWith(excludeScanPackage);
+                }
+                return false;
+            });
+        }
         scanner.scan(DEFAULT_SCAN_PACKAGES);
     }
 

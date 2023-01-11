@@ -23,17 +23,18 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author LiangChen.Wang 2021/7/2
  */
 @SuppressWarnings("NullableProblems")
 public class StartProcessRunListener implements SpringApplicationRunListener, Ordered {
-    // private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix";
+    private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix";
     private final static String STARTING = Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> Matrix Framework is Starting <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol();
     private final static String CLOSED = Symbol.LINE_SEPARATOR.getSymbol() + "------------------------------------> Matrix Framework is Closed <------------------------------------" + Symbol.LINE_SEPARATOR.getSymbol();
     private final static String SPRING_CONFIG_IMPORT = "spring.config.import";
-    // static Set<String> excludeScanPackages;
+    static Set<String> excludeScanPackages;
 
     public StartProcessRunListener(SpringApplication springApplication, String[] args) {
         if (null == springApplication) {
@@ -48,12 +49,14 @@ public class StartProcessRunListener implements SpringApplicationRunListener, Or
         springApplication.setBannerMode(Banner.Mode.OFF);
         PrettyPrinter.INSTANCE.buffer("set BannerMode=OFF");
 
-        // 需要排除主动扫描的包,防止wang.liangchen.matrix包被重复扫描
-        // 因为在使用到这个值的地方，跟当前对象不是一个对象，所以用类变量传递
-        /*Set<Object> allSources = springApplication.getAllSources();
+        // wang.liangchen.matrix包会被自动扫描
+        // 如果使用matrix-framework的系统(如matrix-cache)的包也是wang.liangchen.matrix,则会被重复扫描
+        // 所以这里要排除重复扫描
+        // 因为在使用到excludeScanPackages的地方，跟当前对象不是一个对象，所以用类变量传递
+        Set<Object> allSources = springApplication.getAllSources();
         excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName())
                 .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).collect(Collectors.toSet());
-        PrettyPrinter.INSTANCE.buffer("set excludeScanPackages={}", excludeScanPackages);*/
+        PrettyPrinter.INSTANCE.buffer("set excludeScanPackages={}", excludeScanPackages);
 
         // set default config url
         Field primarySourcesField = ReflectionUtils.findField(SpringApplication.class, "primarySources");
