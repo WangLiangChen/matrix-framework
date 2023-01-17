@@ -326,7 +326,13 @@ public enum MybatisExecutor {
             return;
         }
         String setterMethod = idGenerator.getSetterMethod();
+        String getterMethod = idGenerator.getGetterMethod();
         for (E entity : entities) {
+            Object getterValue = ClassUtil.INSTANCE.invokeGetter(entity, getterMethod);
+            if (null != getterValue) {
+                continue;
+            }
+            // populate id if null
             if (IdStrategy.Strategy.MatrixFlake == strategy) {
                 ClassUtil.INSTANCE.invokeSetter(entity, setterMethod, NumbericUid.INSTANCE.nextId());
             }
