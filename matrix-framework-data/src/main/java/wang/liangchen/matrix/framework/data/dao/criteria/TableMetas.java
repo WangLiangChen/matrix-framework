@@ -9,6 +9,7 @@ import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
 import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
 import wang.liangchen.matrix.framework.data.annotation.ColumnState;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.dao.entity.JsonField;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.lang.reflect.Field;
@@ -64,7 +65,11 @@ public enum TableMetas {
 
     public boolean resolveColumnJson(Field field) {
         ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
-        return null != columnJsonAnnotation;
+        if (null != columnJsonAnnotation) {
+            return true;
+        }
+        Class<?> fieldType = field.getType();
+        return JsonField.class.isAssignableFrom(fieldType);
     }
 
     public boolean resolveColumnState(Field field) {
