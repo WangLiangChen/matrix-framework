@@ -329,7 +329,8 @@ public enum MybatisExecutor {
         String getterMethod = idGenerator.getGetterMethod();
         for (E entity : entities) {
             Object getterValue = ClassUtil.INSTANCE.invokeGetter(entity, getterMethod);
-            if (null != getterValue) {
+            String getterValueString = String.valueOf(getterValue);
+            if (null != getterValue && !getterValueString.isEmpty() && !"0".equals(getterValueString)) {
                 continue;
             }
             // populate id if null
