@@ -4,6 +4,7 @@ import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -114,4 +115,11 @@ public enum DateTimeUtil {
         return ms2LocalDateTime(alignSecond());
     }
 
+    public Comparator<LocalDateTime> ascComparator() {
+        return (first, second) -> first.isEqual(second) ? 0 : first.isBefore(second) ? -1 : 1;
+    }
+
+    public Comparator<LocalDateTime> descComparator() {
+        return ascComparator().reversed();
+    }
 }
