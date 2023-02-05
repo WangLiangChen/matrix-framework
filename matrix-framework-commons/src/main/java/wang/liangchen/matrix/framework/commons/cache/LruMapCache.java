@@ -88,6 +88,9 @@ public class LruMapCache<K, V> implements Map<K, V> {
         writeLock.lock();
         try {
             ExpiredValue<V> expiredValue = this.delegate.put(key, new ExpiredValue<>(value, ttl));
+            if (null == expiredValue) {
+                return null;
+            }
             return expiredValue.getValue();
         } finally {
             writeLock.unlock();
