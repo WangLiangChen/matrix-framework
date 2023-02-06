@@ -156,7 +156,7 @@ public final class HttpServletResponseWrapper extends jakarta.servlet.http.HttpS
      * Copy the cached body content to the response.
      *
      * @param complete whether to set a corresponding content length for the complete cached body content
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void copyBodyToResponse(boolean complete) throws IOException {
         if (this.stealOutputStream.size() <= 0) {

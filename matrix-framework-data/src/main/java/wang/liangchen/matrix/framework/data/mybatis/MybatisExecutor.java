@@ -312,7 +312,7 @@ public enum MybatisExecutor {
         for (ColumnMeta columnMeta : pkColumnMetas.values()) {
             String setterMethod = StringUtil.INSTANCE.getSetter(columnMeta.getFieldName());
             String getterMethod = StringUtil.INSTANCE.getGetter(columnMeta.getFieldName());
-            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(getterMethod, setterMethod, columnMeta.getIdStrategy()));
+            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(columnMeta.getFieldClass(), getterMethod, setterMethod, columnMeta.getIdStrategy()));
         }
     }
 
@@ -325,6 +325,7 @@ public enum MybatisExecutor {
         if (null == strategy || IdStrategy.Strategy.NONE == strategy) {
             return;
         }
+        Class<?> valueClass = idGenerator.getValueClass();
         String setterMethod = idGenerator.getSetterMethod();
         String getterMethod = idGenerator.getGetterMethod();
         for (E entity : entities) {
@@ -333,10 +334,15 @@ public enum MybatisExecutor {
             if (null != getterValue && !getterValueString.isEmpty() && !"0".equals(getterValueString)) {
                 continue;
             }
+            Object value = null;
             // populate id if null
             if (IdStrategy.Strategy.MatrixFlake == strategy) {
-                ClassUtil.INSTANCE.invokeSetter(entity, setterMethod, NumbericUid.INSTANCE.nextId());
+                value = NumbericUid.INSTANCE.nextId();
             }
+            if (String.class.isAssignableFrom(valueClass)) {
+                value = String.valueOf(value);
+            }
+            ClassUtil.INSTANCE.invokeSetter(entity, setterMethod, value);
         }
     }
 
@@ -380,14 +386,20 @@ public enum MybatisExecutor {
     }
 
     static class IDGenerator {
+        private final Class<?> valueClass;
         private final String getterMethod;
         private final String setterMethod;
         private final IdStrategy.Strategy strategy;
 
-        public IDGenerator(String getterMethod, String setterMethod, IdStrategy.Strategy strategy) {
+        public IDGenerator(Class<?> valueClass, String getterMethod, String setterMethod, IdStrategy.Strategy strategy) {
+            this.valueClass = valueClass;
             this.getterMethod = getterMethod;
             this.setterMethod = setterMethod;
             this.strategy = strategy;
+        }
+
+        public Class<?> getValueClass() {
+            return valueClass;
         }
 
         public String getGetterMethod() {
