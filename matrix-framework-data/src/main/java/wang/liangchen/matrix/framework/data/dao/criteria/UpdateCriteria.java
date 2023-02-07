@@ -14,14 +14,32 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     private final Map<EntityGetter<E>, Object> forceUpdateFields = new HashMap<>();
     private boolean flushCache = true;
 
-    @SuppressWarnings("unchecked")
     private UpdateCriteria(E entity) {
         super(entity);
+    }
+
+    private UpdateCriteria(Class<E> entityClass) {
+        super(entityClass);
     }
 
     public static <E extends RootEntity> UpdateCriteria<E> of(E entity) {
         return new UpdateCriteria<E>(entity) {
         };
+    }
+
+    public static <E extends RootEntity> UpdateCriteria<E> of(Class<E> entityClass) {
+        return new UpdateCriteria<E>(entityClass) {
+        };
+    }
+
+    public UpdateCriteria<E> nonNullUpdate(E entity) {
+        UpdateCriteria<E> newCriteria = new UpdateCriteria<E>(entity) {
+        };
+        // populate new criteria
+        newCriteria.getCRITERIAMETAS().addAll(this.getCRITERIAMETAS());
+        newCriteria.forceUpdateFields.putAll(this.getForceUpdateFields());
+        newCriteria.flushCache = this.flushCache;
+        return newCriteria;
     }
 
     public UpdateCriteria<E> forceUpdate(EntityGetter<E> fieldGetter, Object value) {
@@ -40,11 +58,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._equals(fieldGetter);
-    }
-
-    @Override
     public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
         return (UpdateCriteria<E>) super._equals(fieldGetter, sqlValue);
     }
@@ -52,11 +65,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     @Override
     public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (UpdateCriteria<E>) super._equals(fieldGetter, sqlValue);
-    }
-
-    @Override
-    public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._notEquals(fieldGetter);
     }
 
     @Override
@@ -90,11 +98,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._greaterThan(fieldGetter);
-    }
-
-    @Override
     public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, Object sqlValue) {
         return (UpdateCriteria<E>) super._greaterThan(fieldGetter, sqlValue);
     }
@@ -102,11 +105,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     @Override
     public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (UpdateCriteria<E>) super._greaterThan(fieldGetter, sqlValue);
-    }
-
-    @Override
-    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter);
     }
 
     @Override
@@ -119,10 +117,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter, sqlValue);
     }
 
-    @Override
-    public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._lessThan(fieldGetter);
-    }
 
     @Override
     public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -132,11 +126,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     @Override
     public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (UpdateCriteria<E>) super._lessThan(fieldGetter, sqlValue);
-    }
-
-    @Override
-    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter) {
-        return (UpdateCriteria<E>) super._lessThanOrEquals(fieldGetter);
     }
 
     @Override
