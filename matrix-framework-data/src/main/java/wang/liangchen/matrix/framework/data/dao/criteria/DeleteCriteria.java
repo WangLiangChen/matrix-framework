@@ -41,10 +41,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super.ignoreStringBlank();
     }
 
-    @Override
-    public DeleteCriteria<E> _equals(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._equals(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -56,10 +52,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._equals(fieldGetter, sqlValue);
     }
 
-    @Override
-    public DeleteCriteria<E> _notEquals(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._notEquals(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _notEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -91,10 +83,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._notIn(fieldGetter, values);
     }
 
-    @Override
-    public DeleteCriteria<E> _greaterThan(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._greaterThan(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _greaterThan(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -106,10 +94,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._greaterThan(fieldGetter, sqlValue);
     }
 
-    @Override
-    public DeleteCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._greaterThanOrEquals(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -121,10 +105,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._greaterThanOrEquals(fieldGetter, sqlValue);
     }
 
-    @Override
-    public DeleteCriteria<E> _lessThan(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._lessThan(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -136,10 +116,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._lessThan(fieldGetter, sqlValue);
     }
 
-    @Override
-    public DeleteCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter) {
-        return (DeleteCriteria<E>) super._lessThanOrEquals(fieldGetter);
-    }
 
     @Override
     public DeleteCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
