@@ -75,6 +75,7 @@ public class LruMapCache<K, V> implements Map<K, V> {
                 return null;
             }
             if (expiredValue.isExpired()) {
+                this.delegate.remove(key);
                 return null;
             }
             return expiredValue.getValue();
