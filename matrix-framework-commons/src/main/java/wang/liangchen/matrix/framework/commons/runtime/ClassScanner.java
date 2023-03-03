@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -125,4 +127,13 @@ public enum ClassScanner {
     public Set<Class<?>> getClasses() {
         return classes;
     }
+
+    public Set<Class<?>> getClasses(Predicate<Class<?>> predicate) {
+        return classes.stream().filter(predicate).collect(Collectors.toSet());
+    }
+
+    public <A extends Annotation> Set<Class<?>> getClasses(Class<A> annotationClass) {
+        return getClasses((clazz) -> null != clazz.getAnnotation(annotationClass));
+    }
+
 }
