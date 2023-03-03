@@ -25,15 +25,13 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.configuration.*;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceRegister;
-import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
-import wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect;
-import wang.liangchen.matrix.framework.data.datasource.dialect.OracleDialect;
-import wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect;
+import wang.liangchen.matrix.framework.data.datasource.dialect.*;
 import wang.liangchen.matrix.framework.data.enumeration.DataStatus;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import javax.sql.DataSource;
 import java.lang.annotation.*;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -109,8 +107,9 @@ public @interface EnableJdbc {
                 AbstractDialect dialect = ClassUtil.INSTANCE.instantiate(properties.getProperty(DIALECT_ITEM));
                 if (StringUtil.INSTANCE.isBlank(properties.getProperty(URL_ITEM))) {
                     String query, url = null;
-                    if (dialect instanceof MySQLDialect) {
-                        query = "serverTimezone=UTC%2B8&characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
+                    if (dialect instanceof MySQLDialect || dialect instanceof DorisDialect) {
+                        query = "characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
+                        query += "serverTimezone=" + ZoneId.systemDefault().getId();
                         url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
                     if (dialect instanceof PostgreSQLDialect) {
