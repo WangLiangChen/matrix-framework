@@ -109,7 +109,7 @@ public @interface EnableJdbc {
                     String query, url = null;
                     if (dialect instanceof MySQLDialect || dialect instanceof DorisDialect) {
                         query = "characterEncoding=utf-8&characterSetResults=utf-8&useUnicode=true&useSSL=false&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true";
-                        query += "serverTimezone=" + ZoneId.systemDefault().getId();
+                        query += "&serverTimezone=" + ZoneId.systemDefault().getId();
                         url = String.format("jdbc:mysql://%s:%s/%s?%s", properties.get("host"), properties.get("port"), properties.get("database"), query);
                     }
                     if (dialect instanceof PostgreSQLDialect) {
