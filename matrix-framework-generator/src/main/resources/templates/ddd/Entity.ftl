@@ -12,6 +12,8 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 <#if aggregateRoot>
 import wang.liangchen.matrix.framework.ddd.domain.AggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.IAggregateRoot;
+<#else>
+import wang.liangchen.matrix.framework.ddd.domain.IEntity;
 </#if>
 
 import jakarta.persistence.*;
@@ -27,7 +29,7 @@ import ${importPackage};
 @AggregateRoot
 </#if>
 @Entity(name = "${tableName}")
-public class ${entityName} extends RootEntity<#if aggregateRoot> implements IAggregateRoot</#if> {
+public class ${entityName} extends RootEntity implements <#if aggregateRoot>IAggregateRoot<#else>IEntity</#if> {
 <#list columnMetas as columnMeta>
     /**
      * ${columnMeta.columnComment}

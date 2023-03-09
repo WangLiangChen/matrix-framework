@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.network.URIUtil;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -18,19 +19,12 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
+import wang.liangchen.matrix.framework.ddd.southbound_acl.port.PortType;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.EntityProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.message_pl.NorthboundMessagePlProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.controller.RemoteControllerProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.provider.RemoteProviderProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.resource.RemoteResourceProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.subscriber.RemoteSubscriberProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.client.AdapterClientProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.publisher.AdapterPublisherProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.repository.AdapterRepositoryProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.SouthboundAclProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.AdapterProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.message_pl.SouthboundMessagePlProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.client.PortClientProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.publisher.PortPublisherProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.repository.PortRepositoryProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.PortProperties;
 import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -71,22 +65,31 @@ public class DDDGenerator {
     public void generate() {
         // 获取配置
         List<EntityProperties> entitiesProperties = resolveConfiguration();
+        // 校验聚合根唯一
+        Set<String> aggregates = new HashSet<>();
+
         // 填充数据库信息
         for (EntityProperties entityProperties : entitiesProperties) {
-            createBoundedContext(entityProperties);
-            createDomain(entityProperties);
-            createAggregate(entityProperties);
-            createEntity(entityProperties);
-            createRepository(entityProperties);
-            createClient(entityProperties);
-            createPublisher(entityProperties);
-            createSouthboundAclMessagePl(entityProperties);
+            if (entityProperties.getAggregateRoot()) {
+                String aggregateName = entityProperties.getAggregateName();
+                if (aggregates.contains(aggregateName)) {
+                    throw new MatrixInfoException("A aggregate has one aggregate only:{}", aggregateName);
+                } else {
+                    aggregates.add(aggregateName);
+                }
+            }
 
-            createController(entityProperties);
-            createProvider(entityProperties);
-            createResource(entityProperties);
-            createSubscriber(entityProperties);
-            createNorthboundOhsMessagePl(entityProperties);
+            createBoundedContextPackageInfo(entityProperties);
+            createDomainPackageInfo(entityProperties);
+            createAggregatePackageInfo(entityProperties);
+            createEntity(entityProperties);
+
+            SouthboundAclProperties southboundAclProperties = createSouthboundAclPackageInfo(entityProperties);
+            createSouthboundAclMessagePlPackageInfo(entityProperties, southboundAclProperties);
+            PortProperties portProperties = createPortPackageInfo(entityProperties, southboundAclProperties);
+            List<PortProperties> portsProperties = createPort(entityProperties, portProperties);
+            AdapterProperties adapterProperties = createAdapterPackageInfo(entityProperties, southboundAclProperties);
+            createAdapter(entityProperties, adapterProperties, portsProperties);
         }
     }
 
@@ -198,16 +201,16 @@ public class DDDGenerator {
         return entitiesProperties;
     }
 
-    private void createBoundedContext(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getBoundedContextPackage(), "package-info.java", "BoundedContext.ftl", entityProperties);
+    private void createBoundedContextPackageInfo(EntityProperties entityProperties) {
+        createFile(entityProperties.getOutput(), entityProperties.getBoundedContextPackage(), "package-info.java", "BoundedContextPackageInfo.ftl", entityProperties);
     }
 
-    private void createDomain(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getDomainPackage(), "package-info.java", "Domain.ftl", entityProperties);
+    private void createDomainPackageInfo(EntityProperties entityProperties) {
+        createFile(entityProperties.getOutput(), entityProperties.getDomainPackage(), "package-info.java", "DomainPackageInfo.ftl", entityProperties);
     }
 
-    private void createAggregate(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getAggregatePackage(), "package-info.java", "Aggregate.ftl", entityProperties);
+    private void createAggregatePackageInfo(EntityProperties entityProperties) {
+        createFile(entityProperties.getOutput(), entityProperties.getAggregatePackage(), "package-info.java", "AggregatePackageInfo.ftl", entityProperties);
     }
 
     private void createEntity(EntityProperties entityProperties) {
@@ -216,265 +219,79 @@ public class DDDGenerator {
         createFile(entityProperties.getOutput(), entityProperties.getEntityPackage(), entityProperties.getEntityName().concat(".java"), "Entity.ftl", entityProperties);
     }
 
-    private void createRepository(EntityProperties entityProperties) {
-        PortRepositoryProperties portRepositoryProperties = new PortRepositoryProperties();
-        // 填充南向网关
-        portRepositoryProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        portRepositoryProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        portRepositoryProperties.setPortPackage(portRepositoryProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("port"));
-        // 填充仓库
-        portRepositoryProperties.setPortRepositoryPackage(portRepositoryProperties.getPortPackage().concat(Symbol.DOT.getSymbol()).concat("repository"));
-        portRepositoryProperties.setPortRepositoryName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("Repository"));
-        createSouthboundAcl(entityProperties, portRepositoryProperties);
-        createPort(entityProperties, portRepositoryProperties);
-        createPortRepository(entityProperties, portRepositoryProperties);
-        createPortRepositoryInterface(entityProperties, portRepositoryProperties);
-        createAdapterRepository(entityProperties, portRepositoryProperties);
+    private SouthboundAclProperties createSouthboundAclPackageInfo(EntityProperties entityProperties) {
+        SouthboundAclProperties southboundAclProperties = new SouthboundAclProperties();
+        southboundAclProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
+        southboundAclProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), southboundAclProperties.getSouthboundAclPackage(), "package-info.java", "SouthBoundAclPackageInfo.ftl", southboundAclProperties);
+        return southboundAclProperties;
     }
 
-    private void createClient(EntityProperties entityProperties) {
-        PortClientProperties portClientProperties = new PortClientProperties();
-        // 填充南向网关
-        portClientProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        portClientProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        portClientProperties.setPortPackage(portClientProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("port"));
-        // 填充仓库
-        portClientProperties.setPortClientPackage(portClientProperties.getPortPackage().concat(Symbol.DOT.getSymbol()).concat("client"));
-        portClientProperties.setPortClientName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("Client"));
-
-        createPortClient(entityProperties, portClientProperties);
-        createPortClientInterface(entityProperties, portClientProperties);
-        createAdapterClient(entityProperties, portClientProperties);
-    }
-
-    private void createPublisher(EntityProperties entityProperties) {
-        PortPublisherProperties portPublisherProperties = new PortPublisherProperties();
-        // 填充南向网关
-        portPublisherProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        portPublisherProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        portPublisherProperties.setPortPackage(portPublisherProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("port"));
-        // 填充仓库
-        portPublisherProperties.setPortPublisherPackage(portPublisherProperties.getPortPackage().concat(Symbol.DOT.getSymbol()).concat("publisher"));
-        portPublisherProperties.setPortPublisherName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("Publisher"));
-
-        createPortPublisher(entityProperties, portPublisherProperties);
-        createPortPublisherInterface(entityProperties, portPublisherProperties);
-        createAdapterPublisher(entityProperties, portPublisherProperties);
-    }
-
-    private void createSouthboundAclMessagePl(EntityProperties entityProperties) {
+    private SouthboundMessagePlProperties createSouthboundAclMessagePlPackageInfo(EntityProperties entityProperties, SouthboundAclProperties southboundAclProperties) {
         SouthboundMessagePlProperties southboundMessagePlProperties = new SouthboundMessagePlProperties();
         // 填充南向网关
-        southboundMessagePlProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
+        southboundMessagePlProperties.setSouthboundAclPackage(southboundAclProperties.getSouthboundAclPackage());
         southboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
         // 填充
         southboundMessagePlProperties.setMessagePlPackage(southboundMessagePlProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
-        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), "package-info.java", "SouthboundMessagePl.ftl", southboundMessagePlProperties);
+        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), "package-info.java", "SouthboundMessagePlPackageInfo.ftl", southboundMessagePlProperties);
+        return southboundMessagePlProperties;
     }
 
-    private void createAdapterRepository(EntityProperties entityProperties, PortRepositoryProperties portRepositoryProperties) {
-        AdapterRepositoryProperties adapterRepositoryProperties = new AdapterRepositoryProperties();
-        // 填充南向网关
-        adapterRepositoryProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        adapterRepositoryProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        adapterRepositoryProperties.setAdapterPackage(adapterRepositoryProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("adapter"));
-        // 填充仓库
-        adapterRepositoryProperties.setAdapterRepositoryPackage(adapterRepositoryProperties.getAdapterPackage().concat(Symbol.DOT.getSymbol()).concat("repository"));
-        adapterRepositoryProperties.setAdapterRepositoryName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("RepositoryImpl"));
-        adapterRepositoryProperties.setPortRepositoryPackage(portRepositoryProperties.getPortRepositoryPackage());
-        adapterRepositoryProperties.setPortRepositoryName(portRepositoryProperties.getPortRepositoryName());
-
-        createAdapter(entityProperties, adapterRepositoryProperties);
-        createAdapterRepository(entityProperties, adapterRepositoryProperties);
-        createAdapterRepositoryImpl(entityProperties, adapterRepositoryProperties);
+    private PortProperties createPortPackageInfo(EntityProperties entityProperties, SouthboundAclProperties southboundAclProperties) {
+        String portPackage = southboundAclProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("port");
+        PortProperties portProperties = new PortProperties();
+        portProperties.setPortPackage(portPackage);
+        createFile(entityProperties.getOutput(), portProperties.getPortPackage(), "package-info.java", "PortPackageInfo.ftl", portProperties);
+        return portProperties;
     }
 
-    private void createAdapterClient(EntityProperties entityProperties, PortClientProperties portClientProperties) {
-        AdapterClientProperties adapterClientProperties = new AdapterClientProperties();
-        // 填充南向网关
-        adapterClientProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        adapterClientProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        adapterClientProperties.setAdapterPackage(adapterClientProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("adapter"));
-        // 填充仓库
-        adapterClientProperties.setAdapterClientPackage(adapterClientProperties.getAdapterPackage().concat(Symbol.DOT.getSymbol()).concat("client"));
-        adapterClientProperties.setAdapterClientName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("ClientImpl"));
-        adapterClientProperties.setPortClientPackage(portClientProperties.getPortClientPackage());
-        adapterClientProperties.setPortClientName(portClientProperties.getPortClientName());
-
-        createAdapterClient(entityProperties, adapterClientProperties);
-        createAdapterClientImpl(entityProperties, adapterClientProperties);
+    private List<PortProperties> createPort(EntityProperties entityProperties, PortProperties portProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return Collections.EMPTY_LIST;
+        }
+        List<PortProperties> portPropertiesList = new ArrayList<>();
+        String portPackage = portProperties.getPortPackage();
+        for (PortType portType : PortType.values()) {
+            String portTypeName = portType.name();
+            portProperties = new PortProperties();
+            portProperties.setAuthor(entityProperties.getAuthor());
+            portProperties.setPortPackage(portPackage.concat(Symbol.DOT.getSymbol()).concat(portTypeName.toLowerCase()));
+            portProperties.setPortType(portType);
+            portProperties.setPortClassName(entityProperties.getEntityName().concat(portTypeName));
+            createFile(entityProperties.getOutput(), portProperties.getPortPackage(), portProperties.getPortClassName().concat(".java"), portTypeName.concat("PortInterface.ftl"), portProperties);
+            portPropertiesList.add(portProperties);
+        }
+        return portPropertiesList;
     }
 
-    private void createAdapterPublisher(EntityProperties entityProperties, PortPublisherProperties portPublisherProperties) {
-        AdapterPublisherProperties adapterPublisherProperties = new AdapterPublisherProperties();
-        // 填充南向网关
-        adapterPublisherProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
-        adapterPublisherProperties.setAuthor(entityProperties.getAuthor());
-        // 填充端口
-        adapterPublisherProperties.setAdapterPackage(adapterPublisherProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("adapter"));
-        // 填充仓库
-        adapterPublisherProperties.setAdapterPublisherPackage(adapterPublisherProperties.getAdapterPackage().concat(Symbol.DOT.getSymbol()).concat("publisher"));
-        adapterPublisherProperties.setAdapterPublisherName(StringUtil.INSTANCE.firstLetterUpperCase(entityProperties.getAggregateName()).concat("PublisherImpl"));
-        adapterPublisherProperties.setPortPublisherPackage(portPublisherProperties.getPortPublisherPackage());
-        adapterPublisherProperties.setPortPublisherName(portPublisherProperties.getPortPublisherName());
-
-        createAdapterPublisher(entityProperties, adapterPublisherProperties);
-        createAdapterPublisherImpl(entityProperties, adapterPublisherProperties);
+    private AdapterProperties createAdapterPackageInfo(EntityProperties entityProperties, SouthboundAclProperties southboundAclProperties) {
+        String adapterPackage = southboundAclProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("adapter");
+        AdapterProperties adapterProperties = new AdapterProperties();
+        adapterProperties.setAdapterPackage(adapterPackage);
+        createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), "package-info.java", "AdapterPackageInfo.ftl", adapterProperties);
+        return adapterProperties;
     }
 
-    private void createPortRepositoryInterface(EntityProperties entityProperties, PortRepositoryProperties portRepositoryProperties) {
-        createFile(entityProperties.getOutput(), portRepositoryProperties.getPortRepositoryPackage(), portRepositoryProperties.getPortRepositoryName().concat(".java"), "PortRepositoryInterface.ftl", portRepositoryProperties);
+    private void createAdapter(EntityProperties entityProperties, AdapterProperties adapterProperties, List<PortProperties> portsProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return;
+        }
+        String adapterPackage = adapterProperties.getAdapterPackage();
+        for (PortProperties portProperties : portsProperties) {
+            PortType portType = portProperties.getPortType();
+            String portTypeName = portType.name();
+            adapterProperties = new AdapterProperties();
+            adapterProperties.setAuthor(entityProperties.getAuthor());
+            adapterProperties.setPortPackage(portProperties.getPortPackage());
+            adapterProperties.setPortClassName(portProperties.getPortClassName());
+            adapterProperties.setAdapterPackage(adapterPackage.concat(Symbol.DOT.getSymbol()).concat(portTypeName.toLowerCase()));
+            adapterProperties.setPortType(portType);
+            adapterProperties.setAdapterClassName(entityProperties.getEntityName().concat(portTypeName).concat("Impl"));
+            createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), adapterProperties.getAdapterClassName().concat(".java"), portTypeName.concat("AdapterImpl.ftl"), adapterProperties);
+        }
     }
 
-    private void createPortClientInterface(EntityProperties entityProperties, PortClientProperties portClientProperties) {
-        createFile(entityProperties.getOutput(), portClientProperties.getPortClientPackage(), portClientProperties.getPortClientName().concat(".java"), "PortClientInterface.ftl", portClientProperties);
-    }
-
-    private void createPortPublisherInterface(EntityProperties entityProperties, PortPublisherProperties portPublisherProperties) {
-        createFile(entityProperties.getOutput(), portPublisherProperties.getPortPublisherPackage(), portPublisherProperties.getPortPublisherName().concat(".java"), "PortPublisherInterface.ftl", portPublisherProperties);
-    }
-
-    private void createAdapterRepositoryImpl(EntityProperties entityProperties, AdapterRepositoryProperties adapterRepositoryProperties) {
-        createFile(entityProperties.getOutput(), adapterRepositoryProperties.getAdapterRepositoryPackage(), adapterRepositoryProperties.getAdapterRepositoryName().concat(".java"), "AdapterRepositoryImpl.ftl", adapterRepositoryProperties);
-    }
-
-    private void createAdapterClientImpl(EntityProperties entityProperties, AdapterClientProperties adapterClientProperties) {
-        createFile(entityProperties.getOutput(), adapterClientProperties.getAdapterClientPackage(), adapterClientProperties.getAdapterClientName().concat(".java"), "AdapterClientImpl.ftl", adapterClientProperties);
-    }
-
-    private void createAdapterPublisherImpl(EntityProperties entityProperties, AdapterPublisherProperties adapterPublisherProperties) {
-        createFile(entityProperties.getOutput(), adapterPublisherProperties.getAdapterPublisherPackage(), adapterPublisherProperties.getAdapterPublisherName().concat(".java"), "AdapterPublisherImpl.ftl", adapterPublisherProperties);
-    }
-
-
-    private void createPortRepository(EntityProperties entityProperties, PortRepositoryProperties portRepositoryProperties) {
-        createFile(entityProperties.getOutput(), portRepositoryProperties.getPortRepositoryPackage(), "package-info.java", "PortRepository.ftl", portRepositoryProperties);
-    }
-
-    private void createPortClient(EntityProperties entityProperties, PortClientProperties portClientProperties) {
-        createFile(entityProperties.getOutput(), portClientProperties.getPortClientPackage(), "package-info.java", "PortClient.ftl", portClientProperties);
-    }
-
-    private void createPortPublisher(EntityProperties entityProperties, PortPublisherProperties portPublisherProperties) {
-        createFile(entityProperties.getOutput(), portPublisherProperties.getPortPublisherPackage(), "package-info.java", "PortPublisher.ftl", portPublisherProperties);
-    }
-
-    private void createAdapterRepository(EntityProperties entityProperties, AdapterRepositoryProperties adapterRepositoryProperties) {
-        createFile(entityProperties.getOutput(), adapterRepositoryProperties.getAdapterRepositoryPackage(), "package-info.java", "AdapterRepository.ftl", adapterRepositoryProperties);
-    }
-
-    private void createAdapterClient(EntityProperties entityProperties, AdapterClientProperties adapterClientProperties) {
-        createFile(entityProperties.getOutput(), adapterClientProperties.getAdapterClientPackage(), "package-info.java", "AdapterClient.ftl", adapterClientProperties);
-    }
-
-    private void createAdapterPublisher(EntityProperties entityProperties, AdapterPublisherProperties adapterPublisherProperties) {
-        createFile(entityProperties.getOutput(), adapterPublisherProperties.getAdapterPublisherPackage(), "package-info.java", "AdapterPublisher.ftl", adapterPublisherProperties);
-    }
-
-
-    private void createSouthboundAcl(EntityProperties entityProperties, PortRepositoryProperties portRepositoryProperties) {
-        createFile(entityProperties.getOutput(), portRepositoryProperties.getSouthboundAclPackage(), "package-info.java", "SouthBoundAcl.ftl", portRepositoryProperties);
-    }
-
-    private void createPort(EntityProperties entityProperties, PortRepositoryProperties portRepositoryProperties) {
-        createFile(entityProperties.getOutput(), portRepositoryProperties.getPortPackage(), "package-info.java", "Port.ftl", portRepositoryProperties);
-    }
-
-    private void createAdapter(EntityProperties entityProperties, AdapterRepositoryProperties adapterRepositoryProperties) {
-        createFile(entityProperties.getOutput(), adapterRepositoryProperties.getAdapterPackage(), "package-info.java", "Adapter.ftl", adapterRepositoryProperties);
-    }
-
-    private void createController(EntityProperties entityProperties) {
-        RemoteControllerProperties remoteControllerProperties = new RemoteControllerProperties();
-        // 填充北向网关
-        remoteControllerProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_acl"));
-        remoteControllerProperties.setAuthor(entityProperties.getAuthor());
-        // 填充remote
-        remoteControllerProperties.setRemotePackage(remoteControllerProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("remote"));
-        // 填充controller
-        remoteControllerProperties.setRemoteControllerPackage(remoteControllerProperties.getRemotePackage().concat(Symbol.DOT.getSymbol()).concat("controller"));
-
-        createNorthboundOhs(entityProperties, remoteControllerProperties);
-        createRemote(entityProperties, remoteControllerProperties);
-        createRemoteController(entityProperties, remoteControllerProperties);
-    }
-
-    private void createNorthboundOhs(EntityProperties entityProperties, RemoteControllerProperties remoteControllerProperties) {
-        createFile(entityProperties.getOutput(), remoteControllerProperties.getNorthboundOhsPackage(), "package-info.java", "NorthBoundOhs.ftl", remoteControllerProperties);
-    }
-
-    private void createRemote(EntityProperties entityProperties, RemoteControllerProperties remoteControllerProperties) {
-        createFile(entityProperties.getOutput(), remoteControllerProperties.getRemotePackage(), "package-info.java", "Remote.ftl", remoteControllerProperties);
-    }
-
-    private void createRemoteController(EntityProperties entityProperties, RemoteControllerProperties remoteControllerProperties) {
-        createFile(entityProperties.getOutput(), remoteControllerProperties.getRemoteControllerPackage(), "package-info.java", "RemoteController.ftl", remoteControllerProperties);
-    }
-
-    private void createProvider(EntityProperties entityProperties) {
-        RemoteProviderProperties remoteProviderProperties = new RemoteProviderProperties();
-        // 填充北向网关
-        remoteProviderProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_acl"));
-        remoteProviderProperties.setAuthor(entityProperties.getAuthor());
-        // 填充remote
-        remoteProviderProperties.setRemotePackage(remoteProviderProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("remote"));
-        // 填充Provider
-        remoteProviderProperties.setRemoteProviderPackage(remoteProviderProperties.getRemotePackage().concat(Symbol.DOT.getSymbol()).concat("provider"));
-
-        createRemoteProvider(entityProperties, remoteProviderProperties);
-    }
-
-    private void createRemoteProvider(EntityProperties entityProperties, RemoteProviderProperties remoteProviderProperties) {
-        createFile(entityProperties.getOutput(), remoteProviderProperties.getRemoteProviderPackage(), "package-info.java", "RemoteProvider.ftl", remoteProviderProperties);
-    }
-
-    private void createResource(EntityProperties entityProperties) {
-        RemoteResourceProperties remoteResourceProperties = new RemoteResourceProperties();
-        // 填充北向网关
-        remoteResourceProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_acl"));
-        remoteResourceProperties.setAuthor(entityProperties.getAuthor());
-        // 填充remote
-        remoteResourceProperties.setRemotePackage(remoteResourceProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("remote"));
-        // 填充Resource
-        remoteResourceProperties.setRemoteResourcePackage(remoteResourceProperties.getRemotePackage().concat(Symbol.DOT.getSymbol()).concat("resource"));
-
-        createRemoteResource(entityProperties, remoteResourceProperties);
-    }
-
-    private void createRemoteResource(EntityProperties entityProperties, RemoteResourceProperties remoteResourceProperties) {
-        createFile(entityProperties.getOutput(), remoteResourceProperties.getRemoteResourcePackage(), "package-info.java", "RemoteResource.ftl", remoteResourceProperties);
-    }
-
-    private void createSubscriber(EntityProperties entityProperties) {
-        RemoteSubscriberProperties remoteSubscriberProperties = new RemoteSubscriberProperties();
-        // 填充北向网关
-        remoteSubscriberProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_acl"));
-        remoteSubscriberProperties.setAuthor(entityProperties.getAuthor());
-        // 填充remote
-        remoteSubscriberProperties.setRemotePackage(remoteSubscriberProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("remote"));
-        // 填充Subscriber
-        remoteSubscriberProperties.setRemoteSubscriberPackage(remoteSubscriberProperties.getRemotePackage().concat(Symbol.DOT.getSymbol()).concat("subscriber"));
-
-        createRemoteSubscriber(entityProperties, remoteSubscriberProperties);
-    }
-
-    private void createRemoteSubscriber(EntityProperties entityProperties, RemoteSubscriberProperties remoteSubscriberProperties) {
-        createFile(entityProperties.getOutput(), remoteSubscriberProperties.getRemoteSubscriberPackage(), "package-info.java", "RemoteSubscriber.ftl", remoteSubscriberProperties);
-    }
-    private void createNorthboundOhsMessagePl(EntityProperties entityProperties) {
-        NorthboundMessagePlProperties northboundMessagePlProperties = new NorthboundMessagePlProperties();
-        // 填充北向网关
-        northboundMessagePlProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_acl"));
-        northboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
-        // 填充
-        northboundMessagePlProperties.setMessagePlPackage(northboundMessagePlProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
-        createFile(entityProperties.getOutput(), northboundMessagePlProperties.getMessagePlPackage(), "package-info.java", "NorthboundMessagePl.ftl", northboundMessagePlProperties);
-    }
 
     private void createFile(String output, String packageName, String fileName, String templateName, Object dataModel) {
         URI uri = URIUtil.INSTANCE.toURI(output, StringUtil.INSTANCE.package2Path(packageName));
