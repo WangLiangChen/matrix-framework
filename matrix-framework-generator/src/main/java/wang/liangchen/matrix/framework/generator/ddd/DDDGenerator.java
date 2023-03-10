@@ -19,8 +19,13 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
+import wang.liangchen.matrix.framework.ddd.northbound_ohs.remote.RemoteType;
 import wang.liangchen.matrix.framework.ddd.southbound_acl.port.PortType;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.EntityProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.ManagerProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.NorthboundOhsProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.message_pl.NorthboundMessagePlProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.RemoteProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.SouthboundAclProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.AdapterProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.message_pl.SouthboundMessagePlProperties;
@@ -49,6 +54,7 @@ public class DDDGenerator {
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "ddd-generator.xml";
+    private final static String PACKAGE_INFO_FILE = "package-info.java";
     private final Configuration freemarkerConfig;
 
     public DDDGenerator(StandaloneDao standaloneDao) {
@@ -90,6 +96,12 @@ public class DDDGenerator {
             List<PortProperties> portsProperties = createPort(entityProperties, portProperties);
             AdapterProperties adapterProperties = createAdapterPackageInfo(entityProperties, southboundAclProperties);
             createAdapter(entityProperties, adapterProperties, portsProperties);
+            createManager(entityProperties, portsProperties);
+
+            NorthboundOhsProperties northboundOhsProperties = createNorthboundOhsPackageInfo(entityProperties);
+            createNorthboundOhsMessagePlPackageInfo(entityProperties, northboundOhsProperties);
+            RemoteProperties remoteProperties = createRemotePackageInfo(entityProperties, northboundOhsProperties);
+            List<RemoteProperties> remotesProperties = createRemote(entityProperties, remoteProperties);
         }
     }
 
@@ -202,15 +214,15 @@ public class DDDGenerator {
     }
 
     private void createBoundedContextPackageInfo(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getBoundedContextPackage(), "package-info.java", "BoundedContextPackageInfo.ftl", entityProperties);
+        createFile(entityProperties.getOutput(), entityProperties.getBoundedContextPackage(), PACKAGE_INFO_FILE, "BoundedContextPackageInfo.ftl", entityProperties);
     }
 
     private void createDomainPackageInfo(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getDomainPackage(), "package-info.java", "DomainPackageInfo.ftl", entityProperties);
+        createFile(entityProperties.getOutput(), entityProperties.getDomainPackage(), PACKAGE_INFO_FILE, "DomainPackageInfo.ftl", entityProperties);
     }
 
     private void createAggregatePackageInfo(EntityProperties entityProperties) {
-        createFile(entityProperties.getOutput(), entityProperties.getAggregatePackage(), "package-info.java", "AggregatePackageInfo.ftl", entityProperties);
+        createFile(entityProperties.getOutput(), entityProperties.getAggregatePackage(), PACKAGE_INFO_FILE, "AggregatePackageInfo.ftl", entityProperties);
     }
 
     private void createEntity(EntityProperties entityProperties) {
@@ -223,7 +235,7 @@ public class DDDGenerator {
         SouthboundAclProperties southboundAclProperties = new SouthboundAclProperties();
         southboundAclProperties.setSouthboundAclPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("southbound_acl"));
         southboundAclProperties.setAuthor(entityProperties.getAuthor());
-        createFile(entityProperties.getOutput(), southboundAclProperties.getSouthboundAclPackage(), "package-info.java", "SouthBoundAclPackageInfo.ftl", southboundAclProperties);
+        createFile(entityProperties.getOutput(), southboundAclProperties.getSouthboundAclPackage(), PACKAGE_INFO_FILE, "SouthBoundAclPackageInfo.ftl", southboundAclProperties);
         return southboundAclProperties;
     }
 
@@ -234,7 +246,7 @@ public class DDDGenerator {
         southboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
         // 填充
         southboundMessagePlProperties.setMessagePlPackage(southboundMessagePlProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
-        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), "package-info.java", "SouthboundMessagePlPackageInfo.ftl", southboundMessagePlProperties);
+        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "SouthboundMessagePlPackageInfo.ftl", southboundMessagePlProperties);
         return southboundMessagePlProperties;
     }
 
@@ -242,7 +254,7 @@ public class DDDGenerator {
         String portPackage = southboundAclProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("port");
         PortProperties portProperties = new PortProperties();
         portProperties.setPortPackage(portPackage);
-        createFile(entityProperties.getOutput(), portProperties.getPortPackage(), "package-info.java", "PortPackageInfo.ftl", portProperties);
+        createFile(entityProperties.getOutput(), portProperties.getPortPackage(), PACKAGE_INFO_FILE, "PortPackageInfo.ftl", portProperties);
         return portProperties;
     }
 
@@ -269,7 +281,7 @@ public class DDDGenerator {
         String adapterPackage = southboundAclProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("adapter");
         AdapterProperties adapterProperties = new AdapterProperties();
         adapterProperties.setAdapterPackage(adapterPackage);
-        createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), "package-info.java", "AdapterPackageInfo.ftl", adapterProperties);
+        createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), PACKAGE_INFO_FILE, "AdapterPackageInfo.ftl", adapterProperties);
         return adapterProperties;
     }
 
@@ -292,6 +304,64 @@ public class DDDGenerator {
         }
     }
 
+    private void createManager(EntityProperties entityProperties, List<PortProperties> portsProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return;
+        }
+        ManagerProperties managerProperties = new ManagerProperties();
+        managerProperties.setEntityProperties(entityProperties);
+        managerProperties.setAuthor(entityProperties.getAuthor());
+        managerProperties.setManagerPackage(entityProperties.getEntityPackage());
+        managerProperties.setManagerClassName(entityProperties.getEntityName().concat("Manager"));
+        managerProperties.setPortsProperties(portsProperties);
+        createFile(managerProperties.getEntityProperties().getOutput(), managerProperties.getManagerPackage(), managerProperties.getManagerClassName().concat(".java"), "Manager.ftl", managerProperties);
+    }
+
+    private NorthboundOhsProperties createNorthboundOhsPackageInfo(EntityProperties entityProperties) {
+        NorthboundOhsProperties northboundOhsProperties = new NorthboundOhsProperties();
+        northboundOhsProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_ohs"));
+        northboundOhsProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), northboundOhsProperties.getNorthboundOhsPackage(), PACKAGE_INFO_FILE, "NorthboundOhsPackageInfo.ftl", northboundOhsProperties);
+        return northboundOhsProperties;
+    }
+
+    private NorthboundMessagePlProperties createNorthboundOhsMessagePlPackageInfo(EntityProperties entityProperties, NorthboundOhsProperties northboundOhsProperties) {
+        NorthboundMessagePlProperties northboundMessagePlProperties = new NorthboundMessagePlProperties();
+        // 填充北向网关
+        northboundMessagePlProperties.setNorthboundOhsPackage(northboundOhsProperties.getNorthboundOhsPackage());
+        northboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
+        // 填充
+        northboundMessagePlProperties.setMessagePlPackage(northboundMessagePlProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
+        createFile(entityProperties.getOutput(), northboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "NorthboundMessagePlPackageInfo.ftl", northboundMessagePlProperties);
+        return northboundMessagePlProperties;
+    }
+
+    private RemoteProperties createRemotePackageInfo(EntityProperties entityProperties, NorthboundOhsProperties northboundOhsProperties) {
+        String remotePackage = northboundOhsProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("remote");
+        RemoteProperties remoteProperties = new RemoteProperties();
+        remoteProperties.setRemotePackage(remotePackage);
+        createFile(entityProperties.getOutput(), remoteProperties.getRemotePackage(), PACKAGE_INFO_FILE, "RemotePackageInfo.ftl", remoteProperties);
+        return remoteProperties;
+    }
+
+    private List<RemoteProperties> createRemote(EntityProperties entityProperties, RemoteProperties remoteProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return Collections.EMPTY_LIST;
+        }
+        List<RemoteProperties> remotePropertiesList = new ArrayList<>();
+        String remotePackage = remoteProperties.getRemotePackage();
+        for (RemoteType remoteType : RemoteType.values()) {
+            String remoteTypeName = remoteType.name();
+            remoteProperties = new RemoteProperties();
+            remoteProperties.setAuthor(entityProperties.getAuthor());
+            remoteProperties.setRemotePackage(remotePackage.concat(Symbol.DOT.getSymbol()).concat(remoteTypeName.toLowerCase()));
+            remoteProperties.setRemoteType(remoteType);
+            remoteProperties.setRemoteClassName(entityProperties.getEntityName().concat(remoteTypeName));
+            createFile(entityProperties.getOutput(), remoteProperties.getRemotePackage(), remoteProperties.getRemoteClassName().concat(".java"), remoteTypeName.concat("Remote.ftl"), remoteProperties);
+            remotePropertiesList.add(remoteProperties);
+        }
+        return remotePropertiesList;
+    }
 
     private void createFile(String output, String packageName, String fileName, String templateName, Object dataModel) {
         URI uri = URIUtil.INSTANCE.toURI(output, StringUtil.INSTANCE.package2Path(packageName));

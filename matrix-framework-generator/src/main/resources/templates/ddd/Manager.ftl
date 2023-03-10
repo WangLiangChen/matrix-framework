@@ -4,25 +4,28 @@ import jakarta.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.ddd.domain.DomainService;
 import wang.liangchen.matrix.framework.ddd.domain.IDomainService;
-import ${repositoryProperties.portRepositoryPackage}.${repositoryProperties.portRepositoryName};
-import ${clientProperties.portClientPackage}.${clientProperties.portClientName};
-import ${publisherProperties.portPublisherPackage}.${publisherProperties.portPublisherName};
+<#list portsProperties as portProperties>
+import ${portProperties.portPackage}.${portProperties.portClassName};
+</#list>
+
 
 /**
- * @author ${author}
+ * @author ${author} ${.now?string('yyyy-MM-dd HH:mm:ss')}
  */
 @Service
 @DomainService
 public class ${managerClassName} implements IDomainService {
-    private final ${repositoryProperties.portRepositoryName} repository;
-    private final ${clientProperties.portClientName} client;
-    private final ${publisherProperties.portPublisherName} publisher;
-
+<#assign params=''>
+<#list portsProperties as portProperties>
+    private final ${portProperties.portClassName} ${portProperties.portType?lower_case};
+    <#assign params = params+ '${portProperties.portClassName} ${portProperties.portType?lower_case}, '>
+</#list>
+<#assign params='${params?substring(0,params?length-2)}'>
     @Inject
-    public StaffManager(${repositoryProperties.portRepositoryName} repository, ${clientProperties.portClientName} client, ${publisherProperties.portPublisherName} publisher) {
-        this.repository = repository;
-        this.client = client;
-        this.publisher = publisher;
+    public StaffManager(${params}) {
+<#list portsProperties as portProperties>
+        this.${portProperties.portType?lower_case} = ${portProperties.portType?lower_case};
+</#list>
     }
 
 }

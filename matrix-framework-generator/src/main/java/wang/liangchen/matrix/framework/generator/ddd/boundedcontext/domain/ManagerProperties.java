@@ -1,6 +1,9 @@
 package wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain;
 
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.BoundedContextProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.PortProperties;
+
+import java.util.List;
 
 
 /**
@@ -10,6 +13,7 @@ public class ManagerProperties extends BoundedContextProperties {
     private String managerPackage;
     private String managerClassName;
     private EntityProperties entityProperties;
+    private List<PortProperties> portsProperties;
 
     public String getManagerPackage() {
         return managerPackage;
@@ -35,5 +39,11 @@ public class ManagerProperties extends BoundedContextProperties {
         this.entityProperties = entityProperties;
     }
 
+    public List<PortProperties> getPortsProperties() {
+        return portsProperties;
+    }
 
+    public void setPortsProperties(List<PortProperties> portsProperties) {
+        this.portsProperties = portsProperties;
+    }
 }
