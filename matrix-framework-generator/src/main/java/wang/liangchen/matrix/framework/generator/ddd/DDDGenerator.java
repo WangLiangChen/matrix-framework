@@ -267,6 +267,7 @@ public class DDDGenerator {
         for (PortType portType : PortType.values()) {
             String portTypeName = portType.name();
             portProperties = new PortProperties();
+            portProperties.setEntityProperties(entityProperties);
             portProperties.setAuthor(entityProperties.getAuthor());
             portProperties.setPortPackage(portPackage.concat(Symbol.DOT.getSymbol()).concat(portTypeName.toLowerCase()));
             portProperties.setPortType(portType);
@@ -294,6 +295,7 @@ public class DDDGenerator {
             PortType portType = portProperties.getPortType();
             String portTypeName = portType.name();
             adapterProperties = new AdapterProperties();
+            adapterProperties.setEntityProperties(entityProperties);
             adapterProperties.setAuthor(entityProperties.getAuthor());
             adapterProperties.setPortPackage(portProperties.getPortPackage());
             adapterProperties.setPortClassName(portProperties.getPortClassName());

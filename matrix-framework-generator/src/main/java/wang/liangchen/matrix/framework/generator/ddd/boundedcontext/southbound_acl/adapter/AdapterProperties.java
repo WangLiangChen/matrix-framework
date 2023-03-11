@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter;
 
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.EntityProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.port.PortProperties;
 
 /**
@@ -8,6 +9,7 @@ import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_a
 public class AdapterProperties extends PortProperties {
     private String adapterPackage;
     private String adapterClassName;
+    private EntityProperties entityProperties;
 
     public void setAdapterPackage(String adapterPackage) {
         this.adapterPackage = adapterPackage;
@@ -25,4 +27,13 @@ public class AdapterProperties extends PortProperties {
         this.adapterClassName = adapterClassName;
     }
 
+    @Override
+    public EntityProperties getEntityProperties() {
+        return entityProperties;
+    }
+
+    @Override
+    public void setEntityProperties(EntityProperties entityProperties) {
+        this.entityProperties = entityProperties;
+    }
 }
