@@ -16,7 +16,6 @@ import wang.liangchen.matrix.framework.commons.network.URIUtil;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.ddd.northbound_ohs.remote.RemoteType;
@@ -53,15 +52,13 @@ import java.util.stream.Collectors;
  * @author Liangchen.Wang 2022-12-28 18:31
  */
 public class DDDGenerator {
-    private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "ddd-generator.xml";
     private final static String PACKAGE_INFO_FILE = "package-info.java";
     private final Configuration freemarkerConfig;
 
-    public DDDGenerator(StandaloneDao standaloneDao) {
-        this.standaloneDao = standaloneDao;
+    public DDDGenerator() {
         this.freemarkerConfig = new Configuration(Configuration.VERSION_2_3_31);
         this.freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates/ddd");
         String encoding = StandardCharsets.UTF_8.name();
@@ -271,7 +268,7 @@ public class DDDGenerator {
 
     private List<PortProperties> createPort(EntityProperties entityProperties, PortProperties portProperties) {
         if (!entityProperties.getAggregateRoot()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<PortProperties> portPropertiesList = new ArrayList<>();
         String portPackage = portProperties.getPortPackage();
@@ -452,7 +449,7 @@ public class DDDGenerator {
 
     private List<RemoteProperties> createRemote(EntityProperties entityProperties, RemoteProperties remoteProperties) {
         if (!entityProperties.getAggregateRoot()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<RemoteProperties> remotePropertiesList = new ArrayList<>();
         String remotePackage = remoteProperties.getRemotePackage();
@@ -512,7 +509,7 @@ public class DDDGenerator {
 
                 List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, entityProperties, primaryKeyColumnNames, uniqueKeyColumnNames, columnCommentMap);
                 entityProperties.getColumnMetas().addAll(columnMetas);
-                entityProperties.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toList()));
+                entityProperties.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).toList());
                 columnMetas.stream().filter(ColumnMeta::isState)
                         .findFirst().ifPresent(entityProperties::setStateColumnMeta);
 

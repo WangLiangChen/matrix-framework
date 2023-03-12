@@ -12,13 +12,13 @@ import wang.liangchen.matrix.framework.generator.tier3.Tier3Generator;
 public class GeneratorConfiguration {
     @Bean
     @ConditionalOnBean(StandaloneDao.class)
-    public DDDGenerator domainGenerator(StandaloneDao standaloneDao) {
-        return new DDDGenerator(standaloneDao);
+    public DDDGenerator domainGenerator() {
+        return new DDDGenerator();
     }
 
     @Bean
     @ConditionalOnBean(StandaloneDao.class)
-    public Tier3Generator tier3Generator(StandaloneDao standaloneDao) {
-        return new Tier3Generator(standaloneDao);
+    public Tier3Generator tier3Generator() {
+        return new Tier3Generator();
     }
 }
