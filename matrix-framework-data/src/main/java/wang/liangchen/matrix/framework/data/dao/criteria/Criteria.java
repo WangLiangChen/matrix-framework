@@ -1,9 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
-import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
@@ -109,7 +107,9 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public Criteria<E> pagination(Pagination pagination) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, "'pagination' may not be null");
+        if (null == pagination) {
+            return this;
+        }
         this.pageNumber = null == this.pageNumber ? pagination.getPageNumber() : this.pageNumber;
         this.pageSize = null == this.pageSize ? pagination.getPageSize() : this.pageSize;
         if (null == orderBys) {

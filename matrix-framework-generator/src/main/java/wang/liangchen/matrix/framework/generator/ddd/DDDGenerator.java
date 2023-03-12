@@ -24,7 +24,10 @@ import wang.liangchen.matrix.framework.ddd.southbound_acl.port.PortType;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.EntityProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.domain.ManagerProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.NorthboundOhsProperties;
-import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.message_pl.NorthboundMessagePlProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.local.LocalCommandServiceProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.local.LocalProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.local.LocalQueryServiceProperties;
+import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.message_pl.*;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.northbound_ohs.remote.RemoteProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.SouthboundAclProperties;
 import wang.liangchen.matrix.framework.generator.ddd.boundedcontext.southbound_acl.adapter.AdapterProperties;
@@ -96,12 +99,20 @@ public class DDDGenerator {
             List<PortProperties> portsProperties = createPort(entityProperties, portProperties);
             AdapterProperties adapterProperties = createAdapterPackageInfo(entityProperties, southboundAclProperties);
             createAdapter(entityProperties, adapterProperties, portsProperties);
-            createManager(entityProperties, portsProperties);
+            ManagerProperties managerProperties = createManager(entityProperties, portsProperties);
 
             NorthboundOhsProperties northboundOhsProperties = createNorthboundOhsPackageInfo(entityProperties);
-            createNorthboundOhsMessagePlPackageInfo(entityProperties, northboundOhsProperties);
+            NorthboundMessagePlProperties northboundMessagePlProperties = createNorthboundOhsMessagePlPackageInfo(entityProperties, northboundOhsProperties);
+            CommandRequestMessagePlProperties commandRequestMessagePlProperties = createCommandRequest(entityProperties, northboundMessagePlProperties);
+            CommandResponseMessagePlProperties commandResponseMessagePlProperties = createCommandResponse(entityProperties, northboundMessagePlProperties);
+            QueryRequestMessagePlProperties queryRequestMessagePlProperties = createQueryRequest(entityProperties, northboundMessagePlProperties);
+            QueryResponseMessagePlProperties queryResponseMessagePlProperties = createQueryResponse(entityProperties, northboundMessagePlProperties);
+
+            LocalProperties localProperties = createLocalPackageInfo(entityProperties, northboundOhsProperties);
+            createLocalCommandService(entityProperties, localProperties, managerProperties, commandRequestMessagePlProperties, commandResponseMessagePlProperties);
+            createLocalQueryService(entityProperties, localProperties, managerProperties, queryRequestMessagePlProperties, queryResponseMessagePlProperties);
             RemoteProperties remoteProperties = createRemotePackageInfo(entityProperties, northboundOhsProperties);
-            List<RemoteProperties> remotesProperties = createRemote(entityProperties, remoteProperties);
+            createRemote(entityProperties, remoteProperties);
         }
     }
 
@@ -228,7 +239,7 @@ public class DDDGenerator {
     private void createEntity(EntityProperties entityProperties) {
         // 填充数据元信息
         populateColumnMetas(entityProperties);
-        createFile(entityProperties.getOutput(), entityProperties.getEntityPackage(), entityProperties.getEntityName().concat(".java"), "Entity.ftl", entityProperties);
+        createFile(entityProperties.getOutput(), entityProperties.getEntityPackage(), entityProperties.getEntityName().concat(JAVA), "Entity.ftl", entityProperties);
     }
 
     private SouthboundAclProperties createSouthboundAclPackageInfo(EntityProperties entityProperties) {
@@ -272,7 +283,7 @@ public class DDDGenerator {
             portProperties.setPortPackage(portPackage.concat(Symbol.DOT.getSymbol()).concat(portTypeName.toLowerCase()));
             portProperties.setPortType(portType);
             portProperties.setPortClassName(entityProperties.getEntityName().concat(portTypeName));
-            createFile(entityProperties.getOutput(), portProperties.getPortPackage(), portProperties.getPortClassName().concat(".java"), portTypeName.concat("PortInterface.ftl"), portProperties);
+            createFile(entityProperties.getOutput(), portProperties.getPortPackage(), portProperties.getPortClassName().concat(JAVA), portTypeName.concat("PortInterface.ftl"), portProperties);
             portPropertiesList.add(portProperties);
         }
         return portPropertiesList;
@@ -302,13 +313,13 @@ public class DDDGenerator {
             adapterProperties.setAdapterPackage(adapterPackage.concat(Symbol.DOT.getSymbol()).concat(portTypeName.toLowerCase()));
             adapterProperties.setPortType(portType);
             adapterProperties.setAdapterClassName(entityProperties.getEntityName().concat(portTypeName).concat("Impl"));
-            createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), adapterProperties.getAdapterClassName().concat(".java"), portTypeName.concat("AdapterImpl.ftl"), adapterProperties);
+            createFile(entityProperties.getOutput(), adapterProperties.getAdapterPackage(), adapterProperties.getAdapterClassName().concat(JAVA), portTypeName.concat("AdapterImpl.ftl"), adapterProperties);
         }
     }
 
-    private void createManager(EntityProperties entityProperties, List<PortProperties> portsProperties) {
+    private ManagerProperties createManager(EntityProperties entityProperties, List<PortProperties> portsProperties) {
         if (!entityProperties.getAggregateRoot()) {
-            return;
+            return null;
         }
         ManagerProperties managerProperties = new ManagerProperties();
         managerProperties.setEntityProperties(entityProperties);
@@ -316,7 +327,8 @@ public class DDDGenerator {
         managerProperties.setManagerPackage(entityProperties.getEntityPackage());
         managerProperties.setManagerClassName(entityProperties.getEntityName().concat("Manager"));
         managerProperties.setPortsProperties(portsProperties);
-        createFile(managerProperties.getEntityProperties().getOutput(), managerProperties.getManagerPackage(), managerProperties.getManagerClassName().concat(".java"), "Manager.ftl", managerProperties);
+        createFile(managerProperties.getEntityProperties().getOutput(), managerProperties.getManagerPackage(), managerProperties.getManagerClassName().concat(JAVA), "Manager.ftl", managerProperties);
+        return managerProperties;
     }
 
     private NorthboundOhsProperties createNorthboundOhsPackageInfo(EntityProperties entityProperties) {
@@ -336,6 +348,98 @@ public class DDDGenerator {
         northboundMessagePlProperties.setMessagePlPackage(northboundMessagePlProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
         createFile(entityProperties.getOutput(), northboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "NorthboundMessagePlPackageInfo.ftl", northboundMessagePlProperties);
         return northboundMessagePlProperties;
+    }
+
+    private CommandRequestMessagePlProperties createCommandRequest(EntityProperties entityProperties, NorthboundMessagePlProperties northboundMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return null;
+        }
+        CommandRequestMessagePlProperties commandRequestMessagePlProperties = new CommandRequestMessagePlProperties();
+        commandRequestMessagePlProperties.setCommandRequestPackage(northboundMessagePlProperties.getMessagePlPackage());
+        commandRequestMessagePlProperties.setCommandRequestClassName(entityProperties.getEntityName().concat("CommandRequest"));
+        commandRequestMessagePlProperties.setEntityProperties(entityProperties);
+        commandRequestMessagePlProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), commandRequestMessagePlProperties.getCommandRequestPackage(), commandRequestMessagePlProperties.getCommandRequestClassName().concat(JAVA), "CommandRequest.ftl", commandRequestMessagePlProperties);
+        return commandRequestMessagePlProperties;
+    }
+
+    private CommandResponseMessagePlProperties createCommandResponse(EntityProperties entityProperties, NorthboundMessagePlProperties northboundMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return null;
+        }
+        CommandResponseMessagePlProperties commandResponseMessagePlProperties = new CommandResponseMessagePlProperties();
+        commandResponseMessagePlProperties.setCommandResponsePackage(northboundMessagePlProperties.getMessagePlPackage());
+        commandResponseMessagePlProperties.setCommandResponseClassName(entityProperties.getEntityName().concat("CommandResponse"));
+        commandResponseMessagePlProperties.setEntityProperties(entityProperties);
+        commandResponseMessagePlProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), commandResponseMessagePlProperties.getCommandResponsePackage(), commandResponseMessagePlProperties.getCommandResponseClassName().concat(JAVA), "CommandResponse.ftl", commandResponseMessagePlProperties);
+        return commandResponseMessagePlProperties;
+    }
+
+    private QueryRequestMessagePlProperties createQueryRequest(EntityProperties entityProperties, NorthboundMessagePlProperties northboundMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return null;
+        }
+        QueryRequestMessagePlProperties queryRequestMessagePlProperties = new QueryRequestMessagePlProperties();
+        queryRequestMessagePlProperties.setQueryRequestPackage(northboundMessagePlProperties.getMessagePlPackage());
+        queryRequestMessagePlProperties.setQueryRequestClassName(entityProperties.getEntityName().concat("QueryRequest"));
+        queryRequestMessagePlProperties.setEntityProperties(entityProperties);
+        queryRequestMessagePlProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), queryRequestMessagePlProperties.getQueryRequestPackage(), queryRequestMessagePlProperties.getQueryRequestClassName().concat(JAVA), "QueryRequest.ftl", queryRequestMessagePlProperties);
+        return queryRequestMessagePlProperties;
+    }
+
+    private QueryResponseMessagePlProperties createQueryResponse(EntityProperties entityProperties, NorthboundMessagePlProperties northboundMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return null;
+        }
+        QueryResponseMessagePlProperties queryResponseMessagePlProperties = new QueryResponseMessagePlProperties();
+        queryResponseMessagePlProperties.setQueryResponsePackage(northboundMessagePlProperties.getMessagePlPackage());
+        queryResponseMessagePlProperties.setQueryResponseClassName(entityProperties.getEntityName().concat("QueryResponse"));
+        queryResponseMessagePlProperties.setEntityProperties(entityProperties);
+        queryResponseMessagePlProperties.setAuthor(entityProperties.getAuthor());
+        createFile(entityProperties.getOutput(), queryResponseMessagePlProperties.getQueryResponsePackage(), queryResponseMessagePlProperties.getQueryResponseClassName().concat(JAVA), "QueryResponse.ftl", queryResponseMessagePlProperties);
+        return queryResponseMessagePlProperties;
+    }
+
+    private LocalProperties createLocalPackageInfo(EntityProperties entityProperties, NorthboundOhsProperties northboundOhsProperties) {
+        String localPackage = northboundOhsProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("local");
+        LocalProperties localProperties = new LocalProperties();
+        localProperties.setLocalPackage(localPackage);
+        createFile(entityProperties.getOutput(), localProperties.getLocalPackage(), PACKAGE_INFO_FILE, "LocalPackageInfo.ftl", localProperties);
+        return localProperties;
+    }
+
+    private void createLocalCommandService(EntityProperties entityProperties, LocalProperties localProperties, ManagerProperties managerProperties, CommandRequestMessagePlProperties commandRequestMessagePlProperties, CommandResponseMessagePlProperties commandResponseMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return;
+        }
+        LocalCommandServiceProperties localCommandServiceProperties = new LocalCommandServiceProperties();
+        localCommandServiceProperties.setAuthor(entityProperties.getAuthor());
+        localCommandServiceProperties.setCommandServicePackage(localProperties.getLocalPackage());
+        localCommandServiceProperties.setCommandServiceClassName(entityProperties.getEntityName().concat("CommandService"));
+        localCommandServiceProperties.setEntityProperties(entityProperties);
+        localCommandServiceProperties.setManagerProperties(managerProperties);
+        localCommandServiceProperties.setCommandRequestMessagePlProperties(commandRequestMessagePlProperties);
+        localCommandServiceProperties.setCommandResponseMessagePlProperties(commandResponseMessagePlProperties);
+
+        createFile(entityProperties.getOutput(), localCommandServiceProperties.getCommandServicePackage(), localCommandServiceProperties.getCommandServiceClassName().concat(JAVA), "LocalCommandService.ftl", localCommandServiceProperties);
+    }
+
+    private void createLocalQueryService(EntityProperties entityProperties, LocalProperties localProperties, ManagerProperties managerProperties, QueryRequestMessagePlProperties queryRequestMessagePlProperties, QueryResponseMessagePlProperties queryResponseMessagePlProperties) {
+        if (!entityProperties.getAggregateRoot()) {
+            return;
+        }
+        LocalQueryServiceProperties localQueryServiceProperties = new LocalQueryServiceProperties();
+        localQueryServiceProperties.setAuthor(entityProperties.getAuthor());
+        localQueryServiceProperties.setQueryServicePackage(localProperties.getLocalPackage());
+        localQueryServiceProperties.setQueryServiceClassName(entityProperties.getEntityName().concat("QueryService"));
+        localQueryServiceProperties.setEntityProperties(entityProperties);
+        localQueryServiceProperties.setManagerProperties(managerProperties);
+        localQueryServiceProperties.setQueryRequestMessagePlProperties(queryRequestMessagePlProperties);
+        localQueryServiceProperties.setQueryResponseMessagePlProperties(queryResponseMessagePlProperties);
+
+        createFile(entityProperties.getOutput(), localQueryServiceProperties.getQueryServicePackage(), localQueryServiceProperties.getQueryServiceClassName().concat(JAVA), "LocalQueryService.ftl", localQueryServiceProperties);
     }
 
     private RemoteProperties createRemotePackageInfo(EntityProperties entityProperties, NorthboundOhsProperties northboundOhsProperties) {
@@ -359,7 +463,7 @@ public class DDDGenerator {
             remoteProperties.setRemotePackage(remotePackage.concat(Symbol.DOT.getSymbol()).concat(remoteTypeName.toLowerCase()));
             remoteProperties.setRemoteType(remoteType);
             remoteProperties.setRemoteClassName(entityProperties.getEntityName().concat(remoteTypeName));
-            createFile(entityProperties.getOutput(), remoteProperties.getRemotePackage(), remoteProperties.getRemoteClassName().concat(".java"), remoteTypeName.concat("Remote.ftl"), remoteProperties);
+            createFile(entityProperties.getOutput(), remoteProperties.getRemotePackage(), remoteProperties.getRemoteClassName().concat(JAVA), remoteTypeName.concat("Remote.ftl"), remoteProperties);
             remotePropertiesList.add(remoteProperties);
         }
         return remotePropertiesList;

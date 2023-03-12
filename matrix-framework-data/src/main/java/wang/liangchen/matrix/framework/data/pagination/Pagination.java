@@ -49,7 +49,7 @@ public class Pagination implements Serializable {
         if (null == pageNumber || null == pageSize) {
             return null;
         }
-        pageSize = pageSize < 1 ? 1 : pageSize;
+        pageSize = pageSize < 1 ? 10 : pageSize;
         return pageSize;
     }
 
