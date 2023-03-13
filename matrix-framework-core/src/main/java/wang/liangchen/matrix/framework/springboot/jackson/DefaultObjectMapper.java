@@ -30,7 +30,9 @@ public enum DefaultObjectMapper {
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
-        ObjectMapper objectMapper = JsonMapper.builder().disable(MapperFeature.USE_ANNOTATIONS).build();
+        ObjectMapper objectMapper = JsonMapper.builder()
+                //.disable(MapperFeature.USE_ANNOTATIONS)
+                .build();
         objectMapper.registerModule(javaTimeModule);
         objectMapper.findAndRegisterModules();
         this.objectMapper = objectMapper;
