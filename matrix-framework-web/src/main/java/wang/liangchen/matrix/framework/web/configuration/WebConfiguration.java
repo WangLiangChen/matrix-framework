@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.web.configuration;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -26,6 +27,7 @@ public class WebConfiguration {
             jacksonObjectMapperBuilder.deserializerByType(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));
             jacksonObjectMapperBuilder.serializerByType(LocalDate.class, new LocalDateSerializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
             jacksonObjectMapperBuilder.deserializerByType(LocalDate.class, new LocalDateDeserializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
+            jacksonObjectMapperBuilder.featuresToDisable(MapperFeature.USE_ANNOTATIONS);
         };
     }
 

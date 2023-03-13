@@ -1,6 +1,8 @@
 package wang.liangchen.matrix.framework.springboot.jackson;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -22,13 +24,13 @@ public enum DefaultObjectMapper {
     private final TypeFactory typeFactory;
 
     DefaultObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(Long.class, ToStringSerializer.instance);
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
+        ObjectMapper objectMapper = JsonMapper.builder().disable(MapperFeature.USE_ANNOTATIONS).build();
         objectMapper.registerModule(javaTimeModule);
         objectMapper.findAndRegisterModules();
         this.objectMapper = objectMapper;
