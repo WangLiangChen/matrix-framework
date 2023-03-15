@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.springboot.jackson;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

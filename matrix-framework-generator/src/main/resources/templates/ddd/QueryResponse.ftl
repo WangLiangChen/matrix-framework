@@ -1,7 +1,6 @@
 package ${queryResponsePackage};
 
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
-import wang.liangchen.matrix.framework.data.pagination.Pagination;
 import wang.liangchen.matrix.framework.ddd.message_pl.response.IResponse;
 import wang.liangchen.matrix.framework.ddd.message_pl.response.Response;
 
@@ -13,7 +12,7 @@ import wang.liangchen.matrix.framework.ddd.message_pl.response.Response;
  * @author ${author} ${.now?string('yyyy-MM-dd HH:mm:ss')}
  */
 @Response
-public class ${queryResponseClassName} extends Pagination implements IResponse {
+public class ${queryResponseClassName} implements IResponse {
 
 <#list entityProperties.columnMetas as columnMeta>
     /**

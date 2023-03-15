@@ -11,39 +11,43 @@ import java.util.StringJoiner;
  * @author LiangChen.Wang
  */
 public final class OrderBy implements Serializable {
-    private final String orderBy;
-    private final String direction;
+    private String orderBy;
+    private OrderByDirection direction;
+
+    public OrderBy() {
+
+    }
 
     public static OrderBy newInstance(String orderBy, OrderByDirection direction) {
         return new OrderBy(orderBy, direction);
-    }
-
-    public OrderBy(String orderBy) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
-        this.orderBy = orderBy;
-        this.direction = OrderByDirection.asc.name();
-    }
-
-    public OrderBy(String orderBy, String direction) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, direction, "Parameter 'direction' cannot be blank");
-        this.orderBy = orderBy;
-        this.direction = direction;
     }
 
     public OrderBy(String orderBy, OrderByDirection direction) {
         ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
         ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, direction, "Parameter 'direction' cannot be null");
         this.orderBy = orderBy;
-        this.direction = direction.name();
+        this.direction = direction;
+    }
+
+    public OrderBy(String orderBy) {
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
+        this.orderBy = orderBy;
     }
 
     public String getOrderBy() {
         return orderBy;
     }
 
-    public String getDirection() {
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    public OrderByDirection getDirection() {
         return direction;
+    }
+
+    public void setDirection(OrderByDirection direction) {
+        this.direction = direction;
     }
 
     @Override

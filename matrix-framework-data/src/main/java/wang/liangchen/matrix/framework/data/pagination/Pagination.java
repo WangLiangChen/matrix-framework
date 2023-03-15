@@ -70,6 +70,13 @@ public class Pagination implements Serializable {
         return rows;
     }
 
+    public List<OrderBy> getOrderBys() {
+        return orderBys;
+    }
+
+    public void setOrderBys(List<OrderBy> orderBys) {
+        this.orderBys = orderBys;
+    }
 
     public void addOrderBy(String orderBy, OrderByDirection orderByDirection, Integer index) {
         ValidationUtil.INSTANCE.notBlank(orderBy, "orderBy must not be blank");
@@ -78,10 +85,10 @@ public class Pagination implements Serializable {
             this.orderBys = new ArrayList<>();
         }
         if (null == index) {
-            this.orderBys.add(new OrderBy(orderBy, orderByDirection));
+            this.orderBys.add(OrderBy.newInstance(orderBy, orderByDirection));
             return;
         }
-        this.orderBys.add(index, new OrderBy(orderBy, orderByDirection));
+        this.orderBys.add(index, OrderBy.newInstance(orderBy, orderByDirection));
     }
 
     public void addOrderBy(String orderby, OrderByDirection direction) {
@@ -96,10 +103,6 @@ public class Pagination implements Serializable {
         this.orderBys.addAll(orderBys);
     }
 
-
-    public List<OrderBy> getOrderBys() {
-        return orderBys;
-    }
 
     @Override
     public String toString() {
