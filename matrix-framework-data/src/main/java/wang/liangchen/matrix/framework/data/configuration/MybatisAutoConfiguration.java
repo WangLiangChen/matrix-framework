@@ -6,6 +6,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -72,15 +73,20 @@ public class MybatisAutoConfiguration {
         Resource configLocation = resourcePatternResolver.getResource(EnvironmentContext.INSTANCE.getURL("mybatis-config.xml").toString());
         if (configLocation.exists()) {
             sqlSessionFactoryBean.setConfigLocation(configLocation);
+            // other config
+            Properties otherProperties = new Properties();
+            otherProperties.put("cacheEnabled", false);
+            otherProperties.put("localCacheScope", LocalCacheScope.STATEMENT.name());
+            otherProperties.put("mapUnderscoreToCamelCase", true);
+            sqlSessionFactoryBean.setConfigurationProperties(otherProperties);
         } else {
+            Configuration configuration = new Configuration();
+            configuration.setCacheEnabled(false);
+            configuration.setLocalCacheScope(LocalCacheScope.STATEMENT);
+            configuration.setMapUnderscoreToCamelCase(true);
+            sqlSessionFactoryBean.setConfiguration(configuration);
             PrettyPrinter.INSTANCE.buffer("can't find mybatis-config.xml,use default configuration");
         }
-        // other config
-        Properties mybatisConfiguration = new Properties();
-        mybatisConfiguration.put("cacheEnabled", false);
-        mybatisConfiguration.put("localCacheScope", LocalCacheScope.STATEMENT.name());
-        mybatisConfiguration.put("mapUnderscoreToCamelCase", true);
-        sqlSessionFactoryBean.setConfigurationProperties(mybatisConfiguration);
 
         // 设置要扫描mapper.xml
         @SuppressWarnings("UnstableApiUsage")
@@ -112,6 +118,7 @@ public class MybatisAutoConfiguration {
         // typeHandler
         sqlSessionFactoryBean.setTypeHandlers(new ConstantEnumTypeHandler());
         //sqlSessionFactoryBean.setTypeAliasesPackage(typeAliasPackage);
+        sqlSessionFactoryBean.setObjectWrapperFactory(objectWrapperFactory());
         return sqlSessionFactoryBean;
     }
 
@@ -122,7 +129,11 @@ public class MybatisAutoConfiguration {
 
     @Bean
     public ConfigurationCustomizer configurationCustomizer() {
-        return configuration -> configuration.setObjectWrapperFactory(new ObjectWrapperFactory() {
+        return configuration -> configuration.setObjectWrapperFactory(objectWrapperFactory());
+    }
+
+    private ObjectWrapperFactory objectWrapperFactory() {
+        return new ObjectWrapperFactory() {
             @Override
             public boolean hasWrapperFor(Object object) {
                 return object instanceof Map;
@@ -141,7 +152,7 @@ public class MybatisAutoConfiguration {
                     }
                 };
             }
-        });
+        };
     }
 
     private static String resolveScanPackages(BeanFactory beanFactory) {
