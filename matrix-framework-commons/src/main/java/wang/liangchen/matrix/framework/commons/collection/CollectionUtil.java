@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.commons.collection;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2021-08-19 19:53
@@ -15,26 +16,42 @@ public enum CollectionUtil {
         return new Object[0];
     }
 
-    public boolean isEmpty(Collection<?> collection) {
+    public <T> boolean isEmpty(Collection<T> collection) {
         if (null == collection) {
             return true;
         }
         return collection.isEmpty();
     }
 
-    public boolean isNotEmpty(Collection<?> collection) {
+    public <T> boolean isNotEmpty(Collection<T> collection) {
         return !isEmpty(collection);
     }
 
-    public boolean isEmpty(Map<?, ?> map) {
+    public <T> boolean isNotEmpty(Collection<T> collection, Consumer<T> consumer) {
+        if (isEmpty(collection)) {
+            return false;
+        }
+        collection.stream().forEach(consumer);
+        return true;
+    }
+
+    public <K, V> boolean isEmpty(Map<K, V> map) {
         if (null == map) {
             return true;
         }
         return map.isEmpty();
     }
 
-    public boolean isNotEmpty(Map<?, ?> map) {
+    public <K, V> boolean isNotEmpty(Map<K, V> map) {
         return !isEmpty(map);
+    }
+
+    public <K, V> boolean isNotEmpty(Map<K, V> map, Consumer<Map.Entry<K, V>> consumer) {
+        if (isEmpty(map)) {
+            return false;
+        }
+        map.entrySet().forEach(consumer);
+        return true;
     }
 
     public <T> boolean isEmpty(T[] array) {
@@ -46,6 +63,14 @@ public enum CollectionUtil {
 
     public <T> boolean isNotEmpty(T[] array) {
         return !isEmpty(array);
+    }
+
+    public <T> boolean isNotEmpty(T[] array, Consumer<T> consumer) {
+        if (isEmpty(array)) {
+            return false;
+        }
+        Arrays.stream(array).forEach(consumer);
+        return true;
     }
 
     public boolean isEmpty(Iterator<?> iterator) {
