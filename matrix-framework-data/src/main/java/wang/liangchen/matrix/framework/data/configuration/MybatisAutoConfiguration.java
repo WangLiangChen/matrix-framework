@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -132,7 +133,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
         if (!ObjectUtils.isEmpty(this.typeHandlers)) {
             factory.setTypeHandlers(this.typeHandlers);
         }
-        List<Resource> mapperLocations = new ArrayList<>(List.of(this.properties.resolveMapperLocations()));
+        List<Resource> mapperLocations = new ArrayList<>();
         String scanPackages = resolveScanPackages(beanFactory);
         // add customize mapper
         @SuppressWarnings("UnstableApiUsage")
@@ -146,12 +147,14 @@ public class MybatisAutoConfiguration implements InitializingBean {
                 throw new MatrixErrorException(e);
             }
         }
-        if (!ObjectUtils.isEmpty(mapperLocations)) {
-            factory.setMapperLocations(mapperLocations.toArray(new Resource[0]));
-            mapperLocations.forEach(resource -> {
-                PrettyPrinter.INSTANCE.buffer("MapperXml: {}", resource);
-            });
-        }
+        Resource[] resolveMapperLocations = this.properties.resolveMapperLocations();
+        CollectionUtil.INSTANCE.isNotEmpty(resolveMapperLocations, mapperLocations::add);
+
+        factory.setMapperLocations(mapperLocations.toArray(new Resource[0]));
+        mapperLocations.forEach(resource -> {
+            PrettyPrinter.INSTANCE.buffer("MapperXml: {}", resource);
+        });
+
         PrettyPrinter.INSTANCE.flush();
         Set<String> factoryPropertyNames = Stream
                 .of(new BeanWrapperImpl(SqlSessionFactoryBean.class).getPropertyDescriptors()).map(PropertyDescriptor::getName)
