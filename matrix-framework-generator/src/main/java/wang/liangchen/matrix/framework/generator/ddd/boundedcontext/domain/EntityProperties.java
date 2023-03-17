@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author Liangchen.Wang 2022-12-28 19:01
  */
-public class EntityProperties extends AggregateProperties{
+public class EntityProperties extends AggregateProperties {
     private String entityPackage;
     private String tableName;
     private String tableComment;
@@ -115,7 +115,6 @@ public class EntityProperties extends AggregateProperties{
     public void setAggregateRoot(Boolean aggregateRoot) {
         this.aggregateRoot = aggregateRoot;
     }
-
 
     public Set<String> getImports() {
         return imports;

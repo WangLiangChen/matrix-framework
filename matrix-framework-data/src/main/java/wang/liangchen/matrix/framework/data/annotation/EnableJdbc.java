@@ -76,6 +76,7 @@ public @interface EnableJdbc {
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(),
                     JdbcAutoConfiguration.class.getName(),
                     MybatisAutoConfiguration.class.getName(),
+                    MybatisCustomizerAutoConfiguration.class.getName(),
                     JpaAutoConfiguration.class.getName(),
                     StandaloneDaoConfiguration.class.getName(), CachedStandaloneDaoConfiguration.class.getName(),
                     ComponentAutoConfiguration.class.getName()};

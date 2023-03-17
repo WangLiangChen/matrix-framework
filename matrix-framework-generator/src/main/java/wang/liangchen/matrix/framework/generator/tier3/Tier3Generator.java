@@ -15,7 +15,6 @@ import wang.liangchen.matrix.framework.commons.network.URIUtil;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
 import wang.liangchen.matrix.framework.generator.tier3.dao.EntityProperties;
@@ -39,14 +38,12 @@ import java.util.stream.Collectors;
  * @author Liangchen.Wang 2022-12-28 18:31
  */
 public class Tier3Generator {
-    private final StandaloneDao standaloneDao;
     private final static String SQL = "select * from %s where 1=0";
     private final static String JAVA = ".java";
     private final static String GENERATOR_CONFIG_FILE = "tier3-generator.xml";
     private final Configuration freemarkerConfig;
 
-    public Tier3Generator(StandaloneDao standaloneDao) {
-        this.standaloneDao = standaloneDao;
+    public Tier3Generator() {
         this.freemarkerConfig = new Configuration(Configuration.VERSION_2_3_31);
         this.freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates/tier3");
         String encoding = StandardCharsets.UTF_8.name();
