@@ -16,7 +16,7 @@ import wang.liangchen.matrix.framework.ddd.domain.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.IEntity;
 </#if>
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 <#list imports as importPackage>
 import ${importPackage};
 </#list>

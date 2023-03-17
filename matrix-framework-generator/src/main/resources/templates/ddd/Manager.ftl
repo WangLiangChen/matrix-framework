@@ -1,6 +1,6 @@
 package ${managerPackage};
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.DeleteCriteria;

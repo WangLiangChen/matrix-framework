@@ -9,7 +9,7 @@ public class EntitiesProperties {
     private String author;
     private String output;
     private Boolean ignoreInterface;
-    private String javaPackage = "jakarta";
+    private String javaPackage = "javax";
 
     public EntitiesProperties() {
         int javaVersion = Integer.parseInt(System.getProperty("java.specification.version"));

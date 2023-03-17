@@ -4,7 +4,7 @@ import ${entityProperties.entityPackage}.${entityProperties.entityName};
 import ${managerProperties.managerPackage}.${managerProperties.managerClassName};
 import ${queryRequestMessagePlProperties.queryRequestPackage}.${queryRequestMessagePlProperties.queryRequestClassName};
 import ${queryResponseMessagePlProperties.queryResponsePackage}.${queryResponseMessagePlProperties.queryResponseClassName};
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;

@@ -222,7 +222,7 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object) {
-        return notNull(object, "{jakarta.validation.constraints.NotNull.message}");
+        return notNull(object, "{javax.validation.constraints.NotNull.message}");
     }
 
     public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {

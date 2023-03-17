@@ -3,7 +3,7 @@ package ${adapterPackage};
 
 import ${entityProperties.entityPackage}.${entityProperties.entityName};
 import ${portPackage}.${portClassName};
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import org.springframework.stereotype.Repository;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;

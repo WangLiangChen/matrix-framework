@@ -3,7 +3,7 @@ package ${commandServicePackage};
 import ${entityProperties.entityPackage}.${entityProperties.entityName};
 import ${managerProperties.managerPackage}.${managerProperties.managerClassName};
 import ${commandRequestMessagePlProperties.commandRequestPackage}.${commandRequestMessagePlProperties.commandRequestClassName};
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.framework.commons.validation.InsertGroup;
 import wang.liangchen.matrix.framework.commons.validation.UpdateGroup;
