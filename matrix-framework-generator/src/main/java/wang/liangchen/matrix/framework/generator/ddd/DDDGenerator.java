@@ -509,7 +509,7 @@ public class DDDGenerator {
 
                 List<ColumnMeta> columnMetas = resolveResultSetMetaData(connection, tableName, entityProperties, primaryKeyColumnNames, uniqueKeyColumnNames, columnCommentMap);
                 entityProperties.getColumnMetas().addAll(columnMetas);
-                entityProperties.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).toList());
+                entityProperties.getPkColumnMetas().addAll(columnMetas.stream().filter(ColumnMeta::isId).collect(Collectors.toList()));
                 columnMetas.stream().filter(ColumnMeta::isState)
                         .findFirst().ifPresent(entityProperties::setStateColumnMeta);
 
