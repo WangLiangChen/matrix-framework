@@ -16,6 +16,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.web.response.FormattedResponse;
@@ -144,7 +145,7 @@ public class RequestResponseBodyMethodProcessorConfiguration {
                     outputStream.write(buffer, 0, length);
                 }
             } catch (IOException e) {
-
+                throw new MatrixErrorException("read request body error.", e);
             }
             byte[] bytes = outputStream.toByteArray();
             this.bodyString = new String(bytes);
