@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author Liangchen.Wang 2022-09-08 6:47
  */
 public class RequestResponseBodyMethodProcessorConfiguration {
-    private static final Pattern classNamePattern = Pattern.compile("(className\":\\s*\")(.*?)(\",|})");
+    private static final Pattern classNamePattern = Pattern.compile("(className\":\\s*\")(.*?)(\"[,}])");
 
     public RequestResponseBodyMethodProcessorConfiguration(final RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
         List<HandlerMethodReturnValueHandler> returnValueHandlers = new ArrayList<>(requestMappingHandlerAdapter.getReturnValueHandlers());
