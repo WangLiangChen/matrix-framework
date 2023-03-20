@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author Liangchen.Wang 2022-09-08 6:47
  */
 public class RequestResponseBodyMethodProcessorConfiguration {
-    private final static String REQUEST_BODY_CLASS = "requestBodyClass";
+    private static final Pattern classNamePattern = Pattern.compile("(className\":\\s*\")(.*?)(\",|})");
 
     public RequestResponseBodyMethodProcessorConfiguration(final RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
         List<HandlerMethodReturnValueHandler> returnValueHandlers = new ArrayList<>(requestMappingHandlerAdapter.getReturnValueHandlers());
@@ -83,7 +83,6 @@ public class RequestResponseBodyMethodProcessorConfiguration {
 
     class HttpMessageConverterDelegate implements HttpMessageConverter<Object> {
         private final HttpMessageConverter<Object> delegate;
-        private static final Pattern classNamePattern = Pattern.compile("(className\":\\s*\")(.*?)(\",|})");
 
         HttpMessageConverterDelegate(HttpMessageConverter<Object> delegate) {
             this.delegate = delegate;
