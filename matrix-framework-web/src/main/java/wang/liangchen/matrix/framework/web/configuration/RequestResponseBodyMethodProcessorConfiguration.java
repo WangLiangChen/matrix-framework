@@ -114,9 +114,12 @@ public class RequestResponseBodyMethodProcessorConfiguration {
                 Matcher matcher = classNamePattern.matcher(bodyString);
                 if (matcher.find()) {
                     String className = matcher.group(2);
-                    // 替换变量
-                    clazz = ClassUtil.INSTANCE.forName(className);
-                    inputMessage = inputMessageDelegate;
+                    Class<?> subclass = ClassUtil.INSTANCE.forName(className);
+                    // 是子类 并且 同包
+                    if (clazz.isAssignableFrom(subclass) && clazz.getPackageName().equals(subclass.getPackageName())) {
+                        clazz = subclass;
+                        inputMessage = inputMessageDelegate;
+                    }
                 }
             }
             return this.delegate.read(clazz, inputMessage);
