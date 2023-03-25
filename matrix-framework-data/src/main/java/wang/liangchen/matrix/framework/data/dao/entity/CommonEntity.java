@@ -29,7 +29,6 @@ public class CommonEntity extends RootEntity {
     @Column(name = "state")
     private ConstantEnum state;
 
-
     public Integer getVersion() {
         return version;
     }

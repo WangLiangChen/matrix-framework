@@ -15,10 +15,12 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
+import wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler;
 import wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * @author Liangchen.Wang
@@ -29,22 +31,28 @@ public enum MybatisExecutor {
      * instance
      */
     INSTANCE;
-    public final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
-    private final static Map<String, String> STATEMENT_CACHE = new ConcurrentHashMap<>(128);
-    private final static Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
+    private final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
+    private final Map<String, String> STATEMENT_CACHE = new ConcurrentHashMap<>(128);
+    private final Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
+    private final ThreadLocal<String> tableContext = new ThreadLocal<>();
+
+    public String tableContext() {
+        return tableContext.get();
+    }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
         ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
+        TableMeta tableMeta = entity.tableMeta();
+        String tableName = tableMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            // 缓存单一ID的setter
+            // 缓存单一ID的setterMethod
             cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
             Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("insert into ").append(tableMeta.getTableName()).append("(");
+            sqlBuilder.append("insert into ").append(tableName).append("(");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             // 去除最后一个逗号
             sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
@@ -53,6 +61,8 @@ public enum MybatisExecutor {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
+                } else if (columnMeta.isExtended()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
                 }
                 sqlBuilder.append("#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
             });
@@ -66,7 +76,7 @@ public enum MybatisExecutor {
             return sqlScript;
         });
         populateId(statementId, Collections.singletonList(entity));
-        return sqlSessionTemplate.insert(statementId, entity);
+        return populateContext(tableName, () -> sqlSessionTemplate.insert(statementId, entity));
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
@@ -75,14 +85,15 @@ public enum MybatisExecutor {
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBulk");
+        TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+        String tableName = tableMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-            // 缓存ID Setter
+            // 缓存单个ID的setterMethod
             cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
             Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("insert into ").append(tableMeta.getTableName()).append("(");
+            sqlBuilder.append("insert into ").append(tableName).append("(");
             columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
             // 去除最后一个逗号
             sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
@@ -93,6 +104,8 @@ public enum MybatisExecutor {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
+                } else if (columnMeta.isExtended()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
                 }
                 sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append(typeHandler).append("},");
             });
@@ -105,7 +118,7 @@ public enum MybatisExecutor {
             return sqlScript;
         });
         populateId(statementId, entities);
-        return sqlSessionTemplate.insert(statementId, entities);
+        return populateContext(tableName, () -> sqlSessionTemplate.insert(statementId, entities));
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
@@ -173,16 +186,17 @@ public enum MybatisExecutor {
         ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "update");
+        TableMeta tableMeta = entity.tableMeta();
+        String tableName = tableMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("update ").append(entityTableMeta.getTableName());
+            sqlBuilder.append("update ").append(tableMeta.getTableName());
             sqlBuilder.append("<set>");
             // 版本列名称
             String fieldName, columnName;
             ColumnMeta columnVersionMeta = null;
-            for (ColumnMeta columnMeta : entityTableMeta.getNonPkColumnMetas().values()) {
+            for (ColumnMeta columnMeta : tableMeta.getNonPkColumnMetas().values()) {
                 fieldName = columnMeta.getFieldName();
                 columnName = columnMeta.getColumnName();
                 // version column
@@ -194,7 +208,12 @@ public enum MybatisExecutor {
                     continue;
                 }
 
-                String typeHandler = columnMeta.isJson() ? ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler" : "";
+                String typeHandler = "";
+                if (columnMeta.isJson()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
+                } else if (columnMeta.isExtended()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
+                }
                 // skip forceUpdateColumns
                 sqlBuilder.append("<choose><when test=\"forceUpdateColumns.keySet().contains('").append(columnName).append("')\"></when>");
                 // only not null columns
@@ -207,30 +226,36 @@ public enum MybatisExecutor {
             sqlBuilder.append("${key} = #{item}");
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</set>");
-            sqlBuilder.append(pkWhereSql(entityTableMeta.getPkColumnMetas(), columnVersionMeta));
+            sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas(), columnVersionMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, entityClass, Integer.class);
             logger.debug("create and cache updateId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return sqlSessionTemplate.update(statementId, entity);
+        return populateContext(tableName, () -> sqlSessionTemplate.update(statementId, entity));
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         RootEntity entity = criteriaParameter.getEntity();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "updateBulk");
+        TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+        String tableName = tableMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta entityTableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("update ").append(entityTableMeta.getTableName());
+            sqlBuilder.append("update ").append(tableMeta.getTableName());
             sqlBuilder.append("<set>");
-            entityTableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
+            tableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 String fieldName = columnMeta.getFieldName();
                 String columnName = columnMeta.getColumnName();
-                String typeHandler = columnMeta.isJson() ? ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler" : "";
+                String typeHandler = "";
+                if (columnMeta.isJson()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
+                } else if (columnMeta.isExtended()) {
+                    typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
+                }
                 // skip forceUpdateColumns
                 sqlBuilder.append("<choose><when test=\"entity.forceUpdateColumns.keySet().contains('").append(columnName).append("')\"></when>");
                 // only not null columns
@@ -250,7 +275,7 @@ public enum MybatisExecutor {
             logger.debug("create and cache updateBatchId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return sqlSessionTemplate.update(statementId, criteriaParameter);
+        return populateContext(tableName, () -> sqlSessionTemplate.update(statementId, criteriaParameter));
     }
 
 
@@ -274,6 +299,7 @@ public enum MybatisExecutor {
 
     public <E extends RootEntity> List<E> list(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
+        String tableName = tableMeta.getTableName();
         Class<?> entityClass = tableMeta.getEntityClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "list");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -282,7 +308,7 @@ public enum MybatisExecutor {
             sqlBuilder.append("select ");
             sqlBuilder.append("<if test=\"true==distinct\">").append(" distinct ").append("</if>");
             sqlBuilder.append("<trim suffixOverrides=\",\"><foreach collection=\"resultColumns\" item=\"item\" index=\"index\" separator=\",\">${item}</foreach></trim>");
-            sqlBuilder.append("from ").append(tableMeta.getTableName());
+            sqlBuilder.append("from ").append(tableName);
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("<if test=\"true==forUpdate\">").append("for update").append("</if>");
             sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotEmpty(pagination.orderBys)\"> order by <foreach collection=\"pagination.orderBys\" item=\"item\" separator=\",\"> ${item.orderBy} ${item.direction} </foreach></if>");
@@ -302,7 +328,17 @@ public enum MybatisExecutor {
             logger.debug("create and cache listId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return sqlSessionTemplate.selectList(statementId, criteriaParameter);
+        return populateContext(tableName, () -> sqlSessionTemplate.selectList(statementId, criteriaParameter));
+    }
+
+    private <T> T populateContext(String tableName, Supplier<T> supplier) {
+        // populate context
+        tableContext.set(tableName);
+        try {
+            return supplier.get();
+        } finally {
+            tableContext.remove();
+        }
     }
 
     private void cacheIdGenerator(String cacheKey, Class<? extends RootEntity> entityClass, Map<String, ColumnMeta> pkColumnMetas) {
@@ -371,6 +407,8 @@ public enum MybatisExecutor {
             tableMeta.getColumnMetas().forEach((k, v) -> {
                 if (v.isJson()) {
                     resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), new JsonTypeHandler(v.getFieldClass(), v.getFieldType())).build());
+                } else if (v.isExtended()) {
+                    resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), new ExtendedColumnTypeHandler(v.getFieldClass(), v.getFieldType())).build());
                 } else {
                     resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), v.getFieldClass()).build());
                 }

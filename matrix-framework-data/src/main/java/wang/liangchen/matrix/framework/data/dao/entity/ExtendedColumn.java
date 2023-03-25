@@ -4,12 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.enumeration.DataType;
 
 /**
  * @author Liangchen.Wang 2023-03-23 21:51
  */
 @Entity(name = "matrix_columns")
-public class ExtendedColumns extends RootEntity {
+public class ExtendedColumn extends RootEntity {
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
     private Long columnId;
@@ -85,7 +86,4 @@ public class ExtendedColumns extends RootEntity {
         this.columnComment = columnComment;
     }
 
-    enum DataType {
-        STRING, NUMERIC;
-    }
 }

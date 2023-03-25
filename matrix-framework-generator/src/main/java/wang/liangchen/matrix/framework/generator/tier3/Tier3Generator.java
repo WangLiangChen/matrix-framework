@@ -310,7 +310,7 @@ public class Tier3Generator {
             String _deleteValue = columnName.equals(entityProperties.getColumnMarkDelete()) ? entityProperties.getColumnMarkDeleteValue() : null;
             String columnComment = columnCommentMap.getOrDefault(columnName, "");
             columnComment = null == columnComment ? "" : columnComment;
-            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, _deleteValue, true, columnComment);
+            columnMeta = ColumnMeta.newInstance(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson,false, isState, isStateUseConstantEnum, _deleteValue, true, columnComment);
             columnMetas.add(columnMeta);
         }
         preparedStatement.close();
