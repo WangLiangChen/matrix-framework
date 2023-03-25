@@ -18,6 +18,12 @@ import java.util.Map;
 public abstract class RootEntity extends EnhancedObject {
     @Transient
     private transient final Map<String, Object> forceUpdateColumns = new HashMap<>();
+    @Transient
+    private transient final TableMeta tableMeta;
+
+    protected RootEntity() {
+        this.tableMeta = TableMetas.INSTANCE.tableMeta(this.getClass());
+    }
 
     public void addForceUpdateColumn(String columnName, Object value) {
         forceUpdateColumns.put(columnName, value);
@@ -35,4 +41,7 @@ public abstract class RootEntity extends EnhancedObject {
         return forceUpdateColumns;
     }
 
+    public TableMeta tableMeta() {
+        return this.tableMeta;
+    }
 }

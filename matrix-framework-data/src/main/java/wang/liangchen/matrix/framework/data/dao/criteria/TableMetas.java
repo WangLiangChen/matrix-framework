@@ -4,10 +4,8 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
-import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
-import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
-import wang.liangchen.matrix.framework.data.annotation.ColumnState;
-import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.annotation.*;
+import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.dao.entity.JsonField;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
@@ -36,8 +34,8 @@ public enum TableMetas {
     }
 
     private ColumnMeta resolveColumnMeta(Field field) {
-        return ColumnMeta.newInstance(field.getName(), field.getType(), field.getGenericType(), resolveColumnName(field),
-                resolveColumnId(field), resolveColumnIdStrategy(field), resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnJson(field), resolveColumnState(field), resolveColumnDelete(field));
+        return ColumnMeta.newInstance(field, resolveColumnName(field),
+                resolveColumnId(field), resolveColumnIdStrategy(field), resolveColumnUnique(field), resolveColumnVersion(field), resolveColumnJson(field), resolveColumnExtended(field), resolveColumnState(field), resolveColumnDelete(field));
     }
 
     private boolean resolveColumnId(Field field) {
@@ -58,12 +56,12 @@ public enum TableMetas {
         return null == columnAnnotation ? StringUtil.INSTANCE.camelCase2underline(field.getName()) : columnAnnotation.name();
     }
 
-    public String resolveColumnDelete(Field field) {
+    private String resolveColumnDelete(Field field) {
         ColumnMarkDelete columnMarkDeleteAnnotation = field.getAnnotation(ColumnMarkDelete.class);
         return null == columnMarkDeleteAnnotation ? null : columnMarkDeleteAnnotation.value();
     }
 
-    public boolean resolveColumnJson(Field field) {
+    private boolean resolveColumnJson(Field field) {
         ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
         if (null != columnJsonAnnotation) {
             return true;
@@ -72,7 +70,15 @@ public enum TableMetas {
         return JsonField.class.isAssignableFrom(fieldType);
     }
 
-    public boolean resolveColumnState(Field field) {
+    private boolean resolveColumnExtended(Field field) {
+        ColumnExtended columnJsonAnnotation = field.getAnnotation(ColumnExtended.class);
+        if (null != columnJsonAnnotation && ExtendedColumnValues.class.isAssignableFrom(field.getType())) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean resolveColumnState(Field field) {
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         return null != columnStateAnnotation;
     }
@@ -105,7 +111,7 @@ public enum TableMetas {
         List<Field> fields = ClassUtil.INSTANCE.declaredFields(entityClass,
                 clazz -> !EXCLUDED_CLASSES.contains(clazz),
                 field -> !Modifier.isTransient(field.getModifiers())
-                        && null == field.getAnnotation(Transient.class)
+                        && (null == field.getAnnotation(Transient.class) || null == field.getAnnotation(ColumnIgnore.class))
                         && !Modifier.isStatic(field.getModifiers()));
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
         for (Field field : fields) {

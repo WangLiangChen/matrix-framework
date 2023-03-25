@@ -6,6 +6,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.SQLXML;
@@ -33,9 +34,11 @@ public class ColumnMeta {
     private final boolean unique;
     private final boolean version;
     private final boolean json;
+    private final boolean extended;
     private final boolean state;
     private final boolean stateUseConstantEnum;
     private final String markDeleteValue;
+    private final Field field;
     private final String fieldName;
     private final Class<?> fieldClass;
     private final Type fieldType;
@@ -47,11 +50,11 @@ public class ColumnMeta {
         populatePostgreSQL();
     }
 
-    private ColumnMeta(String fieldName, Class<?> fieldClass, Type fieldType,
-                       String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, String markDeleteValue) {
-        this.fieldName = fieldName;
-        this.fieldClass = fieldClass;
-        this.fieldType = fieldType;
+    private ColumnMeta(Field field, String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isExtended, boolean isState, String markDeleteValue) {
+        this.field = field;
+        this.fieldName = field.getName();
+        this.fieldClass = field.getType();
+        this.fieldType = field.getGenericType();
         this.columnName = columnName;
         this.columnComment = null;
         this.id = isId;
@@ -59,6 +62,7 @@ public class ColumnMeta {
         this.unique = isUnique;
         this.version = isVersion;
         this.json = isJson;
+        this.extended = isExtended;
         this.state = isState;
         if (fieldClass.isAssignableFrom(ConstantEnum.class)) {
             this.stateUseConstantEnum = true;
@@ -73,13 +77,12 @@ public class ColumnMeta {
         this.modifier = null;
     }
 
-    public static ColumnMeta newInstance(String fieldName, Class<?> fieldClass, Type fieldType,
-                                         String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, String markDeleteValue) {
-        return new ColumnMeta(fieldName, fieldClass, fieldType, columnName, isId, idStrategy, isUnique, isVersion, isJson, isState, markDeleteValue);
+    public static ColumnMeta newInstance(Field field, String columnName, boolean isId, IdStrategy.Strategy idStrategy, boolean isUnique, boolean isVersion, boolean isJson, boolean isExtended, boolean isState, String markDeleteValue) {
+        return new ColumnMeta(field, columnName, isId, idStrategy, isUnique, isVersion, isJson, isExtended, isState, markDeleteValue);
     }
 
     private ColumnMeta(String columnName, String dataTypeName, String jdbcTypeName,
-                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
+                       boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isExtended, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
         this.columnName = columnName;
         this.columnComment = columnComment;
         this.dataTypeName = dataTypeName;
@@ -89,10 +92,12 @@ public class ColumnMeta {
         this.unique = isUnique;
         this.version = isVersion;
         this.json = isJson;
+        this.extended = isExtended;
         this.state = isState;
         this.stateUseConstantEnum = isStateUseConstantEnum;
         this.markDeleteValue = markDeleteValue;
 
+        this.field = null;
         if (underline2camelCase) {
             this.fieldName = StringUtil.INSTANCE.underline2lowerCamelCase(columnName);
         } else {
@@ -116,8 +121,8 @@ public class ColumnMeta {
     }
 
     public static ColumnMeta newInstance(String columnName, String dataTypeName, String jdbcTypeName,
-                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
-        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isState, isStateUseConstantEnum, markDeleteValue, underline2camelCase, columnComment);
+                                         boolean isId, boolean isUnique, boolean isVersion, boolean isJson, boolean isExtended, boolean isState, boolean isStateUseConstantEnum, String markDeleteValue, boolean underline2camelCase, String columnComment) {
+        return new ColumnMeta(columnName, dataTypeName, jdbcTypeName, isId, isUnique, isVersion, isJson, isExtended, isState, isStateUseConstantEnum, markDeleteValue, underline2camelCase, columnComment);
     }
 
 
@@ -157,6 +162,10 @@ public class ColumnMeta {
         return json;
     }
 
+    public boolean isExtended() {
+        return extended;
+    }
+
     public boolean isVersion() {
         return version;
     }
@@ -171,6 +180,10 @@ public class ColumnMeta {
 
     public String getModifier() {
         return modifier;
+    }
+
+    public Field getField() {
+        return field;
     }
 
     public String getFieldName() {
