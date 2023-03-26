@@ -116,7 +116,7 @@ public class RequestResponseBodyMethodProcessorConfiguration {
                     String className = matcher.group(2);
                     Class<?> subclass = ClassUtil.INSTANCE.forName(className);
                     // 是子类 并且 同包
-                    if (clazz.isAssignableFrom(subclass) && clazz.getPackageName().equals(subclass.getPackageName())) {
+                    if (clazz.isAssignableFrom(subclass) && clazz.getPackage().getName().equals(subclass.getPackage().getName())) {
                         clazz = subclass;
                         inputMessage = inputMessageDelegate;
                     }

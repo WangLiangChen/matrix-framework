@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.data.dao.impl;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.ExtendedColumnsManager;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
