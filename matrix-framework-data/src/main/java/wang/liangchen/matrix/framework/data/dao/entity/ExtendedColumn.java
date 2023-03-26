@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.enumeration.DataType;
 
@@ -21,6 +22,9 @@ public class ExtendedColumn extends RootEntity {
     private Byte isNullable = 1;
     private String columnRegex = StringUtil.INSTANCE.blankString();
     private String columnComment = StringUtil.INSTANCE.blankString();
+    public static ExtendedColumn newInstance(){
+        return ClassUtil.INSTANCE.instantiate(ExtendedColumn.class);
+    }
 
     public Long getColumnId() {
         return columnId;

@@ -41,9 +41,6 @@ public class EnhancedObject implements Serializable {
         return extendedFields;
     }
 
-    public static <T extends EnhancedObject> T newInstance(Class<T> clazz) {
-        return ClassUtil.INSTANCE.instantiate(clazz);
-    }
 
     public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initializeFields) {
         T object = ClassUtil.INSTANCE.instantiate(clazz);

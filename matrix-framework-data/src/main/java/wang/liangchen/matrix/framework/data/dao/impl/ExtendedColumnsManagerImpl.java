@@ -29,7 +29,7 @@ public class ExtendedColumnsManagerImpl implements ExtendedColumnsManager {
     public <T extends RootEntity> void add(Class<T> entityClass, String columnName, DataType dataType, String columnComment) {
         TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
         String tableName = tableMeta.getTableName();
-        ExtendedColumn entity = ExtendedColumn.newInstance(ExtendedColumn.class);
+        ExtendedColumn entity = ExtendedColumn.newInstance();
         entity.setTableName(tableName);
         entity.setColumnName(columnName);
         entity.setDataType(dataType);
