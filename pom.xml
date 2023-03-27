@@ -50,6 +50,7 @@
         <module>matrix-framework-ddd</module>
         <module>matrix-framework-generator</module>
         <module>matrix-framework-complier</module>
+        <module>matrix-framework-data-commons</module>
     </modules>
 
     <properties>
