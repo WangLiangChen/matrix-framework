@@ -1,9 +1,11 @@
 package wang.liangchen.matrix.framework.data.commons.domain.dictionary;
 
+import wang.liangchen.matrix.framework.data.dao.entity.UniqueKey;
+
 /**
  * @author Liangchen.Wang 2023-03-27 10:14
  */
-public class DictionaryKey {
+public class DictionaryKey extends UniqueKey {
     private final String dictionaryGroup;
     private final String dictionaryCode;
 
