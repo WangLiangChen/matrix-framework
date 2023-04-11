@@ -17,9 +17,9 @@ public class Dictionary extends CommonEntity {
     private Long dictionaryId;
     private String dictionaryKey;
     private String dictionaryGroup;
-    private DictionaryType dictionaryType;
     private String dictionaryCode;
     private String dictionaryName;
+    private DictionaryType dictionaryType;
     private DataType dataType;
 
     public static Dictionary newInstance() {
@@ -32,6 +32,14 @@ public class Dictionary extends CommonEntity {
 
     public void setDictionaryId(Long dictionaryId) {
         this.dictionaryId = dictionaryId;
+    }
+
+    public String getDictionaryKey() {
+        return dictionaryKey;
+    }
+
+    public void setDictionaryKey(String dictionaryKey) {
+        this.dictionaryKey = dictionaryKey;
     }
 
     public String getDictionaryGroup() {

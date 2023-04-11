@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.data.context.ExtendedColumnsContext;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumn;
-import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValueDetail;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.jackson.DefaultObjectMapper;
 
@@ -24,8 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2022-09-01 6:51
@@ -60,24 +56,6 @@ public class ExtendedColumnTypeHandler extends BaseTypeHandler<Object> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
-        // 先查询配置的字典项
-        String tableName = MybatisExecutor.INSTANCE.tableContext();
-        Criteria<ExtendedColumn> criteria = Criteria.of(ExtendedColumn.class)
-                .resultFields(ExtendedColumn::getColumnName)
-                ._equals(ExtendedColumn::getTableName, tableName);
-        List<ExtendedColumn> extendedColumns = standaloneDao.list(criteria);
-        Set<String> extendedColumnNames = extendedColumns.stream().map(ExtendedColumn::getColumnName).collect(Collectors.toSet());
-        @SuppressWarnings("unchecked")
-        ExtendedColumnValues<ExtendedColumnValue> extendedColumnValues = (ExtendedColumnValues<ExtendedColumnValue>) parameter;
-        for (ExtendedColumnValue extendedColumnValue : extendedColumnValues) {
-            String columnName = extendedColumnValue.getColumnName();
-            if (extendedColumnNames.contains(columnName)) {
-                // 在这可以做对值的校验
-                continue;
-            }
-            throw new MatrixErrorException("The columnName: '{}' doesn't in extended column list of table: '{}'", columnName, tableName);
-        }
-
         try {
             String jsonString = DefaultObjectMapper.INSTANCE.objectMapper().writeValueAsString(parameter);
             ps.setObject(i, jsonString);
@@ -102,9 +80,12 @@ public class ExtendedColumnTypeHandler extends BaseTypeHandler<Object> {
     }
 
     private Object jsonString2Object(String jsonString) throws SQLException {
-        // 查询扩展字段
-        String tableName = MybatisExecutor.INSTANCE.tableContext();
-        List<ExtendedColumn> extendedColumns = standaloneDao.list(Criteria.of(ExtendedColumn.class)._equals(ExtendedColumn::getTableName, tableName));
+        // 查询配置的扩展字段
+        String columnGroup = ExtendedColumnsContext.INSTANCE.getColumnGroup();
+        String tableName = ExtendedColumnsContext.INSTANCE.getTableName();
+        List<ExtendedColumn> extendedColumns = standaloneDao.list(Criteria.of(ExtendedColumn.class)
+                ._equals(ExtendedColumn::getColumnGroup, columnGroup)
+                ._equals(ExtendedColumn::getTableName, tableName));
         if (CollectionUtil.INSTANCE.isEmpty(extendedColumns)) {
             return new ExtendedColumnValues<ExtendedColumnValueDetail>();
         }

@@ -20,13 +20,13 @@ public class DictionaryManager {
     }
 
     public void add(Dictionary entity) {
+        DictionaryKey.populateKey(entity);
         this.standaloneDao.insert(entity);
     }
 
-    public void remove(String dictionaryGroup, String dictionaryCode) {
+    public void remove(DictionaryKey dictionaryKey) {
         DeleteCriteria<Dictionary> deleteCriteria = DeleteCriteria.of(Dictionary.class)
-                ._equals(Dictionary::getDictionaryGroup, dictionaryGroup)
-                ._equals(Dictionary::getDictionaryCode, dictionaryCode);
+                ._equals(Dictionary::getDictionaryKey, dictionaryKey.toKeyString());
         this.standaloneDao.delete(deleteCriteria);
     }
 

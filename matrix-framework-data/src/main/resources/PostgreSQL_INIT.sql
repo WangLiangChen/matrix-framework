@@ -18,6 +18,8 @@ comment on column matrix_sequence.sequence_number is '当前序号';
 /*==============================================================*/
 create table if not exists matrix_columns (
     column_id            int8                 not null,
+    column_key           varchar(36)          not null,
+    column_group         varchar(36)          not null,
     table_name           varchar(36)          not null,
     column_name          varchar(36)          not null,
     data_type            varchar(36)          not null,
@@ -32,6 +34,12 @@ comment on table matrix_columns is
 
 comment on column matrix_columns.column_id is
 'PrimaryKey';
+
+comment on column matrix_columns.column_key is
+'UniqueKey';
+
+comment on column matrix_columns.column_group is
+'分组标识,用于隔离数据';
 
 comment on column matrix_columns.table_name is
 '表名';
@@ -65,6 +73,5 @@ create unique index if not exists matrix_columns_pk on matrix_columns (
 /* Index: matrix_columns_ak                                     */
 /*==============================================================*/
 create unique index if not exists matrix_columns_ak on matrix_columns (
-    table_name,
-    column_name
+    column_key
     );

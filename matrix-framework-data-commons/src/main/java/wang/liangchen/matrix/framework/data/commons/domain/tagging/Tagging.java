@@ -13,9 +13,10 @@ public class Tagging extends CommonEntity {
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
     private Long taggingId;
+    private String taggingKey;
     private String taggingGroup;
-    private String tableName;
-    private String dataId;
+    private String businessType;
+    private String businessId;
     private String taggingCode;
     private String taggingValue;
 
@@ -27,6 +28,14 @@ public class Tagging extends CommonEntity {
         this.taggingId = taggingId;
     }
 
+    public String getTaggingKey() {
+        return taggingKey;
+    }
+
+    public void setTaggingKey(String taggingKey) {
+        this.taggingKey = taggingKey;
+    }
+
     public String getTaggingGroup() {
         return taggingGroup;
     }
@@ -35,20 +44,20 @@ public class Tagging extends CommonEntity {
         this.taggingGroup = taggingGroup;
     }
 
-    public String getTableName() {
-        return tableName;
+    public String getBusinessType() {
+        return businessType;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
     }
 
-    public String getDataId() {
-        return dataId;
+    public String getBusinessId() {
+        return businessId;
     }
 
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
     }
 
     public String getTaggingCode() {

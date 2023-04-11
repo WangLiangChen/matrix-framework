@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
@@ -10,9 +9,9 @@ import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -43,11 +42,10 @@ public enum CriteriaResolver {
         }
         criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
-        StringBuilder sqlBuilder = new StringBuilder();
-        Map<String, Object> values = new HashMap<>();
-        resovle(abstractCriteria, sqlBuilder, values, new AtomicInteger(0));
-        criteriaParameter.setWhereSql(sqlBuilder.toString());
-        criteriaParameter.setWhereSqlValues(values);
+        ComposedCriteriaResolver composedCriteriaResolver = abstractCriteria.getComposedCriteriaResolver();
+        String whereSql = composedCriteriaResolver.resolveWhereSql();
+        criteriaParameter.setWhereSql(whereSql);
+        criteriaParameter.setWhereSqlValues(composedCriteriaResolver.getMergedValues());
 
         if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
@@ -103,69 +101,4 @@ public enum CriteriaResolver {
         }
     }
 
-
-    @SuppressWarnings("unchecked")
-    private <E extends RootEntity> void resovle(AbstractCriteria<E> abstractCriteria, StringBuilder sqlBuilder, Map<String, Object> values, AtomicInteger counter) {
-        List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
-        if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
-            ColumnMeta columnMeta;
-            String columnName;
-            String[] placeholders;
-            Object[] sqlValues;
-            String placeholder = null;
-            Operator operator;
-            for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
-                columnMeta = criteriaMeta.getColumnMeta();
-                columnName = columnMeta.getColumnName();
-                sqlValues = criteriaMeta.getSqlValues();
-                placeholders = new String[sqlValues.length];
-                for (int i = 0; i < sqlValues.length; i++) {
-                    placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
-                    placeholders[i] = String.format("#{whereSqlValues.%s}", placeholder);
-                    values.put(placeholder, sqlValues[i]);
-                }
-                operator = criteriaMeta.getOperator();
-                sqlBuilder.append(AND).append(columnName).append(operator.getOperator());
-                switch (operator) {
-                    case IN:
-                    case NOTIN:
-                        sqlBuilder.append(Symbol.OPEN_PAREN.getSymbol());
-                        sqlBuilder.append(Arrays.stream(placeholders).map(String::valueOf).collect(Collectors.joining(Symbol.COMMA.getSymbol())));
-                        sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
-                        break;
-                    case BETWEEN:
-                    case NOTBETWEEN:
-                        sqlBuilder.append(placeholders[0]).append(AND).append(placeholders[1]);
-                        break;
-                    case ISNULL:
-                    case ISNOTNULL:
-                        break;
-                    case CONTAINS:
-                    case NOTCONTAINS:
-                        Object object = values.get(placeholder);
-                        object = String.format("%%%s%%", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    case STARTWITH:
-                    case NOTSTARTWITH:
-                        object = values.get(placeholder);
-                        object = String.format("%s%%", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    case ENDWITH:
-                    case NOTENDWITH:
-                        object = values.get(placeholder);
-                        object = String.format("%%%s", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    default:
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                }
-            }
-        }
-    }
 }

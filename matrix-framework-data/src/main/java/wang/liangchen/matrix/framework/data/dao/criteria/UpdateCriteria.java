@@ -6,6 +6,7 @@ import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -36,7 +37,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         UpdateCriteria<E> newCriteria = new UpdateCriteria<E>(entity) {
         };
         // populate new criteria
-        newCriteria.getCRITERIAMETAS().addAll(this.getCRITERIAMETAS());
+        newCriteria.getComposedCriteriaResolver().add(this.getComposedCriteriaResolver());
         newCriteria.forceUpdateFields.putAll(this.getForceUpdateFields());
         newCriteria.flushCache = this.flushCache;
         return newCriteria;
@@ -198,7 +199,17 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return (UpdateCriteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
-    public Map<EntityGetter<E>, Object> getForceUpdateFields() {
+    @Override
+    protected UpdateCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
+        return (UpdateCriteria<E>)super._or(consumer);
+    }
+
+    @Override
+    protected UpdateCriteria<E> _and(Consumer<SubCriteria<E>> consumer) {
+        return (UpdateCriteria<E>)super._and(consumer);
+    }
+
+    protected Map<EntityGetter<E>, Object> getForceUpdateFields() {
         return forceUpdateFields;
     }
 

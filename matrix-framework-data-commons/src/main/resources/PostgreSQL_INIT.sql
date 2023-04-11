@@ -62,9 +62,9 @@ create unique index if not exists matrix_dictionary_ak on matrix_dictionary (
 /* Table: matrix_dictionary_value                               */
 /*==============================================================*/
 create table if not exists matrix_dictionary_value (
-                                                       value_id             int8                 not null,
-                                                       dictionary_id        int8                 null,
-                                                       value_key            varchar(120)         not null,
+    value_id             int8                 not null,
+    dictionary_id        int8                 null,
+    value_key            varchar(120)         not null,
     dictionary_key       varchar(80)          not null,
     dictionary_group     varchar(36)          not null,
     dictionary_code      varchar(36)          not null,
@@ -133,8 +133,8 @@ create unique index if not exists matrix_dictionary_value_ak on matrix_dictionar
 /* Table: matrix_tagging                                        */
 /*==============================================================*/
 create table if not exists matrix_tagging (
-                                              tagging_id           int8                 not null,
-                                              tagging_key          varchar(36)          not null,
+    tagging_id           int8                 not null,
+    tagging_key          varchar(36)          not null,
     tagging_group        varchar(36)          not null,
     business_type        varchar(36)          not null,
     business_id          varchar(36)          not null,
@@ -193,9 +193,9 @@ create unique index if not exists matrix_tagging_ak on matrix_tagging (
 /* Table: matrix_infinite                                       */
 /*==============================================================*/
 create table if not exists matrix_infinite (
-                                               infinite_id          int8                 not null,
-                                               parent_id            int8                 null,
-                                               infinite_key         varchar(36)          not null,
+    infinite_id          int8                 not null,
+    parent_id            int8                 null,
+    infinite_key         varchar(36)          not null,
     infinite_group       varchar(36)          not null,
     parent_code          varchar(36)          not null,
     infinite_code        varchar(36)          not null,

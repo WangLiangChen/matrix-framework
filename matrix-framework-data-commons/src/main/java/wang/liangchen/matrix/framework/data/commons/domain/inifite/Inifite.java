@@ -15,6 +15,7 @@ public class Inifite {
     private String infiniteKey;
     private String infiniteGroup;
     private String parentCode;
+    private String infiniteCode;
     private String infiniteName;
     private Integer infiniteLeft;
     private Integer infiniteRight;
@@ -50,6 +51,14 @@ public class Inifite {
 
     public void setParentCode(String parentCode) {
         this.parentCode = parentCode;
+    }
+
+    public String getInfiniteCode() {
+        return infiniteCode;
+    }
+
+    public void setInfiniteCode(String infiniteCode) {
+        this.infiniteCode = infiniteCode;
     }
 
     public String getInfiniteName() {

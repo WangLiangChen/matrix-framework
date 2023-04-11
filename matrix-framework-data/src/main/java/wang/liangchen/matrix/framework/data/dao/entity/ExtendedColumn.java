@@ -15,6 +15,8 @@ public class ExtendedColumn extends RootEntity {
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
     private Long columnId;
+    private String columnKey;
+    private String columnGroup;
     private String tableName;
     private String columnName;
     private DataType dataType = DataType.STRING;
@@ -22,7 +24,8 @@ public class ExtendedColumn extends RootEntity {
     private Byte isNullable = 1;
     private String columnRegex = StringUtil.INSTANCE.blankString();
     private String columnComment = StringUtil.INSTANCE.blankString();
-    public static ExtendedColumn newInstance(){
+
+    public static ExtendedColumn newInstance() {
         return ClassUtil.INSTANCE.instantiate(ExtendedColumn.class);
     }
 
@@ -32,6 +35,22 @@ public class ExtendedColumn extends RootEntity {
 
     public void setColumnId(Long columnId) {
         this.columnId = columnId;
+    }
+
+    public String getColumnKey() {
+        return columnKey;
+    }
+
+    public void setColumnKey(String columnKey) {
+        this.columnKey = columnKey;
+    }
+
+    public String getColumnGroup() {
+        return columnGroup;
+    }
+
+    public void setColumnGroup(String columnGroup) {
+        this.columnGroup = columnGroup;
     }
 
     public String getTableName() {

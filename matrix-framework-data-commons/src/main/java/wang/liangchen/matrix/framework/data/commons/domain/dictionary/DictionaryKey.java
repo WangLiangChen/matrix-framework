@@ -14,8 +14,9 @@ public class DictionaryKey extends UniqueKey {
         this.dictionaryCode = dictionaryCode;
     }
 
-    public static DictionaryKey newInstance(String dictionaryGroup, String dictionaryCode) {
-        return new DictionaryKey(dictionaryGroup, dictionaryCode);
+    public static void populateKey(Dictionary entity) {
+        DictionaryKey dictionaryKey = new DictionaryKey(entity.getDictionaryGroup(), entity.getDictionaryCode());
+        entity.setDictionaryKey(dictionaryKey.toKeyString());
     }
 
     public String getDictionaryGroup() {

@@ -13,6 +13,7 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.uid.NumbericUid;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.context.ExtendedColumnsContext;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler;
@@ -34,11 +35,7 @@ public enum MybatisExecutor {
     private final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
     private final Map<String, String> STATEMENT_CACHE = new ConcurrentHashMap<>(128);
     private final Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
-    private final ThreadLocal<String> tableContext = new ThreadLocal<>();
 
-    public String tableContext() {
-        return tableContext.get();
-    }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
         ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
@@ -333,11 +330,11 @@ public enum MybatisExecutor {
 
     private <T> T populateContext(String tableName, Supplier<T> supplier) {
         // populate context
-        tableContext.set(tableName);
+        ExtendedColumnsContext.INSTANCE.setTableName(tableName);
         try {
             return supplier.get();
         } finally {
-            tableContext.remove();
+            ExtendedColumnsContext.INSTANCE.remove();
         }
     }
 
