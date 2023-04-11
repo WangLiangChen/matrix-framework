@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -187,15 +188,25 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
+    @Override
+    protected DeleteCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
+        return (DeleteCriteria<E>) super._or(consumer);
+    }
+
+    @Override
+    protected DeleteCriteria<E> _and(Consumer<SubCriteria<E>> consumer) {
+        return (DeleteCriteria<E>) super._and(consumer);
+    }
+
     public boolean isFlushCache() {
         return flushCache;
     }
 
-    public String getDeleteColumnName() {
+    protected String getDeleteColumnName() {
         return deleteColumnName;
     }
 
-    public Object getDeleteValue() {
+    protected Object getDeleteValue() {
         return deleteValue;
     }
 }

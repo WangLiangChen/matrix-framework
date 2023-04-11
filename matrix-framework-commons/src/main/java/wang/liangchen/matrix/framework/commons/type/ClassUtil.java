@@ -8,6 +8,7 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -137,8 +138,43 @@ public enum ClassUtil {
         return fields;
     }
 
+
+
     public List<Field> declaredFields(final Class<?> clazz) {
         return declaredFields(clazz, null);
+    }
+
+    public List<Method> declaredMethods(final Class<?> clazz, Predicate<Method> methodFilter) {
+        Method[] methods = clazz.getDeclaredMethods();
+        Stream<Method> stream = Arrays.stream(methods);
+        if (null == methodFilter) {
+            return stream.collect(Collectors.toList());
+        }
+        return stream.filter(methodFilter).collect(Collectors.toList());
+    }
+
+    public List<Method> declaredMethods(final Class<?> clazz, Predicate<Class<?>> classFilter, Predicate<Method> methodFilter) {
+        List<Class<?>> container = populateSuperClasses(clazz, classFilter);
+        List<Method> fields = new ArrayList<>();
+        container.forEach(innerClass -> fields.addAll(declaredMethods(innerClass, methodFilter)));
+        // 去重
+        Iterator<Method> fieldIterator = fields.iterator();
+        Set<String> fieldNames = new HashSet<>();
+        while (fieldIterator.hasNext()) {
+            String name = fieldIterator.next().getName();
+            if (fieldNames.contains(name)) {
+                fieldIterator.remove();
+                break;
+            }
+            fieldNames.add(name);
+        }
+        return fields;
+    }
+
+
+
+    public List<Method> declaredMethods(final Class<?> clazz) {
+        return declaredMethods(clazz, null);
     }
 
     public <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {

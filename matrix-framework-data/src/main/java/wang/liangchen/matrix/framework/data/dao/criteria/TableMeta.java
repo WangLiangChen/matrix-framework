@@ -18,6 +18,7 @@ public class TableMeta {
     private final Map<String, ColumnMeta> nonPkColumnMetas = new HashMap<>();
     private final ColumnMeta columnDeleteMeta;
     private final ColumnMeta columnVersionMeta;
+    private final ColumnMeta extendedColumnMeta;
 
     private TableMeta(Class<?> entityClass, String tableName, Map<String, ColumnMeta> columnMetas) {
         this.entityClass = entityClass;
@@ -30,6 +31,7 @@ public class TableMeta {
 
         ColumnMeta columnDeleteMeta = null;
         ColumnMeta columnVersionMeta = null;
+        ColumnMeta extendedColumnMeta = null;
         Collection<ColumnMeta> values = columnMetas.values();
         for (ColumnMeta columnMeta : values) {
             if (columnMeta.isId()) {
@@ -44,9 +46,13 @@ public class TableMeta {
             if (null == columnDeleteMeta && null != columnMeta.getMarkDeleteValue()) {
                 columnDeleteMeta = columnMeta;
             }
+            if (null == extendedColumnMeta && columnMeta.isExtended()) {
+                extendedColumnMeta = columnMeta;
+            }
         }
         this.columnVersionMeta = columnVersionMeta;
         this.columnDeleteMeta = columnDeleteMeta;
+        this.extendedColumnMeta = extendedColumnMeta;
     }
 
     public static TableMeta newInstance(Class<?> entityClass, String tableName, Map<String, ColumnMeta> columnMetas) {
@@ -87,5 +93,9 @@ public class TableMeta {
 
     public ColumnMeta getColumnVersionMeta() {
         return columnVersionMeta;
+    }
+
+    public ColumnMeta getExtendedColumnMeta() {
+        return extendedColumnMeta;
     }
 }

@@ -18,6 +18,7 @@ public class ConstantEnum implements Serializable {
     private final static Map<String, ? super ConstantEnum> map = new ConcurrentHashMap<>(16);
     private final String key;
     private final String value;
+    public final static ConstantEnum DEFAULT = new ConstantEnum("DEFAULT", "默认");
 
     public ConstantEnum(String key, String value) {
         this.key = key;

@@ -8,6 +8,7 @@ import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -299,31 +300,40 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return (Criteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
-    public Set<String> getResultColumns() {
+    @Override
+    public Criteria<E> _or(Consumer<SubCriteria<E>> consumer) {
+        return (Criteria<E>) super._or(consumer);
+    }
+    @Override
+    public Criteria<E> _and(Consumer<SubCriteria<E>> consumer) {
+        return (Criteria<E>) super._and(consumer);
+    }
+
+    protected Set<String> getResultColumns() {
         return resultColumns;
     }
 
-    public Boolean getDistinct() {
+    protected Boolean getDistinct() {
         return distinct;
     }
 
-    public Boolean getForUpdate() {
+    protected Boolean getForUpdate() {
         return forUpdate;
     }
 
-    public Integer getPageSize() {
+    protected Integer getPageSize() {
         return pageSize;
     }
 
-    public Integer getPageNumber() {
+    protected Integer getPageNumber() {
         return pageNumber;
     }
 
-    public List<OrderBy> getOrderBys() {
+    protected List<OrderBy> getOrderBys() {
         return orderBys;
     }
 
-    public Long getVersion() {
+    protected Long getVersion() {
         return version;
     }
 
