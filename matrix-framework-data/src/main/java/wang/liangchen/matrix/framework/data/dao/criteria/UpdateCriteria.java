@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
+import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
@@ -12,7 +13,10 @@ import java.util.function.Consumer;
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
-    private final Map<EntityGetter<E>, Object> forceUpdateFields = new HashMap<>();
+    private final Map<String, Object> forceUpdateColumns = new HashMap<>();
+    /**
+     * 默认刷新缓存
+     */
     private boolean flushCache = true;
 
     private UpdateCriteria(E entity) {
@@ -33,29 +37,31 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
+    public UpdateCriteria<E> disableFlushCache() {
+        this.flushCache = false;
+        return this;
+    }
+
     public UpdateCriteria<E> nonNullUpdate(E entity) {
         UpdateCriteria<E> newCriteria = new UpdateCriteria<E>(entity) {
         };
         // populate new criteria
         newCriteria.getComposedCriteriaResolver().add(this.getComposedCriteriaResolver());
-        newCriteria.forceUpdateFields.putAll(this.getForceUpdateFields());
+        newCriteria.forceUpdateColumns.putAll(this.forceUpdateColumns);
         newCriteria.flushCache = this.flushCache;
         return newCriteria;
     }
 
     public UpdateCriteria<E> forceUpdate(EntityGetter<E> fieldGetter, Object value) {
-        forceUpdateFields.put(fieldGetter, value);
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
+        forceUpdateColumns.put(columnMeta.getColumnName(), value);
         return this;
     }
 
-    public UpdateCriteria<E> disableCache() {
-        this.flushCache = false;
+    public UpdateCriteria<E> forceUpdate(String columnName, Object value) {
+        forceUpdateColumns.put(columnName, value);
         return this;
-    }
-
-    @Override
-    public UpdateCriteria<E> ignoreStringBlank() {
-        return (UpdateCriteria<E>) super.ignoreStringBlank();
     }
 
     @Override
@@ -201,16 +207,16 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
 
     @Override
     protected UpdateCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
-        return (UpdateCriteria<E>)super._or(consumer);
+        return (UpdateCriteria<E>) super._or(consumer);
     }
 
     @Override
     protected UpdateCriteria<E> _and(Consumer<SubCriteria<E>> consumer) {
-        return (UpdateCriteria<E>)super._and(consumer);
+        return (UpdateCriteria<E>) super._and(consumer);
     }
 
-    protected Map<EntityGetter<E>, Object> getForceUpdateFields() {
-        return forceUpdateFields;
+    protected Map<String, Object> getForceUpdateColumns() {
+        return forceUpdateColumns;
     }
 
     public boolean isFlushCache() {

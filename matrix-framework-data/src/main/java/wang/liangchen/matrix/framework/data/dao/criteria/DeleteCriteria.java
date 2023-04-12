@@ -11,6 +11,9 @@ import java.util.function.Consumer;
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
+    /**
+     * 默认刷新缓存
+     */
     private boolean flushCache = true;
     private String deleteColumnName;
     private Object deleteValue;
@@ -24,9 +27,13 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public DeleteCriteria<E> disableCache() {
+    public DeleteCriteria<E> disableFlushCache() {
         this.flushCache = false;
         return this;
+    }
+
+    public boolean isFlushCache() {
+        return flushCache;
     }
 
     public DeleteCriteria<E> markDelete(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -36,12 +43,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         this.deleteValue = sqlValue;
         return this;
     }
-
-    @Override
-    public DeleteCriteria<E> ignoreStringBlank() {
-        return (DeleteCriteria<E>) super.ignoreStringBlank();
-    }
-
 
     @Override
     public DeleteCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -198,9 +199,6 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._and(consumer);
     }
 
-    public boolean isFlushCache() {
-        return flushCache;
-    }
 
     protected String getDeleteColumnName() {
         return deleteColumnName;

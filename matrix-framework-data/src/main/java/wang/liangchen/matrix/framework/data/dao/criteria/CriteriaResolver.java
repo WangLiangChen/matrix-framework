@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
@@ -62,16 +61,11 @@ public enum CriteriaResolver {
     private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
         E entity = updateCriteria.getEntity();
         criteriaParameter.setEntity(entity);
-        Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateFields();
+        Map<String, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
         if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
             return;
         }
-        Map<String, ColumnMeta> columnMetas = updateCriteria.getTableMeta().getColumnMetas();
-        forceUpdateColumns.forEach((column, value) -> {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
-            String columnName = columnMetas.get(fieldName).getColumnName();
-            entity.addForceUpdateColumn(columnName, value);
-        });
+        forceUpdateColumns.forEach(entity::addForceUpdateColumn);
     }
 
     private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {

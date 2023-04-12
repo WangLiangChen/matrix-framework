@@ -14,7 +14,6 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
     private final Class<E> entityClass;
     private final TableMeta tableMeta;
     private final Map<String, ColumnMeta> columnMetas;
-    private boolean ignoreStringBlank = false;
 
     protected AbstractClassCriteria(Class<E> entityClass, AndOr andOr) {
         this.entityClass = entityClass;
@@ -25,11 +24,6 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
 
     protected AbstractClassCriteria(Class<E> entityClass) {
         this(entityClass, AndOr.and);
-    }
-
-    protected AbstractClassCriteria<E> ignoreStringBlank() {
-        this.ignoreStringBlank = true;
-        return this;
     }
 
     // =====================equals========================
