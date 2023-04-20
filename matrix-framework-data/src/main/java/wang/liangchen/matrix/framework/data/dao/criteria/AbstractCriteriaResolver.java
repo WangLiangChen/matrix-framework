@@ -27,23 +27,29 @@ abstract class AbstractCriteriaResolver {
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
-            builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
-        }
         if (abstractCriteriaResolver instanceof ComposedCriteriaResolver) {
-            builder.append("(");
             ComposedCriteriaResolver composedCriteriaResolver = (ComposedCriteriaResolver) abstractCriteriaResolver;
             List<AbstractCriteriaResolver> items = composedCriteriaResolver.getChildren();
-            for (int i = 0, size = items.size(); i < size; i++) {
-                if (i == 0) {
-                    builder.append(resolveWhereSql(items.get(i), null));
-                } else {
-                    builder.append(resolveWhereSql(items.get(i), items.get(i - 1)));
+            int size = items.size();
+            if (size > 0) {
+                if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
+                    builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
                 }
+                builder.append("(");
+                for (int i = 0; i < size; i++) {
+                    if (i == 0) {
+                        builder.append(resolveWhereSql(items.get(i), null));
+                    } else {
+                        builder.append(resolveWhereSql(items.get(i), items.get(i - 1)));
+                    }
+                }
+                builder.append(")");
             }
-            builder.append(")");
         }
         if (abstractCriteriaResolver instanceof SingleCriteriaResolver) {
+            if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
+                builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
+            }
             SingleCriteriaResolver singleCriteriaResolver = (SingleCriteriaResolver) abstractCriteriaResolver;
             Operator operator = singleCriteriaResolver.getOperator();
             String columnName = singleCriteriaResolver.getColumnName();
