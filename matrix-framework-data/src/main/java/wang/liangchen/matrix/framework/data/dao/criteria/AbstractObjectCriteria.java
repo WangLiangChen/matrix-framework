@@ -83,6 +83,10 @@ abstract class AbstractObjectCriteria<E extends RootEntity> extends AbstractClas
         this.getComposedCriteriaResolver().add(subCriteria.getComposedCriteriaResolver());
         return this;
     }
+    protected AbstractObjectCriteria<E> _or() {
+        this.getComposedCriteriaResolver().add(OrCriteriaResolver.newInstance());
+        return this;
+    }
 
     protected AbstractObjectCriteria<E> _and(Consumer<SubCriteria<E>> consumer) {
         SubCriteria<E> subCriteria = subCriteria(AndOr.and);

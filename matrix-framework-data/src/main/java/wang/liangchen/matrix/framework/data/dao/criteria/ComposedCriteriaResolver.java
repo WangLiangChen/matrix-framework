@@ -31,6 +31,10 @@ abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
         };
     }
 
+    protected void add(OrCriteriaResolver orCriteriaResolver) {
+        this.children.add(orCriteriaResolver);
+    }
+
     protected void add(SingleCriteriaResolver singleCriteriaResolver) {
         this.children.add(singleCriteriaResolver);
     }
@@ -44,6 +48,6 @@ abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
     }
 
     protected String resolveWhereSql() {
-        return resolveWhereSql(this, 0);
+        return resolveWhereSql(this, null);
     }
 }

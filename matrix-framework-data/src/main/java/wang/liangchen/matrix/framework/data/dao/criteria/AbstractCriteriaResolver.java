@@ -22,12 +22,12 @@ abstract class AbstractCriteriaResolver {
         this.andOr = andOr;
     }
 
-    protected String resolveWhereSql(AbstractCriteriaResolver abstractCriteriaResolver, int index) {
+    protected String resolveWhereSql(AbstractCriteriaResolver abstractCriteriaResolver, AbstractCriteriaResolver previousAbstractCriteriaResolver) {
         if (null == abstractCriteriaResolver) {
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        if (index > 0) {
+        if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
             builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
         }
         if (abstractCriteriaResolver instanceof ComposedCriteriaResolver) {
@@ -35,7 +35,11 @@ abstract class AbstractCriteriaResolver {
             ComposedCriteriaResolver composedCriteriaResolver = (ComposedCriteriaResolver) abstractCriteriaResolver;
             List<AbstractCriteriaResolver> items = composedCriteriaResolver.getChildren();
             for (int i = 0, size = items.size(); i < size; i++) {
-                builder.append(resolveWhereSql(items.get(i), i));
+                if (i == 0) {
+                    builder.append(resolveWhereSql(items.get(i), null));
+                } else {
+                    builder.append(resolveWhereSql(items.get(i), items.get(i - 1)));
+                }
             }
             builder.append(")");
         }
