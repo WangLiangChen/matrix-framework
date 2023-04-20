@@ -206,6 +206,10 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    protected UpdateCriteria<E> _or() {
+        return (UpdateCriteria<E>) super._or();
+    }
+    @Override
     protected UpdateCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         return (UpdateCriteria<E>) super._or(consumer);
     }

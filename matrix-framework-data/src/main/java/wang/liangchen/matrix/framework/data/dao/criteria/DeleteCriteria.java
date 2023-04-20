@@ -190,6 +190,11 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    protected DeleteCriteria<E> _or() {
+        return (DeleteCriteria<E>) super._or();
+    }
+
+    @Override
     protected DeleteCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         return (DeleteCriteria<E>) super._or(consumer);
     }
