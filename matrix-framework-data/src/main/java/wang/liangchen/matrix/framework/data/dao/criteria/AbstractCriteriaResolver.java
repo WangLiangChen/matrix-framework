@@ -27,14 +27,15 @@ abstract class AbstractCriteriaResolver {
             return "";
         }
         StringBuilder builder = new StringBuilder();
+        if (abstractCriteriaResolver instanceof OrCriteriaResolver) {
+            concatAndOr(abstractCriteriaResolver, previousAbstractCriteriaResolver, builder);
+        }
         if (abstractCriteriaResolver instanceof ComposedCriteriaResolver) {
             ComposedCriteriaResolver composedCriteriaResolver = (ComposedCriteriaResolver) abstractCriteriaResolver;
             List<AbstractCriteriaResolver> items = composedCriteriaResolver.getChildren();
             int size = items.size();
             if (size > 0) {
-                if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
-                    builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
-                }
+                concatAndOr(abstractCriteriaResolver, previousAbstractCriteriaResolver, builder);
                 builder.append("(");
                 for (int i = 0; i < size; i++) {
                     if (i == 0) {
@@ -47,9 +48,7 @@ abstract class AbstractCriteriaResolver {
             }
         }
         if (abstractCriteriaResolver instanceof SingleCriteriaResolver) {
-            if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
-                builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
-            }
+            concatAndOr(abstractCriteriaResolver, previousAbstractCriteriaResolver, builder);
             SingleCriteriaResolver singleCriteriaResolver = (SingleCriteriaResolver) abstractCriteriaResolver;
             Operator operator = singleCriteriaResolver.getOperator();
             String columnName = singleCriteriaResolver.getColumnName();
@@ -103,6 +102,12 @@ abstract class AbstractCriteriaResolver {
             }
         }
         return builder.toString();
+    }
+
+    public void concatAndOr(AbstractCriteriaResolver abstractCriteriaResolver, AbstractCriteriaResolver previousAbstractCriteriaResolver, StringBuilder builder) {
+        if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
+            builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
+        }
     }
 
     protected AndOr getAndOr() {
