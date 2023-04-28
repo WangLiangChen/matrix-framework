@@ -17,12 +17,22 @@ abstract class AbstractCriteriaResolver {
     private final static String whereSqlValuesPattern = "#{whereSqlValues.%s}";
     private final AndOr andOr;
     private final Map<String, Object> mergedValues = new LinkedHashMap<>();
+    private String whereSql;
 
     protected AbstractCriteriaResolver(AndOr andOr) {
         this.andOr = andOr;
     }
 
     protected String resolveWhereSql(AbstractCriteriaResolver abstractCriteriaResolver, AbstractCriteriaResolver previousAbstractCriteriaResolver) {
+        // 多次同样调用,不再resolve直接返回.非线程安全
+        if (null != whereSql) {
+            return whereSql;
+        }
+        whereSql = recursionResolveWhereSql(abstractCriteriaResolver, previousAbstractCriteriaResolver);
+        return whereSql;
+    }
+
+    private String recursionResolveWhereSql(AbstractCriteriaResolver abstractCriteriaResolver, AbstractCriteriaResolver previousAbstractCriteriaResolver) {
         if (null == abstractCriteriaResolver) {
             return "";
         }
@@ -39,9 +49,9 @@ abstract class AbstractCriteriaResolver {
                 builder.append("(");
                 for (int i = 0; i < size; i++) {
                     if (i == 0) {
-                        builder.append(resolveWhereSql(items.get(i), null));
+                        builder.append(recursionResolveWhereSql(items.get(i), null));
                     } else {
-                        builder.append(resolveWhereSql(items.get(i), items.get(i - 1)));
+                        builder.append(recursionResolveWhereSql(items.get(i), items.get(i - 1)));
                     }
                 }
                 builder.append(")");
