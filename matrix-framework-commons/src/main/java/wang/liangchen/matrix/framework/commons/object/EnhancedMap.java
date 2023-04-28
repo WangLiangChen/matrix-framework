@@ -18,19 +18,19 @@ public class EnhancedMap implements Serializable {
     /**
      * 对象扩展属性 需要被序列化
      */
-    private final Map<String, Object> extendedFields;
+    private final Map<String, Object> delegate;
 
     public EnhancedMap(int initialCapacity, boolean ordered) {
         if (ordered) {
-            extendedFields = new LinkedHashMap<>(initialCapacity);
+            delegate = new LinkedHashMap<>(initialCapacity);
         } else {
-            extendedFields = new HashMap<>(initialCapacity);
+            delegate = new HashMap<>(initialCapacity);
         }
     }
 
-    public EnhancedMap(Map<String, Object> extendedFields) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, extendedFields, "extendedFields must not be null");
-        this.extendedFields = extendedFields;
+    public EnhancedMap(Map<String, Object> delegate) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, delegate, "extendedFields must not be null");
+        this.delegate = delegate;
     }
 
     public EnhancedMap() {
@@ -46,23 +46,23 @@ public class EnhancedMap implements Serializable {
     }
 
     public int size() {
-        return extendedFields.size();
+        return delegate.size();
     }
 
     public boolean isEmpty() {
-        return extendedFields.isEmpty();
+        return delegate.isEmpty();
     }
 
     public boolean containsKey(Object key) {
-        return extendedFields.containsKey(String.valueOf(key));
+        return delegate.containsKey(String.valueOf(key));
     }
 
     public boolean containsValue(Object object) {
-        return extendedFields.containsValue(object);
+        return delegate.containsValue(object);
     }
 
     public Object get(Object key) {
-        return extendedFields.get(String.valueOf(key));
+        return delegate.get(String.valueOf(key));
     }
 
     public Object getOrDefault(Object key, Object defaultValue) {
@@ -72,7 +72,7 @@ public class EnhancedMap implements Serializable {
 
     @SuppressWarnings("unchecked")
     public EnhancedMap getEnhancedMap(String key) {
-        Object object = extendedFields.get(key);
+        Object object = delegate.get(key);
         if (object instanceof EnhancedMap) {
             return (EnhancedMap) object;
         }
@@ -84,7 +84,7 @@ public class EnhancedMap implements Serializable {
 
     @SuppressWarnings("unchecked")
     public EnhancedList getEnhancedList(String key) {
-        Object object = extendedFields.get(key);
+        Object object = delegate.get(key);
         if (object instanceof EnhancedList) {
             return (EnhancedList) object;
         }
@@ -96,7 +96,7 @@ public class EnhancedMap implements Serializable {
     }
 
     public <T> T getObject(String key) {
-        Object object = extendedFields.get(key);
+        Object object = delegate.get(key);
         return ObjectUtil.INSTANCE.cast(object);
     }
 
@@ -247,76 +247,76 @@ public class EnhancedMap implements Serializable {
 
 
     public Object put(String key, Object object) {
-        return extendedFields.put(key, object);
+        return delegate.put(key, object);
     }
 
     public EnhancedMap fluentPut(String key, Object object) {
-        extendedFields.put(key, object);
+        delegate.put(key, object);
         return this;
     }
 
 
     public void putAll(Map<? extends String, ?> m) {
-        extendedFields.putAll(m);
+        delegate.putAll(m);
     }
 
     public EnhancedMap fluentPutAll(Map<? extends String, ?> m) {
-        extendedFields.putAll(m);
+        delegate.putAll(m);
         return this;
     }
 
 
     public void clear() {
-        extendedFields.clear();
+        delegate.clear();
     }
 
     public EnhancedMap fluentClear() {
-        extendedFields.clear();
+        delegate.clear();
         return this;
     }
 
 
     public Object remove(Object key) {
-        return extendedFields.remove(key);
+        return delegate.remove(key);
     }
 
     public EnhancedMap fluentRemove(Object key) {
-        extendedFields.remove(key);
+        delegate.remove(key);
         return this;
     }
 
 
     public Set<String> keySet() {
-        return extendedFields.keySet();
+        return delegate.keySet();
     }
 
 
     public Collection<Object> values() {
-        return extendedFields.values();
+        return delegate.values();
     }
 
 
     public Set<Map.Entry<String, Object>> entrySet() {
-        return extendedFields.entrySet();
+        return delegate.entrySet();
     }
 
     public Map<String, Object> getNativeMap() {
-        return this.extendedFields;
+        return this.delegate;
     }
 
     public void addExtendedField(String key, Object value) {
-        this.extendedFields.put(key, value);
+        this.delegate.put(key, value);
     }
 
     public void addExtendedFields(Map<String, Object> extendedFields) {
-        this.extendedFields.putAll(extendedFields);
+        this.delegate.putAll(extendedFields);
     }
 
     public void removeExtendedField(String key) {
-        this.extendedFields.remove(key);
+        this.delegate.remove(key);
     }
 
     public Map<String, Object> getExtendedFields() {
-        return extendedFields;
+        return delegate;
     }
 }

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.encryption.DigestSignUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.pagination.QueryParameter;
 
 import java.util.Map;
 import java.util.StringJoiner;

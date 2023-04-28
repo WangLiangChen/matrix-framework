@@ -38,16 +38,18 @@ public final class OrderBy implements Serializable {
         return orderBy;
     }
 
-    public void setOrderBy(String orderBy) {
+    public OrderBy setOrderBy(String orderBy) {
         this.orderBy = orderBy;
+        return this;
     }
 
     public OrderByDirection getDirection() {
         return direction;
     }
 
-    public void setDirection(OrderByDirection direction) {
+    public OrderBy setDirection(OrderByDirection direction) {
         this.direction = direction;
+        return this;
     }
 
     @Override

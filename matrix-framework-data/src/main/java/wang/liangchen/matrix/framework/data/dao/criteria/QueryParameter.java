@@ -1,9 +1,10 @@
-package wang.liangchen.matrix.framework.data.pagination;
+package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import jakarta.persistence.Transient;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
+import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +13,7 @@ import java.util.StringJoiner;
 /**
  * @author LiangChen.Wang
  */
-public class QueryParameter extends EnhancedObject {
+class QueryParameter extends EnhancedObject {
 
     @Transient
     private transient Pagination pagination = new Pagination();
