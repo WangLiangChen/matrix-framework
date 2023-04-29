@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import jakarta.persistence.*;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -85,7 +86,13 @@ public enum TableMetas {
 
     private boolean resolveColumnVersion(Field field) {
         Version versionAnnotation = field.getAnnotation(Version.class);
-        return null != versionAnnotation;
+        if (null == versionAnnotation) {
+            return false;
+        }
+        if (Integer.class.isAssignableFrom(field.getType())) {
+            return true;
+        }
+        throw new MatrixInfoException("the version field must be Integer");
     }
 
     private boolean resolveColumnUnique(Field field) {

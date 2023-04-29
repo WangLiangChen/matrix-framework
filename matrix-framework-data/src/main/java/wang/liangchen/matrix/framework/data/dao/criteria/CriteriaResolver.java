@@ -20,17 +20,9 @@ public enum CriteriaResolver {
      * instance
      */
     INSTANCE;
-    private final static String AND = " and ";
-    private final static String OR = " or ";
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
-        CriteriaParameter<E> criteriaParameter;
-        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
-            criteriaParameter = new DeleteCriteriaParameter<>(deleteCriteria.getDeleteColumnName(), deleteCriteria.getDeleteValue());
-        } else {
-            criteriaParameter = new CriteriaParameter<>();
-        }
-
+        CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
         criteriaParameter.setEntity(abstractCriteria.getEntity());
         criteriaParameter.setEntityClass(abstractCriteria.getEntityClass());
 
@@ -46,17 +38,30 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(whereSql);
         criteriaParameter.setWhereSqlValues(composedCriteriaResolver.getMergedValues());
 
+        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+            DeleteMeta deleteMeta = deleteCriteria.getMarkDeleteMeta();
+            if (null != deleteMeta && null != deleteMeta.getDeleteValue() && null != deleteMeta.getDeleteColumnName()) {
+                criteriaParameter.setMarkDeleteMeta(deleteMeta);
+            }
+            VersionMeta versionMeta = deleteCriteria.getVersionMeta();
+            if (null != versionMeta && null != versionMeta.getVersionOldValue() && null != versionMeta.getVersionNewValue() && null != versionMeta.getVersionColumnName()) {
+                criteriaParameter.setVersionMeta(versionMeta);
+            }
+        }
+        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
+            criteriaParameter.setVersionMeta(updateCriteria.getVersionMeta());
+            populateForceUpdate(updateCriteria, criteriaParameter);
+        }
+
         if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
-            populateForceUpdate(updateCriteria, criteriaParameter);
-        }
         return criteriaParameter;
     }
+
 
     private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
         E entity = updateCriteria.getEntity();

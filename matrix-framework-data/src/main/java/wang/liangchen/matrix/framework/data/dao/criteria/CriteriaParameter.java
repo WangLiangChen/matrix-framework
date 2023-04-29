@@ -20,6 +20,9 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private String whereSql;
     private Map<String, Object> whereSqlValues;
 
+    private DeleteMeta deleteMeta;
+    private VersionMeta versionMeta;
+
     private E entity;
     private Class<E> entityClass;
 
@@ -54,6 +57,22 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     public Map<String, Object> getWhereSqlValues() {
         return whereSqlValues;
+    }
+
+    public DeleteMeta getMarkDeleteMeta() {
+        return deleteMeta;
+    }
+
+    public void setMarkDeleteMeta(DeleteMeta deleteMeta) {
+        this.deleteMeta = deleteMeta;
+    }
+
+    public VersionMeta getVersionMeta() {
+        return versionMeta;
+    }
+
+    public void setVersionMeta(VersionMeta versionMeta) {
+        this.versionMeta = versionMeta;
     }
 
     public String getTableName() {

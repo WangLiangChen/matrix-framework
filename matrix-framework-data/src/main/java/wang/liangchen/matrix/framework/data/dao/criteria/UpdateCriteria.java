@@ -14,6 +14,7 @@ import java.util.function.Consumer;
  */
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     private final Map<String, Object> forceUpdateColumns = new HashMap<>();
+    private VersionMeta versionMeta;
     /**
      * 默认刷新缓存
      */
@@ -61,6 +62,17 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
 
     public UpdateCriteria<E> forceUpdate(String columnName, Object value) {
         forceUpdateColumns.put(columnName, value);
+        return this;
+    }
+
+    public UpdateCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Integer oldValue) {
+        return optimisticLock(fieldGetter, oldValue, null);
+    }
+
+    public UpdateCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Object oldValue, Object newValue) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
+        this.versionMeta = VersionMeta.newInstance(columnMeta.getColumnName(), oldValue, newValue);
         return this;
     }
 
@@ -209,6 +221,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     protected UpdateCriteria<E> _or() {
         return (UpdateCriteria<E>) super._or();
     }
+
     @Override
     protected UpdateCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         return (UpdateCriteria<E>) super._or(consumer);
@@ -225,5 +238,8 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
 
     public boolean isFlushCache() {
         return flushCache;
+    }
+    protected VersionMeta getVersionMeta() {
+        return versionMeta;
     }
 }

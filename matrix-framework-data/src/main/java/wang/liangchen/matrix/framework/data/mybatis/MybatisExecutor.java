@@ -155,21 +155,21 @@ public enum MybatisExecutor {
         return rows;
     }
 
-    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final DeleteCriteriaParameter<E> criteriaParameter) {
+    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
         String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("<choose><when test=\"null==deleteColumnName\">");
+            sqlBuilder.append("<choose><when test=\"null==markDeleteMeta\">");
             sqlBuilder.append("delete from ").append(tableMeta.getTableName());
             sqlBuilder.append("</when><otherwise>");
 
             sqlBuilder.append("update ").append(tableMeta.getTableName());
-            sqlBuilder.append(" set ");
-            sqlBuilder.append("${deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{deleteValue}");
-            sqlBuilder.append("</otherwise></choose>");
-            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("<set><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionNewValue},</if>");
+            sqlBuilder.append("${markDeleteMeta.deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{markDeleteMeta.deleteValue}");
+            sqlBuilder.append("</set></otherwise></choose>");
+            sqlBuilder.append("<where><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionOldValue} and </if>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class);
@@ -243,7 +243,7 @@ public enum MybatisExecutor {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
             sqlBuilder.append("update ").append(tableMeta.getTableName());
-            sqlBuilder.append("<set>");
+            sqlBuilder.append("<set><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionNewValue},</if>");
             tableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 String fieldName = columnMeta.getFieldName();
                 String columnName = columnMeta.getColumnName();
@@ -263,9 +263,9 @@ public enum MybatisExecutor {
 
             sqlBuilder.append("<foreach collection=\"entity.forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
             sqlBuilder.append("${key} = #{item}");
-            sqlBuilder.append("</foreach>");
-            sqlBuilder.append("</set>");
-            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("</foreach></set>");
+            sqlBuilder.append("");
+            sqlBuilder.append("<where><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionOldValue} and </if>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, UpdateCriteria.class, Integer.class);

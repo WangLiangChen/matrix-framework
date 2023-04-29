@@ -15,8 +15,8 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
      * 默认刷新缓存
      */
     private boolean flushCache = true;
-    private String deleteColumnName;
-    private Object deleteValue;
+    private DeleteMeta deleteMeta;
+    private VersionMeta versionMeta;
 
     private DeleteCriteria(Class<E> entityClass) {
         super(entityClass);
@@ -39,8 +39,18 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     public DeleteCriteria<E> markDelete(EntityGetter<E> fieldGetter, Object sqlValue) {
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
         ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
-        this.deleteColumnName = columnMeta.getColumnName();
-        this.deleteValue = sqlValue;
+        this.deleteMeta = DeleteMeta.newInstance(columnMeta.getColumnName(), sqlValue);
+        return this;
+    }
+
+    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Integer oldValue) {
+        return optimisticLock(fieldGetter, oldValue, null);
+    }
+
+    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Object oldValue, Object newValue) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
+        this.versionMeta = VersionMeta.newInstance(columnMeta.getColumnName(), oldValue, newValue);
         return this;
     }
 
@@ -205,11 +215,11 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
 
-    protected String getDeleteColumnName() {
-        return deleteColumnName;
+    protected DeleteMeta getMarkDeleteMeta() {
+        return deleteMeta;
     }
 
-    protected Object getDeleteValue() {
-        return deleteValue;
+    protected VersionMeta getVersionMeta() {
+        return versionMeta;
     }
 }

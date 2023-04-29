@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.entity;
 
 import jakarta.persistence.Version;
 import wang.liangchen.matrix.framework.commons.enumeration.ConstantEnum;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.time.LocalDateTime;
 
@@ -12,20 +11,20 @@ import java.time.LocalDateTime;
 public class CommonEntity extends RootEntity {
 
     @Version
-    private Integer version = 0;
+    private Integer version;
 
-    private String owner = StringUtil.INSTANCE.blankString();
+    private String owner;
 
-    private String creator = StringUtil.INSTANCE.blankString();
+    private String creator;
 
-    private LocalDateTime createDatetime = LocalDateTime.now();
+    private LocalDateTime createDatetime;
 
-    private String modifier = StringUtil.INSTANCE.blankString();
+    private String modifier;
 
-    private LocalDateTime modifyDatetime = LocalDateTime.now();
+    private LocalDateTime modifyDatetime;
 
-    private String summary = StringUtil.INSTANCE.blankString();
-    private ConstantEnum state = ConstantEnum.DEFAULT;
+    private String summary;
+    private ConstantEnum state;
 
     public Integer getVersion() {
         return version;
