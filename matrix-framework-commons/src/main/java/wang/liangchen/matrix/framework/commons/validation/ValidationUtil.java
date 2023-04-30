@@ -30,10 +30,12 @@ public enum ValidationUtil {
     private final static ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
     private final static ValidatorFactory VALIDATOR_FACTORY = Validation.byDefaultProvider()
             .configure()
-            .messageInterpolator(new TranscodingResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
-                add("i18n");
-                add("i18n/messages");
-            }}, new MatrixResourceBundleLocator()), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> ValidationUtil.getOrDefaultLocale(), false))
+            .messageInterpolator(new TranscodingResourceBundleMessageInterpolator(
+                    new AggregateResourceBundleLocator(Arrays.asList("wang.liangchen.matrix.framework.validator.messages", "i18n.messages"), new MatrixResourceBundleLocator()),
+                    Collections.emptySet(),
+                    Locale.getDefault(),
+                    localeResolverContext -> ValidationUtil.getOrDefaultLocale(),
+                    false))
             .buildValidatorFactory();
     private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
 

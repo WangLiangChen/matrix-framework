@@ -12,19 +12,19 @@ class MatrixResourceBundleLocator implements ResourceBundleLocator {
     @Immutable
     private final Map<Locale, Map<String, Object>> contents = new HashMap<Locale, Map<String, Object>>() {{
         put(Locale.ENGLISH, new HashMap<String, Object>() {{
-            put("ParameterNotBlank", "Parameter can't be blank");
+            put("Parameter.NotNull", "Parameter must not be null");
+            put("Collection.NotEmpty","Collection parameter must not be empty");
         }});
         put(Locale.CHINA, new HashMap<String, Object>() {{
-            put("ParameterNotBlank", "参数不能为空");
+            put("Parameter.NotNull", "参数不能为null");
+            put("Collection.NotEmpty","集合参数不能为空");
         }});
     }};
 
     @Override
     public ResourceBundle getResourceBundle(Locale locale) {
+        locale = contents.containsKey(locale) ? locale : Locale.ENGLISH;
         Map<String, Object> messages = contents.get(locale);
-        if (null == messages) {
-            return null;
-        }
         return new ResourceBundle() {
             @Override
             protected Object handleGetObject(String key) {

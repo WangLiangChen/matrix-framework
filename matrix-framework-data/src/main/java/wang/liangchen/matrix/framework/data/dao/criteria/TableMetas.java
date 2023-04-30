@@ -121,8 +121,9 @@ public enum TableMetas {
                         && (null == field.getAnnotation(Transient.class) || null == field.getAnnotation(ColumnIgnore.class))
                         && !Modifier.isStatic(field.getModifiers()));
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
+        // 使用 putIfAbsent防止后面的父类field覆盖子类field
         for (Field field : fields) {
-            columnMetas.put(field.getName(), resolveColumnMeta(field));
+            columnMetas.putIfAbsent(field.getName(), resolveColumnMeta(field));
         }
         return TableMeta.newInstance(entityClass, resolveTableName(entityClass), columnMetas);
     }
