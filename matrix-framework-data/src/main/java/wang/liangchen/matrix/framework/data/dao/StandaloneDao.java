@@ -4,6 +4,7 @@ package wang.liangchen.matrix.framework.data.dao;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.data.cache.CacheOperator;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
+import wang.liangchen.matrix.framework.data.dao.entity.Entities;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
@@ -121,6 +122,10 @@ public class StandaloneDao extends AbstractDao {
 
     private <E extends RootEntity> List<E> list(CriteriaParameter<E> criteriaParameter) {
         return MybatisExecutor.INSTANCE.list(sqlSessionTemplate, criteriaParameter);
+    }
+
+    public <E extends RootEntity> Entities<E> entities(Criteria<E> criteria) {
+        return new Entities<>(list(criteria));
     }
 
     @Override
