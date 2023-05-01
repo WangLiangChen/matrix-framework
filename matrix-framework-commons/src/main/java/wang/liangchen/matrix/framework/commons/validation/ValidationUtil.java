@@ -1,10 +1,7 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
+import jakarta.validation.*;
+import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -16,7 +13,10 @@ import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-04-29 15:50
@@ -27,19 +27,15 @@ public enum ValidationUtil {
      */
     INSTANCE;
 
-    private final static ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
-    private final static ValidatorFactory VALIDATOR_FACTORY = Validation.byDefaultProvider()
-            .configure()
-            .messageInterpolator(new TranscodingResourceBundleMessageInterpolator(
-                    new AggregateResourceBundleLocator(Arrays.asList("wang.liangchen.matrix.framework.validator.messages", "i18n.messages"), new MatrixResourceBundleLocator()),
-                    Collections.emptySet(),
-                    Locale.getDefault(),
-                    localeResolverContext -> ValidationUtil.getOrDefaultLocale(),
-                    false))
-            .buildValidatorFactory();
-    private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
+    private final ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
+    private ValidatorFactory VALIDATOR_FACTORY;
+    private Validator VALIDATOR;
 
-    public void setLocale(Locale locale) {
+    ValidationUtil() {
+        resetValidator(new MatrixResourceBundleLocator());
+    }
+
+    public void resetLocale(Locale locale) {
         threadLocale.set(locale);
     }
 
@@ -47,7 +43,7 @@ public enum ValidationUtil {
         return threadLocale.get();
     }
 
-    public static Locale getOrDefaultLocale() {
+    public Locale getOrDefaultLocale() {
         Locale locale = threadLocale.get();
         return null == locale ? Locale.getDefault() : locale;
     }
@@ -56,12 +52,18 @@ public enum ValidationUtil {
         threadLocale.remove();
     }
 
-    public void close() {
-        if (null == VALIDATOR_FACTORY) {
-            return;
+    public synchronized void resetValidator(ResourceBundleLocator resourceBundleLocator) {
+        // 先构建个新的
+        MessageInterpolator messageInterpolator = new MatrixResourceBundleMessageInterpolator(resourceBundleLocator, Collections.emptySet(),
+                Locale.getDefault(), localeResolverContext -> getOrDefaultLocale(), false);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator).buildValidatorFactory();
+        if (null != VALIDATOR_FACTORY) {
+            VALIDATOR_FACTORY.close();
         }
-        VALIDATOR_FACTORY.close();
+        VALIDATOR_FACTORY = validatorFactory;
+        VALIDATOR = VALIDATOR_FACTORY.getValidator();
     }
+
 
     public String resolveDynamicMessage(String dynamicMessage, Object... args) {
         return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
@@ -306,10 +308,6 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
-        throwException(exceptionLevel, resolveDynamicMessage(message, args));
-    }
-
     public void throwException(ExceptionLevel exceptionLevel, String message) {
         switch (exceptionLevel) {
             case WARN:
@@ -320,4 +318,10 @@ public enum ValidationUtil {
                 throw new MatrixInfoException(message);
         }
     }
+
+    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
+        throwException(exceptionLevel, resolveDynamicMessage(message, args));
+    }
+
+
 }

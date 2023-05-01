@@ -16,8 +16,8 @@ public class I18nMessageWrapper extends MessageWrapper {
 
     public static MessageWrapper of(String code, String message, Object... args) {
         String i18nMessage = StringUtil.INSTANCE.format(message, args);
-        i18nMessage = MessageSourceLoader.INSTANCE.getMessage(i18nMessage, args);
-        return new I18nMessageWrapper(message, MessageSourceLoader.INSTANCE.getLocale(), code, i18nMessage);
+        i18nMessage = MessageSourceUtil.INSTANCE.getMessage(i18nMessage, args);
+        return new I18nMessageWrapper(message, MessageSourceUtil.INSTANCE.getLocale(), code, i18nMessage);
     }
 
     public static MessageWrapper of(String message, Object... args) {

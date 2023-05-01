@@ -9,7 +9,7 @@ import java.util.Locale;
  * @author LiangChen.Wang
  * 在spring容器启动早期即完成初始化
  */
-public enum MessageSourceLoader {
+public enum MessageSourceUtil {
     /**
      * instance;
      */
