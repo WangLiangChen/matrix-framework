@@ -208,6 +208,11 @@ public class ExampleClass {
 # matrix-framework-generator
 
 # matrix-framework-web
+## 国际化
+框架支持一致的Spring MessageSource和ValidationUtil国际化
+### 国际化参数获取顺序
+依次从Http请求的Header、Query、Cookie中获取locale或lang,最后获取Accept-Language
+
 1、统一序列化为特定的JSON格式（含直接对象、异常、空响应）
 2、统一处理异常（含404）
 3、统一处理requestId

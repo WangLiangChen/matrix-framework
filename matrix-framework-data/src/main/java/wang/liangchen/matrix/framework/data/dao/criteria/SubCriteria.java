@@ -199,6 +199,11 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractObjectCr
     }
 
     @Override
+    public SubCriteria<E> _or() {
+        return (SubCriteria<E>) super._or();
+    }
+
+    @Override
     public SubCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         return (SubCriteria<E>) super._or(consumer);
     }
