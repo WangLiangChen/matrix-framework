@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author Liangchen.Wang 2022-04-29 15:50
@@ -26,6 +27,7 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
+    private final Pattern I18N_PATTERN = Pattern.compile(".*\\{[a-zA-Z]+.*?}");
 
     private final ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
     private ValidatorFactory VALIDATOR_FACTORY;
@@ -66,7 +68,10 @@ public enum ValidationUtil {
 
 
     public String resolveDynamicMessage(String dynamicMessage, Object... args) {
-        return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
+        if (I18N_PATTERN.matcher(dynamicMessage).matches()) {
+            return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
+        }
+        return StringUtil.INSTANCE.format(dynamicMessage, args);
     }
 
     public String resolveDynamicMessage(DynamicMessage dynamicMessage, Object... args) {

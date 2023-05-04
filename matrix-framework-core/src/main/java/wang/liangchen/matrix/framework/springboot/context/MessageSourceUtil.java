@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.context;
 
 import org.springframework.context.MessageSource;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.util.Locale;
@@ -16,40 +17,24 @@ public enum MessageSourceUtil {
     INSTANCE;
     private MessageSource messageSource;
 
-    public void initMessageSource(MessageSource messageSource) {
+    public void resetMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
-    public String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
-        return this.messageSource.getMessage(code, args, defaultMessage, locale);
+    public String getMessage(String messageKey, String defaultMessage, Locale locale, Object... args) {
+        return this.messageSource.getMessage(messageKey, args, defaultMessage, locale);
     }
 
-    public String getMessage(String code, Object[] args, Locale locale) {
-        return this.messageSource.getMessage(code, args, locale);
+    public String getMessage(String messageKey, Locale locale, Object... args) {
+        return getMessage(messageKey, StringUtil.INSTANCE.blankString(), locale, args);
     }
 
-    public String getMessage(String code, Object[] args, String defaultMessage) {
-        return getMessage(code, args, defaultMessage, ValidationUtil.INSTANCE.getLocale());
+    public String getMessage(String messageKey, String defaultMessage, Object... args) {
+        return getMessage(messageKey, defaultMessage, ValidationUtil.INSTANCE.getLocale(), args);
     }
 
-    public String getMessage(String code, Object[] args) {
-        return getMessage(code, args, ValidationUtil.INSTANCE.getLocale());
-    }
-
-    public String getMessage(String code, String defaultMessage, Locale locale) {
-        return getMessage(code, null, defaultMessage, locale);
-    }
-
-    public String getMessage(String code, String defaultMessage) {
-        return getMessage(code, null, defaultMessage);
-    }
-
-    public String getMessage(String code, Locale locale) {
-        return getMessage(code, null, null, locale);
-    }
-
-    public String getMessage(String code) {
-        return getMessage(code, ValidationUtil.INSTANCE.getLocale());
+    public String getMessage(String messageKey, Object... args) {
+        return getMessage(messageKey, ValidationUtil.INSTANCE.getLocale(), args);
     }
 
     public Locale getLocale() {

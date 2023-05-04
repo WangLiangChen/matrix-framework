@@ -9,9 +9,18 @@ import java.util.Locale;
  * @author Liangchen.Wang 2022-10-16 10:50
  */
 public class MessageWrapper implements Serializable {
+    /**
+     * 传给前端的i18n的messageKey,用于前端国际化
+     */
     private final String i18n;
     private final Locale locale;
+    /**
+     * 消息代码/消息标识
+     */
     private final String code;
+    /**
+     * 消息内容
+     */
     private final String message;
 
     protected MessageWrapper(String i18n, Locale locale, String code, String message) {

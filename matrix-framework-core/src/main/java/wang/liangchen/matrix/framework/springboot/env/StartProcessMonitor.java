@@ -265,7 +265,7 @@ public class StartProcessMonitor implements
     @Override
     public void setMessageSource(MessageSource messageSource) {
         ValidationUtil.INSTANCE.resetValidator(new MatrixMessageSourceResourceBundleLocator(messageSource));
-        MessageSourceUtil.INSTANCE.initMessageSource(messageSource);
+        MessageSourceUtil.INSTANCE.resetMessageSource(messageSource);
         PrettyPrinter.INSTANCE.buffer("Overrided from MessageSourceAware").flush();
     }
 
