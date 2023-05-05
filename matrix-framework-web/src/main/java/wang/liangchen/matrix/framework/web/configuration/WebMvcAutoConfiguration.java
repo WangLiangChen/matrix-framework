@@ -106,10 +106,12 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
             }
 
             private void flushFormattedResponse(HttpServletResponse response, FormattedResponse<?> formattedResponse) throws IOException {
+                response.setContentType("application/json;charset=utf-8");
                 flushBytes(response, formattedResponse.toString().getBytes(StandardCharsets.UTF_8));
             }
 
             private void flushBytes(HttpServletResponse response, byte[] bytes) throws IOException {
+                response.setContentLength(bytes.length);
                 try (ServletOutputStream outputStream = response.getOutputStream()) {
                     outputStream.write(bytes);
                     outputStream.flush();

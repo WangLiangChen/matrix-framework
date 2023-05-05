@@ -13,7 +13,6 @@ import wang.liangchen.matrix.framework.springboot.jackson.DefaultObjectMapper;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -50,7 +49,7 @@ public final class FormattedResponse<T> implements Serializable {
     /**
      * 业务/错误数据
      */
-    private Object payload = new HashMap<String, Object>();
+    private Object payload;
     /**
      * 前端传递的requestId,原样返回
      * 用于标识同一个请求,或作为traceId向后传递
