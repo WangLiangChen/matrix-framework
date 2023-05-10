@@ -59,11 +59,11 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
         return whereSqlValues;
     }
 
-    public DeleteMeta getMarkDeleteMeta() {
+    public DeleteMeta getDeleteMeta() {
         return deleteMeta;
     }
 
-    public void setMarkDeleteMeta(DeleteMeta deleteMeta) {
+    public void setDeleteMeta(DeleteMeta deleteMeta) {
         this.deleteMeta = deleteMeta;
     }
 

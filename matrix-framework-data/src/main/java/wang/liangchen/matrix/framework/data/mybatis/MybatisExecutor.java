@@ -160,13 +160,13 @@ public enum MybatisExecutor {
             String tableName = tableMeta.getTableName();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("<choose><when test=\"null==markDeleteMeta\">");
+            sqlBuilder.append("<choose><when test=\"null==deleteMeta\">");
             sqlBuilder.append("delete from ").append(tableName);
             sqlBuilder.append("</when><otherwise>");
 
             sqlBuilder.append("update ").append(tableName).append("<set>");
             sqlBuilder.append("<if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionNewValue},</if>");
-            sqlBuilder.append("${markDeleteMeta.deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{markDeleteMeta.deleteValue}");
+            sqlBuilder.append("${deleteMeta.deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{deleteMeta.deleteValue}");
             sqlBuilder.append("</set></otherwise></choose>");
             sqlBuilder.append("<where><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionOldValue} and </if>${whereSql}</where>");
             sqlBuilder.append("</script>");
