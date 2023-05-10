@@ -41,7 +41,7 @@ public enum CriteriaResolver {
         if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
             DeleteMeta deleteMeta = deleteCriteria.getMarkDeleteMeta();
             if (null != deleteMeta && null != deleteMeta.getDeleteValue() && null != deleteMeta.getDeleteColumnName()) {
-                criteriaParameter.setMarkDeleteMeta(deleteMeta);
+                criteriaParameter.setDeleteMeta(deleteMeta);
             }
             VersionMeta versionMeta = deleteCriteria.getVersionMeta();
             if (null != versionMeta && null != versionMeta.getVersionOldValue() && null != versionMeta.getVersionNewValue() && null != versionMeta.getVersionColumnName()) {
