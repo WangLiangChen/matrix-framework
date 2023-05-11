@@ -25,8 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,6 +104,10 @@ public class RequestResponseBodyMethodProcessorConfiguration {
 
         @Override
         public Object read(Class<?> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+            // 如果是Map、Collection 则无需处理
+            if (Map.class.isAssignableFrom(clazz) || Collection.class.isAssignableFrom(clazz)) {
+                return this.delegate.read(clazz, inputMessage);
+            }
             int modifiers = clazz.getModifiers();
             boolean isAbstract = Modifier.isAbstract(modifiers);
             boolean isInterface = Modifier.isInterface(modifiers);
