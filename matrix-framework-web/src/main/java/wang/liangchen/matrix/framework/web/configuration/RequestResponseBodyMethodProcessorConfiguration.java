@@ -121,9 +121,9 @@ public class RequestResponseBodyMethodProcessorConfiguration {
                     // 是子类 并且 同包
                     if (clazz.isAssignableFrom(subclass) && clazz.getPackageName().equals(subclass.getPackageName())) {
                         clazz = subclass;
-                        inputMessage = inputMessageDelegate;
                     }
                 }
+                return this.delegate.read(clazz, inputMessageDelegate);
             }
             return this.delegate.read(clazz, inputMessage);
         }
