@@ -93,7 +93,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                     flushFormattedResponse(response, FormattedResponse.failure()
                             .code(String.valueOf(SC_NOT_FOUND))
                             .level(ExceptionLevel.ERROR)
-                            .message("Request does not exist: {}", requestURI));
+                            .i18n("Resource.Absent")
+                            .message("The resource required for this request does not exist: {}", requestURI));
                     return;
                 }
 
