@@ -2,17 +2,15 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.datasource.MultiDataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -22,18 +20,9 @@ public enum CriteriaResolver {
      * instance
      */
     INSTANCE;
-    private final static String AND = " and ";
-    private final static String OR = " or ";
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
-        CriteriaParameter<E> criteriaParameter;
-        if (abstractCriteria instanceof DeleteCriteria) {
-            DeleteCriteria<E> deleteCriteria = (DeleteCriteria<E>) abstractCriteria;
-            criteriaParameter = new DeleteCriteriaParameter<>(deleteCriteria.getDeleteColumnName(), deleteCriteria.getDeleteValue());
-        } else {
-            criteriaParameter = new CriteriaParameter<>();
-        }
-
+        CriteriaParameter<E> criteriaParameter = new CriteriaParameter<>();
         criteriaParameter.setEntity(abstractCriteria.getEntity());
         criteriaParameter.setEntityClass(abstractCriteria.getEntityClass());
 
@@ -44,39 +33,44 @@ public enum CriteriaResolver {
         }
         criteriaParameter.setTableMeta(abstractCriteria.getTableMeta());
 
-        StringBuilder sqlBuilder = new StringBuilder();
-        Map<String, Object> values = new HashMap<>();
-        resovle(abstractCriteria, sqlBuilder, values, new AtomicInteger(0));
-        criteriaParameter.setWhereSql(sqlBuilder.toString());
-        criteriaParameter.setWhereSqlValues(values);
+        ComposedCriteriaResolver composedCriteriaResolver = abstractCriteria.getComposedCriteriaResolver();
+        String whereSql = composedCriteriaResolver.resolveWhereSql();
+        criteriaParameter.setWhereSql(whereSql);
+        criteriaParameter.setWhereSqlValues(composedCriteriaResolver.getMergedValues());
 
-        if (abstractCriteria instanceof Criteria) {
-            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
+        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+            DeleteMeta deleteMeta = deleteCriteria.getMarkDeleteMeta();
+            if (null != deleteMeta && null != deleteMeta.getDeleteValue() && null != deleteMeta.getDeleteColumnName()) {
+                criteriaParameter.setDeleteMeta(deleteMeta);
+            }
+            VersionMeta versionMeta = deleteCriteria.getVersionMeta();
+            if (null != versionMeta && null != versionMeta.getVersionOldValue() && null != versionMeta.getVersionNewValue() && null != versionMeta.getVersionColumnName()) {
+                criteriaParameter.setVersionMeta(versionMeta);
+            }
+        }
+        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
+            criteriaParameter.setVersionMeta(updateCriteria.getVersionMeta());
+            populateForceUpdate(updateCriteria, criteriaParameter);
+        }
+
+        if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof UpdateCriteria) {
-            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
-            populateForceUpdate(updateCriteria, criteriaParameter);
-        }
         return criteriaParameter;
     }
+
 
     private <E extends RootEntity> void populateForceUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
         E entity = updateCriteria.getEntity();
         criteriaParameter.setEntity(entity);
-        Map<EntityGetter<E>, Object> forceUpdateColumns = updateCriteria.getForceUpdateFields();
+        Map<String, Object> forceUpdateColumns = updateCriteria.getForceUpdateColumns();
         if (CollectionUtil.INSTANCE.isEmpty(forceUpdateColumns)) {
             return;
         }
-        Map<String, ColumnMeta> columnMetas = updateCriteria.getTableMeta().getColumnMetas();
-        forceUpdateColumns.forEach((column, value) -> {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(column);
-            String columnName = columnMetas.get(fieldName).getColumnName();
-            entity.addForceUpdateColumn(columnName, value);
-        });
+        forceUpdateColumns.forEach(entity::addForceUpdateColumn);
     }
 
     private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
@@ -106,69 +100,4 @@ public enum CriteriaResolver {
         }
     }
 
-
-    @SuppressWarnings("unchecked")
-    private <E extends RootEntity> void resovle(AbstractCriteria<E> abstractCriteria, StringBuilder sqlBuilder, Map<String, Object> values, AtomicInteger counter) {
-        List<CriteriaMeta<E>> CRITERIAMETAS = abstractCriteria.getCRITERIAMETAS();
-        if (!CollectionUtil.INSTANCE.isEmpty(CRITERIAMETAS)) {
-            ColumnMeta columnMeta;
-            String columnName;
-            String[] placeholders;
-            Object[] sqlValues;
-            String placeholder = null;
-            Operator operator;
-            for (CriteriaMeta<E> criteriaMeta : CRITERIAMETAS) {
-                columnMeta = criteriaMeta.getColumnMeta();
-                columnName = columnMeta.getColumnName();
-                sqlValues = criteriaMeta.getSqlValues();
-                placeholders = new String[sqlValues.length];
-                for (int i = 0; i < sqlValues.length; i++) {
-                    placeholder = String.format("%s%d", columnName, counter.getAndIncrement());
-                    placeholders[i] = String.format("#{whereSqlValues.%s}", placeholder);
-                    values.put(placeholder, sqlValues[i]);
-                }
-                operator = criteriaMeta.getOperator();
-                sqlBuilder.append(AND).append(columnName).append(operator.getOperator());
-                switch (operator) {
-                    case IN:
-                    case NOTIN:
-                        sqlBuilder.append(Symbol.OPEN_PAREN.getSymbol());
-                        sqlBuilder.append(Arrays.stream(placeholders).map(String::valueOf).collect(Collectors.joining(Symbol.COMMA.getSymbol())));
-                        sqlBuilder.append(Symbol.CLOSE_PAREN.getSymbol());
-                        break;
-                    case BETWEEN:
-                    case NOTBETWEEN:
-                        sqlBuilder.append(placeholders[0]).append(AND).append(placeholders[1]);
-                        break;
-                    case ISNULL:
-                    case ISNOTNULL:
-                        break;
-                    case CONTAINS:
-                    case NOTCONTAINS:
-                        Object object = values.get(placeholder);
-                        object = String.format("%%%s%%", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    case STARTWITH:
-                    case NOTSTARTWITH:
-                        object = values.get(placeholder);
-                        object = String.format("%s%%", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    case ENDWITH:
-                    case NOTENDWITH:
-                        object = values.get(placeholder);
-                        object = String.format("%%%s", object);
-                        values.put(placeholder, object);
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                    default:
-                        sqlBuilder.append(placeholders[0]);
-                        break;
-                }
-            }
-        }
-    }
 }

@@ -5,14 +5,18 @@ import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
+    /**
+     * 默认刷新缓存
+     */
     private boolean flushCache = true;
-    private String deleteColumnName;
-    private Object deleteValue;
+    private DeleteMeta deleteMeta;
+    private VersionMeta versionMeta;
 
     private DeleteCriteria(Class<E> entityClass) {
         super(entityClass);
@@ -23,24 +27,32 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public DeleteCriteria<E> disableCache() {
+    public DeleteCriteria<E> disableFlushCache() {
         this.flushCache = false;
         return this;
+    }
+
+    public boolean isFlushCache() {
+        return flushCache;
     }
 
     public DeleteCriteria<E> markDelete(EntityGetter<E> fieldGetter, Object sqlValue) {
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
         ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
-        this.deleteColumnName = columnMeta.getColumnName();
-        this.deleteValue = sqlValue;
+        this.deleteMeta = DeleteMeta.newInstance(columnMeta.getColumnName(), sqlValue);
         return this;
     }
 
-    @Override
-    public DeleteCriteria<E> ignoreStringBlank() {
-        return (DeleteCriteria<E>) super.ignoreStringBlank();
+    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Integer oldValue) {
+        return optimisticLock(fieldGetter, oldValue, null);
     }
 
+    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Object oldValue, Object newValue) {
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        ColumnMeta columnMeta = this.getColumnMetas().get(fieldName);
+        this.versionMeta = VersionMeta.newInstance(columnMeta.getColumnName(), oldValue, newValue);
+        return this;
+    }
 
     @Override
     public DeleteCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -187,15 +199,27 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         return (DeleteCriteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
-    public boolean isFlushCache() {
-        return flushCache;
+    @Override
+    protected DeleteCriteria<E> _or() {
+        return (DeleteCriteria<E>) super._or();
     }
 
-    public String getDeleteColumnName() {
-        return deleteColumnName;
+    @Override
+    protected DeleteCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
+        return (DeleteCriteria<E>) super._or(consumer);
     }
 
-    public Object getDeleteValue() {
-        return deleteValue;
+    @Override
+    protected DeleteCriteria<E> _and(Consumer<SubCriteria<E>> consumer) {
+        return (DeleteCriteria<E>) super._and(consumer);
+    }
+
+
+    protected DeleteMeta getMarkDeleteMeta() {
+        return deleteMeta;
+    }
+
+    protected VersionMeta getVersionMeta() {
+        return versionMeta;
     }
 }

@@ -13,8 +13,8 @@ import java.util.Set;
 /**
  * @author Liangchen.Wang 2022-10-12 8:54
  */
-public class TranscodingResourceBundleMessageInterpolator extends ResourceBundleMessageInterpolator {
-    public TranscodingResourceBundleMessageInterpolator(ResourceBundleLocator userResourceBundleLocator, Set<Locale> locales, Locale defaultLocale, LocaleResolver localeResolver, boolean preloadResourceBundles) {
+public class MatrixResourceBundleMessageInterpolator extends ResourceBundleMessageInterpolator {
+    public MatrixResourceBundleMessageInterpolator(ResourceBundleLocator userResourceBundleLocator, Set<Locale> locales, Locale defaultLocale, LocaleResolver localeResolver, boolean preloadResourceBundles) {
         super(userResourceBundleLocator, locales, defaultLocale, localeResolver, preloadResourceBundles);
     }
 
@@ -26,4 +26,14 @@ public class TranscodingResourceBundleMessageInterpolator extends ResourceBundle
         }
         return result;
     }
+
+    @Override
+    protected String interpolate(Context context, Locale locale, String term) {
+        String result = super.interpolate(context, locale, term);
+        if (StringUtil.INSTANCE.isISO_8859_1(result)) {
+            return new String(result.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        }
+        return result;
+    }
+
 }

@@ -13,6 +13,7 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.uid.NumbericUid;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.context.ExtendedColumnsContext;
 import wang.liangchen.matrix.framework.data.dao.criteria.*;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler;
@@ -21,6 +22,7 @@ import wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang
@@ -34,14 +36,9 @@ public enum MybatisExecutor {
     private final Logger logger = LoggerFactory.getLogger(MybatisExecutor.class);
     private final Map<String, String> STATEMENT_CACHE = new ConcurrentHashMap<>(128);
     private final Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
-    private final ThreadLocal<String> tableContext = new ThreadLocal<>();
-
-    public String tableContext() {
-        return tableContext.get();
-    }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
         TableMeta tableMeta = entity.tableMeta();
@@ -49,15 +46,14 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             // 缓存单一ID的setterMethod
             cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
-            Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+            Collection<ColumnMeta> columnMetas = tableMeta.getColumnMetas().values();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
             sqlBuilder.append("insert into ").append(tableName).append("(");
-            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
-            // 去除最后一个逗号
-            sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
+            String insertedColumnNames = columnMetas.stream().map(ColumnMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+            sqlBuilder.append(insertedColumnNames);
             sqlBuilder.append(")values(");
-            columnMetas.values().forEach(columnMeta -> {
+            columnMetas.forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
@@ -80,7 +76,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, entities, "entities must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, entities, "{Collection.NotEmpty}");
         Iterator<E> iterator = entities.iterator();
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
@@ -90,17 +86,16 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             // 缓存单个ID的setterMethod
             cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
-            Map<String, ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+            Collection<ColumnMeta> columnMetas = tableMeta.getColumnMetas().values();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
             sqlBuilder.append("insert into ").append(tableName).append("(");
-            columnMetas.values().forEach(columnMeta -> sqlBuilder.append(columnMeta.getColumnName()).append(","));
-            // 去除最后一个逗号
-            sqlBuilder.deleteCharAt(sqlBuilder.lastIndexOf(Symbol.COMMA.getSymbol()));
+            String insertedColumnNames = columnMetas.stream().map(ColumnMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+            sqlBuilder.append(insertedColumnNames);
             sqlBuilder.append(")values");
             sqlBuilder.append("<foreach collection=\"collection\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-            columnMetas.values().forEach(columnMeta -> {
+            columnMetas.forEach(columnMeta -> {
                 String typeHandler = "";
                 if (columnMeta.isJson()) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
@@ -122,7 +117,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -130,20 +125,20 @@ public enum MybatisExecutor {
             StringBuilder sqlBuilder = new StringBuilder();
             ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
             ColumnMeta columnVersionMeta = tableMeta.getColumnVersionMeta();
+            String tableName = tableMeta.getTableName();
             sqlBuilder.append("<script>");
             if (null == columnDeleteMeta) {
-                sqlBuilder.append("delete from ").append(tableMeta.getTableName());
+                sqlBuilder.append("delete from ").append(tableName);
             } else {
-                // 通过扩展字段 增加deleteValue
-                entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
-                sqlBuilder.append("update ").append(tableMeta.getTableName());
-                sqlBuilder.append(" set ");
+                sqlBuilder.append("update ").append(tableName).append("<set>");
                 if (null != columnVersionMeta) {
                     sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnVersionMeta.getFieldName()).append(")\">");
                     sqlBuilder.append(columnVersionMeta.getColumnName()).append("=").append(columnVersionMeta.getColumnName()).append("+1,");
                     sqlBuilder.append("</if>");
                 }
+                entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
+                sqlBuilder.append("</set>");
             }
             sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas(), columnVersionMeta));
             sqlBuilder.append("</script>");
@@ -158,21 +153,22 @@ public enum MybatisExecutor {
         return rows;
     }
 
-    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final DeleteCriteriaParameter<E> criteriaParameter) {
+    public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
         TableMeta tableMeta = criteriaParameter.getTableMeta();
         String statementId = String.format("%s.%s", tableMeta.getEntityClass().getName(), "deleteBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
+            String tableName = tableMeta.getTableName();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("<choose><when test=\"null==deleteColumnName\">");
-            sqlBuilder.append("delete from ").append(tableMeta.getTableName());
+            sqlBuilder.append("<choose><when test=\"null==deleteMeta\">");
+            sqlBuilder.append("delete from ").append(tableName);
             sqlBuilder.append("</when><otherwise>");
 
-            sqlBuilder.append("update ").append(tableMeta.getTableName());
-            sqlBuilder.append(" set ");
-            sqlBuilder.append("${deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{deleteValue}");
-            sqlBuilder.append("</otherwise></choose>");
-            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("update ").append(tableName).append("<set>");
+            sqlBuilder.append("<if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionNewValue},</if>");
+            sqlBuilder.append("${deleteMeta.deleteColumnName}").append(Symbol.EQUAL.getSymbol()).append("#{deleteMeta.deleteValue}");
+            sqlBuilder.append("</set></otherwise></choose>");
+            sqlBuilder.append("<where><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionOldValue} and </if>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class);
@@ -183,7 +179,7 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, E entity) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "entity must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "update");
         TableMeta tableMeta = entity.tableMeta();
@@ -191,8 +187,7 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("update ").append(tableMeta.getTableName());
-            sqlBuilder.append("<set>");
+            sqlBuilder.append("update ").append(tableMeta.getTableName()).append("<set>");
             // 版本列名称
             String fieldName, columnName;
             ColumnMeta columnVersionMeta = null;
@@ -224,8 +219,7 @@ public enum MybatisExecutor {
             // 更新强制项
             sqlBuilder.append("<foreach collection=\"forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
             sqlBuilder.append("${key} = #{item}");
-            sqlBuilder.append("</foreach>");
-            sqlBuilder.append("</set>");
+            sqlBuilder.append("</foreach></set>");
             sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas(), columnVersionMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
@@ -245,8 +239,8 @@ public enum MybatisExecutor {
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
-            sqlBuilder.append("update ").append(tableMeta.getTableName());
-            sqlBuilder.append("<set>");
+            sqlBuilder.append("update ").append(tableMeta.getTableName()).append("<set>");
+            sqlBuilder.append("<if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionNewValue},</if>");
             tableMeta.getNonPkColumnMetas().values().forEach(columnMeta -> {
                 String fieldName = columnMeta.getFieldName();
                 String columnName = columnMeta.getColumnName();
@@ -266,9 +260,8 @@ public enum MybatisExecutor {
 
             sqlBuilder.append("<foreach collection=\"entity.forceUpdateColumns.entrySet()\" index=\"key\" item=\"item\" separator=\",\">");
             sqlBuilder.append("${key} = #{item}");
-            sqlBuilder.append("</foreach>");
-            sqlBuilder.append("</set>");
-            sqlBuilder.append("<where>${whereSql}</where>");
+            sqlBuilder.append("</foreach></set>");
+            sqlBuilder.append("<where><if test=\"null!=versionMeta\">${versionMeta.versionColumnName}=#{versionMeta.versionOldValue} and </if>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
             buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, UpdateCriteria.class, Integer.class);
@@ -333,11 +326,11 @@ public enum MybatisExecutor {
 
     private <T> T populateContext(String tableName, Supplier<T> supplier) {
         // populate context
-        tableContext.set(tableName);
+        ExtendedColumnsContext.INSTANCE.setTableName(tableName);
         try {
             return supplier.get();
         } finally {
-            tableContext.remove();
+            ExtendedColumnsContext.INSTANCE.remove();
         }
     }
 

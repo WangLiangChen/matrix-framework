@@ -193,7 +193,7 @@ public class DDDGenerator {
                 }
                 entityProperties.setColumnJson(columnJson);
                 String columnState = null;
-                Boolean isUseConstantEnum = null;
+                Boolean isUseConstantEnum = Boolean.FALSE;
                 nodes = entityElement.getElementsByTagName("column-state");
                 if (nodes.getLength() == 1) {
                     element = (Element) nodes.item(0);
@@ -254,7 +254,7 @@ public class DDDGenerator {
         southboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
         // 填充
         southboundMessagePlProperties.setMessagePlPackage(southboundMessagePlProperties.getSouthboundAclPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
-        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "SouthboundMessagePlPackageInfo.ftl", southboundMessagePlProperties);
+        createFile(entityProperties.getOutput(), southboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "SouthBoundMessagePlPackageInfo.ftl", southboundMessagePlProperties);
         return southboundMessagePlProperties;
     }
 
@@ -332,7 +332,7 @@ public class DDDGenerator {
         NorthboundOhsProperties northboundOhsProperties = new NorthboundOhsProperties();
         northboundOhsProperties.setNorthboundOhsPackage(entityProperties.getBoundedContextPackage().concat(Symbol.DOT.getSymbol()).concat("northbound_ohs"));
         northboundOhsProperties.setAuthor(entityProperties.getAuthor());
-        createFile(entityProperties.getOutput(), northboundOhsProperties.getNorthboundOhsPackage(), PACKAGE_INFO_FILE, "NorthboundOhsPackageInfo.ftl", northboundOhsProperties);
+        createFile(entityProperties.getOutput(), northboundOhsProperties.getNorthboundOhsPackage(), PACKAGE_INFO_FILE, "NorthBoundOhsPackageInfo.ftl", northboundOhsProperties);
         return northboundOhsProperties;
     }
 
@@ -343,7 +343,7 @@ public class DDDGenerator {
         northboundMessagePlProperties.setAuthor(entityProperties.getAuthor());
         // 填充
         northboundMessagePlProperties.setMessagePlPackage(northboundMessagePlProperties.getNorthboundOhsPackage().concat(Symbol.DOT.getSymbol()).concat("message_pl"));
-        createFile(entityProperties.getOutput(), northboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "NorthboundMessagePlPackageInfo.ftl", northboundMessagePlProperties);
+        createFile(entityProperties.getOutput(), northboundMessagePlProperties.getMessagePlPackage(), PACKAGE_INFO_FILE, "NorthBoundMessagePlPackageInfo.ftl", northboundMessagePlProperties);
         return northboundMessagePlProperties;
     }
 

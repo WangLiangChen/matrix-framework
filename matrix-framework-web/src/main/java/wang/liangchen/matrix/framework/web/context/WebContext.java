@@ -23,7 +23,11 @@ public enum WebContext {
     }
 
     public String getRequestId() {
-        return String.valueOf(threadLocal.get().get(REQUEST_ID));
+        Object requestId = threadLocal.get().get(REQUEST_ID);
+        if (null == requestId) {
+            return null;
+        }
+        return requestId.toString();
     }
 
     public Locale getLocale() {

@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-
-import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
+import jakarta.validation.*;
+import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
@@ -11,13 +11,13 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author Liangchen.Wang 2022-04-29 15:50
@@ -27,18 +27,17 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
+    private final Pattern I18N_PATTERN = Pattern.compile(".*\\{[a-zA-Z]+.*?}");
 
-    private final static ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
-    private final static ValidatorFactory VALIDATOR_FACTORY = Validation.byDefaultProvider()
-            .configure()
-            .messageInterpolator(new TranscodingResourceBundleMessageInterpolator(new AggregateResourceBundleLocator(new ArrayList<String>() {{
-                add("i18n");
-                add("i18n/messages");
-            }}, new MatrixResourceBundleLocator()), Collections.emptySet(), Locale.getDefault(), localeResolverContext -> ValidationUtil.getOrDefaultLocale(), false))
-            .buildValidatorFactory();
-    private final static Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
+    private final ThreadLocal<Locale> threadLocale = InheritableThreadLocal.withInitial(Locale::getDefault);
+    private ValidatorFactory VALIDATOR_FACTORY;
+    private Validator VALIDATOR;
 
-    public void setLocale(Locale locale) {
+    ValidationUtil() {
+        resetValidator(new MatrixResourceBundleLocator());
+    }
+
+    public void resetLocale(Locale locale) {
         threadLocale.set(locale);
     }
 
@@ -46,7 +45,7 @@ public enum ValidationUtil {
         return threadLocale.get();
     }
 
-    public static Locale getOrDefaultLocale() {
+    public Locale getOrDefaultLocale() {
         Locale locale = threadLocale.get();
         return null == locale ? Locale.getDefault() : locale;
     }
@@ -55,15 +54,24 @@ public enum ValidationUtil {
         threadLocale.remove();
     }
 
-    public void close() {
-        if (null == VALIDATOR_FACTORY) {
-            return;
+    public synchronized void resetValidator(ResourceBundleLocator resourceBundleLocator) {
+        // 先构建个新的
+        MessageInterpolator messageInterpolator = new MatrixResourceBundleMessageInterpolator(resourceBundleLocator, Collections.emptySet(),
+                Locale.getDefault(), localeResolverContext -> getOrDefaultLocale(), false);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator).buildValidatorFactory();
+        if (null != VALIDATOR_FACTORY) {
+            VALIDATOR_FACTORY.close();
         }
-        VALIDATOR_FACTORY.close();
+        VALIDATOR_FACTORY = validatorFactory;
+        VALIDATOR = VALIDATOR_FACTORY.getValidator();
     }
 
+
     public String resolveDynamicMessage(String dynamicMessage, Object... args) {
-        return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
+        if (I18N_PATTERN.matcher(dynamicMessage).matches()) {
+            return resolveDynamicMessage(DynamicMessage.newInstantce(dynamicMessage), args);
+        }
+        return StringUtil.INSTANCE.format(dynamicMessage, args);
     }
 
     public String resolveDynamicMessage(DynamicMessage dynamicMessage, Object... args) {
@@ -222,7 +230,7 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object) {
-        return notNull(object, "{javax.validation.constraints.NotNull.message}");
+        return notNull(object, "{jakarta.validation.constraints.NotNull.message}");
     }
 
     public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
@@ -305,10 +313,6 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
-        throwException(exceptionLevel, resolveDynamicMessage(message, args));
-    }
-
     public void throwException(ExceptionLevel exceptionLevel, String message) {
         switch (exceptionLevel) {
             case WARN:
@@ -319,4 +323,10 @@ public enum ValidationUtil {
                 throw new MatrixInfoException(message);
         }
     }
+
+    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
+        throwException(exceptionLevel, resolveDynamicMessage(message, args));
+    }
+
+
 }

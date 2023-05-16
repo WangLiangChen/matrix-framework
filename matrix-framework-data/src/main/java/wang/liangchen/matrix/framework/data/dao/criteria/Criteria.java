@@ -8,6 +8,7 @@ import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
@@ -42,10 +43,8 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
 
     @SafeVarargs
     public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
-        if (null == this.resultColumns) {
-            this.resultColumns = new HashSet<>();
-        }
-        Map<String, ColumnMeta> columnMetas = getTableMeta().getColumnMetas();
+        this.resultColumns = null == this.resultColumns ? new HashSet<>() : this.resultColumns;
+        Map<String, ColumnMeta> columnMetas = this.getColumnMetas();
         for (EntityGetter<E> resultField : resultFields) {
             String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
             String columnName = columnMetas.get(fieldName).getColumnName();
@@ -55,9 +54,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public final Criteria<E> resultColumns(String... resultColumns) {
-        if (null == this.resultColumns) {
-            this.resultColumns = new HashSet<>();
-        }
+        this.resultColumns = null == this.resultColumns ? new HashSet<>() : this.resultColumns;
         this.resultColumns.addAll(Arrays.asList(resultColumns));
         return this;
     }
@@ -78,10 +75,8 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public Criteria<E> orderBy(EntityGetter<E> fieldGetter, OrderByDirection orderByDirection) {
-        if (null == this.orderBys) {
-            this.orderBys = new ArrayList<>();
-        }
-        Map<String, ColumnMeta> columnMetas = getTableMeta().getColumnMetas();
+        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
+        Map<String, ColumnMeta> columnMetas = this.getColumnMetas();
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
         String columnName = columnMetas.get(fieldName).getColumnName();
         this.orderBys.add(OrderBy.newInstance(columnName, orderByDirection));
@@ -89,9 +84,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public Criteria<E> orderBy(List<OrderBy> orderBys) {
-        if (null == this.orderBys) {
-            this.orderBys = new ArrayList<>();
-        }
+        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
         this.orderBys.addAll(orderBys);
         return this;
     }
@@ -122,11 +115,6 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     public Criteria<E> version(long version) {
         this.version = version;
         return this;
-    }
-
-    @Override
-    public Criteria<E> ignoreStringBlank() {
-        return (Criteria<E>) super.ignoreStringBlank();
     }
 
     @Override
@@ -299,31 +287,45 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return (Criteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
 
-    public Set<String> getResultColumns() {
+    @Override
+    public Criteria<E> _or(Consumer<SubCriteria<E>> consumer) {
+        return (Criteria<E>) super._or(consumer);
+    }
+    @Override
+    public Criteria<E> _or() {
+        return (Criteria<E>) super._or();
+    }
+
+    @Override
+    public Criteria<E> _and(Consumer<SubCriteria<E>> consumer) {
+        return (Criteria<E>) super._and(consumer);
+    }
+
+    protected Set<String> getResultColumns() {
         return resultColumns;
     }
 
-    public Boolean getDistinct() {
+    protected Boolean getDistinct() {
         return distinct;
     }
 
-    public Boolean getForUpdate() {
+    protected Boolean getForUpdate() {
         return forUpdate;
     }
 
-    public Integer getPageSize() {
+    protected Integer getPageSize() {
         return pageSize;
     }
 
-    public Integer getPageNumber() {
+    protected Integer getPageNumber() {
         return pageNumber;
     }
 
-    public List<OrderBy> getOrderBys() {
+    protected List<OrderBy> getOrderBys() {
         return orderBys;
     }
 
-    public Long getVersion() {
+    protected Long getVersion() {
         return version;
     }
 

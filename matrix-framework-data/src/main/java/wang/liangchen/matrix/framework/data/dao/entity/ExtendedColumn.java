@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.entity;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.enumeration.DataType;
 
@@ -14,6 +15,8 @@ public class ExtendedColumn extends RootEntity {
     @Id
     @IdStrategy(IdStrategy.Strategy.MatrixFlake)
     private Long columnId;
+    private String columnKey;
+    private String columnGroup;
     private String tableName;
     private String columnName;
     private DataType dataType = DataType.STRING;
@@ -22,12 +25,32 @@ public class ExtendedColumn extends RootEntity {
     private String columnRegex = StringUtil.INSTANCE.blankString();
     private String columnComment = StringUtil.INSTANCE.blankString();
 
+    public static ExtendedColumn newInstance() {
+        return ClassUtil.INSTANCE.instantiate(ExtendedColumn.class);
+    }
+
     public Long getColumnId() {
         return columnId;
     }
 
     public void setColumnId(Long columnId) {
         this.columnId = columnId;
+    }
+
+    public String getColumnKey() {
+        return columnKey;
+    }
+
+    public void setColumnKey(String columnKey) {
+        this.columnKey = columnKey;
+    }
+
+    public String getColumnGroup() {
+        return columnGroup;
+    }
+
+    public void setColumnGroup(String columnGroup) {
+        this.columnGroup = columnGroup;
     }
 
     public String getTableName() {

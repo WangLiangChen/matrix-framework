@@ -13,23 +13,23 @@ import java.util.*;
  */
 public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     private static final long serialVersionUID = 1L;
-    private final List<Object> list;
+    private final List<Object> delegate;
     protected transient Object relatedArray;
     protected transient Type componentType;
 
     public EnhancedList() {
-        this.list = new ArrayList<>();
+        this.delegate = new ArrayList<>();
     }
 
-    public EnhancedList(List<Object> list) {
-        if (list == null) {
+    public EnhancedList(List<Object> delegate) {
+        if (delegate == null) {
             throw new IllegalArgumentException("list is null.");
         }
-        this.list = list;
+        this.delegate = delegate;
     }
 
     public EnhancedList(int initialCapacity) {
-        this.list = new ArrayList<>(initialCapacity);
+        this.delegate = new ArrayList<>(initialCapacity);
     }
 
     public Object getRelatedArray() {
@@ -50,125 +50,125 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
 
     @Override
     public int size() {
-        return list.size();
+        return delegate.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return list.isEmpty();
+        return delegate.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        return list.contains(o);
+        return delegate.contains(o);
     }
 
     @Override
     public Iterator<Object> iterator() {
-        return list.iterator();
+        return delegate.iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return list.toArray();
+        return delegate.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] array) {
-        return list.toArray(array);
+        return delegate.toArray(array);
     }
 
     @Override
     public boolean add(Object e) {
-        return list.add(e);
+        return delegate.add(e);
     }
 
     public EnhancedList fluentAdd(Object e) {
-        list.add(e);
+        delegate.add(e);
         return this;
     }
 
     @Override
     public boolean remove(Object o) {
-        return list.remove(o);
+        return delegate.remove(o);
     }
 
     public EnhancedList fluentRemove(Object o) {
-        list.remove(o);
+        delegate.remove(o);
         return this;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return list.containsAll(c);
+        return delegate.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<?> c) {
-        return list.addAll(c);
+        return delegate.addAll(c);
     }
 
     public EnhancedList fluentAddAll(Collection<?> c) {
-        list.addAll(c);
+        delegate.addAll(c);
         return this;
     }
 
     @Override
     public boolean addAll(int index, Collection<?> c) {
-        return list.addAll(index, c);
+        return delegate.addAll(index, c);
     }
 
     public EnhancedList fluentAddAll(int index, Collection<?> c) {
-        list.addAll(index, c);
+        delegate.addAll(index, c);
         return this;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return list.removeAll(c);
+        return delegate.removeAll(c);
     }
 
     public EnhancedList fluentRemoveAll(Collection<?> c) {
-        list.removeAll(c);
+        delegate.removeAll(c);
         return this;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return list.retainAll(c);
+        return delegate.retainAll(c);
     }
 
     public EnhancedList fluentRetainAll(Collection<?> c) {
-        list.retainAll(c);
+        delegate.retainAll(c);
         return this;
     }
 
     @Override
     public void clear() {
-        list.clear();
+        delegate.clear();
     }
 
     public EnhancedList fluentClear() {
-        list.clear();
+        delegate.clear();
         return this;
     }
 
     @Override
     public Object set(int index, Object element) {
         if (index == -1) {
-            list.add(element);
+            delegate.add(element);
             return null;
         }
 
-        if (list.size() <= index) {
-            for (int i = list.size(); i < index; ++i) {
-                list.add(null);
+        if (delegate.size() <= index) {
+            for (int i = delegate.size(); i < index; ++i) {
+                delegate.add(null);
             }
-            list.add(element);
+            delegate.add(element);
             return null;
         }
 
-        return list.set(index, element);
+        return delegate.set(index, element);
     }
 
     public EnhancedList fluentSet(int index, Object element) {
@@ -178,57 +178,57 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
 
     @Override
     public void add(int index, Object element) {
-        list.add(index, element);
+        delegate.add(index, element);
     }
 
     public EnhancedList fluentAdd(int index, Object element) {
-        list.add(index, element);
+        delegate.add(index, element);
         return this;
     }
 
     @Override
     public Object remove(int index) {
-        return list.remove(index);
+        return delegate.remove(index);
     }
 
     public EnhancedList fluentRemove(int index) {
-        list.remove(index);
+        delegate.remove(index);
         return this;
     }
 
     @Override
     public int indexOf(Object o) {
-        return list.indexOf(o);
+        return delegate.indexOf(o);
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        return list.lastIndexOf(o);
+        return delegate.lastIndexOf(o);
     }
 
     @Override
     public ListIterator<Object> listIterator() {
-        return list.listIterator();
+        return delegate.listIterator();
     }
 
     @Override
     public ListIterator<Object> listIterator(int index) {
-        return list.listIterator(index);
+        return delegate.listIterator(index);
     }
 
     @Override
     public List<Object> subList(int fromIndex, int toIndex) {
-        return list.subList(fromIndex, toIndex);
+        return delegate.subList(fromIndex, toIndex);
     }
 
     @Override
     public Object get(int index) {
-        return list.get(index);
+        return delegate.get(index);
     }
 
     @SuppressWarnings("unchecked")
     public EnhancedMap getEnhancedMap(int index) {
-        Object object = list.get(index);
+        Object object = delegate.get(index);
         if (object instanceof EnhancedMap) {
             return (EnhancedMap) object;
         }
@@ -241,7 +241,7 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
 
     @SuppressWarnings("unchecked")
     public EnhancedList getEnhancedList(int index) {
-        Object object = list.get(index);
+        Object object = delegate.get(index);
 
         if (object instanceof EnhancedList) {
             return (EnhancedList) object;
@@ -255,7 +255,7 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     }
 
     public <T> T getObject(int index) {
-        Object object = list.get(index);
+        Object object = delegate.get(index);
         return ObjectUtil.INSTANCE.cast(object);
     }
 

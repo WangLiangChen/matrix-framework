@@ -12,6 +12,8 @@ create table if not exists matrix_sequence
 create table matrix_columns
 (
     column_id            bigint not null  comment 'PrimaryKey',
+    column_key           varchar(36) not null  comment 'UniqueKey',
+    column_group           varchar(36) not null  comment '分组标识,用于数据隔离',
     table_name           varchar(36) not null  comment '表名',
     column_name          varchar(36) not null  comment '列名',
     data_type            varchar(36) not null  comment '值类型',
@@ -20,7 +22,7 @@ create table matrix_columns
     column_regex         varchar(100) not null  comment '值校验正则',
     column_comment       varchar(100) not null  comment '列说明',
     primary key (column_id),
-    unique key ak_unique_key (table_name, column_name)
+    unique key ak_unique_key (column_key)
 );
 
 alter table matrix_columns comment '扩展列';

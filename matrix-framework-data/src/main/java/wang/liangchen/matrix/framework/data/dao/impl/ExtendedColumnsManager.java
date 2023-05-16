@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.dao.impl;
 
 import javax.inject.Inject;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.data.dao.ExtendedColumnsManager;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.DeleteCriteria;
@@ -17,19 +16,18 @@ import java.util.List;
 /**
  * @author Liangchen.Wang 2023-03-23 21:59
  */
-public class ExtendedColumnsManagerImpl implements ExtendedColumnsManager {
+public class ExtendedColumnsManager {
     private final StandaloneDao standaloneDao;
 
     @Inject
-    public ExtendedColumnsManagerImpl(StandaloneDao standaloneDao) {
+    public ExtendedColumnsManager(StandaloneDao standaloneDao) {
         this.standaloneDao = standaloneDao;
     }
 
-    @Override
     public <T extends RootEntity> void add(Class<T> entityClass, String columnName, DataType dataType, String columnComment) {
         TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
         String tableName = tableMeta.getTableName();
-        ExtendedColumn entity = ExtendedColumn.newInstance(ExtendedColumn.class);
+        ExtendedColumn entity = ExtendedColumn.newInstance();
         entity.setTableName(tableName);
         entity.setColumnName(columnName);
         entity.setDataType(dataType);

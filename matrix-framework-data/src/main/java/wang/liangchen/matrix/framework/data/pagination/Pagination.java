@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
@@ -33,6 +34,10 @@ public class Pagination implements Serializable {
 
     private List<OrderBy> orderBys;
 
+    public static Pagination newInstance() {
+        return ClassUtil.INSTANCE.instantiate(Pagination.class);
+    }
+
     public Integer getPageNumber() {
         if (null == pageNumber || null == pageSize) {
             return null;
@@ -41,8 +46,9 @@ public class Pagination implements Serializable {
         return pageNumber;
     }
 
-    public void setPageNumber(Integer pageNumber) {
+    public Pagination setPageNumber(Integer pageNumber) {
         this.pageNumber = pageNumber;
+        return this;
     }
 
     public Integer getPageSize() {
@@ -53,8 +59,9 @@ public class Pagination implements Serializable {
         return pageSize;
     }
 
-    public void setPageSize(Integer pageSize) {
+    public Pagination setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+        return this;
     }
 
     public Integer getOffset() {
@@ -74,11 +81,12 @@ public class Pagination implements Serializable {
         return orderBys;
     }
 
-    public void setOrderBys(List<OrderBy> orderBys) {
+    public Pagination setOrderBys(List<OrderBy> orderBys) {
         this.orderBys = orderBys;
+        return this;
     }
 
-    public void addOrderBy(String orderBy, OrderByDirection orderByDirection, Integer index) {
+    public Pagination addOrderBy(String orderBy, OrderByDirection orderByDirection, Integer index) {
         ValidationUtil.INSTANCE.notBlank(orderBy, "orderBy must not be blank");
         ValidationUtil.INSTANCE.notNull(orderByDirection, "orderByDirection must not be null");
         if (null == this.orderBys) {
@@ -86,21 +94,24 @@ public class Pagination implements Serializable {
         }
         if (null == index) {
             this.orderBys.add(OrderBy.newInstance(orderBy, orderByDirection));
-            return;
+            return this;
         }
         this.orderBys.add(index, OrderBy.newInstance(orderBy, orderByDirection));
+        return this;
     }
 
-    public void addOrderBy(String orderby, OrderByDirection direction) {
+    public Pagination addOrderBy(String orderby, OrderByDirection direction) {
         addOrderBy(orderby, direction, null);
+        return this;
     }
 
-    public void addOrderBys(List<OrderBy> orderBys) {
+    public Pagination addOrderBys(List<OrderBy> orderBys) {
         ValidationUtil.INSTANCE.notEmpty(orderBys, "orderBys must not be empty");
         if (null == this.orderBys) {
             this.orderBys = new ArrayList<>();
         }
         this.orderBys.addAll(orderBys);
+        return this;
     }
 
 

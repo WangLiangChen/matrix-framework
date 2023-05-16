@@ -15,13 +15,12 @@
 import wang.liangchen.matrix.framework.lock.annotation.EnableLock;
 
 @EnableLock
+public class Configuration{}
 ```
 
 # 如何使用
 
 ## 普通Bean方法
-
-返回值不能为void或基本类型
 
 ```java
 import org.springframework.stereotype.Component;
@@ -29,7 +28,8 @@ import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
 
 @Component
 public class LockExample() {
-    @MatrixLock(lockKey = "matrix", lockAtLeast = "1m", lockAtMost = "5m")
+    // 注意:返回值不能为void或基本类型
+    @MatrixLock(lockGroup = "matrix",lockKey = "matrix", lockAtLeast = "1m", lockAtMost = "5m")
     public String executeInLock() {
         return null;
     }
@@ -38,16 +38,15 @@ public class LockExample() {
 
 ## @Scheduled注解的Bean方法
 
-返回值必须为void
-
 ```java
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
 
 @Component
 public class LockExample() {
+    // 返回值必须为void
     @Scheduled(fixedDelay = 2000)
-    @MatrixLock(lockKey = "matrix", lockAtLeast = "1m", lockAtMost = "5m")
+    @MatrixLock(lockGroup = "matrix",lockKey = "matrix", lockAtLeast = "1m", lockAtMost = "5m")
     public void executeInLock() {
 
     }

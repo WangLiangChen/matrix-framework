@@ -55,7 +55,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
                 // resolve and set locale
                 Locale locale = localeResolver.resolveLocale(request);
-                ValidationUtil.INSTANCE.setLocale(locale);
+                ValidationUtil.INSTANCE.resetLocale(locale);
                 WebContext.INSTANCE.setLocale(locale);
 
                 // resolve and set requestId
@@ -93,7 +93,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
                     flushFormattedResponse(response, FormattedResponse.failure()
                             .code(String.valueOf(SC_NOT_FOUND))
                             .level(ExceptionLevel.ERROR)
-                            .message("Request does not exist: {}", requestURI));
+                            .i18n("Resource.Absent")
+                            .message("The resource required for this request does not exist: {}", requestURI));
                     return;
                 }
 
@@ -106,10 +107,12 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
             }
 
             private void flushFormattedResponse(HttpServletResponse response, FormattedResponse<?> formattedResponse) throws IOException {
+                response.setContentType("application/json;charset=utf-8");
                 flushBytes(response, formattedResponse.toString().getBytes(StandardCharsets.UTF_8));
             }
 
             private void flushBytes(HttpServletResponse response, byte[] bytes) throws IOException {
+                response.setContentLength(bytes.length);
                 try (ServletOutputStream outputStream = response.getOutputStream()) {
                     outputStream.write(bytes);
                     outputStream.flush();

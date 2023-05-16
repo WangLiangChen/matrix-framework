@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.criteria;
 
+import jakarta.persistence.*;
+import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
@@ -9,7 +11,6 @@ import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.dao.entity.JsonField;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 
-import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -85,7 +86,13 @@ public enum TableMetas {
 
     private boolean resolveColumnVersion(Field field) {
         Version versionAnnotation = field.getAnnotation(Version.class);
-        return null != versionAnnotation;
+        if (null == versionAnnotation) {
+            return false;
+        }
+        if (Integer.class.isAssignableFrom(field.getType())) {
+            return true;
+        }
+        throw new MatrixInfoException("the version field must be Integer");
     }
 
     private boolean resolveColumnUnique(Field field) {
@@ -114,8 +121,9 @@ public enum TableMetas {
                         && (null == field.getAnnotation(Transient.class) || null == field.getAnnotation(ColumnIgnore.class))
                         && !Modifier.isStatic(field.getModifiers()));
         Map<String, ColumnMeta> columnMetas = new HashMap<>(fields.size());
+        // 使用 putIfAbsent防止后面的父类field覆盖子类field
         for (Field field : fields) {
-            columnMetas.put(field.getName(), resolveColumnMeta(field));
+            columnMetas.putIfAbsent(field.getName(), resolveColumnMeta(field));
         }
         return TableMeta.newInstance(entityClass, resolveTableName(entityClass), columnMetas);
     }

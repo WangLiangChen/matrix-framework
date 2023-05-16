@@ -7,7 +7,7 @@ import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 /**
  * @author Liangchen.Wang 2022-10-02 12:06
  */
-@ConditionalOnMissingClass({"wang.liangchen.matrix.cache.sdk.cache.CacheManager"})
+@ConditionalOnMissingClass({"wang.liangchen.matrix.cache.sdk.cache.MatrixCacheManager"})
 public class StandaloneDaoConfiguration {
     @Bean
     public StandaloneDao standaloneDao() {

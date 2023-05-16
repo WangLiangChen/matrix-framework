@@ -5,6 +5,7 @@ import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
@@ -13,7 +14,7 @@ import java.util.function.BiConsumer;
 /**
  * @author LiangChen.Wang
  */
-public final class PaginationResult<E> {
+public final class PaginationResult<E> implements Serializable {
     public static <E> PaginationResult<E> newInstance() {
         return new PaginationResult<>();
     }

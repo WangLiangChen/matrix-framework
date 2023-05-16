@@ -71,24 +71,19 @@ public enum CookieUtil {
 
     public void setCookie(HttpServletRequest request, HttpServletResponse response, String cookieName, String cookieValue, int cookieMaxAge, Charset encodeCharset) {
         cookieValue = null == cookieValue ? "" : cookieValue;
-        try {
-            cookieValue = null == encodeCharset ? cookieValue : URLEncoder.encode(cookieValue, encodeCharset.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new MatrixErrorException(e);
-        }
+        cookieValue = null == encodeCharset ? cookieValue : URLEncoder.encode(cookieValue, encodeCharset);
+
         Cookie cookie = new Cookie(cookieName, cookieValue);
         // <0 关闭浏览器失效；=0 删除cookie
         cookie.setMaxAge(cookieMaxAge);
         cookie.setPath("/");
         if (null != request) {
-            cookie.setDomain(getDomainName(request));
+            cookie.setDomain(request.getServerName());
         }
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }
 
-    public String getDomainName(HttpServletRequest request) {
-        return request.getServerName().concat(":").concat(String.valueOf(request.getServerPort()));
-    }
     public String ipFromHttpRequest(HttpServletRequest request) {
         String ips;
         // 先从代理中获取

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.encryption.DigestSignUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.pagination.QueryParameter;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -20,6 +19,9 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private String tableName;
     private String whereSql;
     private Map<String, Object> whereSqlValues;
+
+    private DeleteMeta deleteMeta;
+    private VersionMeta versionMeta;
 
     private E entity;
     private Class<E> entityClass;
@@ -55,6 +57,22 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     public Map<String, Object> getWhereSqlValues() {
         return whereSqlValues;
+    }
+
+    public DeleteMeta getDeleteMeta() {
+        return deleteMeta;
+    }
+
+    public void setDeleteMeta(DeleteMeta deleteMeta) {
+        this.deleteMeta = deleteMeta;
+    }
+
+    public VersionMeta getVersionMeta() {
+        return versionMeta;
+    }
+
+    public void setVersionMeta(VersionMeta versionMeta) {
+        this.versionMeta = versionMeta;
     }
 
     public String getTableName() {

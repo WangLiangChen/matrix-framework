@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
+import wang.liangchen.matrix.framework.data.context.ExtendedColumnsContext;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumn;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValueDetail;
 import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.data.mybatis.MybatisExecutor;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
 import wang.liangchen.matrix.framework.springboot.jackson.DefaultObjectMapper;
 
@@ -80,16 +80,19 @@ public class ExtendedColumnTypeHandler extends BaseTypeHandler<Object> {
     }
 
     private Object jsonString2Object(String jsonString) throws SQLException {
-        // 查询扩展字段
-        String tableName = MybatisExecutor.INSTANCE.tableContext();
-        List<ExtendedColumn> extendedColumns = standaloneDao.list(Criteria.of(ExtendedColumn.class)._equals(ExtendedColumn::getTableName, tableName));
+        // 查询配置的扩展字段
+        String columnGroup = ExtendedColumnsContext.INSTANCE.getColumnGroup();
+        String tableName = ExtendedColumnsContext.INSTANCE.getTableName();
+        List<ExtendedColumn> extendedColumns = standaloneDao.list(Criteria.of(ExtendedColumn.class)
+                ._equals(ExtendedColumn::getColumnGroup, columnGroup)
+                ._equals(ExtendedColumn::getTableName, tableName));
         if (CollectionUtil.INSTANCE.isEmpty(extendedColumns)) {
             return new ExtendedColumnValues<ExtendedColumnValueDetail>();
         }
         try {
             JavaType javaType = DefaultObjectMapper.INSTANCE.typeFactory().constructParametricType(resultClass, ExtendedColumnValueDetail.class);
             ExtendedColumnValues<ExtendedColumnValueDetail> extendedColumnValues = DefaultObjectMapper.INSTANCE.objectMapper().readValue(jsonString, javaType);
-            // 补充字段
+            // 补充字段值
             Iterator<ExtendedColumn> iterator = extendedColumns.iterator();
             while (iterator.hasNext()) {
                 ExtendedColumn extendedColumn = iterator.next();

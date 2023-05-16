@@ -180,7 +180,7 @@ public class Tier3Generator {
             }
             entityProperties.setColumnJson(columnJson);
             String columnState = null;
-            Boolean isUseConstantEnum = null;
+            Boolean isUseConstantEnum = Boolean.FALSE;
             nodes = entityElement.getElementsByTagName("column-state");
             if (nodes.getLength() == 1) {
                 element = (Element) nodes.item(0);

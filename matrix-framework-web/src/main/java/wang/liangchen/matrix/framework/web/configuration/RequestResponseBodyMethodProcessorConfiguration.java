@@ -5,9 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.*;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -25,8 +23,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,21 +82,17 @@ public class RequestResponseBodyMethodProcessorConfiguration {
         }
     }
 
-    class HttpMessageConverterDelegate implements HttpMessageConverter<Object> {
+    class HttpMessageConverterDelegate implements GenericHttpMessageConverter<Object> {
         private final HttpMessageConverter<Object> delegate;
+        private final GenericHttpMessageConverter<Object> genericDelegate;
 
         HttpMessageConverterDelegate(HttpMessageConverter<Object> delegate) {
             this.delegate = delegate;
-        }
-
-        @Override
-        public boolean canRead(Class<?> clazz, MediaType mediaType) {
-            return this.delegate.canRead(clazz, mediaType);
-        }
-
-        @Override
-        public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-            return this.delegate.canWrite(clazz, mediaType);
+            if (this.delegate instanceof AbstractGenericHttpMessageConverter) {
+                this.genericDelegate = (AbstractGenericHttpMessageConverter<Object>) this.delegate;
+                return;
+            }
+            this.genericDelegate = null;
         }
 
         @Override
@@ -104,7 +101,59 @@ public class RequestResponseBodyMethodProcessorConfiguration {
         }
 
         @Override
+        public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
+            if (null != genericDelegate) {
+                return this.genericDelegate.canRead(type, contextClass, mediaType);
+            }
+            if (type instanceof Class<?>) {
+                return this.delegate.canRead((Class<?>) type, mediaType);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean canRead(Class<?> clazz, MediaType mediaType) {
+            return this.delegate.canRead(clazz, mediaType);
+        }
+
+        @Override
+        public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
+            if (null != genericDelegate) {
+                return this.genericDelegate.canWrite(type, clazz, mediaType);
+            }
+            if (type instanceof Class<?>) {
+                return this.delegate.canWrite((Class<?>) type, mediaType);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean canWrite(Class<?> clazz, MediaType mediaType) {
+            return this.delegate.canWrite(clazz, mediaType);
+        }
+
+        @Override
+        public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+            if (type instanceof Class<?>) {
+                return readFromClass((Class<?>) type, inputMessage);
+            }
+            if (null != genericDelegate) {
+                return this.genericDelegate.read(type, contextClass, inputMessage);
+            }
+            return this.delegate.read((Class<?>) type, inputMessage);
+        }
+
+
+        @Override
         public Object read(Class<?> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+            return readFromClass(clazz, inputMessage);
+        }
+
+        private Object readFromClass(Class<?> clazz, HttpInputMessage inputMessage) throws IOException {
+            // 如果是Map、Collection 则直接处理
+            if (Map.class.isAssignableFrom(clazz) || Collection.class.isAssignableFrom(clazz)) {
+                return this.delegate.read(clazz, inputMessage);
+            }
             int modifiers = clazz.getModifiers();
             boolean isAbstract = Modifier.isAbstract(modifiers);
             boolean isInterface = Modifier.isInterface(modifiers);
@@ -118,16 +167,30 @@ public class RequestResponseBodyMethodProcessorConfiguration {
                     // 是子类 并且 同包
                     if (clazz.isAssignableFrom(subclass) && clazz.getPackage().getName().equals(subclass.getPackage().getName())) {
                         clazz = subclass;
-                        inputMessage = inputMessageDelegate;
                     }
                 }
+                return this.delegate.read(clazz, inputMessageDelegate);
             }
             return this.delegate.read(clazz, inputMessage);
         }
 
         @Override
+        public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+            if (null != genericDelegate) {
+                this.genericDelegate.write(o, type, contentType, outputMessage);
+                return;
+            }
+            this.delegate.write(o, contentType, outputMessage);
+        }
+
+        @Override
         public void write(Object o, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
             this.delegate.write(o, contentType, outputMessage);
+        }
+
+        @Override
+        public List<MediaType> getSupportedMediaTypes(Class<?> clazz) {
+            return GenericHttpMessageConverter.super.getSupportedMediaTypes(clazz);
         }
     }
 
@@ -183,6 +246,11 @@ public class RequestResponseBodyMethodProcessorConfiguration {
 
         @Override
         public void handleReturnValue(Object returnValue, MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+            Class<?> returnType = methodParameter.getMethod().getReturnType();
+            if (String.class.isAssignableFrom(returnType)) {
+                delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
+                return;
+            }
             Object newReturnValue;
             if (returnValue instanceof FormattedResponse) {
                 newReturnValue = returnValue;
