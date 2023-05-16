@@ -120,10 +120,11 @@ public enum MybatisExecutor {
         ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
+        TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
+        ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
+        entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
             StringBuilder sqlBuilder = new StringBuilder();
-            ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
             ColumnMeta columnVersionMeta = tableMeta.getColumnVersionMeta();
             String tableName = tableMeta.getTableName();
             sqlBuilder.append("<script>");
@@ -136,7 +137,6 @@ public enum MybatisExecutor {
                     sqlBuilder.append(columnVersionMeta.getColumnName()).append("=").append(columnVersionMeta.getColumnName()).append("+1,");
                     sqlBuilder.append("</if>");
                 }
-                entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
                 sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
                 sqlBuilder.append("</set>");
             }
