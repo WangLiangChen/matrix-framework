@@ -246,6 +246,11 @@ public class RequestResponseBodyMethodProcessorConfiguration {
 
         @Override
         public void handleReturnValue(Object returnValue, MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+            Class<?> returnType = methodParameter.getMethod().getReturnType();
+            if (String.class.isAssignableFrom(returnType)) {
+                delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
+                return;
+            }
             Object newReturnValue;
             if (returnValue instanceof FormattedResponse) {
                 newReturnValue = returnValue;
