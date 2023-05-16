@@ -5,7 +5,7 @@
 
     <groupId>wang.liangchen.matrix</groupId>
     <artifactId>matrix-framework</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -60,7 +60,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <version.hibernate>7.0.4.Final</version.hibernate>
         <version.springboot>3.0.6</version.springboot>
-        <version.matrix>2.0.0-SNAPSHOT</version.matrix>
+        <revision>2.0.0-SNAPSHOT</revision>
     </properties>
 
     <dependencyManagement>
@@ -75,52 +75,52 @@
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-commons</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-core</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-data</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-lock</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-lock-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-ddd</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-generator</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
