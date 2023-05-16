@@ -1,10 +1,11 @@
 package wang.liangchen.matrix.framework.data.commons.domain.dictionary;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.dao.entity.CommonEntity;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Liangchen.Wang 2023-03-26 10:31

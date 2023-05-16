@@ -1,11 +1,11 @@
 package wang.liangchen.matrix.framework.data.commons.domain.dictionary;
 
-import jakarta.inject.Inject;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.dao.criteria.DeleteCriteria;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Domain Layer is a core layer
- * Entity {@link jakarta.persistence.Entity}
+ * Entity {@link javax.persistence.Entity}
  * ValueObject {@link wang.liangchen.matrix.framework.ddd.domain.ValueObject}
  * Aggregate {@link wang.liangchen.matrix.framework.ddd.domain.Aggregate}
  * AggregateRoot {@link wang.liangchen.matrix.framework.ddd.domain.AggregateRoot}

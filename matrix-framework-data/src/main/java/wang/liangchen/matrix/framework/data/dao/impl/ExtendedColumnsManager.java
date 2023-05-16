@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.data.dao.impl;
 
-import javax.inject.Inject;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 import wang.liangchen.matrix.framework.data.dao.criteria.Criteria;
@@ -11,6 +10,7 @@ import wang.liangchen.matrix.framework.data.dao.entity.ExtendedColumn;
 import wang.liangchen.matrix.framework.data.dao.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.enumeration.DataType;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**

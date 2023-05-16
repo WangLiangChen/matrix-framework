@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.data.commons.domain.inifite;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Liangchen.Wang 2023-03-28 11:36

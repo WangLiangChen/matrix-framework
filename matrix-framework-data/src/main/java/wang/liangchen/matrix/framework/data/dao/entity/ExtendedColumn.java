@@ -1,11 +1,12 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.enumeration.DataType;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Liangchen.Wang 2023-03-23 21:51
