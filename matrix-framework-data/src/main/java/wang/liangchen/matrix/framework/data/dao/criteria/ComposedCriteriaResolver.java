@@ -7,7 +7,7 @@ import java.util.List;
  * @author Liangchen.Wang 2023-04-10 21:29
  */
 abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
-    private final List<AbstractCriteriaResolver> children = new ArrayList<>() {
+    private final List<AbstractCriteriaResolver> children = new ArrayList<AbstractCriteriaResolver>() {
         @Override
         public boolean add(AbstractCriteriaResolver abstractCriteriaResolver) {
             if (null == abstractCriteriaResolver) {

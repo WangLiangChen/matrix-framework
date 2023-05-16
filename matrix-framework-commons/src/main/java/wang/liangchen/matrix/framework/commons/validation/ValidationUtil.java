@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import jakarta.validation.*;
 import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -11,6 +10,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
+import javax.validation.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -230,7 +230,7 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object) {
-        return notNull(object, "{jakarta.validation.constraints.NotNull.message}");
+        return notNull(object, "{javax.validation.constraints.NotNull.message}");
     }
 
     public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {

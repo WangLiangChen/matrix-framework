@@ -38,7 +38,8 @@ public enum CriteriaResolver {
         criteriaParameter.setWhereSql(whereSql);
         criteriaParameter.setWhereSqlValues(composedCriteriaResolver.getMergedValues());
 
-        if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
+        if (abstractCriteria instanceof DeleteCriteria) {
+            DeleteCriteria<E> deleteCriteria = (DeleteCriteria<E>) abstractCriteria;
             DeleteMeta deleteMeta = deleteCriteria.getMarkDeleteMeta();
             if (null != deleteMeta && null != deleteMeta.getDeleteValue() && null != deleteMeta.getDeleteColumnName()) {
                 criteriaParameter.setDeleteMeta(deleteMeta);
@@ -48,12 +49,14 @@ public enum CriteriaResolver {
                 criteriaParameter.setVersionMeta(versionMeta);
             }
         }
-        if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
+        if (abstractCriteria instanceof UpdateCriteria) {
+            UpdateCriteria<E> updateCriteria = (UpdateCriteria<E>) abstractCriteria;
             criteriaParameter.setVersionMeta(updateCriteria.getVersionMeta());
             populateForceUpdate(updateCriteria, criteriaParameter);
         }
 
-        if (abstractCriteria instanceof Criteria<E> criteria) {
+        if (abstractCriteria instanceof Criteria) {
+            Criteria<E> criteria = (Criteria<E>) abstractCriteria;
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
