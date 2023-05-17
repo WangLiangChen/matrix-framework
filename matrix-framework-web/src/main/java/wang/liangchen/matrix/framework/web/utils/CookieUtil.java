@@ -71,8 +71,11 @@ public enum CookieUtil {
 
     public void setCookie(HttpServletRequest request, HttpServletResponse response, String cookieName, String cookieValue, int cookieMaxAge, Charset encodeCharset) {
         cookieValue = null == cookieValue ? "" : cookieValue;
-        cookieValue = null == encodeCharset ? cookieValue : URLEncoder.encode(cookieValue, encodeCharset);
-
+        try {
+            cookieValue = null == encodeCharset ? cookieValue : URLEncoder.encode(cookieValue, encodeCharset.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new MatrixErrorException(e);
+        }
         Cookie cookie = new Cookie(cookieName, cookieValue);
         // <0 关闭浏览器失效；=0 删除cookie
         cookie.setMaxAge(cookieMaxAge);
