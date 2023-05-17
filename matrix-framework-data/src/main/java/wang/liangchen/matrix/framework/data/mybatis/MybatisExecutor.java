@@ -122,7 +122,9 @@ public enum MybatisExecutor {
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
         TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
         ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
-        entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
+        if (null != columnDeleteMeta) {
+            entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
+        }
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
             ColumnMeta columnVersionMeta = tableMeta.getColumnVersionMeta();
