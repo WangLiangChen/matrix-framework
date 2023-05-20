@@ -58,8 +58,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <version.springboot>2.7.11</version.springboot>
-        <version.matrix>1.0.0-SNAPSHOT</version.matrix>
+        <version.springboot>2.7.12</version.springboot>
     </properties>
 
     <dependencyManagement>
@@ -74,52 +73,52 @@
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-commons</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-core</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-data</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-data-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-lock</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-lock-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-web-spring-boot-starter</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-ddd</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-generator</artifactId>
-                <version>${version.matrix}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -188,7 +187,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

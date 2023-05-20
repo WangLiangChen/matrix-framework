@@ -5,23 +5,19 @@
     <parent>
         <artifactId>matrix-framework</artifactId>
         <groupId>wang.liangchen.matrix</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>matrix-framework-commons</artifactId>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <version.commons.pool2>2.11.1</version.commons.pool2>
         <version.commons.exec>1.3</version.commons.exec>
         <version.transmittable-threadlocal>2.14.2</version.transmittable-threadlocal>
         <version.asm>9.5</version.asm>
         <version.reflectasm>1.11.9</version.reflectasm>
         <version.jose.jwt>9.31</version.jose.jwt>
-        <version.el>5.0.0-M1</version.el>
-        <version.jose.jwt>9.25.6</version.jose.jwt>
         <version.el>3.0.0</version.el>
         <version.protostuff>1.8.0</version.protostuff>
     </properties>
@@ -40,7 +36,7 @@
             <!-- el for hibernate validator -->
             <dependency>
                 <groupId>org.glassfish</groupId>
-                <artifactId>jakarta.el</artifactId>
+                <artifactId>javax.el</artifactId>
                 <version>${version.el}</version>
             </dependency>
             <dependency>
@@ -110,7 +106,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
+            <artifactId>javax.el</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
