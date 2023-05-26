@@ -19,6 +19,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -100,13 +101,13 @@ public enum ClassScanner {
     }
 
     private static Set<Class<?>> classesFromDirectory(Path path) throws IOException {
-        Set<Class<?>> innerClasses = Files.walk(path)
-                .filter(subPath -> subPath.toString().endsWith(CLASS))
-                .map(subPath -> path.relativize(subPath))
-                .map(subPath -> classPath2ClassName(subPath.toString()))
-                .map(ClassScanner::classForName)
-                .collect(Collectors.toSet());
-        return innerClasses;
+        try (Stream<Path> stream = Files.walk(path)) {
+            return stream.filter(subPath -> subPath.toString().endsWith(CLASS))
+                    .map(path::relativize)
+                    .map(subPath -> classPath2ClassName(subPath.toString()))
+                    .map(ClassScanner::classForName)
+                    .collect(Collectors.toSet());
+        }
     }
 
     private static String classPath2ClassName(String classPath) {
@@ -117,7 +118,8 @@ public enum ClassScanner {
 
     private static Class<?> classForName(String className) {
         try {
-            return Class.forName(className);
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            return classLoader.loadClass(className);
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             // ignore
             return ClassScanner.class;
@@ -132,8 +134,12 @@ public enum ClassScanner {
         return classes.stream().filter(predicate).collect(Collectors.toSet());
     }
 
-    public <A extends Annotation> Set<Class<?>> getClasses(Class<A> annotationClass) {
-        return getClasses((clazz) -> null != clazz.getAnnotation(annotationClass));
+    public <A extends Annotation> Set<Class<?>> getAnnotatedClasses(Class<A> annotationClass) {
+        return getClasses(clazz -> null != clazz.getAnnotation(annotationClass));
+    }
+
+    public Set<Class<?>> getImplementedClasses(Class<?> parentClass) {
+        return getClasses(parentClass::isAssignableFrom);
     }
 
 }
