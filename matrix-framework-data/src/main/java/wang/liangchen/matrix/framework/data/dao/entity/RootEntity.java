@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
 
-import jakarta.persistence.Transient;
+import javax.persistence.Transient;
 import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;

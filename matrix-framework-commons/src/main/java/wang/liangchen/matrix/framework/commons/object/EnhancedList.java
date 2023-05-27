@@ -4,7 +4,6 @@ import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,7 +18,6 @@ import java.util.stream.Stream;
  * @author Liangchen.Wang 2022-04-01 21:46
  */
 public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
     private final List<E> delegate;
 
@@ -49,11 +47,6 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
     @Override
     public Spliterator<E> spliterator() {
         return delegate.spliterator();
-    }
-
-    @Override
-    public <T> T[] toArray(IntFunction<T[]> generator) {
-        return delegate.toArray(generator);
     }
 
     @Override
