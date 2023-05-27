@@ -1,51 +1,79 @@
 package wang.liangchen.matrix.framework.commons.object;
 
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
  */
-public class EnhancedList implements List<Object>, RandomAccess, Serializable {
+public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private final List<Object> delegate;
-    protected transient Object relatedArray;
-    protected transient Type componentType;
+    private final List<E> delegate;
 
     public EnhancedList() {
         this.delegate = new ArrayList<>();
-    }
-
-    public EnhancedList(List<Object> delegate) {
-        if (delegate == null) {
-            throw new IllegalArgumentException("list is null.");
-        }
-        this.delegate = delegate;
     }
 
     public EnhancedList(int initialCapacity) {
         this.delegate = new ArrayList<>(initialCapacity);
     }
 
-    public Object getRelatedArray() {
-        return relatedArray;
+    public EnhancedList(List<E> delegate) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, delegate, "parameter must not be null");
+        this.delegate = delegate;
     }
 
-    public void setRelatedArray(Object relatedArray) {
-        this.relatedArray = relatedArray;
+    @Override
+    public void replaceAll(UnaryOperator<E> operator) {
+        delegate.replaceAll(operator);
     }
 
-    public Type getComponentType() {
-        return componentType;
+    @Override
+    public void sort(Comparator<? super E> c) {
+        delegate.sort(c);
     }
 
-    public void setComponentType(Type componentType) {
-        this.componentType = componentType;
+    @Override
+    public Spliterator<E> spliterator() {
+        return delegate.spliterator();
+    }
+
+    @Override
+    public <T> T[] toArray(IntFunction<T[]> generator) {
+        return delegate.toArray(generator);
+    }
+
+    @Override
+    public boolean removeIf(Predicate<? super E> filter) {
+        return delegate.removeIf(filter);
+    }
+
+    @Override
+    public Stream<E> stream() {
+        return delegate.stream();
+    }
+
+    @Override
+    public Stream<E> parallelStream() {
+        return delegate.parallelStream();
+    }
+
+    @Override
+    public void forEach(Consumer<? super E> action) {
+        delegate.forEach(action);
     }
 
     @Override
@@ -64,7 +92,7 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator<E> iterator() {
         return delegate.iterator();
     }
 
@@ -74,18 +102,13 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     }
 
     @Override
-    public <T> T[] toArray(T[] array) {
-        return delegate.toArray(array);
+    public <T> T[] toArray(T[] a) {
+        return delegate.toArray(a);
     }
 
     @Override
-    public boolean add(Object e) {
+    public boolean add(E e) {
         return delegate.add(e);
-    }
-
-    public EnhancedList fluentAdd(Object e) {
-        delegate.add(e);
-        return this;
     }
 
     @Override
@@ -93,34 +116,19 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
         return delegate.remove(o);
     }
 
-    public EnhancedList fluentRemove(Object o) {
-        delegate.remove(o);
-        return this;
-    }
-
     @Override
     public boolean containsAll(Collection<?> c) {
-        return delegate.containsAll(c);
+        return delegate.contains(c);
     }
 
     @Override
-    public boolean addAll(Collection<?> c) {
+    public boolean addAll(Collection<? extends E> c) {
         return delegate.addAll(c);
     }
 
-    public EnhancedList fluentAddAll(Collection<?> c) {
-        delegate.addAll(c);
-        return this;
-    }
-
     @Override
-    public boolean addAll(int index, Collection<?> c) {
+    public boolean addAll(int index, Collection<? extends E> c) {
         return delegate.addAll(index, c);
-    }
-
-    public EnhancedList fluentAddAll(int index, Collection<?> c) {
-        delegate.addAll(index, c);
-        return this;
     }
 
     @Override
@@ -128,19 +136,9 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
         return delegate.removeAll(c);
     }
 
-    public EnhancedList fluentRemoveAll(Collection<?> c) {
-        delegate.removeAll(c);
-        return this;
-    }
-
     @Override
     public boolean retainAll(Collection<?> c) {
         return delegate.retainAll(c);
-    }
-
-    public EnhancedList fluentRetainAll(Collection<?> c) {
-        delegate.retainAll(c);
-        return this;
     }
 
     @Override
@@ -148,52 +146,24 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
         delegate.clear();
     }
 
-    public EnhancedList fluentClear() {
-        delegate.clear();
-        return this;
+    @Override
+    public E get(int index) {
+        return delegate.get(index);
     }
 
     @Override
-    public Object set(int index, Object element) {
-        if (index == -1) {
-            delegate.add(element);
-            return null;
-        }
-
-        if (delegate.size() <= index) {
-            for (int i = delegate.size(); i < index; ++i) {
-                delegate.add(null);
-            }
-            delegate.add(element);
-            return null;
-        }
-
+    public E set(int index, E element) {
         return delegate.set(index, element);
     }
 
-    public EnhancedList fluentSet(int index, Object element) {
-        set(index, element);
-        return this;
-    }
-
     @Override
-    public void add(int index, Object element) {
+    public void add(int index, E element) {
         delegate.add(index, element);
     }
 
-    public EnhancedList fluentAdd(int index, Object element) {
-        delegate.add(index, element);
-        return this;
-    }
-
     @Override
-    public Object remove(int index) {
+    public E remove(int index) {
         return delegate.remove(index);
-    }
-
-    public EnhancedList fluentRemove(int index) {
-        delegate.remove(index);
-        return this;
     }
 
     @Override
@@ -207,55 +177,117 @@ public class EnhancedList implements List<Object>, RandomAccess, Serializable {
     }
 
     @Override
-    public ListIterator<Object> listIterator() {
+    public ListIterator<E> listIterator() {
         return delegate.listIterator();
     }
 
     @Override
-    public ListIterator<Object> listIterator(int index) {
+    public ListIterator<E> listIterator(int index) {
         return delegate.listIterator(index);
     }
 
     @Override
-    public List<Object> subList(int fromIndex, int toIndex) {
+    public List<E> subList(int fromIndex, int toIndex) {
         return delegate.subList(fromIndex, toIndex);
     }
 
-    @Override
-    public Object get(int index) {
-        return delegate.get(index);
+    public EnhancedList<E> fluentAdd(E e) {
+        this.add(e);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentRemove(E e) {
+        this.remove(e);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentAddAll(Collection<? extends E> collection) {
+        this.addAll(collection);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentAddAll(int index, Collection<? extends E> collection) {
+        this.addAll(index, collection);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentRemoveAll(Collection<E> collection) {
+        this.removeAll(collection);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentRetainAll(Collection<E> collection) {
+        this.retainAll(collection);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentClear() {
+        this.clear();
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentSet(int index, E element) {
+        this.set(index, element);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentAdd(int index, E element) {
+        this.add(index, element);
+        return this;
+    }
+
+
+    public EnhancedList<E> fluentRemove(int index) {
+        this.remove(index);
+        return this;
+    }
+
+    public List<E> getNativeList() {
+        return delegate;
     }
 
     @SuppressWarnings("unchecked")
-    public EnhancedMap getEnhancedMap(int index) {
-        Object object = delegate.get(index);
-        if (object instanceof EnhancedMap) {
-            return (EnhancedMap) object;
+    public <K, V> EnhancedMap<K, V> getEnhancedMap(int index) {
+        Object object = this.get(index);
+        if (null == object) {
+            return null;
         }
-
+        if (object instanceof EnhancedMap) {
+            return (EnhancedMap<K, V>) object;
+        }
         if (object instanceof Map) {
-            return new EnhancedMap((Map) object);
+            return new EnhancedMap<>((Map<K, V>) object);
         }
         throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
 
     @SuppressWarnings("unchecked")
-    public EnhancedList getEnhancedList(int index) {
-        Object object = delegate.get(index);
-
+    public EnhancedList<E> getEnhancedList(int index) {
+        Object object = this.get(index);
+        if (null == object) {
+            return null;
+        }
         if (object instanceof EnhancedList) {
-            return (EnhancedList) object;
+            return (EnhancedList<E>) object;
         }
 
         if (object instanceof List) {
-            return new EnhancedList((List<Object>) object);
+            return new EnhancedList<>((List<E>) object);
         }
 
         throw new MatrixWarnException("object must be List or EnhancedList");
     }
 
     public <T> T getObject(int index) {
-        Object object = delegate.get(index);
+        Object object = get(index);
         return ObjectUtil.INSTANCE.cast(object);
     }
 

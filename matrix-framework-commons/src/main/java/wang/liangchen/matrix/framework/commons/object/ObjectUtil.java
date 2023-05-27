@@ -43,6 +43,20 @@ public enum ObjectUtil {
         return object.getClass().isArray();
     }
 
+    public boolean isString(Object object) {
+        if (null == object) {
+            return false;
+        }
+        return object instanceof String;
+    }
+
+    public boolean isNumber(Object object) {
+        if (null == object) {
+            return false;
+        }
+        return object instanceof Number;
+    }
+
     /**
      * String,Collection,Map,Array,Iterator,Iterrable
      *

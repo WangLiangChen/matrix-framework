@@ -1,16 +1,16 @@
 package wang.liangchen.matrix.framework.data.dao.entity;
 
+import wang.liangchen.matrix.framework.commons.object.EnhancedList;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
  * @author Liangchen.Wang 2023-04-30 22:40
  */
-public class Entities<S extends RootEntity> extends ArrayList<S> {
+public class Entities<S extends RootEntity> extends EnhancedList<S> {
     public Entities(int initialCapacity) {
         super(initialCapacity);
     }
@@ -18,8 +18,8 @@ public class Entities<S extends RootEntity> extends ArrayList<S> {
     public Entities() {
     }
 
-    public Entities(Collection<? extends S> collection) {
-        super(collection);
+    public Entities(List<S> list) {
+        super(list);
     }
 
     public List<S> to() {
