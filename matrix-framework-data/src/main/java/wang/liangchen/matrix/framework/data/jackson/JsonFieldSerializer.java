@@ -13,6 +13,6 @@ import java.io.IOException;
 public class JsonFieldSerializer extends JsonSerializer<JsonField> {
     @Override
     public void serialize(JsonField jsonField, JsonGenerator jsonGenerator, SerializerProvider serializers) throws IOException {
-        jsonGenerator.writeObject(jsonField.getNativeMap());
+        jsonGenerator.writeObject(jsonField.getDelegate());
     }
 }

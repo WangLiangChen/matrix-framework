@@ -5,21 +5,20 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
- * 不能实现Map接口，否则该类子类的属性将会被隐藏
+ * 不能实现Map接口，否则该类及其子类的属性将会被隐藏
  */
 public class EnhancedObject implements Serializable {
 
     /**
      * 对象扩展属性 需要被序列化
      */
-    private final Map<String, Object> extendedFields = new HashMap<>();
+    private final Map<String, Object> extendedFields = new EnhancedMap<>();
 
     public <E> E to(Class<E> targetClass) {
         return ObjectUtil.INSTANCE.copyProperties(this, targetClass);

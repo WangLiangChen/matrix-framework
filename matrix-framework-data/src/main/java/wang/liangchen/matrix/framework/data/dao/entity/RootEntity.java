@@ -2,13 +2,13 @@ package wang.liangchen.matrix.framework.data.dao.entity;
 
 
 import jakarta.persistence.Transient;
+import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.data.dao.criteria.ColumnMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.EntityGetter;
 import wang.liangchen.matrix.framework.data.dao.criteria.TableMeta;
 import wang.liangchen.matrix.framework.data.dao.criteria.TableMetas;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public abstract class RootEntity extends EnhancedObject {
     @Transient
-    private transient final Map<String, Object> forceUpdateColumns = new HashMap<>();
+    private transient final Map<String, Object> forceUpdateColumns = new EnhancedMap<>();
     @Transient
     private transient final TableMeta tableMeta;
 

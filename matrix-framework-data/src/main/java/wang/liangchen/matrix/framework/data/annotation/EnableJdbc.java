@@ -14,7 +14,11 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.*;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
@@ -48,6 +52,7 @@ import java.util.*;
 public @interface EnableJdbc {
     class JdbcImportSelector implements ImportSelector, EnvironmentAware {
         private ConfigurableEnvironment environment;
+        private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         // private final String JDBC_CONFIG_FILE = "jdbc.properties";
         private final String DIALECT_ITEM = "dialect", SCHEMA_ITEM = "schema", URL_ITEM = "url", EXTRA_ITEM = "extra";
         private final Set<String> requiredConfigItemsByHost = new HashSet<String>() {{
@@ -72,6 +77,7 @@ public @interface EnableJdbc {
         public synchronized String[] selectImports(AnnotationMetadata annotationMetadata) {
             PrettyPrinter.INSTANCE.buffer("@EnableJdbc matched class: {}", annotationMetadata.getClassName());
             instantiateDataSource();
+            instantiateSQL();
             PrettyPrinter.INSTANCE.flush();
             String[] imports = new String[]{MultiDataSourceRegister.class.getName(), AutoProxyRegistrar.class.getName(),
                     JdbcAutoConfiguration.class.getName(),
@@ -174,6 +180,30 @@ public @interface EnableJdbc {
                     ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, requiredConfigItemsByUrl.size() == length, "DataSource: {}, configuration items :'{}' or '{}' are required!", dataSourceName, requiredConfigItemsByHost, requiredConfigItemsByUrl);
                 }
             });
+        }
+        private void instantiateSQL() {
+            Set<String> dataSourceNames = MultiDataSourceContext.INSTANCE.getDataSourceNames();
+            ResourceDatabasePopulator databasePopulator;
+            DataSource dataSource;
+            AbstractDialect dialect;
+            try {
+                for (String dataSourceName : dataSourceNames) {
+                    databasePopulator = new ResourceDatabasePopulator();
+                    databasePopulator.setSqlScriptEncoding("UTF-8");
+                    dialect = MultiDataSourceContext.INSTANCE.getDialect(dataSourceName);
+                    Resource[] sqlFiles = resourcePatternResolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX.concat(dialect.getDataSourceType()).concat("_INIT.sql"));
+                    for (Resource sqlFile : sqlFiles) {
+                        PrettyPrinter.INSTANCE.buffer("init sql script:{}", sqlFile.toString());
+                        databasePopulator.addScript(sqlFile);
+                    }
+                    dataSource = MultiDataSourceContext.INSTANCE.getDataSource(dataSourceName);
+                    databasePopulator.execute(dataSource);
+                }
+            } catch (Exception e) {
+                throw new MatrixErrorException(e);
+            } finally {
+                PrettyPrinter.INSTANCE.flush();
+            }
         }
 
         @Override

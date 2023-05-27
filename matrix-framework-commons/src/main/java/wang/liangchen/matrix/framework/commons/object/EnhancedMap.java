@@ -8,17 +8,20 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * @author Liangchen.Wang 2022-04-01 21:46
- * 不能实现Map接口，否则该类子类的属性将会被隐藏
+ * 实现了Map接口,该类及其子类的属性将会被隐藏
  */
-public class EnhancedMap implements Serializable {
+public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Serializable {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     /**
      * 对象扩展属性 需要被序列化
      */
-    private final Map<String, Object> delegate;
+    private final Map<K, V> delegate;
 
     public EnhancedMap(int initialCapacity, boolean ordered) {
         if (ordered) {
@@ -28,8 +31,8 @@ public class EnhancedMap implements Serializable {
         }
     }
 
-    public EnhancedMap(Map<String, Object> delegate) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, delegate, "extendedFields must not be null");
+    public EnhancedMap(Map<K, V> delegate) {
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, delegate, "parameter must not be null");
         this.delegate = delegate;
     }
 
@@ -45,52 +48,191 @@ public class EnhancedMap implements Serializable {
         this(initialCapacity, false);
     }
 
+    @Override
     public int size() {
         return delegate.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
 
+    @Override
+    public boolean containsValue(Object value) {
+        return delegate.containsValue(value);
+    }
+
+    @Override
     public boolean containsKey(Object key) {
-        return delegate.containsKey(String.valueOf(key));
+        return delegate.containsKey(key);
     }
 
-    public boolean containsValue(Object object) {
-        return delegate.containsValue(object);
+    @Override
+    public V get(Object key) {
+        return delegate.get(key);
     }
 
-    public Object get(Object key) {
-        return delegate.get(String.valueOf(key));
+    @Override
+    public V put(K key, V value) {
+        return delegate.put(key, value);
     }
 
-    public Object getOrDefault(Object key, Object defaultValue) {
-        Object object;
-        return ((object = get(key)) != null) ? object : defaultValue;
+    @Override
+    public V remove(Object key) {
+        return delegate.remove(key);
+    }
+
+    @Override
+    public void putAll(Map<? extends K, ? extends V> m) {
+        delegate.putAll(m);
+    }
+
+    @Override
+    public void clear() {
+        delegate.clear();
+    }
+
+    @Override
+    public Set<K> keySet() {
+        return delegate.keySet();
+    }
+
+    @Override
+    public Collection<V> values() {
+        return delegate.values();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return delegate.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
+    public V getOrDefault(Object key, V defaultValue) {
+        return delegate.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        delegate.forEach(action);
+    }
+
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        delegate.replaceAll(function);
+    }
+
+    @Override
+    public V putIfAbsent(K key, V value) {
+        return delegate.putIfAbsent(key, value);
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        return delegate.remove(key, value);
+    }
+
+    @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        return delegate.replace(key, oldValue, newValue);
+    }
+
+    @Override
+    public V replace(K key, V value) {
+        return delegate.replace(key, value);
+    }
+
+    @Override
+    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+        return delegate.computeIfAbsent(key, mappingFunction);
+    }
+
+    @Override
+    public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return delegate.computeIfPresent(key, remappingFunction);
+    }
+
+    @Override
+    public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+        return delegate.compute(key, remappingFunction);
+    }
+
+    @Override
+    public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+        return delegate.merge(key, value, remappingFunction);
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return delegate.entrySet();
+    }
+
+    public EnhancedMap<K, V> fluentPut(K key, V object) {
+        this.put(key, object);
+        return this;
+    }
+
+
+    public EnhancedMap<K, V> fluentPutAll(Map<? extends K, ? extends V> map) {
+        this.putAll(map);
+        return this;
+    }
+
+
+    public EnhancedMap<K, V> fluentClear() {
+        this.clear();
+        return this;
+    }
+
+
+    public EnhancedMap<K, V> fluentRemove(Object key) {
+        this.remove(key);
+        return this;
+    }
+
+    public Map<K, V> getNativeMap() {
+        return this.delegate;
     }
 
     @SuppressWarnings("unchecked")
-    public EnhancedMap getEnhancedMap(String key) {
-        Object object = delegate.get(key);
+    public EnhancedMap<K, V> getEnhancedMap(Object key) {
+        V object = this.get(key);
+        if (null == object) {
+            return null;
+        }
         if (object instanceof EnhancedMap) {
-            return (EnhancedMap) object;
+            return (EnhancedMap<K, V>) object;
         }
         if (object instanceof Map) {
-            return new EnhancedMap((Map<String, Object>) object);
+            return new EnhancedMap<>((Map<K, V>) object);
         }
         throw new MatrixWarnException("object must be Map or EnhancedMap");
     }
 
     @SuppressWarnings("unchecked")
-    public EnhancedList getEnhancedList(String key) {
-        Object object = delegate.get(key);
+    public <E> EnhancedList<E> getEnhancedList(String key) {
+        Object object = this.get(key);
+        if (null == object) {
+            return null;
+        }
+
         if (object instanceof EnhancedList) {
-            return (EnhancedList) object;
+            return (EnhancedList<E>) object;
         }
 
         if (object instanceof List) {
-            return new EnhancedList((List<Object>) object);
+            return new EnhancedList<>((List<E>) object);
         }
         throw new MatrixWarnException("object must be List or EnhancedList");
     }
@@ -246,77 +388,20 @@ public class EnhancedMap implements Serializable {
     }
 
 
-    public Object put(String key, Object object) {
-        return delegate.put(key, object);
-    }
-
-    public EnhancedMap fluentPut(String key, Object object) {
-        delegate.put(key, object);
-        return this;
-    }
-
-
-    public void putAll(Map<? extends String, ?> m) {
-        delegate.putAll(m);
-    }
-
-    public EnhancedMap fluentPutAll(Map<? extends String, ?> m) {
-        delegate.putAll(m);
-        return this;
-    }
-
-
-    public void clear() {
-        delegate.clear();
-    }
-
-    public EnhancedMap fluentClear() {
-        delegate.clear();
-        return this;
-    }
-
-
-    public Object remove(Object key) {
-        return delegate.remove(key);
-    }
-
-    public EnhancedMap fluentRemove(Object key) {
-        delegate.remove(key);
-        return this;
-    }
-
-
-    public Set<String> keySet() {
-        return delegate.keySet();
-    }
-
-
-    public Collection<Object> values() {
-        return delegate.values();
-    }
-
-
-    public Set<Map.Entry<String, Object>> entrySet() {
-        return delegate.entrySet();
-    }
-
-    public Map<String, Object> getNativeMap() {
-        return this.delegate;
-    }
-
-    public void addExtendedField(String key, Object value) {
+    public void addExtendedField(K key, V value) {
         this.delegate.put(key, value);
     }
 
-    public void addExtendedFields(Map<String, Object> extendedFields) {
+    public void addExtendedFields(Map<K, V> extendedFields) {
         this.delegate.putAll(extendedFields);
     }
 
-    public void removeExtendedField(String key) {
+    public void removeExtendedField(K key) {
         this.delegate.remove(key);
     }
 
-    public Map<String, Object> getExtendedFields() {
+    public Map<K, V> getExtendedFields() {
         return delegate;
     }
+
 }
