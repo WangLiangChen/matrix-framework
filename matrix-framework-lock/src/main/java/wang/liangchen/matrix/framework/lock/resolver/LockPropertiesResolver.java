@@ -6,7 +6,7 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
-import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
+import wang.liangchen.matrix.framework.lock.core.LockProperties;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -15,11 +15,11 @@ import java.time.Instant;
 /**
  * @author Liangchen.Wang 2022-08-26 14:56
  */
-public enum LockConfigurationResolver {
+public enum LockPropertiesResolver {
     INSTANCE;
-    private final static Logger logger = LoggerFactory.getLogger(LockConfigurationResolver.class);
+    private final static Logger logger = LoggerFactory.getLogger(LockPropertiesResolver.class);
 
-    public LockConfiguration resolve(Runnable runnable) {
+    public LockProperties resolve(Runnable runnable) {
         if (!(runnable instanceof ScheduledMethodRunnable)) {
             logger.warn("Unsupported type: {}", runnable.getClass().getName());
             return null;
@@ -28,7 +28,7 @@ public enum LockConfigurationResolver {
         return resolve(scheduledMethodRunnable.getTarget(), scheduledMethodRunnable.getMethod());
     }
 
-    public LockConfiguration resolve(Object target, Method method) {
+    public LockProperties resolve(Object target, Method method) {
         MatrixLock annotation = resolveAnnotation(target, method);
         if (null == annotation) {
             return null;
@@ -39,7 +39,7 @@ public enum LockConfigurationResolver {
         String lockAtMostString = annotation.lockAtMost();
         Duration lockAtLeast = DurationResolver.INSTANCE.resolve(lockAtLeastString);
         Duration lockAtMost = DurationResolver.INSTANCE.resolve(lockAtMostString);
-        return new LockConfiguration(LockConfiguration.LockKey.newLockKey(lockGroup, lockKey), Instant.now(), lockAtLeast, lockAtMost);
+        return new LockProperties(LockProperties.LockKey.newLockKey(lockGroup, lockKey), Instant.now(), lockAtLeast, lockAtMost);
     }
 
     private MatrixLock resolveAnnotation(Object target, Method method) {

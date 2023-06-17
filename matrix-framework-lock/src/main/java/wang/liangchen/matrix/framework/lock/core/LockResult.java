@@ -3,21 +3,21 @@ package wang.liangchen.matrix.framework.lock.core;
 /**
  * @author Liangchen.Wang 2022-08-24 23:09
  */
-public class TaskResult<R> {
+public class LockResult<R> {
     private final R object;
     private final boolean skipped;
 
-    public TaskResult(boolean skipped, R object) {
+    public LockResult(boolean skipped, R object) {
         this.skipped = skipped;
         this.object = object;
     }
 
-    public static <R> TaskResult<R> newInstance(R object) {
-        return new TaskResult<>(false, object);
+    public static <R> LockResult<R> newInstance(R object) {
+        return new LockResult<>(false, object);
     }
 
-    public static <R> TaskResult<R> skipped() {
-        return new TaskResult<>(true, null);
+    public static <R> LockResult<R> skipped() {
+        return new LockResult<>(true, null);
     }
 
     public R getObject() {

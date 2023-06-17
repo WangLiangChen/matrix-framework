@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.network.NetUtil;
 import wang.liangchen.matrix.framework.data.datasource.ConnectionManager;
-import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
+import wang.liangchen.matrix.framework.lock.core.LockProperties;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,12 +21,12 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
     private final String UPDATE_SQL = "update matrix_lock set lock_at=?,lock_expire=?,lock_owner=? where lock_group=? and lock_key=? and lock_expire<=?";
 
 
-    protected UpdateLockImpl(LockConfiguration lockConfiguration, DataSource dataSource) {
-        super(lockConfiguration, dataSource);
+    protected UpdateLockImpl(LockProperties lockProperties, DataSource dataSource) {
+        super(lockProperties, dataSource);
     }
 
     @Override
-    protected boolean executeBlockingSQL(final Connection connection, final LockConfiguration.LockKey lockKey) {
+    protected boolean executeBlockingSQL(final Connection connection, final LockProperties.LockKey lockKey) {
         logger.debug("Lock '{}' is being obtained, waiting...", lockKey);
         if (inserted(connection, lockKey)) {
             logger.debug("Lock '{}' is inserted.", lockKey);
@@ -47,13 +47,13 @@ public class UpdateLockImpl extends AbstractRdbmsLock {
         return false;
     }
 
-    protected boolean lockByUpdate(Connection connection, LockConfiguration.LockKey lockKey) {
+    protected boolean lockByUpdate(Connection connection, LockProperties.LockKey lockKey) {
         PreparedStatement preparedStatement = null;
         LocalDateTime now = LocalDateTime.now();
         try {
             preparedStatement = connection.prepareStatement(UPDATE_SQL);
             preparedStatement.setObject(1, now);
-            preparedStatement.setObject(2, LocalDateTime.ofInstant(lockConfiguration().getLockAtMost(), ZoneId.systemDefault()));
+            preparedStatement.setObject(2, LocalDateTime.ofInstant(lockProperties().getLockAtMost(), ZoneId.systemDefault()));
             preparedStatement.setString(3, NetUtil.INSTANCE.getLocalHostName());
             preparedStatement.setString(4, lockKey.getLockGroup());
             preparedStatement.setString(5, lockKey.getLockKey());

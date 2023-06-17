@@ -6,6 +6,7 @@ import org.springframework.scheduling.TaskScheduler;
 
 /**
  * @author Liangchen.Wang 2022-08-26 14:24
+ * advice
  */
 public abstract class TaskSchedulerInterceptor implements MethodInterceptor {
     @Override

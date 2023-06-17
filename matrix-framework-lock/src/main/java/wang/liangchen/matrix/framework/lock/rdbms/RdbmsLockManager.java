@@ -15,36 +15,36 @@ public class RdbmsLockManager implements LockManager {
     }
 
     @Override
-    public Lock getLock(LockConfiguration lockConfiguration) {
-        return new UpdateLockImpl(lockConfiguration, this.dataSource);
+    public Lock getLock(LockProperties lockProperties) {
+        return new UpdateLockImpl(lockProperties, this.dataSource);
     }
 
     @Override
-    public void executeInLock(LockConfiguration lockConfiguration, RunnableTask task) throws Throwable {
-        Lock lock = getLock(lockConfiguration);
+    public void executeInLock(LockProperties lockProperties, LockRunnable runnable) throws Throwable {
+        Lock lock = getLock(lockProperties);
         boolean obtainedLock = lock.lock();
         if (!obtainedLock) {
             return;
         }
         // 获锁成功 才执行
         try {
-            task.run();
+            runnable.run();
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    public <R> TaskResult<R> executeInLock(LockConfiguration lockConfiguration, SupplierTask<R> task) throws Throwable {
-        Lock lock = getLock(lockConfiguration);
+    public <R> LockResult<R> executeInLock(LockProperties lockProperties, LockSupplier<R> supplier) throws Throwable {
+        Lock lock = getLock(lockProperties);
         boolean obtainedLock = lock.lock();
         // 获锁失败略过任务
         if (!obtainedLock) {
-            return TaskResult.skipped();
+            return LockResult.skipped();
         }
         // 获锁成功
         try {
-            return TaskResult.newInstance(task.get());
+            return LockResult.newInstance(supplier.get());
         } finally {
             lock.unlock();
         }

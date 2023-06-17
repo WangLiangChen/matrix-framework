@@ -8,7 +8,7 @@ public interface Lock {
 
     void unlock();
 
-    LockConfiguration lockConfiguration();
+    LockProperties lockProperties();
 
-    LockConfiguration.LockKey lockKey();
+    LockProperties.LockKey lockKey();
 }

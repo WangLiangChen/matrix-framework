@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.data.commons.configuration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import wang.liangchen.matrix.framework.data.commons.domain.dictionary.DictionaryManager;
-import wang.liangchen.matrix.framework.data.commons.domain.inifite.InfiniteManager;
+import wang.liangchen.matrix.framework.data.commons.domain.tree.TreeManager;
 import wang.liangchen.matrix.framework.data.dao.StandaloneDao;
 
 /**
@@ -17,7 +17,7 @@ public class DataCommonsAutoConfiguration {
     }
 
     @Bean
-    public InfiniteManager infiniteManager(StandaloneDao standaloneDao) {
-        return new InfiniteManager(standaloneDao);
+    public TreeManager infiniteManager(StandaloneDao standaloneDao) {
+        return new TreeManager(standaloneDao);
     }
 }

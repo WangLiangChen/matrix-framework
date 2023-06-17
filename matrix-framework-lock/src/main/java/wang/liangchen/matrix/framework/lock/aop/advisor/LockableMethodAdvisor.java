@@ -6,26 +6,25 @@ import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.lock.annotation.MatrixLock;
-import wang.liangchen.matrix.framework.lock.core.LockConfiguration;
 import wang.liangchen.matrix.framework.lock.core.LockManager;
-import wang.liangchen.matrix.framework.lock.core.TaskResult;
-import wang.liangchen.matrix.framework.lock.resolver.LockConfigurationResolver;
-import wang.liangchen.matrix.framework.springboot.aop.advisor.AnnotationOrNameMatchMethodPointcut;
+import wang.liangchen.matrix.framework.lock.core.LockProperties;
+import wang.liangchen.matrix.framework.lock.core.LockResult;
+import wang.liangchen.matrix.framework.lock.resolver.LockPropertiesResolver;
 import wang.liangchen.matrix.framework.springboot.aop.advisor.TaskSchedulerInterceptor;
+import wang.liangchen.matrix.framework.springboot.aop.advisor.TaskSchedulerMethodMatcher;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-08-26 15:40
  */
 public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
+    private final static Pointcut lockableMethodPointcut = new LockableMethodPointcut();
     private final LockManager lockManager;
 
     public LockableMethodAdvisor(LockManager lockManager) {
@@ -34,7 +33,7 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
 
     @Override
     public Pointcut getPointcut() {
-        return new LockableMethodPointcut();
+        return lockableMethodPointcut;
     }
 
     @Override
@@ -55,6 +54,7 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
             Object target = invocation.getThis();
             // TaskScheduler method
             if (TaskScheduler.class.isAssignableFrom(target.getClass())) {
+                // use wrapRunnable
                 return super.invoke(invocation);
             }
             // AOP method
@@ -65,21 +65,21 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
             if (returnType.isPrimitive()) {
                 throw new MatrixWarnException("method can't return primitive type");
             }
-            LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(target, method);
-            TaskResult<Object> result = lockManager.executeInLock(lockConfiguration, invocation::proceed);
+            LockProperties lockProperties = LockPropertiesResolver.INSTANCE.resolve(target, method);
+            LockResult<Object> result = lockManager.executeInLock(lockProperties, invocation::proceed);
             return result.getObject();
         }
 
         @Override
         protected Runnable wrapRunnable(Runnable runnable) {
-            LockConfiguration lockConfiguration = LockConfigurationResolver.INSTANCE.resolve(runnable);
-            if (null == lockConfiguration) {
+            LockProperties lockProperties = LockPropertiesResolver.INSTANCE.resolve(runnable);
+            if (null == lockProperties) {
                 return runnable;
             }
             // wrap runnable
             return () -> {
                 try {
-                    lockManager.executeInLock(lockConfiguration, runnable::run);
+                    lockManager.executeInLock(lockProperties, runnable::run);
                 } catch (Throwable e) {
                     throw new MatrixErrorException(e);
                 }
@@ -88,12 +88,21 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
     }
 
     private static class LockableMethodPointcut implements Pointcut {
-        private final Set<AnnotationOrNameMatchMethodPointcut.MappedMethod> mappedMethods = new HashSet<AnnotationOrNameMatchMethodPointcut.MappedMethod>() {{
-            add(new AnnotationOrNameMatchMethodPointcut.MappedMethod(TaskScheduler.class, "execute"));
-            add(new AnnotationOrNameMatchMethodPointcut.MappedMethod(TaskScheduler.class, "schedule"));
-            add(new AnnotationOrNameMatchMethodPointcut.MappedMethod(TaskScheduler.class, "scheduleAtFixedRate"));
-            add(new AnnotationOrNameMatchMethodPointcut.MappedMethod(TaskScheduler.class, "scheduleWithFixedDelay"));
-        }};
+        private final static MethodMatcher annotatedAndTaskSchedulerMethodMatcher = new TaskSchedulerMethodMatcher() {
+            @Override
+            public boolean matches(Method method, Class<?> targetClass) {
+                // 先匹配注解MatrixLock
+                if (AnnotatedElementUtils.hasAnnotation(method, MatrixLock.class)) {
+                    return true;
+                }
+                // 再匹配TaskScheudler
+                if (TaskScheduler.class.isAssignableFrom(targetClass)) {
+                    return super.matches(method, targetClass);
+                }
+                // 其它不匹配
+                return false;
+            }
+        };
 
         @Override
         public ClassFilter getClassFilter() {
@@ -102,10 +111,7 @@ public class LockableMethodAdvisor extends AbstractPointcutAdvisor {
 
         @Override
         public MethodMatcher getMethodMatcher() {
-            AnnotationOrNameMatchMethodPointcut annotationOrNameMatchMethodPointcut = new AnnotationOrNameMatchMethodPointcut(MatrixLock.class, true, mappedMethods);
-            // 排除Scheduled,防止重复拦截
-            annotationOrNameMatchMethodPointcut.setExcludedAnnotationTypes(Scheduled.class);
-            return annotationOrNameMatchMethodPointcut;
+            return annotatedAndTaskSchedulerMethodMatcher;
         }
     }
 }
