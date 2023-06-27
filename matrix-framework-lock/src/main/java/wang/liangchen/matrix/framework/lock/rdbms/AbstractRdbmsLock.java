@@ -13,8 +13,10 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 
 /**
@@ -22,7 +24,7 @@ import java.util.Set;
  */
 public abstract class AbstractRdbmsLock extends AbstractLock {
     private final static Logger logger = LoggerFactory.getLogger(AbstractRdbmsLock.class);
-    private final static Set<LockProperties.LockKey> insertedLock = new HashSet<>();
+    private final static Set<LockProperties.LockKey> insertedLock = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     private final String SELECT_SQL = "select 0 from matrix_lock where lock_group=? and lock_key = ?";
     private final String INSERT_SQL = "insert into matrix_lock values(?,?,?,?,?)";
     private final String UNLOCK_SQL = "update matrix_lock SET lock_expire = ? WHERE lock_group=? and lock_key = ?";
