@@ -105,10 +105,12 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         }
         this.pageNumber = null == this.pageNumber ? pagination.getPageNumber() : this.pageNumber;
         this.pageSize = null == this.pageSize ? pagination.getPageSize() : this.pageSize;
-        if (null == orderBys) {
-            this.orderBys = new ArrayList<>();
-            this.orderBys.addAll(pagination.getOrderBys());
+        List<OrderBy> paginationOrderBys = pagination.getOrderBys();
+        if (null == paginationOrderBys) {
+            return this;
         }
+        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
+        this.orderBys.addAll(paginationOrderBys);
         return this;
     }
 
@@ -291,6 +293,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     public Criteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         return (Criteria<E>) super._or(consumer);
     }
+
     @Override
     public Criteria<E> _or() {
         return (Criteria<E>) super._or();
