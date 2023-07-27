@@ -10,7 +10,7 @@ import java.util.List;
  * @author Liangchen.Wang 2023-06-17 15:21
  */
 public class TaskSchedulerMethodMatcher extends StaticMethodMatcher {
-    private final static List<String> mappedNames = new ArrayList<>() {{
+    private final static List<String> mappedNames = new ArrayList<String>() {{
         add("execute");
         add("schedule");
         add("scheduleAtFixedRate");
