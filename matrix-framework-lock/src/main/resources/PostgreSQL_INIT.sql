@@ -1,7 +1,7 @@
 create table if not exists matrix_lock
 (
     lock_group  varchar(36) not null,
-    lock_key    varchar(36) not null,
+    lock_key    varchar(360) not null,
     lock_at     timestamp   not null,
     lock_expire timestamp   not null,
     lock_owner  varchar(36) not null,
