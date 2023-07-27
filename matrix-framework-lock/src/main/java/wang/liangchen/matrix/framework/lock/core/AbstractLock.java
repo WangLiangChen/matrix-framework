@@ -13,15 +13,15 @@ import java.util.Set;
 public abstract class AbstractLock implements Lock {
     private final static Logger logger = LoggerFactory.getLogger(AbstractLock.class);
     /**
-     * 当前线程持有的锁
+     * 当前线程持有的锁-多个
      */
-    private final static ThreadLocal<Set<LockConfiguration.LockKey>> currentThreadHoldLocks = ThreadLocal.withInitial(HashSet::new);
-    private final LockConfiguration lockConfiguration;
-    private final LockConfiguration.LockKey lockKey;
+    private final static ThreadLocal<Set<LockProperties.LockKey>> currentThreadHoldLocks = ThreadLocal.withInitial(HashSet::new);
+    private final LockProperties lockProperties;
+    private final LockProperties.LockKey lockKey;
 
-    protected AbstractLock(LockConfiguration lockConfiguration) {
-        this.lockConfiguration = ValidationUtil.INSTANCE.notNull(lockConfiguration);
-        this.lockKey = this.lockConfiguration.getLockKey();
+    protected AbstractLock(LockProperties lockProperties) {
+        this.lockProperties = ValidationUtil.INSTANCE.notNull(lockProperties);
+        this.lockKey = this.lockProperties.getLockKey();
     }
 
     @Override
@@ -51,12 +51,12 @@ public abstract class AbstractLock implements Lock {
     protected abstract void doUnlock();
 
     @Override
-    public LockConfiguration lockConfiguration() {
-        return this.lockConfiguration;
+    public LockProperties lockProperties() {
+        return this.lockProperties;
     }
 
     @Override
-    public LockConfiguration.LockKey lockKey() {
+    public LockProperties.LockKey lockKey() {
         return lockKey;
     }
 }

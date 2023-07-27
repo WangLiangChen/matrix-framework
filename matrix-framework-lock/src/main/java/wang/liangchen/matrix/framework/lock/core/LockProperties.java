@@ -11,13 +11,13 @@ import java.util.StringJoiner;
 /**
  * @author Liangchen.Wang 2022-08-22 11:35
  */
-public class LockConfiguration {
+public class LockProperties {
     private final LockKey lockKey;
     private final Instant lockAt;
     private final Instant lockAtLeast;
     private final Instant lockAtMost;
 
-    public LockConfiguration(LockKey lockKey, Instant lockAt, Duration lockAtLeast, Duration lockAtMost) {
+    public LockProperties(LockKey lockKey, Instant lockAt, Duration lockAtLeast, Duration lockAtMost) {
         this.lockKey = ValidationUtil.INSTANCE.notNull(lockKey);
         this.lockAt = ValidationUtil.INSTANCE.notNull(lockAt);
         this.lockAtLeast = this.lockAt.plus(ValidationUtil.INSTANCE.notNull(lockAtLeast));
@@ -28,7 +28,7 @@ public class LockConfiguration {
 
     public Instant getUnLockInstant() {
         Instant now = Instant.now();
-        return lockAtLeast.isBefore(now) ? lockAtLeast : now;
+        return lockAtLeast.isAfter(now) ? lockAtLeast : now;
     }
 
     public LockKey getLockKey() {
