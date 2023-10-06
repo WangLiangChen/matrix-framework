@@ -32,6 +32,11 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.EQUALS, sqlValue));
         return this;
     }
+    protected AbstractClassCriteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.EQUALS, sqlValue));
+        return this;
+    }
 
     protected AbstractClassCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
@@ -95,7 +100,7 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return this;
     }
 
-    // =====================greaterThanOrEauals========================
+    // =====================greaterThanOrEquals========================
 
 
     protected AbstractClassCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -227,7 +232,7 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return this;
     }
 
-    private <E extends RootEntity> ColumnMeta resolveEntityGetter(EntityGetter<E> entityGetter) {
+    private ColumnMeta resolveEntityGetter(EntityGetter<E> entityGetter) {
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
         return columnMetas.get(fieldName);
     }
