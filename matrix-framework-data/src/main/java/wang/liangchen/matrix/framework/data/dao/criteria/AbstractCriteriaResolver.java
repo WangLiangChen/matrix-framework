@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  * @author Liangchen.Wang 2023-04-10 21:26
  */
 abstract class AbstractCriteriaResolver {
-    private final static String mergedKeyPattern = "%s_%d";
-    private final static String whereSqlValuesPattern = "#{whereSqlValues.%s}";
+    private final static String MERGED_KEY_PATTERN = "%s_%d";
+    private final static String WHERE_SQLVALUES_PATTERN = "#{whereSqlValues.%s}";
     private final AndOr andOr;
     private final Map<String, Object> mergedValues = new LinkedHashMap<>();
     private String whereSql;
@@ -62,9 +62,16 @@ abstract class AbstractCriteriaResolver {
             SingleCriteriaResolver singleCriteriaResolver = (SingleCriteriaResolver) abstractCriteriaResolver;
             Operator operator = singleCriteriaResolver.getOperator();
             String columnName = singleCriteriaResolver.getColumnName();
-            builder.append(columnName).append(operator.getOperator());
+            // ignore case
+            if (Boolean.TRUE.equals(singleCriteriaResolver.getIgnoreCase())) {
+                builder.append("upper(").append(columnName).append(")");
+            } else {
+                builder.append(columnName);
+            }
+
+            builder.append(operator.getOperator());
             Object[] values = singleCriteriaResolver.getValues();
-            if (singleCriteriaResolver.getValueIsColumnName()) {
+            if (Boolean.TRUE.equals(singleCriteriaResolver.getValueIsColumnName())) {
                 // Compatible between
                 builder.append(Arrays.stream(values).map(String::valueOf).collect(Collectors.joining(AndOr.and.getSymbol())));
             } else {
@@ -72,9 +79,9 @@ abstract class AbstractCriteriaResolver {
                 String[] placeholders = new String[values.length];
                 String mergedKey = null;
                 for (int i = 0; i < values.length; i++) {
-                    mergedKey = String.format(mergedKeyPattern, columnName, mergedValues.size());
+                    mergedKey = String.format(MERGED_KEY_PATTERN, columnName, mergedValues.size());
                     mergedValues.put(mergedKey, values[i]);
-                    placeholders[i] = String.format(whereSqlValuesPattern, mergedKey);
+                    placeholders[i] = String.format(WHERE_SQLVALUES_PATTERN, mergedKey);
                 }
                 switch (operator) {
                     case IN:
@@ -106,7 +113,12 @@ abstract class AbstractCriteriaResolver {
                         builder.append(placeholders[0]);
                         break;
                     default:
-                        builder.append(placeholders[0]);
+                        // ignore case
+                        if (Boolean.TRUE.equals(singleCriteriaResolver.getIgnoreCase())) {
+                            builder.append("upper(").append(placeholders[0]).append(")");
+                        } else {
+                            builder.append(placeholders[0]);
+                        }
                         break;
                 }
             }

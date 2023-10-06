@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * @author Liangchen.Wang 2021-09-30 15:22
@@ -27,6 +28,11 @@ public enum ObjectUtil {
      */
     INSTANCE;
     private static final Schema<ProtostuffWrapper> PROTOSTUFF_WRAPPER_SCHEMA = RuntimeSchema.getSchema(ProtostuffWrapper.class);
+
+
+    public <T, R> R getInnerValue(T t, Function<T, R> function) {
+        return Optional.ofNullable(t).map(function).orElse(null);
+    }
 
     public boolean isNull(Object object) {
         return null == object;
