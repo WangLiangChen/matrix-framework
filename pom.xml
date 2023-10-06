@@ -9,8 +9,7 @@
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive
-    </description>
+    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive</description>
     <url>https://github.com/WangLiangChen/matrix-framework</url>
 
     <licenses>
@@ -198,19 +197,6 @@
                                 <configuration>
                                     <keyname>Liangchen.Wang</keyname>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.cyclonedx</groupId>
-                        <artifactId>cyclonedx-maven-plugin</artifactId>
-                        <version>2.7.9</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>makeAggregateBom</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
