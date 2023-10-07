@@ -130,7 +130,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     @Override
-    protected Criteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+    public Criteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
         return (Criteria<E>)super._equalsIgnoreCase(fieldGetter, sqlValue);
     }
 
