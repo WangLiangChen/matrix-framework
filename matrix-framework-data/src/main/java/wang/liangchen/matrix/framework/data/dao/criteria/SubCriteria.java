@@ -34,6 +34,11 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractObjectCr
     }
 
     @Override
+    protected SubCriteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (SubCriteria<E>) super._equalsIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public SubCriteria<E> _equals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (SubCriteria<E>) super._equals(fieldGetter, sqlValue);
     }
