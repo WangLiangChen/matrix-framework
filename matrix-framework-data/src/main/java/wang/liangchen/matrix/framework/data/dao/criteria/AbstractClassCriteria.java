@@ -32,6 +32,7 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.EQUALS, sqlValue));
         return this;
     }
+
     protected AbstractClassCriteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
         this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.EQUALS, sqlValue));
@@ -53,6 +54,12 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return this;
     }
 
+    protected AbstractClassCriteria<E> _notEqualsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTEQUALS, sqlValue));
+        return this;
+    }
+
     protected AbstractClassCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
         ColumnMeta valueColumnMeta = resolveEntityGetter(sqlValue);
@@ -67,8 +74,8 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return this;
     }
 
-    protected AbstractClassCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
-        _in(fieldGetter, values.toArray());
+    protected AbstractClassCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        _in(fieldGetter, sqlValues.toArray());
         return this;
     }
 
@@ -79,8 +86,8 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return this;
     }
 
-    protected AbstractClassCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
-        _notIn(fieldGetter, values.toArray());
+    protected AbstractClassCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        _notIn(fieldGetter, sqlValues.toArray());
         return this;
     }
 
@@ -197,38 +204,38 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
     // =====================_contains========================
     protected AbstractClassCriteria<E> _contains(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.CONTAINS, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.CONTAINS, (Object) sqlValue));
         return this;
     }
 
     // =====================_notContains========================
     protected AbstractClassCriteria<E> _notContains(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTCONTAINS, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTCONTAINS, (Object) sqlValue));
         return this;
     }
 
     protected AbstractClassCriteria<E> _startWith(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.STARTWITH, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.STARTWITH, (Object) sqlValue));
         return this;
     }
 
     protected AbstractClassCriteria<E> _notStartWith(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTSTARTWITH, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTSTARTWITH, (Object) sqlValue));
         return this;
     }
 
     protected AbstractClassCriteria<E> _endWith(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.ENDWITH, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.ENDWITH, (Object) sqlValue));
         return this;
     }
 
     protected AbstractClassCriteria<E> _notEndWith(EntityGetter<E> fieldGetter, String sqlValue) {
         ColumnMeta columnMeta = resolveEntityGetter(fieldGetter);
-        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTENDWITH, sqlValue));
+        this.composedCriteriaResolver.add(SingleCriteriaResolver.newInstance(columnMeta.getColumnName(), Operator.NOTENDWITH, (Object) sqlValue));
         return this;
     }
 

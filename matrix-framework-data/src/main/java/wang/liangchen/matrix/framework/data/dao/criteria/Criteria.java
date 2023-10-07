@@ -131,7 +131,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
 
     @Override
     public Criteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
-        return (Criteria<E>)super._equalsIgnoreCase(fieldGetter, sqlValue);
+        return (Criteria<E>) super._equalsIgnoreCase(fieldGetter, sqlValue);
     }
 
     @Override
@@ -150,28 +150,34 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     @Override
+    public Criteria<E> _notEqualsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (Criteria<E>) super._notEqualsIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public Criteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (Criteria<E>) super._notEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public Criteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
-        return (Criteria<E>) super._in(fieldGetter, values);
+    public Criteria<E> _in(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (Criteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public Criteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (Criteria<E>) super._in(fieldGetter, values);
+    public Criteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (Criteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public Criteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
-        return (Criteria<E>) super._notIn(fieldGetter, values);
+    public Criteria<E> _notIn(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (Criteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
+
     @Override
-    public Criteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (Criteria<E>) super._notIn(fieldGetter, values);
+    public Criteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (Criteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
     @Override
