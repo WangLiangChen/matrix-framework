@@ -3,10 +3,7 @@ package wang.liangchen.matrix.framework.data.dao.criteria;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +40,9 @@ abstract class AbstractCriteriaResolver {
         if (abstractCriteriaResolver instanceof ComposedCriteriaResolver) {
             ComposedCriteriaResolver composedCriteriaResolver = (ComposedCriteriaResolver) abstractCriteriaResolver;
             List<AbstractCriteriaResolver> items = composedCriteriaResolver.getChildren();
+            // filter null
+            items = items.stream().filter(Objects::nonNull).collect(Collectors.toList());
+
             int size = items.size();
             if (size > 0) {
                 concatAndOr(abstractCriteriaResolver, previousAbstractCriteriaResolver, builder);
@@ -62,14 +62,11 @@ abstract class AbstractCriteriaResolver {
             SingleCriteriaResolver singleCriteriaResolver = (SingleCriteriaResolver) abstractCriteriaResolver;
             Operator operator = singleCriteriaResolver.getOperator();
             String columnName = singleCriteriaResolver.getColumnName();
-            // ignore case
+            // ignore case,use upper on column
             if (Boolean.TRUE.equals(singleCriteriaResolver.getIgnoreCase())) {
-                builder.append("upper(").append(columnName).append(")");
-            } else {
-                builder.append(columnName);
+                columnName = "upper(".concat(columnName).concat(")");
             }
-
-            builder.append(operator.getOperator());
+            builder.append(columnName).append(operator.getOperator());
             Object[] values = singleCriteriaResolver.getValues();
             if (Boolean.TRUE.equals(singleCriteriaResolver.getValueIsColumnName())) {
                 // Compatible between
@@ -139,4 +136,5 @@ abstract class AbstractCriteriaResolver {
     protected Map<String, Object> getMergedValues() {
         return mergedValues;
     }
+
 }

@@ -49,28 +49,33 @@ public abstract class SubCriteria<E extends RootEntity> extends AbstractObjectCr
     }
 
     @Override
+    public SubCriteria<E> _notEqualsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (SubCriteria<E>)super._notEqualsIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public SubCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (SubCriteria<E>) super._notEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public SubCriteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
-        return (SubCriteria<E>) super._in(fieldGetter, values);
+    public SubCriteria<E> _in(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (SubCriteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public SubCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (SubCriteria<E>) super._in(fieldGetter, values);
+    public SubCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (SubCriteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public SubCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
-        return (SubCriteria<E>) super._notIn(fieldGetter, values);
+    public SubCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (SubCriteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
     @Override
-    public SubCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (SubCriteria<E>) super._notIn(fieldGetter, values);
+    public SubCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (SubCriteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
     @Override
