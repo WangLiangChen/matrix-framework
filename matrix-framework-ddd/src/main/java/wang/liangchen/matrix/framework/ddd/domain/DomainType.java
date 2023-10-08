@@ -13,4 +13,8 @@ public enum DomainType {
     DomainType(String summary) {
         this.summary = summary;
     }
+
+    public String getSummary() {
+        return summary;
+    }
 }

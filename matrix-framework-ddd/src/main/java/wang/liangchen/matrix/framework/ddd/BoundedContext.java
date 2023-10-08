@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * Marker interface
- * BoundedContext Package
+ * Marker annotation
+ * Mark a BoundedContext Package
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)

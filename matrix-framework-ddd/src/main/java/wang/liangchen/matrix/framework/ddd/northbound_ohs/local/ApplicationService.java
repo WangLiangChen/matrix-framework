@@ -7,10 +7,11 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * Marker interface
- * ApplicationService 横切关注点
+ * Marker annotation
+ * ApplicationService 应用服务,不包含领域逻辑的业务服务,消息验证、错误处理、监控、日志、事务、访问控制等横切关注点
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface ApplicationService {
+    ApplicationServiceType value() default ApplicationServiceType.NONE;
 }

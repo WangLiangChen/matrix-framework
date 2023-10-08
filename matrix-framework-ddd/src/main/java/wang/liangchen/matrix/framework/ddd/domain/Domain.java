@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * Marker interface
- * Domain Package
+ * Marker annotation
+ * Mark a Package of Domain Layer
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
