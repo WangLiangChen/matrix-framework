@@ -7,10 +7,11 @@ import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
- * Marker interface
- * AggregateRoot
+ * Marker annotation
+ * Mark a domain model
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface AggregateRoot {
+public @interface DomainModel {
+    DomainMetaModel value();
 }

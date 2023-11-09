@@ -16,4 +16,8 @@ public enum PortType {
     PortType(String summary) {
         this.summary = summary;
     }
+
+    public String getSummary() {
+        return summary;
+    }
 }

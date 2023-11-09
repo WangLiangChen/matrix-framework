@@ -6,7 +6,6 @@ import java.time.Clock;
 
 /**
  * @author Liangchen.Wang 2022-04-24 14:29
- * Marker interface
  * ApplicationEvent
  */
 public class ApplicationEvent extends DomainEvent {

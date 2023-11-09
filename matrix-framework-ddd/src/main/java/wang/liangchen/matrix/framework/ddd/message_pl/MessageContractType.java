@@ -11,5 +11,6 @@ public enum MessageContractType {
     RESPONSE,
     RESULT,
     VIEW,
-    EVENT
+    EVENT,
+    SCHEDULING
 }
