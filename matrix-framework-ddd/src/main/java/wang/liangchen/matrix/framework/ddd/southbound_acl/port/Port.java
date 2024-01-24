@@ -1,16 +1,15 @@
 package wang.liangchen.matrix.framework.ddd.southbound_acl.port;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+
 /**
  * @author Liangchen.Wang
- * Marker interface
- * Port
+ * Marker annotation
+ * Mark a port
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
+@Inherited
 public @interface Port {
     PortType value();
 }

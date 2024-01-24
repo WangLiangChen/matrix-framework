@@ -1,16 +1,15 @@
 package wang.liangchen.matrix.framework.ddd.northbound_ohs.remote;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+
 /**
  * @author Liangchen.Wang
- * Marker interface
- * Remote Service
+ * Marker annotation
+ * Mark a remote service
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
+@Inherited
 public @interface Remote {
     RemoteType value();
 }

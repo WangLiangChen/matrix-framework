@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.ddd.message_pl;
 
+import java.lang.annotation.*;
+
 /**
  * @author Liangchen.Wang
  * Marker annotation
@@ -12,6 +14,10 @@ package wang.liangchen.matrix.framework.ddd.message_pl;
  * 请求命名：动名词 + QueryRequest、动名词 + CommandRequest
  * 响应命名：查询响应(Response)、命令响应(Result)、视图(Presentation/View)
  */
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+@Inherited
 public @interface MessageContract {
     Direction direction() default Direction.NONE;
 

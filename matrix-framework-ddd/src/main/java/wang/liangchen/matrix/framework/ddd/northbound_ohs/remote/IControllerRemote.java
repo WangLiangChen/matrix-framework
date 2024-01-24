@@ -3,7 +3,8 @@ package wang.liangchen.matrix.framework.ddd.northbound_ohs.remote;
 /**
  * @author Liangchen.Wang
  * Marker interface
- * Remote Service
+ * Mark a controller remote service
  */
-public interface IControllerRemote extends IRemote{
+@Remote(RemoteType.Controller)
+public interface IControllerRemote extends IRemote {
 }

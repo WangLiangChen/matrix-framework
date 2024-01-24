@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.ddd;
+package wang.liangchen.matrix.framework.ddd.domain;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,12 +8,9 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * Marker annotation
- * Mark a BoundedContext Package
+ * Mark an Identity of an Entity
  */
-@Target(ElementType.PACKAGE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.SOURCE)
-public @interface BoundedContext {
-    String name();
-
-    DomainType domainType() default DomainType.Core;
+public @interface Identity {
 }

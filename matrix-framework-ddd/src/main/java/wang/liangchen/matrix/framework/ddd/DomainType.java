@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.ddd.domain;
+package wang.liangchen.matrix.framework.ddd;
 
 /**
  * @author Liangchen.Wang
