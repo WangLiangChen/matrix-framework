@@ -1,9 +1,12 @@
 package wang.liangchen.matrix.framework.ddd.southbound_acl.adapter;
 
+import wang.liangchen.matrix.framework.ddd.southbound_acl.port.PortType;
+
 /**
  * @author Liangchen.Wang
  * Marker interface
- * Adapter
+ * Mark a repository adapter
  */
-public interface IRepositoryAdapter extends IAdapter{
+@Adapter(PortType.Repository)
+public interface IRepositoryAdapter extends IAdapter {
 }

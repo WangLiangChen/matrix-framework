@@ -1,7 +1,10 @@
 package wang.liangchen.matrix.framework.ddd.southbound_acl.port;
 
 /**
- * @author Liangchen.Wang 2023-03-09 15:45
+ * @author Liangchen.Wang
+ * Marker interface
+ * mark a repository port
  */
-public interface IRepositoryPort extends IPort{
+@Port(PortType.Repository)
+public interface IRepositoryPort extends IPort {
 }
