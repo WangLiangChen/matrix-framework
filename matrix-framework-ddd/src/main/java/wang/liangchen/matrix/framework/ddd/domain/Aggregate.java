@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Aggregate {
+    String value();
 }
