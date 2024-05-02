@@ -8,6 +8,12 @@
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+    </parent>
+
     <name>${project.artifactId}</name>
     <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive</description>
     <url>https://github.com/WangLiangChen/matrix-framework</url>
@@ -56,11 +62,28 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <version.springboot>3.2.4</version.springboot>
+        <version.slf4j>2.0.13</version.slf4j>
+        <version.commons.logging>1.3.1</version.commons.logging>
+        <version.log4j>2.23.1</version.log4j>
+
+        <version.commons.pool2>2.12.0</version.commons.pool2>
+        <version.commons.exec>1.4.0</version.commons.exec>
+        <version.transmittable-threadlocal>2.14.5</version.transmittable-threadlocal>
+        <version.asm>9.7</version.asm>
+        <version.reflectasm>1.11.9</version.reflectasm>
+        <version.jose.jwt>9.37.3</version.jose.jwt>
+        <version.el>6.0.0</version.el>
+        <version.protostuff>1.8.0</version.protostuff>
+
+        <version.mybatis>3.0.3</version.mybatis>
+        <version.cache>2.0.0-SNAPSHOT</version.cache>
+
+
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- ignored because parent
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -68,6 +91,86 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            -->
+            <!-- logging provided -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${version.commons.logging}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${version.log4j}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- logging provided -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${version.commons.pool2}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-exec</artifactId>
+                <version>${version.commons.exec}</version>
+            </dependency>
+            <!-- el for hibernate validator -->
+            <dependency>
+                <groupId>jakarta.el</groupId>
+                <artifactId>jakarta.el-api</artifactId>
+                <version>${version.el}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>${version.transmittable-threadlocal}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${version.asm}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.esotericsoftware</groupId>
+                <artifactId>reflectasm</artifactId>
+                <version>${version.reflectasm}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${version.jose.jwt}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${version.protostuff}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${version.protostuff}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>wang.liangchen.matrix.cache</groupId>
+                <artifactId>matrix-cache-sdk-spring-boot-starter</artifactId>
+                <version>${version.cache}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${version.mybatis}</version>
+            </dependency>
+
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-commons</artifactId>
@@ -175,6 +278,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
