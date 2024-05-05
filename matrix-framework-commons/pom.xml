@@ -5,7 +5,7 @@
     <parent>
         <artifactId>matrix-framework</artifactId>
         <groupId>wang.liangchen.matrix</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,8 +25,8 @@
             <artifactId>commons-exec</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.el</groupId>
-            <artifactId>jakarta.el-api</artifactId>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
