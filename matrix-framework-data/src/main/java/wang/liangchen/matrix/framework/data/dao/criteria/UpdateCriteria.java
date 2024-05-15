@@ -76,9 +76,16 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return this;
     }
 
+    //--------------------------------start criteria--------------------------------------------------//
+
     @Override
     public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter, Object sqlValue) {
         return (UpdateCriteria<E>) super._equals(fieldGetter, sqlValue);
+    }
+
+    @Override
+    public UpdateCriteria<E> _equalsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._equalsIgnoreCase(fieldGetter, sqlValue);
     }
 
     @Override
@@ -92,28 +99,33 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> _notEqualsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notEqualsIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (UpdateCriteria<E>) super._notEquals(fieldGetter, sqlValue);
     }
 
     @Override
-    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Object... values) {
-        return (UpdateCriteria<E>) super._in(fieldGetter, values);
+    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (UpdateCriteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (UpdateCriteria<E>) super._in(fieldGetter, values);
+    public UpdateCriteria<E> _in(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (UpdateCriteria<E>) super._in(fieldGetter, sqlValues);
     }
 
     @Override
-    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... values) {
-        return (UpdateCriteria<E>) super._notIn(fieldGetter, values);
+    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Object... sqlValues) {
+        return (UpdateCriteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
     @Override
-    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> values) {
-        return (UpdateCriteria<E>) super._notIn(fieldGetter, values);
+    public UpdateCriteria<E> _notIn(EntityGetter<E> fieldGetter, Collection<?> sqlValues) {
+        return (UpdateCriteria<E>) super._notIn(fieldGetter, sqlValues);
     }
 
     @Override
@@ -135,7 +147,6 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter, EntityGetter<E> sqlValue) {
         return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter, sqlValue);
     }
-
 
     @Override
     public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter, Object sqlValue) {
@@ -168,22 +179,22 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
-    public UpdateCriteria<E> _between(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        return (UpdateCriteria<E>) super._between(fieldGetter, valueMin, valueMax);
-    }
-
-    @Override
     public UpdateCriteria<E> _between(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
         return (UpdateCriteria<E>) super._between(fieldGetter, valueMin, valueMax);
     }
 
     @Override
-    public UpdateCriteria<E> _notBetween(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
-        return (UpdateCriteria<E>) super._notBetween(fieldGetter, valueMin, valueMax);
+    public UpdateCriteria<E> _between(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
+        return (UpdateCriteria<E>) super._between(fieldGetter, valueMin, valueMax);
     }
 
     @Override
     public UpdateCriteria<E> _notBetween(EntityGetter<E> fieldGetter, Object valueMin, Object valueMax) {
+        return (UpdateCriteria<E>) super._notBetween(fieldGetter, valueMin, valueMax);
+    }
+
+    @Override
+    public UpdateCriteria<E> _notBetween(EntityGetter<E> fieldGetter, EntityGetter<E> valueMin, EntityGetter<E> valueMax) {
         return (UpdateCriteria<E>) super._notBetween(fieldGetter, valueMin, valueMax);
     }
 
@@ -193,8 +204,18 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> _containsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._containsIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public UpdateCriteria<E> _notContains(EntityGetter<E> fieldGetter, String sqlValue) {
         return (UpdateCriteria<E>) super._notContains(fieldGetter, sqlValue);
+    }
+
+    @Override
+    public UpdateCriteria<E> _notContainsIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notContainsIgnoreCase(fieldGetter, sqlValue);
     }
 
     @Override
@@ -203,8 +224,18 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> _startWithIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._startWithIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public UpdateCriteria<E> _notStartWith(EntityGetter<E> fieldGetter, String sqlValue) {
         return (UpdateCriteria<E>) super._notStartWith(fieldGetter, sqlValue);
+    }
+
+    @Override
+    public UpdateCriteria<E> _notStartWithIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notStartWithIgnoreCase(fieldGetter, sqlValue);
     }
 
     @Override
@@ -213,9 +244,51 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
     @Override
+    public UpdateCriteria<E> _endWithIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._endWithIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
     public UpdateCriteria<E> _notEndWith(EntityGetter<E> fieldGetter, String sqlValue) {
         return (UpdateCriteria<E>) super._notEndWith(fieldGetter, sqlValue);
     }
+
+    @Override
+    public UpdateCriteria<E> _notEndWithIgnoreCase(EntityGetter<E> fieldGetter, String sqlValue) {
+        return (UpdateCriteria<E>) super._notEndWithIgnoreCase(fieldGetter, sqlValue);
+    }
+
+    @Override
+    public UpdateCriteria<E> _equals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._equals(fieldGetter);
+    }
+
+    @Override
+    public UpdateCriteria<E> _notEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._notEquals(fieldGetter);
+    }
+
+    @Override
+    public UpdateCriteria<E> _greaterThan(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._greaterThan(fieldGetter);
+    }
+
+    @Override
+    public UpdateCriteria<E> _greaterThanOrEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._greaterThanOrEquals(fieldGetter);
+    }
+
+    @Override
+    public UpdateCriteria<E> _lessThan(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._lessThan(fieldGetter);
+    }
+
+    @Override
+    public UpdateCriteria<E> _lessThanOrEquals(EntityGetter<E> fieldGetter) {
+        return (UpdateCriteria<E>) super._lessThanOrEquals(fieldGetter);
+    }
+
+    //--------------------------------end criteria--------------------------------------------------//
 
     @Override
     protected UpdateCriteria<E> _or() {
@@ -239,6 +312,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     public boolean isFlushCache() {
         return flushCache;
     }
+
     protected VersionMeta getVersionMeta() {
         return versionMeta;
     }

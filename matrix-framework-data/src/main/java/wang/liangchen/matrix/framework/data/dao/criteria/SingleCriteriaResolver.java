@@ -56,9 +56,9 @@ abstract class SingleCriteriaResolver extends AbstractCriteriaResolver {
         return newInstance(columnName, operator, Boolean.FALSE, Boolean.FALSE, sqlValues);
     }
 
-    protected static SingleCriteriaResolver newInstance(String columnName, Operator operator, Boolean valueIsColumnName, String... sqlValues) {
+    protected static SingleCriteriaResolver newInstance(String columnName, Operator operator, Boolean ignoreCase, String... sqlValues) {
         Object[] objects = Arrays.copyOf(sqlValues, sqlValues.length);
-        return newInstance(columnName, operator, valueIsColumnName, Boolean.TRUE, objects);
+        return newInstance(columnName, operator, Boolean.FALSE, ignoreCase, objects);
     }
 
     protected static SingleCriteriaResolver newInstance(String columnName, Operator operator, String... sqlValues) {

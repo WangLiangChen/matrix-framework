@@ -62,11 +62,15 @@ abstract class AbstractCriteriaResolver {
             SingleCriteriaResolver singleCriteriaResolver = (SingleCriteriaResolver) abstractCriteriaResolver;
             Operator operator = singleCriteriaResolver.getOperator();
             String columnName = singleCriteriaResolver.getColumnName();
+            Boolean ignoreCase = singleCriteriaResolver.getIgnoreCase();
             // ignore case,use upper on column
-            if (Boolean.TRUE.equals(singleCriteriaResolver.getIgnoreCase())) {
-                columnName = "upper(".concat(columnName).concat(")");
+            if (Boolean.TRUE.equals(ignoreCase)) {
+                builder.append("upper(".concat(columnName).concat(")"));
+            } else {
+                builder.append(columnName);
             }
-            builder.append(columnName).append(operator.getOperator());
+
+            builder.append(operator.getOperator());
             Object[] values = singleCriteriaResolver.getValues();
             if (Boolean.TRUE.equals(singleCriteriaResolver.getValueIsColumnName())) {
                 // Compatible between
@@ -97,30 +101,37 @@ abstract class AbstractCriteriaResolver {
                     case CONTAINS:
                     case NOTCONTAINS:
                         mergedValues.replace(mergedKey, String.format("%%%s%%", values[0]));
-                        builder.append(placeholders[0]);
+                        // ignore case
+                        handleIgnoreCase(builder, placeholders[0], ignoreCase);
                         break;
                     case STARTWITH:
                     case NOTSTARTWITH:
                         mergedValues.replace(mergedKey, String.format("%s%%", values[0]));
-                        builder.append(placeholders[0]);
+                        // ignore case
+                        handleIgnoreCase(builder, placeholders[0], ignoreCase);
                         break;
                     case ENDWITH:
                     case NOTENDWITH:
                         mergedValues.replace(mergedKey, String.format("%%%s", values[0]));
-                        builder.append(placeholders[0]);
+                        // ignore case
+                        handleIgnoreCase(builder, placeholders[0], ignoreCase);
                         break;
                     default:
                         // ignore case
-                        if (Boolean.TRUE.equals(singleCriteriaResolver.getIgnoreCase())) {
-                            builder.append("upper(").append(placeholders[0]).append(")");
-                        } else {
-                            builder.append(placeholders[0]);
-                        }
+                        handleIgnoreCase(builder, placeholders[0], ignoreCase);
                         break;
                 }
             }
         }
         return builder.toString();
+    }
+
+    private void handleIgnoreCase(StringBuilder builder, String placeholder, Boolean ignoreCase) {
+        if (Boolean.TRUE.equals(ignoreCase)) {
+            builder.append("upper(").append(placeholder).append(")");
+        } else {
+            builder.append(placeholder);
+        }
     }
 
     public void concatAndOr(AbstractCriteriaResolver abstractCriteriaResolver, AbstractCriteriaResolver previousAbstractCriteriaResolver, StringBuilder builder) {
