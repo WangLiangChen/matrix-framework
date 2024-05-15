@@ -47,6 +47,7 @@ abstract class AbstractObjectCriteria<E extends RootEntity> extends AbstractClas
         this.entity = null;
     }
 
+    //--------------------------------start criteria--------------------------------------------------//
     protected AbstractObjectCriteria<E> _equals(EntityGetter<E> fieldGetter) {
         addCriteriaMeta(Operator.EQUALS, fieldGetter);
         return this;
@@ -76,6 +77,7 @@ abstract class AbstractObjectCriteria<E extends RootEntity> extends AbstractClas
         addCriteriaMeta(Operator.LESSTHAN_OR_EQUALS, fieldGetter);
         return this;
     }
+    //--------------------------------start criteria--------------------------------------------------//
 
     protected AbstractObjectCriteria<E> _or(Consumer<SubCriteria<E>> consumer) {
         SubCriteria<E> subCriteria = subCriteria(AndOr.or);
@@ -83,6 +85,7 @@ abstract class AbstractObjectCriteria<E extends RootEntity> extends AbstractClas
         this.getComposedCriteriaResolver().add(subCriteria.getComposedCriteriaResolver());
         return this;
     }
+
     protected AbstractObjectCriteria<E> _or() {
         this.getComposedCriteriaResolver().add(OrCriteriaResolver.newInstance());
         return this;
