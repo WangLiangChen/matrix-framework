@@ -2,15 +2,15 @@ package wang.liangchen.matrix.framework.commons.logging;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:19
  */
-class MatrixJclImpl extends AbstractMatrixLogger implements MatrixLogger {
+class JclImpl extends AbstractLogger implements Logger {
     private final Log nativeLogger;
 
-    public MatrixJclImpl(String className) {
+    public JclImpl(String className) {
         super(className);
         this.nativeLogger = LogFactory.getLog(className);
     }

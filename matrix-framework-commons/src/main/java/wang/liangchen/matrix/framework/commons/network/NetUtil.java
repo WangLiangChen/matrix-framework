@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.network;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.io.IOException;
 import java.net.*;
@@ -118,7 +118,7 @@ public enum NetUtil {
 
 
     public Map<String, String> queryString2Map(String queryString) {
-        if (StringUtil.INSTANCE.isBlank(queryString)) {
+        if (StringUtil.INSTANCE.isEmpty(queryString)) {
             return Collections.emptyMap();
         }
         String[] kvs = queryString.split(Symbol.AND.getSymbol());

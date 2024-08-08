@@ -1,23 +1,21 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.spi.AbstractLogger;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:26
  */
-class MatrixLog4j2Impl extends AbstractMatrixLogger implements MatrixLogger {
-    private final MatrixLogger matrixLogger;
+class Log4j2Impl extends AbstractLogger implements Logger {
+    private final Logger matrixLogger;
 
-    public MatrixLog4j2Impl(String className) {
+    public Log4j2Impl(String className) {
         super(className);
-        Logger nativeLogger = LogManager.getLogger(className);
-        if (nativeLogger instanceof AbstractLogger) {
-            matrixLogger = new MatrixLog4j2AbstractLoggerImpl((AbstractLogger) nativeLogger);
+        org.apache.logging.log4j.Logger nativeLogger = LogManager.getLogger(className);
+        if (nativeLogger instanceof org.apache.logging.log4j.spi.AbstractLogger) {
+            matrixLogger = new Log4j2ExtendedLoggerImpl((org.apache.logging.log4j.spi.AbstractLogger) nativeLogger);
         } else {
-            matrixLogger = new MatrixLog4j2LoggerImpl(nativeLogger);
+            matrixLogger = new Log4j2LoggerImpl(nativeLogger);
         }
     }
 

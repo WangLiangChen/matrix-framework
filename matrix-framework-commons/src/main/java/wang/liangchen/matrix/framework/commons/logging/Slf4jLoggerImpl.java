@@ -1,15 +1,14 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import org.slf4j.Logger;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 11:49
  */
-class MatrixSlf4jLoggerImpl implements MatrixLogger {
-    private final Logger nativeLogger;
+class Slf4jLoggerImpl implements Logger {
+    private final org.slf4j.Logger nativeLogger;
 
-    public MatrixSlf4jLoggerImpl(Logger nativeLogger) {
+    public Slf4jLoggerImpl(org.slf4j.Logger nativeLogger) {
         this.nativeLogger = nativeLogger;
     }
 

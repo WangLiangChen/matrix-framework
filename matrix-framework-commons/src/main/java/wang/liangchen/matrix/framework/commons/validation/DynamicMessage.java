@@ -14,4 +14,8 @@ class DynamicMessage {
     public static DynamicMessage newInstantce(String message) {
         return new DynamicMessage(message);
     }
+
+    public String getMessage() {
+        return message;
+    }
 }

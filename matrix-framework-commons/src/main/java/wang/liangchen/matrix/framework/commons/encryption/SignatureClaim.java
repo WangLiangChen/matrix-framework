@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.encryption;
 import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SignatureAlgorithm;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.network.NetUtil;
 import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
@@ -33,26 +33,26 @@ public class SignatureClaim implements Serializable {
     private String signature;
 
     public static SignatureClaim instance4Sign(String uri, String body) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,uri, "uri must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,body, "body must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,uri, "uri must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,body, "body must not be blank");
         return new SignatureClaim(uri, body);
     }
 
     public static SignatureClaim instance4Sign(String uri) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,uri, "uri must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,uri, "uri must not be blank");
         return new SignatureClaim(uri, null);
     }
 
     public static SignatureClaim instance4Verify(String uri, String body, String signMessage) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,uri, "uri must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,body, "body must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,signMessage, "signMessage must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,uri, "uri must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,body, "body must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,signMessage, "signMessage must not be blank");
         return new SignatureClaim(uri, body, signMessage);
     }
 
     public static SignatureClaim instance4Verify(String uri, String signMessage) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,uri, "uri must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,signMessage, "signMessage must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,uri, "uri must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,signMessage, "signMessage must not be blank");
         return new SignatureClaim(uri, null, signMessage);
     }
 

@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.type;
 
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -35,7 +35,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
     }
 
     private void checkArgs() {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, rawType, "raw class must not be null");
+        ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, rawType, "raw class must not be null");
         TypeVariable[] typeParameters = rawType.getTypeParameters();
         if (actualTypeArguments.length != 0 && typeParameters.length != actualTypeArguments.length) {
             throw new MatrixWarnException(rawType.getName() + " expect " + typeParameters.length + " arg(s), got " + actualTypeArguments.length);

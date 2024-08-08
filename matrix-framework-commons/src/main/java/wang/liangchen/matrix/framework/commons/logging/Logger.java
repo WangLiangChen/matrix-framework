@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.logging;
 /**
  * @author Liangchen.Wang 2022-06-20 11:21
  */
-public interface MatrixLogger {
+public interface Logger {
 
     boolean isDebugEnabled();
 

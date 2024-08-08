@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.runtime;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

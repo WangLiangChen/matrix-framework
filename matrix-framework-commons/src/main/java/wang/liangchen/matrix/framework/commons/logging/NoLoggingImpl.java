@@ -3,8 +3,8 @@ package wang.liangchen.matrix.framework.commons.logging;
 /**
  * @author Liangchen.Wang 2022-06-20 14:53
  */
-class MatrixNoLoggingImpl extends AbstractMatrixLogger implements MatrixLogger {
-    public MatrixNoLoggingImpl(String className) {
+class NoLoggingImpl extends AbstractLogger implements Logger {
+    public NoLoggingImpl(String className) {
         super(className);
     }
 

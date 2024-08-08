@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.encryption;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyPairAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SecureRandomAlgorithm;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -24,7 +24,7 @@ public enum SecretKeyUtil {
     INSTANCE;
 
     public PrivateKey generatePrivateKeyPKCS8(KeyPairAlgorithm algorithm, String privateKeyString) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,privateKeyString, "privateKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,privateKeyString, "privateKey must not be blank");
         byte[] privateKeyBytes = Base64Util.INSTANCE.decode(privateKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());
@@ -36,7 +36,7 @@ public enum SecretKeyUtil {
     }
 
     public PublicKey generatePublicKeyX509(KeyPairAlgorithm algorithm, String publicKeyString) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,publicKeyString, "publicKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,publicKeyString, "publicKey must not be blank");
         byte[] publicKeyBytes = Base64Util.INSTANCE.decode(publicKeyString);
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());

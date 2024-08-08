@@ -1,19 +1,18 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:47
  */
-class MatrixJulImpl extends AbstractMatrixLogger implements MatrixLogger {
-    private final Logger nativeLogger;
+class JulImpl extends AbstractLogger implements Logger {
+    private final java.util.logging.Logger nativeLogger;
 
-    public MatrixJulImpl(String className) {
+    public JulImpl(String className) {
         super(className);
-        this.nativeLogger = Logger.getLogger(className);
+        this.nativeLogger = java.util.logging.Logger.getLogger(className);
     }
 
     @Override

@@ -4,7 +4,7 @@ import wang.liangchen.matrix.framework.commons.bytes.BytesUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.CipherAsymmetricAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.CipherSymmetricAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyAlgorithm;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -25,13 +25,13 @@ public enum CipherUtil {
     INSTANCE;
 
     public String encrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, key, "key must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, key, "key must not be blank");
         return encrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
     }
 
     public String encrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, keyBytes, "keyBytes must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, keyBytes, "keyBytes must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
         validateKeyLength(algorithm, keyBytes);
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
@@ -46,13 +46,13 @@ public enum CipherUtil {
     }
 
     public String decrypt(CipherSymmetricAlgorithm algorithm, String key, String data) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, key, "key must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, key, "key must not be blank");
         return decrypt(algorithm, key.getBytes(StandardCharsets.UTF_8), data);
     }
 
     public String decrypt(CipherSymmetricAlgorithm algorithm, byte[] keyBytes, String data) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, keyBytes, "keyBytes must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, keyBytes, "keyBytes must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
         validateKeyLength(algorithm, keyBytes);
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getAlgorithm());
@@ -94,8 +94,8 @@ public enum CipherUtil {
     }
 
     public String encrypt(CipherAsymmetricAlgorithm algorithm, String publicKeyString, String data) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, publicKeyString, "publicKey must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, publicKeyString, "publicKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
             PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
@@ -108,8 +108,8 @@ public enum CipherUtil {
     }
 
     public String decrypt(CipherAsymmetricAlgorithm algorithm, String privateKeyString, String data) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, privateKeyString, "privateKey must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, privateKeyString, "privateKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
         try {
             Cipher cipher = Cipher.getInstance(algorithm.getTransformation());
             PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);

@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.exception;
 
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.util.HashMap;
 import java.util.Locale;

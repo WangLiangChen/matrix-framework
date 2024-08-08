@@ -1,8 +1,7 @@
-package wang.liangchen.matrix.framework.commons.string;
+package wang.liangchen.matrix.framework.commons;
 
-import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -19,13 +18,25 @@ public enum StringUtil {
      * instance
      */
     INSTANCE;
-    private final static String FORMAT_REGEX = "\\{(.*?)}";
-    private final static String FORMAT_REPLACEMENT = "\\%s";
+    private final static String FORMAT_REGEX = "\\{}";
+    private final static String FORMAT_REPLACEMENT = "%s";
     private final static String DOT_REPLACEMENT = "\\.";
     private final static Pattern nonNumberPattern = Pattern.compile("[^0-9]");
     private final static Pattern integerPattern = Pattern.compile("[+-]?[0-9]+");
     private final static Pattern floatPattern = Pattern.compile("[+-]?[0-9]+(\\\\.[0-9]+)?([Ee][+-]?[0-9]+)?");
 
+
+    public String format(String string, Object... args) {
+        // 按顺序替换{}
+        if (isEmpty(string)) {
+            return string;
+        }
+        if (CollectionUtil.INSTANCE.isEmpty(args)) {
+            return string;
+        }
+        string = string.replaceAll(FORMAT_REGEX, FORMAT_REPLACEMENT);
+        return String.format(string, args);
+    }
 
     public boolean isNull(String string) {
         return null == string;
@@ -35,47 +46,47 @@ public enum StringUtil {
         return null != string;
     }
 
-    public boolean isBlank(String string) {
+    public boolean isEmpty(String string) {
         if (null == string) {
             return true;
         }
         return string.isEmpty();
     }
 
+    public boolean isNotEmpty(String string) {
+        return !isEmpty(string);
+    }
+
+    public boolean isBlank(String string) {
+        if (isEmpty(string)) {
+            return false;
+        }
+        return string.trim().isEmpty();
+    }
+
     public boolean isNotBlank(String string) {
         return !isBlank(string);
     }
 
-    public String format(String format, Object... args) {
-        // 按顺序替换{}或者{.*}
-        if (isBlank(format)) {
-            return format;
-        }
-        if (CollectionUtil.INSTANCE.isEmpty(args)) {
-            return format;
-        }
-        format = format.replaceAll(FORMAT_REGEX, FORMAT_REPLACEMENT);
-        return String.format(format, args);
-    }
 
     public String join(String splitor, String... strings) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, splitor);
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, splitor);
+        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, strings);
         return Arrays.stream(strings).collect(Collectors.joining(splitor));
     }
 
     public String concat(String... strings) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, strings);
         StringBuilder builder = new StringBuilder();
         for (String string : strings) {
-            ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, string);
+            ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, string);
             builder.append(string);
         }
         return builder.toString();
     }
 
     public String firstLetterLowerCase(String string) {
-        if (isBlank(string)) {
+        if (isEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -88,7 +99,7 @@ public enum StringUtil {
     }
 
     public String firstLetterUpperCase(String string) {
-        if (isBlank(string)) {
+        if (isEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -101,7 +112,7 @@ public enum StringUtil {
     }
 
     public String firstLetterConvertCase(String string) {
-        if (isBlank(string)) {
+        if (isEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -117,14 +128,14 @@ public enum StringUtil {
     }
 
     public String clearBlank(String string) {
-        if (isBlank(string)) {
+        if (isEmpty(string)) {
             return string;
         }
         return string.replaceAll("\\s", "");
     }
 
     public String extractNumbers(String string) {
-        if (isBlank(string)) {
+        if (isEmpty(string)) {
             return string;
         }
         Matcher matcher = nonNumberPattern.matcher(string);
@@ -218,17 +229,17 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 
     public boolean isISO_8859_1(String string) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, (Object) string, "parameter can not be null");
+        ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, (Object) string, "parameter can not be null");
         return string.equals(new String(string.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1));
     }
 }

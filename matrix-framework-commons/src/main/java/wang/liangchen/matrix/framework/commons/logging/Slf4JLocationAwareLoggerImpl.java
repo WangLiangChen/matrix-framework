@@ -3,19 +3,19 @@ package wang.liangchen.matrix.framework.commons.logging;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.slf4j.spi.LocationAwareLogger;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 11:54
  */
-class MatrixSlf4JLocationAwareLoggerImpl implements MatrixLogger {
-    private static final Marker MARKER = MarkerFactory.getMarker(MatrixLoggerFactory.MARKER);
+class Slf4JLocationAwareLoggerImpl implements Logger {
+    private static final Marker MARKER = MarkerFactory.getMarker(LoggerFactory.MARKER);
 
-    private static final String FQCN = MatrixSlf4jImpl.class.getName();
+    private static final String FQCN = Slf4jImpl.class.getName();
 
     private final LocationAwareLogger nativeLogger;
 
-    public MatrixSlf4JLocationAwareLoggerImpl(LocationAwareLogger nativeLogger) {
+    public Slf4JLocationAwareLoggerImpl(LocationAwareLogger nativeLogger) {
         this.nativeLogger = nativeLogger;
     }
 

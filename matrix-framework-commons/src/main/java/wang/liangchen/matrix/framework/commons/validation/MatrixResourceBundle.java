@@ -13,20 +13,19 @@ public class MatrixResourceBundle extends ResourceBundle {
     private final Map<Locale, Map<String, Object>> contents = new HashMap<Locale, Map<String, Object>>() {{
         put(Locale.ENGLISH, new HashMap<String, Object>() {{
             put("Parameter.NotNull", "Parameter must not be null");
-            put("Collection.NotEmpty", "Collection parameter must not be empty");
         }});
         put(Locale.CHINA, new HashMap<String, Object>() {{
             put("Parameter.NotNull", "参数不能为null");
-            put("Collection.NotEmpty", "集合参数不能为空");
         }});
     }};
-    private final List<String> defaultBasenames = Arrays.asList("wang.liangchen.matrix.framework.validator.messages", "messages", "i18n.messages");
+
     private final Locale locale;
     private final Map<String, Object> messages;
 
     public MatrixResourceBundle(Locale locale) {
         this.locale = locale;
         messages = contents.getOrDefault(locale, new HashMap<>());
+        final List<String> defaultBasenames = Arrays.asList("wang.liangchen.matrix.framework.validation.messages", "messages", "i18n.messages");
 
         // 补充载入预制的
         for (String basename : defaultBasenames) {

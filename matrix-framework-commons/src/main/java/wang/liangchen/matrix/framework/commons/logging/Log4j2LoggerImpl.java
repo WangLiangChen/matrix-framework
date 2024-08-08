@@ -1,19 +1,18 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:28
  */
-class MatrixLog4j2LoggerImpl implements MatrixLogger {
-    private static final Marker MARKER = MarkerManager.getMarker(MatrixLoggerFactory.MARKER);
+class Log4j2LoggerImpl implements Logger {
+    private static final Marker MARKER = MarkerManager.getMarker(LoggerFactory.MARKER);
 
-    private final Logger nativeLogger;
+    private final org.apache.logging.log4j.Logger nativeLogger;
 
-    public MatrixLog4j2LoggerImpl(Logger nativeLogger) {
+    public Log4j2LoggerImpl(org.apache.logging.log4j.Logger nativeLogger) {
         this.nativeLogger = nativeLogger;
     }
 

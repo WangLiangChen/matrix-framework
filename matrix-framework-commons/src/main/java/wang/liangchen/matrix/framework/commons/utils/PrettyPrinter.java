@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.utils;
 
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public enum PrettyPrinter {
         String threadMethod = StringUtil.INSTANCE.format("{}-{} {}", thread.getName(), thread.getId(), className);
         Map<String, List<Payload>> threadMethodMap = threadLocal.get();
         // 调用buffer
-        if (StringUtil.INSTANCE.isNotBlank(message)) {
+        if (StringUtil.INSTANCE.isNotEmpty(message)) {
             if (null == threadMethodMap) {
                 threadLocal.set(threadMethodMap = new HashMap<>());
             }

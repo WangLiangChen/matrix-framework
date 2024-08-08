@@ -7,18 +7,18 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.apache.logging.log4j.spi.AbstractLogger;
 import org.apache.logging.log4j.spi.ExtendedLoggerWrapper;
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:28
  */
-class MatrixLog4j2AbstractLoggerImpl implements MatrixLogger {
-    private static final Marker MARKER = MarkerManager.getMarker(MatrixLoggerFactory.MARKER);
-    private static final String FQCN = MatrixLog4j2Impl.class.getName();
+class Log4j2ExtendedLoggerImpl implements Logger {
+    private static final Marker MARKER = MarkerManager.getMarker(LoggerFactory.MARKER);
+    private static final String FQCN = Log4j2Impl.class.getName();
 
     private final ExtendedLoggerWrapper nativeLogger;
 
-    public MatrixLog4j2AbstractLoggerImpl(AbstractLogger nativeLogger) {
+    public Log4j2ExtendedLoggerImpl(AbstractLogger nativeLogger) {
         this.nativeLogger = new ExtendedLoggerWrapper(nativeLogger, nativeLogger.getName(), nativeLogger.getMessageFactory());
     }
 

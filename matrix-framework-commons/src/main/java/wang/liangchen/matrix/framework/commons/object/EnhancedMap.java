@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -32,7 +32,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
     }
 
     public EnhancedMap(Map<K, V> delegate) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, delegate, "parameter must not be null");
+        ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, delegate, "parameter must not be null");
         this.delegate = delegate;
     }
 

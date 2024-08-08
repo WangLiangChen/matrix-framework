@@ -1,13 +1,13 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import wang.liangchen.matrix.framework.commons.string.StringUtil;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:51
  */
-class MatrixStdOutImpl extends AbstractMatrixLogger implements MatrixLogger {
+class StdOutImpl extends AbstractLogger implements Logger {
 
-    public MatrixStdOutImpl(String className) {
+    public StdOutImpl(String className) {
         super(className);
     }
 
