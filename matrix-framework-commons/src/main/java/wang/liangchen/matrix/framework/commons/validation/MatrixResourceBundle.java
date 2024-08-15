@@ -25,7 +25,12 @@ public class MatrixResourceBundle extends ResourceBundle {
     public MatrixResourceBundle(Locale locale) {
         this.locale = locale;
         messages = contents.getOrDefault(locale, new HashMap<>());
-        final List<String> defaultBasenames = Arrays.asList("wang.liangchen.matrix.framework.validation.messages", "messages", "i18n.messages");
+        final List<String> defaultBasenames = Arrays.asList(
+                "org.hibernate.validator.ValidationMessages",
+                "ValidationMessages",
+                "wang.liangchen.matrix.framework.validation.messages",
+                "messages",
+                "i18n.messages");
 
         // 补充载入预制的
         for (String basename : defaultBasenames) {

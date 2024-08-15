@@ -42,21 +42,22 @@ public enum ValidationUtil {
     }
 
     public Locale getLocale() {
-        return localeThreadLocal.get();
+        Locale locale = localeThreadLocal.get();
+        if (null == locale) {
+            locale = Locale.getDefault();
+            resetLocale(locale);
+        }
+        return locale;
     }
 
     public void removeLocale() {
         localeThreadLocal.remove();
     }
 
-    public Locale getOrDefaultLocale() {
-        Locale locale = localeThreadLocal.get();
-        return null == locale ? Locale.getDefault() : locale;
-    }
 
     public synchronized void resetValidator(ResourceBundleLocator resourceBundleLocator) {
         MessageInterpolator messageInterpolator = new MatrixResourceBundleMessageInterpolator(resourceBundleLocator, Collections.emptySet(),
-                Locale.getDefault(), localeResolverContext -> getOrDefaultLocale(), false);
+                Locale.getDefault(), localeResolverContext -> getLocale(), false);
         ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator).buildValidatorFactory();
         if (null != VALIDATOR_FACTORY) {
             VALIDATOR_FACTORY.close();
