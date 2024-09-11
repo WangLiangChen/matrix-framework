@@ -1,0 +1,50 @@
+# ApplicationContext Initializers, before ApplicationContext refresh
+org.springframework.context.ApplicationContextInitializer=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+
+# Application Listeners
+org.springframework.context.ApplicationListener=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+
+# Application Run Listeners
+org.springframework.boot.SpringApplicationRunListener=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupSpringApplicationRunListener
+
+# Environment Post Processors
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+
+# Failure Analyzers
+org.springframework.boot.diagnostics.FailureAnalyzer=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+
+# Servlet Context Initializers
+org.springframework.boot.web.servlet.ServletContextInitializer=\
+  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+
+# Auto Configuration Import Listeners
+# org.springframework.boot.autoconfigure.AutoConfigurationImportListener=\
+
+# Auto Configuration Import Filters
+# org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+
+# Auto Configuration Import Selectors
+# org.springframework.boot.autoconfigure.AutoConfigurationImportSelector=\
+
+# Condition Evaluation Report Listeners
+# org.springframework.boot.autoconfigure.condition.ConditionEvaluationReportListener=\
+
+# DataSource Initializer Detectors
+# org.springframework.boot.sql.init.dependency.DatabaseInitializerDetector=\
+
+# Depends on Database Initialization Detectors
+# org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
+
+# Property Source Loaders
+# org.springframework.boot.env.PropertySourceLoader=\
+
+# Config Data Location Resolvers
+# org.springframework.boot.context.config.ConfigDataLocationResolver=\
+
+# Config Data Loaders
+# org.springframework.boot.context.config.ConfigDataLoader=\

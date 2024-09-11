@@ -1,5 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  wang.liangchen.matrix.framework.springboot.configuration.RootAutoConfiguration  
+  wang.liangchen.matrix.framework.springboot.configuration.RootAutoConfiguration
 org.springframework.context.ApplicationContextInitializer=\
   wang.liangchen.matrix.framework.springboot.env.StartProcessMonitor
 org.springframework.boot.SpringApplicationRunListener=\

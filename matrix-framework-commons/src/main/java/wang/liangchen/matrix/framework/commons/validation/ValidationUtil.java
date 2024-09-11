@@ -58,7 +58,8 @@ public enum ValidationUtil {
     public synchronized void resetValidator(ResourceBundleLocator resourceBundleLocator) {
         MessageInterpolator messageInterpolator = new MatrixResourceBundleMessageInterpolator(resourceBundleLocator, Collections.emptySet(),
                 Locale.getDefault(), localeResolverContext -> getLocale(), false);
-        ValidatorFactory validatorFactory = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator).buildValidatorFactory();
+        Configuration<?> configuration = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator);
+        ValidatorFactory validatorFactory = configuration.buildValidatorFactory();
         if (null != VALIDATOR_FACTORY) {
             VALIDATOR_FACTORY.close();
         }

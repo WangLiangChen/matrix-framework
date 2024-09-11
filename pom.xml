@@ -39,6 +39,7 @@
     <modules>
         <module>matrix-framework-commons</module>
         <module>matrix-framework-springboot</module>
+        <module>matrix-framework-samples</module>
     </modules>
 
     <properties>

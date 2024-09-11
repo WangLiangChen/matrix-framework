@@ -9,28 +9,17 @@ import java.util.*;
  * @author Liangchen.Wang 2023-05-01 12:50
  */
 public class MatrixResourceBundle extends ResourceBundle {
-    @Immutable
-    private final Map<Locale, Map<String, Object>> contents = new HashMap<Locale, Map<String, Object>>() {{
-        put(Locale.ENGLISH, new HashMap<String, Object>() {{
-            put("Parameter.NotNull", "Parameter must not be null");
-        }});
-        put(Locale.CHINA, new HashMap<String, Object>() {{
-            put("Parameter.NotNull", "参数不能为null");
-        }});
-    }};
 
     private final Locale locale;
-    private final Map<String, Object> messages;
+    private final Map<String, Object> messages = new HashMap<>();
+
 
     public MatrixResourceBundle(Locale locale) {
         this.locale = locale;
-        messages = contents.getOrDefault(locale, new HashMap<>());
+
         final List<String> defaultBasenames = Arrays.asList(
                 "org.hibernate.validator.ValidationMessages",
-                "ValidationMessages",
-                "wang.liangchen.matrix.framework.validation.messages",
-                "messages",
-                "i18n.messages");
+                "wang.liangchen.matrix.framework.validator.ValidationMessages");
 
         // 补充载入预制的
         for (String basename : defaultBasenames) {
@@ -39,11 +28,7 @@ public class MatrixResourceBundle extends ResourceBundle {
             if (null == resourceBundle) {
                 continue;
             }
-            Enumeration<String> keys = resourceBundle.getKeys();
-            while (keys.hasMoreElements()) {
-                String key = keys.nextElement();
-                messages.put(key, resourceBundle.getObject(key));
-            }
+            resourceBundle.keySet().forEach(key -> messages.put(key, resourceBundle.getObject(key)));
         }
     }
 
