@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 
 import java.lang.reflect.Constructor;

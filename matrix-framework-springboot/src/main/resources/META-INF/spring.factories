@@ -8,7 +8,7 @@ org.springframework.context.ApplicationListener=\
 
 # Application Run Listeners
 org.springframework.boot.SpringApplicationRunListener=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupSpringApplicationRunListener
+  wang.liangchen.matrix.framework.springboot.startup.StartupRunListener
 
 # Environment Post Processors
 org.springframework.boot.env.EnvironmentPostProcessor=\

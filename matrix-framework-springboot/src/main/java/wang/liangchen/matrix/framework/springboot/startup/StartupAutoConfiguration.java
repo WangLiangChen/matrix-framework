@@ -6,6 +6,6 @@ import org.springframework.core.PriorityOrdered;
 
 @AutoConfiguration
 @AutoConfigureOrder(PriorityOrdered.HIGHEST_PRECEDENCE)
-public class RootAutoConfiguration {
+public class StartupAutoConfiguration {
 
 }

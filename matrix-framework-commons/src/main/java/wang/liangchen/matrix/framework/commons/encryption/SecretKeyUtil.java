@@ -3,8 +3,8 @@ package wang.liangchen.matrix.framework.commons.encryption;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.KeyPairAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SecureRandomAlgorithm;
-import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import javax.crypto.KeyGenerator;

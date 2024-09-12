@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import org.hibernate.validator.internal.util.stereotypes.Immutable;
 import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 
 import java.util.*;

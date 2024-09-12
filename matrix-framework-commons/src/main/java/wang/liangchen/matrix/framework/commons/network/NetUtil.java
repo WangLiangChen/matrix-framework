@@ -1,8 +1,8 @@
 package wang.liangchen.matrix.framework.commons.network;
 
+import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.StringUtil;
 
 import java.io.IOException;
 import java.net.*;
