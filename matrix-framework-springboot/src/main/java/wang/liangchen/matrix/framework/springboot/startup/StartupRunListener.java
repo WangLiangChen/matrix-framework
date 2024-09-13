@@ -11,43 +11,28 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import wang.liangchen.matrix.framework.commons.utils.StopWatch;
 
 import java.time.Duration;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static wang.liangchen.matrix.framework.springboot.startup.StartupStatic.*;
 
 public class StartupRunListener implements SpringApplicationRunListener, Ordered {
-    private final static String SPRING_CONFIG_IMPORT = "spring.config.import";
-    final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix";
-    static Set<String> excludeScanPackages;
 
     public StartupRunListener(SpringApplication springApplication, String[] args) {
         if (null == springApplication) {
             return;
         }
-        StopWatch.WatchTask closeTask = StartupStatic.stopWatch.startTask("Close");
-        // 注册一个虚拟机关闭钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            closeTask.addMessage("Matrix Framework is closing...");
-            closeTask.prettyPrint(true);
-        }));
-        // 注册一个Spring关闭钩子
-        SpringApplication.getShutdownHandlers().add(() -> {
-            closeTask.addMessage("Matrix Framework has been closed!");
-            closeTask.stop();
-            closeTask.prettyPrint(true);
-        });
         // 开始启动
         StopWatch.WatchTask startupTask = StartupStatic.stopWatch.startTask("Startup");
         startupTask.addMessage("Matrix Framework is starting...");
+        // 注册关闭钩子
+        registerShutdownHook();
 
-        // wang.liangchen.matrix包在后面会被自动扫描
-        // 如果使用matrix-framework的其它系统(如matrix-cache)的包也是wang.liangchen.matrix,则会被重复扫描
-        // 所以这里要排除重复扫描
+        // wang.liangchen.matrix包在后面会被显示扫描
+        // 如果同时使用了matrix-framework的其它系统(如matrix-cache)，相应的包也是wang.liangchen.matrix,可能会被重复扫描
+        // 所以这里要获取排除重复扫描的包
         // 因为在使用到excludeScanPackages的地方，跟当前对象不是一个对象，所以用类变量传递
-        Set<Object> allSources = springApplication.getAllSources();
-        excludeScanPackages = allSources.stream().map(e -> ((Class<?>) e).getPackage().getName())
-                .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).collect(Collectors.toSet());
-        startupTask.addMessage("Exclude scanned packages: " + excludeScanPackages);
-        startupTask.prettyPrint(true);
+        springApplication.getAllSources().stream()
+                .map(e -> ((Class<?>) e).getPackage().getName())
+                .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).forEach(excludeScanPackages::add);
     }
 
     @Override
@@ -89,5 +74,21 @@ public class StartupRunListener implements SpringApplicationRunListener, Ordered
     @Override
     public int getOrder() {
         return PriorityOrdered.HIGHEST_PRECEDENCE;
+    }
+
+    private void registerShutdownHook() {
+        // 注册一个虚拟机关闭钩子,监听虚拟机关闭
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            StopWatch.WatchTask closeTask = StartupStatic.stopWatch.startTask("Close");
+            closeTask.addMessage("Matrix Framework is closing...");
+            closeTask.prettyPrint(true);
+        }));
+        // 注册一个Spring关闭钩子,监听Spring关闭
+        SpringApplication.getShutdownHandlers().add(() -> {
+            StopWatch.WatchTask closeTask = StartupStatic.stopWatch.startTask("Close");
+            closeTask.addMessage("Matrix Framework has been closed!");
+            closeTask.stop();
+            closeTask.prettyPrint(true);
+        });
     }
 }

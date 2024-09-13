@@ -14,9 +14,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.utils.StopWatch;
 import wang.liangchen.matrix.framework.springboot.context.BeanLoader;
-import wang.liangchen.matrix.framework.springboot.context.EnvironmentContext;
+import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
 
-import static wang.liangchen.matrix.framework.springboot.startup.StartupRunListener.DEFAULT_SCAN_PACKAGES;
+import static wang.liangchen.matrix.framework.springboot.startup.StartupStatic.DEFAULT_SCAN_PACKAGES;
+import static wang.liangchen.matrix.framework.springboot.startup.StartupStatic.excludeScanPackages;
+
 
 public class StartupProcessor implements
         ApplicationContextInitializer<ConfigurableApplicationContext>,
@@ -33,7 +35,7 @@ public class StartupProcessor implements
         startupTask.addMessage("reset ApplicationContext to BeanLoader");
         // sacan package
         hanldeScanPackages(applicationContext);
-        startupTask.addMessage("Add scan package: " + DEFAULT_SCAN_PACKAGES);
+        startupTask.addMessage("Add scan package: " + DEFAULT_SCAN_PACKAGES + ", and exclude packages: " + excludeScanPackages);
         startupTask.prettyPrint(true);
     }
 
@@ -59,10 +61,10 @@ public class StartupProcessor implements
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
         // 获取StartProcessRunListener中设置的要排除扫描的包
-        if (CollectionUtil.INSTANCE.isNotEmpty(StartupRunListener.excludeScanPackages)) {
+        if (CollectionUtil.INSTANCE.isNotEmpty(excludeScanPackages)) {
             scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
                 String className = metadataReader.getClassMetadata().getClassName();
-                for (String excludeScanPackage : StartupRunListener.excludeScanPackages) {
+                for (String excludeScanPackage : excludeScanPackages) {
                     return className.startsWith(excludeScanPackage);
                 }
                 return false;

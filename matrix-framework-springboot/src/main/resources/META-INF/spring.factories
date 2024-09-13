@@ -22,6 +22,18 @@ org.springframework.boot.diagnostics.FailureAnalyzer=\
 org.springframework.boot.web.servlet.ServletContextInitializer=\
   wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
 
+# Property Source Loaders
+org.springframework.boot.env.PropertySourceLoader=\
+  wang.liangchen.matrix.framework.springboot.env.JsonPropertySourceLoader
+
+# Config Data Location Resolvers
+org.springframework.boot.context.config.ConfigDataLocationResolver=\
+  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLocationResolver
+
+# Config Data Loaders
+org.springframework.boot.context.config.ConfigDataLoader=\
+  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader
+
 # Auto Configuration Import Listeners
 # org.springframework.boot.autoconfigure.AutoConfigurationImportListener=\
 
@@ -39,12 +51,3 @@ org.springframework.boot.web.servlet.ServletContextInitializer=\
 
 # Depends on Database Initialization Detectors
 # org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
-
-# Property Source Loaders
-# org.springframework.boot.env.PropertySourceLoader=\
-
-# Config Data Location Resolvers
-# org.springframework.boot.context.config.ConfigDataLocationResolver=\
-
-# Config Data Loaders
-# org.springframework.boot.context.config.ConfigDataLoader=\
