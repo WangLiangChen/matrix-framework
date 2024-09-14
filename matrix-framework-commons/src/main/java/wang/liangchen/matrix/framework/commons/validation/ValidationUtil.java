@@ -1,7 +1,9 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import jakarta.validation.*;
-import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -13,7 +15,6 @@ import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -31,40 +32,18 @@ public enum ValidationUtil {
 
     private final ThreadLocal<Locale> localeThreadLocal = InheritableThreadLocal.withInitial(Locale::getDefault);
     private ValidatorFactory VALIDATOR_FACTORY;
-    private Validator VALIDATOR;
+    private volatile Validator VALIDATOR;
 
     ValidationUtil() {
-        resetValidator(new MatrixResourceBundleLocator());
+        VALIDATOR_FACTORY = Validation.byDefaultProvider().configure().buildValidatorFactory();
+        VALIDATOR = VALIDATOR_FACTORY.getValidator();
     }
 
-    public void resetLocale(Locale locale) {
-        localeThreadLocal.set(locale);
-    }
-
-    public Locale getLocale() {
-        Locale locale = localeThreadLocal.get();
-        if (null == locale) {
-            locale = Locale.getDefault();
-            resetLocale(locale);
-        }
-        return locale;
-    }
-
-    public void removeLocale() {
-        localeThreadLocal.remove();
-    }
-
-
-    public synchronized void resetValidator(ResourceBundleLocator resourceBundleLocator) {
-        MessageInterpolator messageInterpolator = new MatrixResourceBundleMessageInterpolator(resourceBundleLocator, Collections.emptySet(),
-                Locale.getDefault(), localeResolverContext -> getLocale(), false);
-        Configuration<?> configuration = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator);
-        ValidatorFactory validatorFactory = configuration.buildValidatorFactory();
+    public synchronized void resetValidator(Validator validator) {
         if (null != VALIDATOR_FACTORY) {
             VALIDATOR_FACTORY.close();
         }
-        VALIDATOR_FACTORY = validatorFactory;
-        VALIDATOR = VALIDATOR_FACTORY.getValidator();
+        VALIDATOR = validator;
     }
 
     public String resolveMessage(String message, Object... args) {

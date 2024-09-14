@@ -90,6 +90,10 @@ public final class StopWatch {
             messages.add(new WatchTaskMessage(message));
         }
 
+        public void prettyPrint() {
+            prettyPrint(true);
+        }
+
         public void prettyPrint(boolean withTitle) {
             if (withTitle) {
                 System.out.println("| Start             | End               | Duration | Task Name");

@@ -4,7 +4,7 @@ import org.springframework.boot.context.config.ConfigData;
 import org.springframework.boot.context.config.ConfigDataLoader;
 import org.springframework.boot.context.config.ConfigDataLoaderContext;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
-import wang.liangchen.matrix.framework.springboot.env.EnvironmentContext;
+import wang.liangchen.matrix.framework.springboot.context.EnvironmentContext;
 
 /**
  * @author Liangchen.Wang 2022-06-21 11:57

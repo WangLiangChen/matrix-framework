@@ -1,26 +1,25 @@
-# ApplicationContext Initializers, before ApplicationContext refresh
-org.springframework.context.ApplicationContextInitializer=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+# Application Run Listeners
+#org.springframework.boot.SpringApplicationRunListener=\
+#  wang.liangchen.matrix.framework.springboot.startup.StartupRunListener
 
 # Application Listeners
 org.springframework.context.ApplicationListener=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
-
-# Application Run Listeners
-org.springframework.boot.SpringApplicationRunListener=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupRunListener
+  wang.liangchen.matrix.framework.springboot.startup.StartupApplicationListener
 
 # Environment Post Processors
-org.springframework.boot.env.EnvironmentPostProcessor=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+#org.springframework.boot.env.EnvironmentPostProcessor=\
+#  wang.liangchen.matrix.framework.springboot.startup.StartupProcessorNew
+
+# ApplicationContext Initializers, before ApplicationContext refresh
+#org.springframework.context.ApplicationContextInitializer=\
+#  wang.liangchen.matrix.framework.springboot.startup.StartupProcessorNew
 
 # Failure Analyzers
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+  wang.liangchen.matrix.framework.springboot.startup.StartupFailureAnalyzer
 
 # Servlet Context Initializers
-org.springframework.boot.web.servlet.ServletContextInitializer=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupProcessor
+# org.springframework.boot.web.servlet.ServletContextInitializer=\
 
 # Property Source Loaders
 org.springframework.boot.env.PropertySourceLoader=\
