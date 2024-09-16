@@ -5,10 +5,12 @@
 
     <groupId>wang.liangchen.matrix</groupId>
     <artifactId>matrix-framework</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and reactive</description>
+    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and
+        reactive
+    </description>
     <url>https://github.com/WangLiangChen/matrix-framework</url>
 
     <licenses>
@@ -38,16 +40,41 @@
 
     <modules>
         <module>matrix-framework-commons</module>
-        <module>matrix-framework-springboot</module>
         <module>matrix-framework-samples</module>
+        <module>matrix-framework-spring</module>
     </modules>
 
     <properties>
+        <revision>3.0.0-SNAPSHOT</revision>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss(+8)</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-commons</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-springboot</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-springcloud</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <resources>

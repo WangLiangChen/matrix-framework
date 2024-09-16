@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>wang.liangchen.matrix</groupId>
+        <artifactId>matrix-framework</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>matrix-framework-spring</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>matrix-framework-springboot</module>
+        <module>matrix-framework-springcloud</module>
+        <module>matrix-framework-web</module>
+    </modules>
+
+    <properties>
+        <version.springboot>3.3.3</version.springboot>
+        <version.springcloud>2023.0.2</version.springcloud>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${version.springboot}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${version.springcloud}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

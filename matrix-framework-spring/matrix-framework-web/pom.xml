@@ -5,16 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>wang.liangchen.matrix</groupId>
-        <artifactId>matrix-framework</artifactId>
+        <artifactId>matrix-framework-spring</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>matrix-framework-samples</artifactId>
+    <artifactId>matrix-framework-web</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-web</artifactId>
+            <artifactId>matrix-framework-springboot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
     </dependencies>
 

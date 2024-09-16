@@ -1,3 +1,0 @@
-# Failure Analysis Reporters
-org.springframework.boot.diagnostics.FailureAnalysisReporter=\
-wang.liangchen.matrix.framework.data.diagnostics.DataFailureAnalysisReporter
