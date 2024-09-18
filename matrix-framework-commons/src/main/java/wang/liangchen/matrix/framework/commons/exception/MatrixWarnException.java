@@ -11,15 +11,13 @@ public class MatrixWarnException extends MatrixRuntimeException {
         super(message, args);
     }
 
-    public MatrixWarnException(Throwable cause, String message, Object... args) {
-        super(cause, message, args);
-    }
-
     public MatrixWarnException(Throwable cause) {
         super(cause);
     }
 
-    public MatrixWarnException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String message, Object... args) {
-        super(cause, enableSuppression, writableStackTrace, message, args);
+    public MatrixWarnException(Throwable cause, String message, Object... args) {
+        super(cause, message, args);
     }
+
+
 }

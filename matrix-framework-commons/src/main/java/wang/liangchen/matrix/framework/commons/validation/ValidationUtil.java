@@ -1,8 +1,7 @@
 package wang.liangchen.matrix.framework.commons.validation;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import jakarta.validation.*;
+import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
@@ -11,9 +10,11 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -30,11 +31,13 @@ public enum ValidationUtil {
     private final Pattern VALIDATION_PATTERN = Pattern.compile("^([^{]*\\{)[a-zA-Z]+[.a-zA-Z0-9_-]*(}[^}]*)$");
 
     private final ThreadLocal<Locale> localeThreadLocal = InheritableThreadLocal.withInitial(Locale::getDefault);
-    private ValidatorFactory VALIDATOR_FACTORY;
+    private final ValidatorFactory VALIDATOR_FACTORY;
     private volatile Validator VALIDATOR;
 
     ValidationUtil() {
-        VALIDATOR_FACTORY = jakarta.validation.Validation.byDefaultProvider().configure().buildValidatorFactory();
+        MessageInterpolator messageInterpolator = new ResourceBundleMessageInterpolator(Collections.emptySet(), Locale.getDefault(), context -> LocaleTimeZoneContext.INSTANCE.getLocale(), false);
+        Configuration<?> configuration = Validation.byDefaultProvider().configure().messageInterpolator(messageInterpolator);
+        VALIDATOR_FACTORY = configuration.buildValidatorFactory();
         VALIDATOR = VALIDATOR_FACTORY.getValidator();
     }
 

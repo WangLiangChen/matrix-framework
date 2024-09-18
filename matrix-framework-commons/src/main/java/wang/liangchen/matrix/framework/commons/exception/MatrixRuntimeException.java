@@ -25,12 +25,15 @@ public class MatrixRuntimeException extends RuntimeException {
         super(StringUtil.INSTANCE.format(message, args));
     }
 
-    public MatrixRuntimeException(Locale locale, String i18n) {
-        super(ValidationUtil.INSTANCE.resolveMessage(i18n));
+    public MatrixRuntimeException(Throwable cause) {
+        super(cause);
+    }
+    public MatrixRuntimeException(Throwable cause, String message, Object... args) {
+
     }
 
 
-    public MatrixRuntimeException code(String code) {
+    public MatrixRuntimeException withCode(String code) {
         this.code = code;
         return this;
     }
