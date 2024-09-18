@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.encryption;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ public enum Base64Util {
     }
 
     public String encode(String string, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,string, "string must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN,string, "string must not be blank");
         byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         if (urlSafe) {
             urlEncoder.encodeToString(bytes);
@@ -39,7 +39,7 @@ public enum Base64Util {
     }
 
     public String encode(byte[] bytes, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN,bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlEncoder.encodeToString(bytes);
         }
@@ -51,7 +51,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(String string, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN,string, "string must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN,string, "string must not be blank");
         if (urlSafe) {
             return urlDecoder.decode(string);
         }
@@ -63,7 +63,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(byte[] bytes, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN,bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlDecoder.decode(bytes);
         }

@@ -6,8 +6,10 @@ public class StringUtilTest {
     public static void main(String[] args) throws InterruptedException {
 
     }
-    class A extends ConstantEnum{
-        public final static ConstantEnum A = new ConstantEnum("a","a");
+
+    class A extends ConstantEnum {
+        public final static ConstantEnum A = new ConstantEnum("a", "a");
+
         public A(String key, String value) {
             super(key, value);
         }

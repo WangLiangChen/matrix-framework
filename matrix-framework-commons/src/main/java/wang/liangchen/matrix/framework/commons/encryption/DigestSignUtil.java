@@ -6,7 +6,7 @@ import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.HmacAlgorithm;
 import wang.liangchen.matrix.framework.commons.encryption.enums.SignatureAlgorithm;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import javax.crypto.Mac;
@@ -29,16 +29,16 @@ public enum DigestSignUtil {
     INSTANCE;
 
     public String hmac(HmacAlgorithm aligorithm, String secretKeyString, String dataString) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, secretKeyString, "secretKeyString must not be blank");
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, dataString, "dataString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, secretKeyString, "secretKeyString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, dataString, "dataString must not be blank");
         byte[] secretKeyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
         byte[] dataBytes = dataString.getBytes(StandardCharsets.UTF_8);
         return hmac(aligorithm, secretKeyBytes, dataBytes);
     }
 
     public String hmac(HmacAlgorithm aligorithm, byte[] secretKeyBytes, byte[] dataBytes) {
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, secretKeyBytes, "secretKeyBytes must not be empty");
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, dataBytes, "dataBytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, secretKeyBytes, "secretKeyBytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, dataBytes, "dataBytes must not be empty");
         try {
             Mac mac = Mac.getInstance(aligorithm.name());
             SecretKey secretKey = new SecretKeySpec(secretKeyBytes, aligorithm.name());
@@ -52,13 +52,13 @@ public enum DigestSignUtil {
 
 
     public String digest(DigestAlgorithm algorithm, String dataString) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, dataString, "data must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, dataString, "data must not be blank");
         byte[] dataBytes = dataString.getBytes(StandardCharsets.UTF_8);
         return digest(algorithm, dataBytes);
     }
 
     public String digest(DigestAlgorithm algorithm, byte[] dataBytes) {
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, dataBytes, "dataBytes must not be empty");
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, dataBytes, "dataBytes must not be empty");
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(algorithm.getAlgorithm());
@@ -71,8 +71,8 @@ public enum DigestSignUtil {
     }
 
     public String sign(SignatureAlgorithm algorithm, String privateKeyString, String data) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, privateKeyString, "privateKey must not be blank");
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, privateKeyString, "privateKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, data, "data must not be blank");
         try {
             PrivateKey priKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(algorithm.getKeyPairAlgorithm(), privateKeyString);
             Signature signature = Signature.getInstance(algorithm.name());
@@ -86,9 +86,9 @@ public enum DigestSignUtil {
     }
 
     public boolean verify(SignatureAlgorithm algorithm, String publicKeyString, String signatureString, String data) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, publicKeyString, "publicKey must not be blank");
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, data, "data must not be blank");
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, signatureString, "signatureString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, publicKeyString, "publicKey must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, data, "data must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, signatureString, "signatureString must not be blank");
 
         try {
             PublicKey pubKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(algorithm.getKeyPairAlgorithm(), publicKeyString);
@@ -102,9 +102,9 @@ public enum DigestSignUtil {
     }
 
     public int hashIndex(Object object, int indexScope) {
-        ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, object, "object must not be null");
+        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, object, "object must not be null");
         int number = indexScope & (indexScope - 1);
-        ValidationUtil.INSTANCE.isTrue(MatrixExceptionLevel.WARN, number == 0, "indexScope must be a power of 2");
+        ValidationUtil.INSTANCE.isTrue(MessageLevel.WARN, number == 0, "indexScope must be a power of 2");
         return Objects.hashCode(object) & (indexScope - 1);
     }
 

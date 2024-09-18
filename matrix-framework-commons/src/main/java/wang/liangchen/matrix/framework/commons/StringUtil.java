@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MatrixExceptionLevel;
+import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -70,16 +70,16 @@ public enum StringUtil {
 
 
     public String join(String splitor, String... strings) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, splitor);
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, splitor);
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, strings);
         return Arrays.stream(strings).collect(Collectors.joining(splitor));
     }
 
     public String concat(String... strings) {
-        ValidationUtil.INSTANCE.notEmpty(MatrixExceptionLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, strings);
         StringBuilder builder = new StringBuilder();
         for (String string : strings) {
-            ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, string);
+            ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, string);
             builder.append(string);
         }
         return builder.toString();
@@ -229,17 +229,17 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(MatrixExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 
     public boolean isISO_8859_1(String string) {
-        ValidationUtil.INSTANCE.notNull(MatrixExceptionLevel.WARN, (Object) string, "parameter can not be null");
+        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, (Object) string, "parameter can not be null");
         return string.equals(new String(string.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1));
     }
 }

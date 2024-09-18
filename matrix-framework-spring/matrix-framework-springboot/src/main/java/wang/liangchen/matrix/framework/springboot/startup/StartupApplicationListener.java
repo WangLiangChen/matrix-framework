@@ -102,7 +102,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
     }
 
     private void onApplicationReadyEvent(ApplicationReadyEvent event) {
-        startupTask.addMessage("Matrix Framework has started");
+        startupTask.addMessage("Matrix Framework has been started");
         startupTask.stop();
         startupTask.prettyPrint();
     }
@@ -121,7 +121,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
         // 注册一个Spring关闭钩子,监听Spring关闭
         SpringApplication.getShutdownHandlers().add(() -> {
             StopWatch.WatchTask closeTask = stopWatch.startTask("Close");
-            closeTask.addMessage("Matrix Framework has closed!");
+            closeTask.addMessage("Matrix Framework has been closed!");
             closeTask.stop();
             closeTask.prettyPrint();
         });

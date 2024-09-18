@@ -105,7 +105,8 @@ public class StartupBean implements
         }
         if (bean instanceof Validator) {
             ValidationUtil.INSTANCE.resetValidator((Validator) bean);
-            StartupApplicationListener.startupTask.addMessage("Set validator to ValidationUtil");
+            StartupApplicationListener.startupTask.addMessage("Set validator to Validation");
+            StartupApplicationListener.startupTask.prettyPrint();
         }
         return bean;
     }
