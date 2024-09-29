@@ -1,8 +1,8 @@
 package wang.liangchen.matrix.framework.commons.network;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -22,7 +22,7 @@ public enum URIUtil {
     INSTANCE;
 
     public URI toURI(String uriString, String... more) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, uriString, "uriString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, uriString, "uriString must not be blank");
         try {
             return new URL(resolveURIString(uriString, more)).toURI();
         } catch (MalformedURLException | URISyntaxException e) {
@@ -31,7 +31,7 @@ public enum URIUtil {
     }
 
     public URL toURL(String urlString, String... more) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, urlString, "urlString must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, urlString, "urlString must not be blank");
         try {
             return new URL(resolveURIString(urlString, more));
         } catch (MalformedURLException e) {
@@ -44,12 +44,12 @@ public enum URIUtil {
     }
 
     public URI expandURI(URI uri, String... more) {
-        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, uri, "uri must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, uri, "uri must not be null");
         return URI.create(resolveURIString(uri.toString(), more));
     }
 
     public URL expendURL(URL url, String... more) {
-        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, url, "url must not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, url, "url must not be null");
         try {
             return new URL(resolveURIString(url.toString(), more));
         } catch (MalformedURLException e) {

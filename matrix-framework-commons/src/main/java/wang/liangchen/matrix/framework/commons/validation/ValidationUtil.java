@@ -5,19 +5,16 @@ import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpo
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
-import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -28,11 +25,11 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
-    private final Pattern VALIDATION_PATTERN = Pattern.compile("^([^{]*\\{)[a-zA-Z]+[.a-zA-Z0-9_-]*(}[^}]*)$");
+    private final Pattern MESSAGE_PATTERN = Pattern.compile("^\\{\\d*}$");
+    private final Pattern VALIDATION_PATTERN = Pattern.compile("^\\{[^{}]+}$");
 
-    private final ThreadLocal<Locale> localeThreadLocal = InheritableThreadLocal.withInitial(Locale::getDefault);
     private final ValidatorFactory VALIDATOR_FACTORY;
-    private volatile Validator VALIDATOR;
+    private Validator VALIDATOR;
 
     ValidationUtil() {
         MessageInterpolator messageInterpolator = new ResourceBundleMessageInterpolator(Collections.emptySet(), Locale.getDefault(), context -> LocaleTimeZoneContext.INSTANCE.getLocale(), false);
@@ -41,22 +38,33 @@ public enum ValidationUtil {
         VALIDATOR = VALIDATOR_FACTORY.getValidator();
     }
 
-    public synchronized void resetValidator(Validator validator) {
+    public void resetValidator(Validator validator) {
         if (null != VALIDATOR_FACTORY) {
             VALIDATOR_FACTORY.close();
         }
         VALIDATOR = validator;
     }
 
+    public Optional<String> resolveI18n(String message) {
+        if (isI18nKey(message)) {
+            return Optional.of(message.substring(1, message.length() - 1));
+        }
+        return Optional.empty();
+    }
+
     public String resolveMessage(String message, Object... args) {
-        // 包含且仅包含一个{}包裹的Message Key
-        if (VALIDATION_PATTERN.matcher(message).matches()) {
+        if (isI18nKey(message)) {
             message = resolveMessage(DynamicMessage.newInstantce(message));
         }
+        // 如果仍然是i18n,说明未匹配
+        if (isI18nKey(message)) {
+            return message;
+        }
+        // i18n匹配成功或者无需i18n，都需要格式化
         return StringUtil.INSTANCE.format(message, args);
     }
 
-    public <T> T validate(MessageLevel exceptionLevel, T object, Class<?>... groups) {
+    public <T> T validate(ExceptionLevel exceptionLevel, T object, Class<?>... groups) {
         Set<ConstraintViolation<T>> results = VALIDATOR.validate(object, groups);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
             return object;
@@ -71,11 +79,11 @@ public enum ValidationUtil {
     }
 
     public <T> T validate(T object, Class<?>... groups) {
-        return validate(MessageLevel.WARN, object, groups);
+        return validate(ExceptionLevel.WARN, object, groups);
     }
 
 
-    public boolean isTrue(MessageLevel exceptionLevel, boolean condition, String message, Object... args) {
+    public boolean isTrue(ExceptionLevel exceptionLevel, boolean condition, String message, Object... args) {
         if (condition) {
             return true;
         }
@@ -84,10 +92,10 @@ public enum ValidationUtil {
     }
 
     public boolean isTrue(boolean condition, String message, Object... args) {
-        return isTrue(MessageLevel.WARN, condition, message, args);
+        return isTrue(ExceptionLevel.WARN, condition, message, args);
     }
 
-    public boolean isTrue(MessageLevel exceptionLevel, boolean condition) {
+    public boolean isTrue(ExceptionLevel exceptionLevel, boolean condition) {
         return isTrue(exceptionLevel, condition, "condition must be true");
     }
 
@@ -95,7 +103,7 @@ public enum ValidationUtil {
         return isTrue(condition, "condition must be true");
     }
 
-    public boolean isFalse(MessageLevel level, boolean condition, String message, Object... args) {
+    public boolean isFalse(ExceptionLevel level, boolean condition, String message, Object... args) {
         if (condition) {
             dynamicException(level, message, args);
             return true;
@@ -104,10 +112,10 @@ public enum ValidationUtil {
     }
 
     public boolean isFalse(boolean condition, String message, Object... args) {
-        return isFalse(MessageLevel.WARN, condition, message, args);
+        return isFalse(ExceptionLevel.WARN, condition, message, args);
     }
 
-    public boolean isFalse(MessageLevel level, boolean condition) {
+    public boolean isFalse(ExceptionLevel level, boolean condition) {
         return isFalse(level, condition, "condition must be false");
     }
 
@@ -115,7 +123,7 @@ public enum ValidationUtil {
         return isFalse(condition, "condition must be false");
     }
 
-    public String isBlank(MessageLevel level, String string, String message, Object... args) {
+    public String isBlank(ExceptionLevel level, String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isEmpty(string)) {
             return string;
         }
@@ -124,10 +132,10 @@ public enum ValidationUtil {
     }
 
     public String isBlank(String string, String message, Object... args) {
-        return isBlank(MessageLevel.WARN, string, message, args);
+        return isBlank(ExceptionLevel.WARN, string, message, args);
     }
 
-    public String isBlank(MessageLevel exceptionLevel, String string) {
+    public String isBlank(ExceptionLevel exceptionLevel, String string) {
         return isBlank(exceptionLevel, string, "parameter must be blank");
     }
 
@@ -135,7 +143,7 @@ public enum ValidationUtil {
         return isBlank(string, "parameter must be blank");
     }
 
-    public String notBlank(MessageLevel exceptionLevel, String string, String message, Object... args) {
+    public String notBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isEmpty(string)) {
             dynamicException(exceptionLevel, message, args);
             return string;
@@ -144,10 +152,10 @@ public enum ValidationUtil {
     }
 
     public String notBlank(String string, String message, Object... args) {
-        return notBlank(MessageLevel.WARN, string, message, args);
+        return notBlank(ExceptionLevel.WARN, string, message, args);
     }
 
-    public String notBlank(MessageLevel exceptionLevel, String string) {
+    public String notBlank(ExceptionLevel exceptionLevel, String string) {
         return notBlank(exceptionLevel, string, "parameter must not be blank");
     }
 
@@ -155,7 +163,7 @@ public enum ValidationUtil {
         return notBlank(string, "parameter must not be blank");
     }
 
-    public <T> T isNull(MessageLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T isNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
             return null;
         }
@@ -164,10 +172,10 @@ public enum ValidationUtil {
     }
 
     public <T> T isNull(T object, String message, Object... args) {
-        return isNull(MessageLevel.WARN, object, message, args);
+        return isNull(ExceptionLevel.WARN, object, message, args);
     }
 
-    public <T> T isNull(MessageLevel exceptionLevel, T object) {
+    public <T> T isNull(ExceptionLevel exceptionLevel, T object) {
         return isNull(exceptionLevel, object, "parameter must be null");
     }
 
@@ -175,7 +183,7 @@ public enum ValidationUtil {
         return isNull(object, "parameter must be null");
     }
 
-    public <T> T notNull(MessageLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T notNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
             dynamicException(exceptionLevel, message, args);
             return null;
@@ -184,10 +192,10 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object, String message, Object... args) {
-        return notNull(MessageLevel.WARN, object, message, args);
+        return notNull(ExceptionLevel.WARN, object, message, args);
     }
 
-    public <T> T notNull(MessageLevel exceptionLevel, T object) {
+    public <T> T notNull(ExceptionLevel exceptionLevel, T object) {
         return notNull(exceptionLevel, object, "parameter must not be null");
     }
 
@@ -195,7 +203,7 @@ public enum ValidationUtil {
         return notNull(object, "{jakarta.validation.constraints.NotNull.message}");
     }
 
-    public <T> T isEmpty(MessageLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             return object;
         }
@@ -204,10 +212,10 @@ public enum ValidationUtil {
     }
 
     public <T> T isEmpty(T object, String message, Object... args) {
-        return isEmpty(MessageLevel.WARN, object, message, args);
+        return isEmpty(ExceptionLevel.WARN, object, message, args);
     }
 
-    public <T> T isEmpty(MessageLevel exceptionLevel, T object) {
+    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object) {
         return isEmpty(exceptionLevel, object, "parameter must be empty");
     }
 
@@ -215,7 +223,7 @@ public enum ValidationUtil {
         return isEmpty(object, "parameter must be empty");
     }
 
-    public <T> T notEmpty(MessageLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             dynamicException(exceptionLevel, message, args);
             return object;
@@ -224,10 +232,10 @@ public enum ValidationUtil {
     }
 
     public <T> T notEmpty(T object, String message, Object... args) {
-        return notEmpty(MessageLevel.WARN, object, message, args);
+        return notEmpty(ExceptionLevel.WARN, object, message, args);
     }
 
-    public <T> T notEmpty(MessageLevel exceptionLevel, T object) {
+    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object) {
         return notEmpty(exceptionLevel, object, "parameter must not be empty");
     }
 
@@ -235,7 +243,7 @@ public enum ValidationUtil {
         return notEmpty(object, "parameter must not be empty");
     }
 
-    public boolean equals(MessageLevel exceptionLevel, Object from, Object to, String message, Object... args) {
+    public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
             return true;
         }
@@ -244,10 +252,10 @@ public enum ValidationUtil {
     }
 
     public boolean equals(Object from, Object to, String message, Object... args) {
-        return equals(MessageLevel.WARN, from, to, message, args);
+        return equals(ExceptionLevel.WARN, from, to, message, args);
     }
 
-    public boolean equals(MessageLevel exceptionLevel, Object from, Object to) {
+    public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to) {
         return equals(exceptionLevel, from, to, "parameters must be equal");
     }
 
@@ -255,7 +263,7 @@ public enum ValidationUtil {
         return equals(from, to, "parameters must be equal");
     }
 
-    public boolean notEquals(MessageLevel exceptionLevel, Object from, Object to, String message, Object... args) {
+    public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
             dynamicException(exceptionLevel, message, args);
             return true;
@@ -264,10 +272,10 @@ public enum ValidationUtil {
     }
 
     public boolean notEquals(Object from, Object to, String message, Object... args) {
-        return notEquals(MessageLevel.WARN, from, to, message, args);
+        return notEquals(ExceptionLevel.WARN, from, to, message, args);
     }
 
-    public boolean notEquals(MessageLevel exceptionLevel, Object from, Object to) {
+    public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to) {
         return notEquals(exceptionLevel, from, to, "parameters must not be equal");
     }
 
@@ -276,7 +284,7 @@ public enum ValidationUtil {
     }
 
 
-    public void throwException(MessageLevel exceptionLevel, String message) {
+    public void throwException(ExceptionLevel exceptionLevel, String message) {
         switch (exceptionLevel) {
             case WARN:
                 throw new MatrixWarnException(message);
@@ -297,7 +305,7 @@ public enum ValidationUtil {
         }
     }
 
-    private void dynamicException(MessageLevel exceptionLevel, String message, Object... args) {
+    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
         throwException(exceptionLevel, resolveMessage(message, args));
     }
 
@@ -312,4 +320,10 @@ public enum ValidationUtil {
         return Symbol.BLANK.getSymbol();
     }
 
+    private boolean isI18nKey(String message) {
+        if (MESSAGE_PATTERN.matcher(message).matches()) {
+            return false;
+        }
+        return VALIDATION_PATTERN.matcher(message).matches();
+    }
 }

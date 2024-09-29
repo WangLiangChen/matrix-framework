@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.currency;
 
 
-import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -17,7 +17,7 @@ public enum RmbUtil {
     INSTANCE;
 
     public String fen2Yuan(Long fen) {
-        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, fen, "fen can not by null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, fen, "fen can not by null");
         if (0 == fen) {
             return "0";
         }
@@ -26,7 +26,7 @@ public enum RmbUtil {
     }
 
     public String fen2Yuan(Integer fen) {
-        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, fen, "fen can not by null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, fen, "fen can not by null");
         if (0 == fen) {
             return "0";
         }
@@ -34,7 +34,7 @@ public enum RmbUtil {
     }
 
     public Long yuan2Fen(String yuan) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, yuan, "{ParameterNotBlank}");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, yuan, "{ParameterNotBlank}");
         BigDecimal bigDecimal = NumberUtil.INSTANCE.multiply(yuan, "100", 0);
         return bigDecimal.longValue();
     }

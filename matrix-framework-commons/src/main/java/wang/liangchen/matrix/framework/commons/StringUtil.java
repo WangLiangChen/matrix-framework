@@ -1,10 +1,11 @@
 package wang.liangchen.matrix.framework.commons;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.MessageLevel;
+import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,15 +28,24 @@ public enum StringUtil {
 
 
     public String format(String string, Object... args) {
-        // 按顺序替换{}
+        // 按顺序替换{}或者{0},{1}
         if (isEmpty(string)) {
             return string;
         }
         if (CollectionUtil.INSTANCE.isEmpty(args)) {
             return string;
         }
-        string = string.replaceAll(FORMAT_REGEX, FORMAT_REPLACEMENT);
-        return String.format(string, args);
+        char[] chars = string.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+        int index = 0;
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            stringBuilder.append(c);
+            if (c == '{' && chars[i + 1] == '}') {
+                stringBuilder.append(index++);
+            }
+        }
+        return MessageFormat.format(stringBuilder.toString(), args);
     }
 
     public boolean isNull(String string) {
@@ -70,16 +80,16 @@ public enum StringUtil {
 
 
     public String join(String splitor, String... strings) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, splitor);
-        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, splitor);
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
         return Arrays.stream(strings).collect(Collectors.joining(splitor));
     }
 
     public String concat(String... strings) {
-        ValidationUtil.INSTANCE.notEmpty(MessageLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
         StringBuilder builder = new StringBuilder();
         for (String string : strings) {
-            ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, string);
+            ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, string);
             builder.append(string);
         }
         return builder.toString();
@@ -229,17 +239,17 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(MessageLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 
     public boolean isISO_8859_1(String string) {
-        ValidationUtil.INSTANCE.notNull(MessageLevel.WARN, (Object) string, "parameter can not be null");
+        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, (Object) string, "parameter can not be null");
         return string.equals(new String(string.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1));
     }
 }
