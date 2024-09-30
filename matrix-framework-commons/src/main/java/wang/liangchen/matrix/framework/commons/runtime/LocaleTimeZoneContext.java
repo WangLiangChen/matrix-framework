@@ -70,4 +70,8 @@ public enum LocaleTimeZoneContext {
         inheritableContainer.remove();
     }
 
+    public void remove() {
+        container.remove();
+        inheritableContainer.remove();
+    }
 }

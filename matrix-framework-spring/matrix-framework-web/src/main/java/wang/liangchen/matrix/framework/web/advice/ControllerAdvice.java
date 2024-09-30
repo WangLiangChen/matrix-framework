@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import wang.liangchen.matrix.framework.web.response.JsonResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -37,18 +38,18 @@ public class ControllerAdvice implements RequestBodyAdvice, ResponseBodyAdvice<O
     }
 
     @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
         return true;
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         return body;
     }
 
     @ExceptionHandler(Throwable.class)
-    public String exceptionHandler(Exception ex) {
-        return ex.getLocalizedMessage();
+    public JsonResponse<?> exceptionHandler(Throwable throwable) {
+        return JsonResponse.throwable(throwable);
     }
 
 }

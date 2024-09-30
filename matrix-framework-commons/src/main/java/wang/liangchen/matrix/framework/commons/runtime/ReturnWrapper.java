@@ -6,57 +6,54 @@ import java.util.Locale;
 /**
  * @author Liangchen.Wang 2022-10-16 10:06
  */
-public class ReturnWrapper<T> implements Serializable {
+public class ReturnWrapper<T> extends MessageWrapper implements Serializable {
     private final boolean success;
     private final T payload;
-    /**
-     * 消息代码/标识
-     */
-    private String code;
-    /**
-     * 消息内容
-     */
-    private String message;
-    /**
-     * i18n的message key,用于国际化
-     */
-    private String i18n;
-    private Locale locale;
 
-    protected ReturnWrapper(boolean success, T payload) {
+    public ReturnWrapper(boolean success, T payload, String message, Object... args) {
+        super(message, args);
         this.success = success;
         this.payload = payload;
     }
 
-    public ReturnWrapper<T> withCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public ReturnWrapper<T> withMessage(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public ReturnWrapper<T> withI18n(Locale locale, String i18n) {
-        this.locale = locale;
-        this.i18n = i18n;
-        return this;
+    public static <T> ReturnWrapper<T> success(T payload, String message, Object... args) {
+        return new ReturnWrapper<>(true, payload, message, args);
     }
 
     public static <T> ReturnWrapper<T> success(T payload) {
-        return new ReturnWrapper<T>(true, payload);
+        return new ReturnWrapper<>(true, payload, null);
     }
 
-    public static <T> ReturnWrapper<T> success() {
-        return new ReturnWrapper<T>(true, null);
+    public static ReturnWrapper<?> success(String message, Object... args) {
+        return new ReturnWrapper<>(true, null, message, args);
+    }
+
+    public static ReturnWrapper<?> success() {
+        return new ReturnWrapper<>(true, null, null);
+    }
+
+
+    public static <T> ReturnWrapper<T> failure(T payload, String message, Object... args) {
+        return new ReturnWrapper<>(false, payload, message, args);
     }
 
     public static <T> ReturnWrapper<T> failure(T payload) {
-        return new ReturnWrapper<T>(false, payload);
+        return new ReturnWrapper<>(false, payload, null);
     }
 
-    public static <T> ReturnWrapper<T> failure() {
-        return new ReturnWrapper<T>(false, null);
+    public static ReturnWrapper<?> failure(String message, Object... args) {
+        return new ReturnWrapper<>(false, null, message, args);
+    }
+
+    public static ReturnWrapper<?> failure() {
+        return new ReturnWrapper<>(false, null, null);
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public T getPayload() {
+        return payload;
     }
 }

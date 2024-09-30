@@ -46,6 +46,9 @@ public enum ValidationUtil {
     }
 
     public Optional<String> resolveI18n(String message) {
+        if (null == message) {
+            return Optional.empty();
+        }
         if (isI18nKey(message)) {
             return Optional.of(message.substring(1, message.length() - 1));
         }
@@ -53,6 +56,9 @@ public enum ValidationUtil {
     }
 
     public String resolveMessage(String message, Object... args) {
+        if (null == message) {
+            return null;
+        }
         if (isI18nKey(message)) {
             message = resolveMessage(DynamicMessage.newInstantce(message));
         }

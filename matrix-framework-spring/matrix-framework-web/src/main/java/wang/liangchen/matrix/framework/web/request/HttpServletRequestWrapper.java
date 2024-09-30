@@ -79,6 +79,26 @@ public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpSe
         }
 
         @Override
+        public int read(byte[] bytes) throws IOException {
+            int offset = this.servletInputStream.read(bytes);
+            if (-1 == offset) {
+                return offset;
+            }
+            this.cachedOutputStream.write(bytes);
+            return offset;
+        }
+
+        @Override
+        public int read(byte[] bytes, int off, int len) throws IOException {
+            int offset = this.servletInputStream.read(bytes, off, len);
+            if (-1 == offset) {
+                return offset;
+            }
+            this.cachedOutputStream.write(bytes, off, len);
+            return offset;
+        }
+
+        @Override
         public boolean isFinished() {
             return this.servletInputStream.isFinished();
         }

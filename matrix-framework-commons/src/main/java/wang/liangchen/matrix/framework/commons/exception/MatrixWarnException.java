@@ -21,4 +21,9 @@ public class MatrixWarnException extends MatrixRuntimeException {
     public MatrixWarnException(Throwable cause) {
         super(cause);
     }
+
+    @Override
+    public ExceptionLevel getLevel() {
+        return level;
+    }
 }
