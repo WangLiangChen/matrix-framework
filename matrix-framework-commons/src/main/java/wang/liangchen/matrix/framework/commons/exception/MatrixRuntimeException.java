@@ -38,8 +38,9 @@ public class MatrixRuntimeException extends RuntimeException {
         super(cause);
     }
 
-    public void withCode(String code) {
+    public MatrixRuntimeException withCode(String code) {
         this.code = code;
+        return this;
     }
 
     public String getCode() {

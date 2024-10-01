@@ -1,9 +1,9 @@
 package com.sintrue.samples.controller;
 
-import com.sintrue.samples.vo.NativeObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.sintrue.samples.vo.INativeObject;
+import com.sintrue.samples.vo.NativeObjectA;
+import org.springframework.web.bind.annotation.*;
+import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.web.response.JsonResponse;
 
@@ -21,8 +21,8 @@ public class SampleController {
     }
 
     @GetMapping("/nativeObject")
-    public NativeObject returnNativeObject() {
-        return new NativeObject();
+    public NativeObjectA returnNativeObject() {
+        return new NativeObjectA();
     }
 
     @GetMapping("/returnWrapper")
@@ -33,5 +33,15 @@ public class SampleController {
     @GetMapping("/jsonResponse")
     public JsonResponse<?> returnJsonResponse() {
         return JsonResponse.success();
+    }
+
+    @GetMapping("/warnException")
+    public void warnException() {
+        throw new MatrixWarnException("warn exception").withCode("warn");
+    }
+
+    @PostMapping("/interfaceBody")
+    public String interfaceBody(@RequestBody INativeObject nativeObject) {
+        return nativeObject.getClass().toString();
     }
 }

@@ -1,0 +1,9 @@
+POST http://localhost:8080/sample/interfaceBody
+Content-Type: application/json
+
+{
+  "objectId": "testId",
+  "className": "com.sintrue.samples.vo.NativeObjectB"
+}
+
+###
