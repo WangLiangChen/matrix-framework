@@ -1,61 +1,47 @@
 package wang.liangchen.matrix.framework.commons.exception;
 
-import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
-import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-
-import java.util.Locale;
+import wang.liangchen.matrix.framework.commons.runtime.MessageWrapper;
 
 /**
  * @author Liangchen.Wang 2021-08-19 9:38
  */
 public class MatrixRuntimeException extends RuntimeException {
-    /**
-     * 异常代码
-     */
-    private String code;
-    private String i18n;
-    private Locale locale;
     private final ExceptionLevel level = ExceptionLevel.OFF;
+    private final MessageWrapper messageWrapper;
 
 
     public MatrixRuntimeException() {
-        super();
+        this.messageWrapper = null;
+    }
+
+    public MatrixRuntimeException(MessageWrapper messageWrapper) {
+        super(messageWrapper.getMessage());
+        this.messageWrapper = messageWrapper;
     }
 
     public MatrixRuntimeException(String message, Object... args) {
-        super(ValidationUtil.INSTANCE.resolveMessage(message, args));
-        ValidationUtil.INSTANCE.resolveI18n(message).ifPresent(i18n -> this.i18n = i18n);
-        this.locale = LocaleTimeZoneContext.INSTANCE.getLocale();
+        this(MessageWrapper.of(message, args));
     }
 
-    public MatrixRuntimeException(Throwable cause, String message, Object... args) {
-        super(ValidationUtil.INSTANCE.resolveMessage(message, args), cause);
-        ValidationUtil.INSTANCE.resolveI18n(message).ifPresent(i18n -> this.i18n = i18n);
-        this.locale = LocaleTimeZoneContext.INSTANCE.getLocale();
+    public MatrixRuntimeException(Throwable throwable, MessageWrapper messageWrapper) {
+        super(messageWrapper.getMessage(), throwable);
+        this.messageWrapper = messageWrapper;
     }
 
-    public MatrixRuntimeException(Throwable cause) {
-        super(cause);
+    public MatrixRuntimeException(Throwable throwable, String message, Object... args) {
+        this(throwable, MessageWrapper.of(message, args));
     }
 
-    public MatrixRuntimeException withCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
-    public String getI18n() {
-        return i18n;
-    }
-
-    public Locale getLocale() {
-        return locale;
+    public MatrixRuntimeException(Throwable throwable) {
+        super(throwable);
+        this.messageWrapper = null;
     }
 
     public ExceptionLevel getLevel() {
         return level;
+    }
+
+    public MessageWrapper getMessageWrapper() {
+        return messageWrapper;
     }
 }

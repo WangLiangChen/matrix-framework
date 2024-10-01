@@ -44,6 +44,9 @@ public enum StringUtil {
             if (c == '{' && chars[i + 1] == '}') {
                 stringBuilder.append(index++);
             }
+            if (c == '\'') {
+                stringBuilder.append('\'');
+            }
         }
         return MessageFormat.format(stringBuilder.toString(), args);
     }

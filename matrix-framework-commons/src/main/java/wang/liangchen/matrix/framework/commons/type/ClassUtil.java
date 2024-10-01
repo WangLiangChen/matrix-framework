@@ -51,7 +51,7 @@ public enum ClassUtil {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new MatrixErrorException(e);
+            throw new MatrixErrorException(e, "The class '{}' cannot be located", className);
         }
     }
 
@@ -139,7 +139,6 @@ public enum ClassUtil {
     }
 
 
-
     public List<Field> declaredFields(final Class<?> clazz) {
         return declaredFields(clazz, null);
     }
@@ -170,7 +169,6 @@ public enum ClassUtil {
         }
         return fields;
     }
-
 
 
     public List<Method> declaredMethods(final Class<?> clazz) {

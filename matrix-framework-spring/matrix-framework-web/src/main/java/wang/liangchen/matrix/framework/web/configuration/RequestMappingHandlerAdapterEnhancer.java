@@ -223,7 +223,9 @@ public class RequestMappingHandlerAdapterEnhancer {
                     if (clazz.isAssignableFrom(subclass) && clazz.getPackageName().equals(subclass.getPackageName())) {
                         return this.delegate.read((Class<? extends T>) subclass, inputMessageWrapper);
                     }
+                    throw new MatrixErrorException("Class '{}' is not an implementation class or subclass of class '{}', and in the same package", className, clazz.getName());
                 }
+                throw new MatrixErrorException("This parameter class '{}' is an interface or abstraction class. A key named 'className' should be included in the json body,which specifies an implementation class", clazz.getName());
             }
             return this.delegate.read(clazz, inputMessage);
         }

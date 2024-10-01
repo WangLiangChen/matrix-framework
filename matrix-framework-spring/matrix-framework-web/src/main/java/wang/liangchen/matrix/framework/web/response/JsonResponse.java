@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
+import wang.liangchen.matrix.framework.commons.runtime.MessageWrapper;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 
@@ -19,56 +20,77 @@ public final class JsonResponse<T> extends ReturnWrapper<T> {
     private ExceptionLevel level = ExceptionLevel.OFF;
 
 
-    private JsonResponse(boolean success, T payload, String message, Object... args) {
-        super(success, payload, message, args);
+    private JsonResponse(boolean success, T payload, MessageWrapper messageWrapper) {
+        super(success, payload, messageWrapper);
+    }
+
+    private JsonResponse(ReturnWrapper<T> returnWrapper) {
+        super(returnWrapper);
     }
 
     public static <T> JsonResponse<T> of(ReturnWrapper<T> returnWrapper) {
-        JsonResponse<T> jsonResponse = new JsonResponse<>(returnWrapper.isSuccess(), returnWrapper.getPayload(), returnWrapper.getMessage());
-        jsonResponse.withCode(returnWrapper.getCode());
-        return jsonResponse;
+        return new JsonResponse<>(returnWrapper);
     }
 
-    public static <T> JsonResponse<T> success(T payload, String message, Object... args) {
-        return new JsonResponse<>(true, payload, message, args);
+    public static <T> JsonResponse<T> success(T payload, MessageWrapper messageWrapper) {
+        return new JsonResponse<>(true, payload, messageWrapper);
     }
 
     public static <T> JsonResponse<T> success(T payload) {
         return new JsonResponse<>(true, payload, null);
     }
 
-    public static JsonResponse<?> success(String message, Object... args) {
-        return new JsonResponse<>(true, null, message, args);
+    public static <T> JsonResponse<T> success(MessageWrapper messageWrapper) {
+        return new JsonResponse<>(true, null, messageWrapper);
     }
 
-    public static JsonResponse<?> success() {
+    public static <T> JsonResponse<T> success() {
         return new JsonResponse<>(true, null, null);
     }
 
-    public static <T> JsonResponse<T> failure(T payload, String message, Object... args) {
-        return new JsonResponse<>(false, payload, message, args);
+    public static <T> JsonResponse<T> failure(T payload, MessageWrapper messageWrapper) {
+        return new JsonResponse<>(false, payload, messageWrapper);
     }
 
     public static <T> JsonResponse<T> failure(T payload) {
         return new JsonResponse<>(false, payload, null);
     }
 
-    public static JsonResponse<?> failure(String message, Object... args) {
-        return new JsonResponse<>(false, null, message, args);
+    public static <T> JsonResponse<T> failure(MessageWrapper messageWrapper) {
+        return new JsonResponse<>(false, null, messageWrapper);
     }
 
-    public static JsonResponse<?> failure() {
+    public static <T> JsonResponse<T> failure() {
         return new JsonResponse<>(false, null, null);
     }
 
-    public static JsonResponse<?> throwable(Throwable throwable) {
-        JsonResponse<?> jsonResponse = failure(throwable.getMessage());
-        jsonResponse.debug = throwable.getStackTrace()[0].toString();
+    public static <T> JsonResponse<T> failure(Throwable throwable) {
+        logger.error("JsonResponse.failure", throwable);
         if (throwable instanceof MatrixRuntimeException matrixRuntimeException) {
-            jsonResponse.level = matrixRuntimeException.getLevel();
-            jsonResponse.withCode(matrixRuntimeException.getCode());
+            JsonResponse<T> jsonResponse = failure(matrixRuntimeException.getMessageWrapper());
+            jsonResponse.withLevel(matrixRuntimeException.getLevel());
+            return jsonResponse.withDebug(throwable);
         }
-        return jsonResponse;
+        JsonResponse<T> jsonResponse = failure(MessageWrapper.of(throwable.getMessage()));
+        return jsonResponse.withDebug(throwable);
+    }
+
+    public JsonResponse<T> withLevel(ExceptionLevel level) {
+        this.level = level;
+        return this;
+    }
+
+    public JsonResponse<T> withDebug(Throwable throwable) {
+        this.debug = getStackTrace(throwable);
+        return this;
+    }
+
+    private String getStackTrace(Throwable throwable) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (StackTraceElement stackTraceElement : throwable.getStackTrace()) {
+            stringBuilder.append(stackTraceElement.toString()).append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     public String getRequestId() {

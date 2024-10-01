@@ -16,7 +16,7 @@ import wang.liangchen.matrix.framework.web.context.WebContext;
 import java.io.IOException;
 
 @Component
-public class FirstFilter extends OncePerRequestFilter implements OrderedFilter {
+public class RootFilter extends OncePerRequestFilter implements OrderedFilter {
 
     @Override
     public int getOrder() {
