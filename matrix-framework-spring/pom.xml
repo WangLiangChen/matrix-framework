@@ -16,10 +16,11 @@
         <module>matrix-framework-springboot</module>
         <module>matrix-framework-springcloud</module>
         <module>matrix-framework-web</module>
+        <module>matrix-framework-data</module>
     </modules>
 
     <properties>
-        <version.springboot>3.3.3</version.springboot>
+        <version.springboot>3.3.4</version.springboot>
         <version.springcloud>2023.0.2</version.springcloud>
     </properties>
 

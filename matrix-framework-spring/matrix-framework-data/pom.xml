@@ -6,10 +6,14 @@
     <parent>
         <groupId>wang.liangchen.matrix</groupId>
         <artifactId>matrix-framework-spring</artifactId>
-        <version>${revision}</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>matrix-framework-web</artifactId>
+    <artifactId>matrix-framework-data</artifactId>
+    <packaging>jar</packaging>
+    <properties>
+        <version.mybatis>3.0.3</version.mybatis>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -22,12 +26,16 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${version.mybatis}</version>
         </dependency>
     </dependencies>
-
 </project>

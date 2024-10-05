@@ -73,6 +73,11 @@
                 <artifactId>matrix-framework-web</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>wang.liangchen.matrix</groupId>
+                <artifactId>matrix-framework-data</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
