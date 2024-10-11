@@ -6,6 +6,8 @@ import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Role;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,7 @@ import java.lang.reflect.Method;
  * 注册数据源切换切面 advisor=pointcut+advice
  */
 @Component
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class DataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPointcutAdvisor {
     @NonNull
     @Override
