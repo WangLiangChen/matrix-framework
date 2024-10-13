@@ -37,7 +37,7 @@ public class EnhancedObject implements Serializable {
     }
 
     public <E> E to(Class<E> targetClass) {
-        return ObjectUtil.INSTANCE.copyProperties(this, targetClass);
+        return JavaBeanUtil.INSTANCE.copyProperties(this, targetClass);
     }
 
     public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initializeFields) {
@@ -50,16 +50,16 @@ public class EnhancedObject implements Serializable {
 
     public static <S, T> T valueOf(S source, Class<T> clazz) {
         ValidationUtil.INSTANCE.notNull(source);
-        return ObjectUtil.INSTANCE.copyProperties(source, clazz);
+        return JavaBeanUtil.INSTANCE.copyProperties(source, clazz);
     }
 
     public static <S, T> Collection<T> valuesOf(Collection<S> sources, Class<T> clazz) {
         ValidationUtil.INSTANCE.notNull(sources);
-        return ObjectUtil.INSTANCE.copyProperties(sources, clazz);
+        return JavaBeanUtil.INSTANCE.copyProperties(sources, clazz);
     }
 
     public static <S, T> Collection<T> valuesOf(Collection<S> sources, Class<T> clazz, BiConsumer<S, T> biConsumer) {
-        return ObjectUtil.INSTANCE.copyProperties(sources, clazz, biConsumer);
+        return JavaBeanUtil.INSTANCE.copyProperties(sources, clazz, biConsumer);
     }
 
     public void initializeFields() {

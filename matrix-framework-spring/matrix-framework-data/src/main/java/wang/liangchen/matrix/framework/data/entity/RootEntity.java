@@ -12,4 +12,12 @@ import java.util.Map;
 public abstract class RootEntity extends EnhancedObject {
     @Transient
     private transient final Map<String, Object> mandatoryUpdatedColumns = new EnhancedMap<>();
+
+    public void addMandatoryUpdatedColumns(String columnName, Object value) {
+        this.mandatoryUpdatedColumns.put(columnName, value);
+    }
+
+    public Map<String, Object> getMandatoryUpdatedColumns() {
+        return mandatoryUpdatedColumns;
+    }
 }
