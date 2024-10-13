@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.commons.function;
 
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.object.BeanUtil;
+import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
@@ -19,7 +19,7 @@ public enum LambdaUtil {
 
     public String getReferencedFieldName(SerializableFunctionInterface serializableFunctionInterface) {
         String methodName = serializedLambda(serializableFunctionInterface).getImplMethodName();
-        return BeanUtil.INSTANCE.resolveFieldName(methodName);
+        return JavaBeanUtil.INSTANCE.resolveFieldName(methodName);
     }
 
     public String getReferencedMethodName(SerializableFunctionInterface serializableFunctionInterface) {

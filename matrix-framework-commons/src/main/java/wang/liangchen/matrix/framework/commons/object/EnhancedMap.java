@@ -386,22 +386,4 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         }
         return String.valueOf(object);
     }
-
-
-    public void addExtendedField(K key, V value) {
-        this.delegate.put(key, value);
-    }
-
-    public void addExtendedFields(Map<K, V> extendedFields) {
-        this.delegate.putAll(extendedFields);
-    }
-
-    public void removeExtendedField(K key) {
-        this.delegate.remove(key);
-    }
-
-    public Map<K, V> getExtendedFields() {
-        return delegate;
-    }
-
 }

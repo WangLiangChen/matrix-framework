@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.springboot.aop;
 
 import org.springframework.aop.support.StaticMethodMatcher;
+import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class TaskSchedulerMethodMatcher extends StaticMethodMatcher {
     }};
 
     @Override
-    public boolean matches(Method method, Class<?> targetClass) {
+    public boolean matches(Method method, @NonNull Class<?> targetClass) {
         return mappedNames.contains(method.getName());
     }
 }

@@ -18,8 +18,8 @@ public enum CompressUtil {
     INSTANCE;
 
     public Stream<String> gz2StringStream(InputStream inputStream) {
-        try {
-            GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
+        try (InputStream innerInputStream = inputStream;) {
+            GZIPInputStream gzipInputStream = new GZIPInputStream(innerInputStream);
             InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             return bufferedReader.lines();

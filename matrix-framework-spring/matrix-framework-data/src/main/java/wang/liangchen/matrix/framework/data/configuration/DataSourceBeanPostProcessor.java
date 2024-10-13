@@ -12,11 +12,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.data.context.DataSourceContext;
 import wang.liangchen.matrix.framework.data.datasource.MatrixDataSourceProperties;
 import wang.liangchen.matrix.framework.data.datasource.MatrixMultiDataSourceProperties;
 import wang.liangchen.matrix.framework.data.datasource.MatrixPrimaryDataSourceProperties;
 import wang.liangchen.matrix.framework.data.datasource.RoutingDataSource;
+import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 @Component
 public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassLoaderAware, InstantiationAwareBeanPostProcessor, Ordered {
     private final static String DATASOURCE_PREFIX = "spring.datasource";
-    private final static String MATRIX_DATASOURCE_PREFIX = "spring.datasource.matrix";
+    private final static String MATRIX_DATASOURCE_PREFIX = "spring.datasource.matrix.datasources";
     private final static String DATASOURCE_BEAN_NAME = "dataSource";
 
     private final static List<String> bindableNames = new ArrayList<>() {{
@@ -55,33 +58,34 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
         }
         Map<String, MatrixDataSourceProperties> datasources = multiDataSourceProperties.getDatasources();
         datasources.put(DataSourceContext.PRIMARY_DATASOURCE_NAME, primaryDataSourceProperties);
-        datasources.forEach((name, properties) -> {
-            properties.setName(name);
-            properties.setBeanClassLoader(classLoader);
-            EmbeddedDatabaseConnection embeddedDatabaseConnection = properties.getEmbeddedDatabaseConnection();
+        datasources.forEach((dataSourceName, dataSourceProperties) -> {
+            dataSourceProperties.setName(dataSourceName);
+            dataSourceProperties.setBeanClassLoader(classLoader);
+            EmbeddedDatabaseConnection embeddedDatabaseConnection = dataSourceProperties.getEmbeddedDatabaseConnection();
             // simulate afterPropertiesSet
             if (null == embeddedDatabaseConnection) {
-                properties.setEmbeddedDatabaseConnection(EmbeddedDatabaseConnection.get(this.classLoader));
+                dataSourceProperties.setEmbeddedDatabaseConnection(EmbeddedDatabaseConnection.get(this.classLoader));
             }
-            String driverClassName = properties.determineDriverClassName();
-
-
-
-
-            DataSource dataSource = properties.initializeDataSourceBuilder().build();
-
-
-            // bind other properties
-            String prefix = DataSourceContext.PRIMARY_DATASOURCE_NAME.equals(name) ? DATASOURCE_PREFIX : MATRIX_DATASOURCE_PREFIX;
+            // resolve dialect
+            String driverClassName = dataSourceProperties.determineDriverClassName();
+            AbstractDialect dialect = AbstractDialect.getDialect(driverClassName);
+            if (null == dialect) {
+                throw new MatrixErrorException("Unsupported database driver: {}, Please contact the author.", driverClassName);
+            }
+            DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();
+            // bind other properties to dataSource
+            String prefix = DataSourceContext.PRIMARY_DATASOURCE_NAME.equals(dataSourceName) ? DATASOURCE_PREFIX : MATRIX_DATASOURCE_PREFIX.concat(Symbol.DOT.getSymbol()).concat(dataSourceName);
             for (String bindableName : bindableNames) {
-                BindResult<DataSource> bindDataSourceResult = Binder.get(environment).bind(prefix + "." + bindableName, Bindable.ofInstance(dataSource));
+                BindResult<DataSource> bindDataSourceResult = Binder.get(environment).bind(prefix.concat(Symbol.DOT.getSymbol()).concat(bindableName), Bindable.ofInstance(dataSource));
                 if (bindDataSourceResult.isBound()) {
                     dataSource = bindDataSourceResult.get();
                     break;
                 }
             }
-            DataSourceContext.INSTANCE.putDataSource(name, dataSource, null);
+            // put dataSource to DataSourceContext
+            DataSourceContext.INSTANCE.putDataSource(dataSourceName, dataSource, dialect);
         });
+
 
         RoutingDataSource routingDataSource = new RoutingDataSource();
         routingDataSource.setDefaultTargetDataSource(DataSourceContext.INSTANCE.getPrimaryDataSource());

@@ -29,7 +29,7 @@ public enum ClassUtil {
      * instance
      */
     INSTANCE;
-    private static final Map<Class<?>, ConstructorAccess> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ConstructorAccess<?>> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, MethodAccessor> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
     public static final Map<Class<?>, Supplier<?>> TYPE_DEFAULT_VALUE = new HashMap<>() {{
         put(Long.class, () -> 0L);
@@ -87,7 +87,7 @@ public enum ClassUtil {
         MethodAccess methodAccess = methodAccessor.getMethodAccess();
         Map<String, Integer> getters = methodAccessor.getGetters();
         Map<String, Integer> setters = methodAccessor.getSetters();
-        Class[] returnTypes = methodAccess.getReturnTypes();
+        Class<?>[] returnTypes = methodAccess.getReturnTypes();
         getters.forEach((getter, getterIndex) -> {
             Object returnValue = methodAccess.invoke(target, getterIndex);
             if (null != returnValue) {
@@ -176,7 +176,7 @@ public enum ClassUtil {
     }
 
     public <T> ConstructorAccess<T> constructorAccess(Class<T> targetClass) {
-        return CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass, key -> ConstructorAccess.get(targetClass));
+        return (ConstructorAccess<T>) CONSTRUCTOR_ACCESS_CACHE.computeIfAbsent(targetClass, key -> ConstructorAccess.get(targetClass));
     }
 
     public MethodAccessor methodAccessor(Class<?> targetClass) {

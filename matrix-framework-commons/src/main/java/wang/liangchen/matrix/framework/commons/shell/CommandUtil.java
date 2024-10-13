@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.shell;
 import org.apache.commons.exec.*;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.stream.QueueSpliterator;
-import wang.liangchen.matrix.framework.commons.thread.ThreadPoolUtil;
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -40,7 +40,7 @@ public enum CommandUtil {
 
     public Stream<String> stream(Runnable commandCompletedRunnable, ExecuteWatchdog watchdog, String command, String... args) {
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
-        ThreadPoolUtil.INSTANCE.getUnboundedExecutor().execute(() -> {
+        ThreadUtil.INSTANCE.getUnboundedExecutor().execute(() -> {
             execute(queue::offer, watchdog, command, args);
             if (null != commandCompletedRunnable) {
                 commandCompletedRunnable.run();

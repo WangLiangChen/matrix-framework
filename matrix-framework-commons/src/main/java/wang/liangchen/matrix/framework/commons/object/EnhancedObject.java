@@ -20,10 +20,6 @@ public class EnhancedObject implements Serializable {
      */
     private final Map<String, Object> extendedFields = new EnhancedMap<>();
 
-    public <E> E to(Class<E> targetClass) {
-        return ObjectUtil.INSTANCE.copyProperties(this, targetClass);
-    }
-
     public void addExtendedField(String key, Object value) {
         this.extendedFields.put(key, value);
     }
@@ -40,6 +36,9 @@ public class EnhancedObject implements Serializable {
         return extendedFields;
     }
 
+    public <E> E to(Class<E> targetClass) {
+        return ObjectUtil.INSTANCE.copyProperties(this, targetClass);
+    }
 
     public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initializeFields) {
         T object = ClassUtil.INSTANCE.instantiate(clazz);

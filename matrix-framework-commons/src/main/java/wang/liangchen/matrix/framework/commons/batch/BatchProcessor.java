@@ -2,8 +2,9 @@ package wang.liangchen.matrix.framework.commons.batch;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
-import wang.liangchen.matrix.framework.commons.thread.ThreadPoolUtil;
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,8 +19,7 @@ public final class BatchProcessor<E> {
     private final BlockingQueue<E> blockingQueue;
     private final List<E> batchList;
     private final int batchSize;
-    private final long timeout;
-    private final TimeUnit timeUnit;
+    private final Duration timeout;
     private Consumer<List<E>> consumer;
     private Runnable finishRunable;
     private boolean finished = false;
@@ -28,26 +28,22 @@ public final class BatchProcessor<E> {
         return new BatchProcessor<>(batchSize);
     }
 
-    public static <T> BatchProcessor<T> newInstance(int batchSize, long timeout, TimeUnit timeUnit) {
-        return new BatchProcessor<>(batchSize, timeout, timeUnit);
+    public static <T> BatchProcessor<T> newInstance(int batchSize, Duration timeout) {
+        return new BatchProcessor<>(batchSize, timeout);
     }
 
     public BatchProcessor(int batchSize) {
-        this(batchSize, 5, TimeUnit.SECONDS);
+        this(batchSize, Duration.ofSeconds(5));
     }
 
-    public BatchProcessor(int batchSize, long timeout, TimeUnit timeUnit) {
+    public BatchProcessor(int batchSize, Duration timeout) {
         if (batchSize <= 0) {
             throw new MatrixWarnException("the batchsize must be positive integer");
-        }
-        if (timeout <= 0) {
-            throw new MatrixWarnException("the timeout must be positive integer");
         }
         this.batchSize = batchSize;
         this.blockingQueue = new ArrayBlockingQueue<>(batchSize * 4);
         this.batchList = new ArrayList<>(batchSize * 2);
         this.timeout = timeout;
-        this.timeUnit = timeUnit;
     }
 
     public boolean put(E e) {
@@ -79,14 +75,14 @@ public final class BatchProcessor<E> {
     }
 
     private void onDrain() {
-        ThreadPoolUtil.INSTANCE.getUnboundedExecutor().execute(() -> {
+        ThreadUtil.INSTANCE.getUnboundedExecutor().execute(() -> {
             while (true) {
                 batchList.clear();
                 int count = 0;
                 while (count < this.batchSize) {
                     E e;
                     try {
-                        e = blockingQueue.poll(timeout, timeUnit);
+                        e = blockingQueue.poll(timeout.toMillis(), TimeUnit.MILLISECONDS);
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                         throw new MatrixErrorException(ex);

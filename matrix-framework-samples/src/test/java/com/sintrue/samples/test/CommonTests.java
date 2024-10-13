@@ -10,5 +10,6 @@ public class CommonTests {
         String message ="hello '{}' and '{}'";
         String string = ValidationUtil.INSTANCE.resolveMessage(message, "a", "b");
         System.out.println(string);
+
     }
 }

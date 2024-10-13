@@ -1,6 +1,10 @@
 package wang.liangchen.matrix.framework.commons.bytes;
 
 
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
@@ -18,16 +22,18 @@ public enum BytesUtil {
      *
      */
     INSTANCE;
+    private static final Schema<ProtostuffWrapper> PROTOSTUFF_WRAPPER_SCHEMA = RuntimeSchema.getSchema(ProtostuffWrapper.class);
+
     private final String[] hexDigits = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
 
     public byte[] toBytes(InputStream inputStream) {
         byte[] buffer = new byte[4096];
-        int n;
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            while (-1 != (n = inputStream.read(buffer))) {
-                output.write(buffer, 0, n);
+        int len;
+        try (InputStream innerInputStream = inputStream; ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            while (-1 != (len = innerInputStream.read(buffer))) {
+                outputStream.write(buffer, 0, len);
             }
-            return output.toByteArray();
+            return outputStream.toByteArray();
         } catch (IOException e) {
             throw new MatrixErrorException(e);
         }
@@ -40,14 +46,14 @@ public enum BytesUtil {
             ObjectOutputStream output = new ObjectOutputStream(outputStream);
             output.writeObject(object);
             output.flush();
-            byte[] bytes = outputStream.toByteArray();
-            return bytes;
+            return outputStream.toByteArray();
         } catch (IOException e) {
             throw new MatrixErrorException(e);
         }
     }
 
     public byte[] toBytes(char data) {
+        // char is 2 bytes
         byte[] bytes = new byte[2];
         bytes[0] = (byte) (data);
         bytes[1] = (byte) (data >> 8);
@@ -55,6 +61,7 @@ public enum BytesUtil {
     }
 
     public byte[] toBytes(short data) {
+        // short is 2 bytes
         byte[] bytes = new byte[2];
         bytes[0] = (byte) (data & 0xff);
         bytes[1] = (byte) ((data & 0xff00) >> 8);
@@ -183,4 +190,35 @@ public enum BytesUtil {
         int d2 = n % 16;
         return hexDigits[d1] + hexDigits[d2];
     }
+
+    public <T> byte[] protostuffSerializer(T object) {
+        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
+        wrapper.setObject(object);
+        LinkedBuffer allocate = LinkedBuffer.allocate();
+        try {
+            return ProtostuffIOUtil.toByteArray(wrapper, PROTOSTUFF_WRAPPER_SCHEMA, allocate);
+        } finally {
+            allocate.clear();
+        }
+    }
+
+    public <T> T protostuffDeserializer(byte[] bytes) {
+        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
+        ProtostuffIOUtil.mergeFrom(bytes, wrapper, PROTOSTUFF_WRAPPER_SCHEMA);
+        return wrapper.getObject();
+    }
+
+
+    static class ProtostuffWrapper<T> {
+        private T object;
+
+        public T getObject() {
+            return object;
+        }
+
+        public void setObject(T object) {
+            this.object = object;
+        }
+    }
+
 }

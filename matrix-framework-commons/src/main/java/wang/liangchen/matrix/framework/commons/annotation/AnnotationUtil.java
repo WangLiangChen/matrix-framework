@@ -14,7 +14,7 @@ import java.util.Map;
 public enum AnnotationUtil {
     INSTANCE;
 
-    public Object replaceAnnotationValue(Annotation annotation, String key, Object newValue) throws Exception {
+    public Object replaceAnnotationValue(Annotation annotation, String key, Object newValue) {
         InvocationHandler handler = Proxy.getInvocationHandler(annotation);
         try {
             Field field = handler.getClass().getDeclaredField("memberValues");

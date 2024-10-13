@@ -1,22 +1,16 @@
 package wang.liangchen.matrix.framework.commons.object;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.Schema;
-import io.protostuff.runtime.RuntimeSchema;
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.number.NumberUtil;
-import wang.liangchen.matrix.framework.commons.type.ClassUtil;
-import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -27,8 +21,6 @@ public enum ObjectUtil {
      * instance
      */
     INSTANCE;
-    private static final Schema<ProtostuffWrapper> PROTOSTUFF_WRAPPER_SCHEMA = RuntimeSchema.getSchema(ProtostuffWrapper.class);
-
 
     public <T, R> R getInnerValue(T t, Function<T, R> function) {
         return Optional.ofNullable(t).map(function).orElse(null);
@@ -99,11 +91,15 @@ public enum ObjectUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T cast(Object object) {
+    public <T> T cast(Object object, T defaultValue) {
         if (null == object) {
-            return null;
+            return defaultValue;
         }
         return (T) object;
+    }
+
+    public <T> T cast(Object object) {
+        return cast(object, null);
     }
 
     public String castToString(Object object, String defaultValue) {
@@ -424,99 +420,5 @@ public enum ObjectUtil {
             return (byte[]) object;
         }
         throw new MatrixWarnException("can not cast to byte[], object : " + object);
-    }
-
-    public <S, T> List<T> copyProperties(Collection<S> sources, Class<T> targetClass) {
-        return copyProperties(sources, targetClass, null);
-    }
-
-    public <S, T> List<T> copyProperties(Collection<S> sources, Class<T> targetClass, BiConsumer<S, T> consumer) {
-        if (CollectionUtil.INSTANCE.isEmpty(sources)) {
-            return new ArrayList<>(0);
-        }
-        List<T> targets = new ArrayList<>(sources.size());
-        for (S source : sources) {
-            T target = copyProperties(source, targetClass);
-            if (null != consumer) {
-                consumer.accept(source, target);
-            }
-            targets.add(target);
-        }
-        return targets;
-    }
-
-    public <T> T copyProperties(Object source, Class<T> targetClass) {
-        T target = ClassUtil.INSTANCE.instantiate(targetClass);
-        copyProperties(source, target);
-        return target;
-    }
-
-    public void copyProperties(Object source, Object target) {
-        ValidationUtil.INSTANCE.notNull(source, "source must not be null");
-        ValidationUtil.INSTANCE.notNull(target, "target must not be null");
-        ClassUtil.MethodAccessor sourceMethodAccessor = ClassUtil.INSTANCE.methodAccessor(source.getClass());
-        ClassUtil.MethodAccessor targetMethodAccessor = ClassUtil.INSTANCE.methodAccessor(target.getClass());
-        MethodAccess sourceMethodAccess = sourceMethodAccessor.getMethodAccess();
-        MethodAccess targetMethodAccess = targetMethodAccessor.getMethodAccess();
-        Map<String, Integer> getters = sourceMethodAccessor.getGetters();
-        Map<String, Integer> setters = targetMethodAccessor.getSetters();
-        setters.forEach((setter, setterIndex) -> {
-            String fieldName = setter.substring(3);
-            String getter = StringUtil.INSTANCE.getGetter(fieldName);
-            Integer getterIndex = getters.get(getter);
-            if (null == getterIndex) {
-                return;
-            }
-            Object returnValue = sourceMethodAccess.invoke(source, getterIndex);
-            targetMethodAccess.invoke(target, setterIndex, returnValue);
-        });
-    }
-
-    public <T> byte[] protostuffSerializer(T object) {
-        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
-        wrapper.setObject(object);
-        LinkedBuffer allocate = LinkedBuffer.allocate();
-        try {
-            return ProtostuffIOUtil.toByteArray(wrapper, PROTOSTUFF_WRAPPER_SCHEMA, allocate);
-        } finally {
-            allocate.clear();
-        }
-    }
-
-    public <T> T protostuffDeserializer(byte[] bytes) {
-        ProtostuffWrapper<T> wrapper = new ProtostuffWrapper<>();
-        ProtostuffIOUtil.mergeFrom(bytes, wrapper, PROTOSTUFF_WRAPPER_SCHEMA);
-        return wrapper.getObject();
-    }
-
-
-    static class ProtostuffWrapper<T> {
-        private T object;
-
-        public T getObject() {
-            return object;
-        }
-
-        public void setObject(T object) {
-            this.object = object;
-        }
-    }
-
-    static class CopierId {
-        private final Class<?> sourceClass;
-        private final Class<?> targetClass;
-
-        CopierId(Class<?> sourceClass, Class<?> targetClass) {
-            this.sourceClass = sourceClass;
-            this.targetClass = targetClass;
-        }
-
-        public Class<?> getSourceClass() {
-            return sourceClass;
-        }
-
-        public Class<?> getTargetClass() {
-            return targetClass;
-        }
     }
 }

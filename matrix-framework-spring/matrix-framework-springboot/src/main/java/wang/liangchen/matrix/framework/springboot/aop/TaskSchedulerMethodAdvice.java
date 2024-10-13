@@ -8,12 +8,16 @@ import org.springframework.scheduling.TaskScheduler;
  * @author Liangchen.Wang 2022-08-26 14:24
  * advice
  */
-public abstract class TaskSchedulerMethodInterceptor implements MethodInterceptor {
+public abstract class TaskSchedulerMethodAdvice implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        Class<?> targetClass = invocation.getThis().getClass();
+        Object object = invocation.getThis();
+        if (null == object) {
+            return invocation.proceed();
+        }
+        Class<?> objectClass = object.getClass();
         // TaskScheduler method
-        if (TaskScheduler.class.isAssignableFrom(targetClass)) {
+        if (TaskScheduler.class.isAssignableFrom(objectClass)) {
             Object[] arguments = invocation.getArguments();
             if (arguments.length > 0 && arguments[0] instanceof Runnable) {
                 // 包装arguments[0]的runnable

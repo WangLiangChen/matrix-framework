@@ -5,8 +5,9 @@ spring:
     password: NHAp7%N~
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-timeout: 12345
     matrix:
-      enabled: true
       datasources:
         ds1:
           url: jdbc:postgresql://10.196.173.197:5432/aps_tst
@@ -14,9 +15,13 @@ spring:
           password: NHAp7%N~
           driver-class-name: org.postgresql.Driver
           type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            connection-timeout: 12346
         ds2:
           url: jdbc:postgresql://10.196.173.197:5432/aps_tst
           username: a_appconnect
           password: NHAp7%N~
           driver-class-name: org.postgresql.Driver
           type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            connection-timeout: 12347

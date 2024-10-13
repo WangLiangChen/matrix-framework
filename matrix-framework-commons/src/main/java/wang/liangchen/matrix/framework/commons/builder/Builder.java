@@ -11,9 +11,9 @@ import java.util.function.Supplier;
 
 /**
  * @author Liangchen.Wang 2021-08-23 10:31
- * Generic Builder base on jdk8
+ * Generic Builder base on jdk8+
  * <pre> {@code
- * GenericBuilder<Book> builder = GenericBuilder.of(Book::new);
+ * Builder<Book> builder = Builder.of(Book::new);
  * builder.with(Book::setBookId,1).build();
  * }</pre>
  */
@@ -45,7 +45,6 @@ public final class Builder<T> {
     }
 
     public T build() {
-        // 调用Supplier,使用构造器创建对象
         T instance = constructor.get();
         // 调用setter,完成赋值
         setterInvokers.forEach(setterInvoker -> setterInvoker.accept(instance));
