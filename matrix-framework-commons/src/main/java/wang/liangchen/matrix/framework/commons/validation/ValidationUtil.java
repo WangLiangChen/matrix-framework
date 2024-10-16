@@ -85,7 +85,7 @@ public enum ValidationUtil {
     }
 
     public <T> T validate(T object, Class<?>... groups) {
-        return validate(ExceptionLevel.WARN, object, groups);
+        return validate(ExceptionLevel.ERROR, object, groups);
     }
 
 
@@ -98,7 +98,7 @@ public enum ValidationUtil {
     }
 
     public boolean isTrue(boolean condition, String message, Object... args) {
-        return isTrue(ExceptionLevel.WARN, condition, message, args);
+        return isTrue(ExceptionLevel.ERROR, condition, message, args);
     }
 
     public boolean isTrue(ExceptionLevel exceptionLevel, boolean condition) {
@@ -118,7 +118,7 @@ public enum ValidationUtil {
     }
 
     public boolean isFalse(boolean condition, String message, Object... args) {
-        return isFalse(ExceptionLevel.WARN, condition, message, args);
+        return isFalse(ExceptionLevel.ERROR, condition, message, args);
     }
 
     public boolean isFalse(ExceptionLevel level, boolean condition) {
@@ -138,7 +138,7 @@ public enum ValidationUtil {
     }
 
     public String isBlank(String string, String message, Object... args) {
-        return isBlank(ExceptionLevel.WARN, string, message, args);
+        return isBlank(ExceptionLevel.ERROR, string, message, args);
     }
 
     public String isBlank(ExceptionLevel exceptionLevel, String string) {
@@ -158,7 +158,7 @@ public enum ValidationUtil {
     }
 
     public String notBlank(String string, String message, Object... args) {
-        return notBlank(ExceptionLevel.WARN, string, message, args);
+        return notBlank(ExceptionLevel.ERROR, string, message, args);
     }
 
     public String notBlank(ExceptionLevel exceptionLevel, String string) {
@@ -178,7 +178,7 @@ public enum ValidationUtil {
     }
 
     public <T> T isNull(T object, String message, Object... args) {
-        return isNull(ExceptionLevel.WARN, object, message, args);
+        return isNull(ExceptionLevel.ERROR, object, message, args);
     }
 
     public <T> T isNull(ExceptionLevel exceptionLevel, T object) {
@@ -198,7 +198,7 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object, String message, Object... args) {
-        return notNull(ExceptionLevel.WARN, object, message, args);
+        return notNull(ExceptionLevel.ERROR, object, message, args);
     }
 
     public <T> T notNull(ExceptionLevel exceptionLevel, T object) {
@@ -218,7 +218,7 @@ public enum ValidationUtil {
     }
 
     public <T> T isEmpty(T object, String message, Object... args) {
-        return isEmpty(ExceptionLevel.WARN, object, message, args);
+        return isEmpty(ExceptionLevel.ERROR, object, message, args);
     }
 
     public <T> T isEmpty(ExceptionLevel exceptionLevel, T object) {
@@ -238,7 +238,7 @@ public enum ValidationUtil {
     }
 
     public <T> T notEmpty(T object, String message, Object... args) {
-        return notEmpty(ExceptionLevel.WARN, object, message, args);
+        return notEmpty(ExceptionLevel.ERROR, object, message, args);
     }
 
     public <T> T notEmpty(ExceptionLevel exceptionLevel, T object) {
@@ -258,7 +258,7 @@ public enum ValidationUtil {
     }
 
     public boolean equals(Object from, Object to, String message, Object... args) {
-        return equals(ExceptionLevel.WARN, from, to, message, args);
+        return equals(ExceptionLevel.ERROR, from, to, message, args);
     }
 
     public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to) {
@@ -278,7 +278,7 @@ public enum ValidationUtil {
     }
 
     public boolean notEquals(Object from, Object to, String message, Object... args) {
-        return notEquals(ExceptionLevel.WARN, from, to, message, args);
+        return notEquals(ExceptionLevel.ERROR, from, to, message, args);
     }
 
     public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to) {
