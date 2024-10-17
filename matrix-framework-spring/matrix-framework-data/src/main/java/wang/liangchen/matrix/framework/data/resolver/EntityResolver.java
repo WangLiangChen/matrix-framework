@@ -5,10 +5,7 @@ import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.data.annotation.ColumnIgnore;
-import wang.liangchen.matrix.framework.data.annotation.ColumnJson;
-import wang.liangchen.matrix.framework.data.annotation.ColumnMarkDelete;
-import wang.liangchen.matrix.framework.data.annotation.ColumnState;
+import wang.liangchen.matrix.framework.data.annotation.*;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.json.JsonField;
 
@@ -65,6 +62,8 @@ public enum EntityResolver {
         String columnName = null == columnAnnotation ? StringUtil.INSTANCE.camelCase2underline(fieldName) : columnAnnotation.name();
         Id columnIdAnnotation = field.getAnnotation(Id.class);
         boolean isColumnId = null != columnIdAnnotation;
+        IdStrategy columnIdStrategyAnnotation = field.getAnnotation(IdStrategy.class);
+        IdStrategy.Strategy idStrategy = null == columnIdStrategyAnnotation ? IdStrategy.Strategy.NONE : columnIdStrategyAnnotation.value();
         UniqueConstraint columnUniqueAnnotation = field.getAnnotation(UniqueConstraint.class);
         boolean isColumnUnique = null != columnUniqueAnnotation;
         Version columnVersionAnnotation = field.getAnnotation(Version.class);
@@ -76,6 +75,6 @@ public enum EntityResolver {
         String markDeleteValue = null == columnMarkDeleteAnnotation ? null : columnMarkDeleteAnnotation.value();
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         boolean isColumnState = null != columnStateAnnotation;
-        return new FieldMeta(fieldName, fieldClass, fieldType, columnName, isColumnId, isColumnUnique, isColumnVersion, isColumnJson, isColumnState, markDeleteValue);
+        return new FieldMeta(fieldName, fieldClass, fieldType, columnName, isColumnId, idStrategy, isColumnUnique, isColumnVersion, isColumnJson, isColumnState, markDeleteValue);
     }
 }

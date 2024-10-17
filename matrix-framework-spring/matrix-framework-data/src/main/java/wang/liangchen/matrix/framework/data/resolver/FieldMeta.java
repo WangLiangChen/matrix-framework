@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.data.resolver;
 
+import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+
 import java.lang.reflect.Type;
 
 /**
@@ -11,6 +13,7 @@ public final class FieldMeta {
     private final Type fieldType;
     private final String columnName;
     private final boolean isColumnId;
+    private final IdStrategy.Strategy idStrategy;
     private final boolean isColumnUnique;
     private final boolean isColumnVersion;
     private final boolean isColumnJson;
@@ -18,12 +21,13 @@ public final class FieldMeta {
     private final String markDeleteValue;
 
 
-    public FieldMeta(String fieldName, Class<?> fieldClass, Type fieldType, String columnName, boolean isColumnId, boolean isColumnUnique, boolean isColumnVersion, boolean isColumnJson, boolean isColumnState, String markDeleteValue) {
+    public FieldMeta(String fieldName, Class<?> fieldClass, Type fieldType, String columnName, boolean isColumnId, IdStrategy.Strategy idStrategy, boolean isColumnUnique, boolean isColumnVersion, boolean isColumnJson, boolean isColumnState, String markDeleteValue) {
         this.fieldName = fieldName;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
         this.columnName = columnName;
         this.isColumnId = isColumnId;
+        this.idStrategy = idStrategy;
         this.isColumnUnique = isColumnUnique;
         this.isColumnVersion = isColumnVersion;
         this.isColumnJson = isColumnJson;
@@ -49,6 +53,10 @@ public final class FieldMeta {
 
     public boolean isColumnId() {
         return isColumnId;
+    }
+
+    public IdStrategy.Strategy getIdStrategy() {
+        return idStrategy;
     }
 
     public boolean isColumnUnique() {
