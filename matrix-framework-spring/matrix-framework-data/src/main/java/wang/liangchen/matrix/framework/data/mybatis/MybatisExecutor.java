@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.mybatis;
 
+import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -10,12 +11,17 @@ import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
 import wang.liangchen.matrix.framework.commons.uid.NumbericUid;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.data.context.SQLContext;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
+import wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler;
+import wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler;
 import wang.liangchen.matrix.framework.data.resolver.EntityMeta;
 import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
+import wang.liangchen.matrix.framework.data.resolver.FieldLabel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,19 +49,20 @@ public enum MybatisExecutor {
         String tableName = entityMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             // 缓存单一ID的setterMethod
-            cacheIdGenerator(cacheKey, entityClass, entityMeta.getPkFieldMetas());
-            List<FieldMeta> fieldMetas = entityMeta.getFieldMetas();
+            IdStrategy.Strategy idStrategy = cacheIdGenerator(cacheKey, entityMeta.getPkFieldMeta());
+            Collection<FieldMeta> columnMetas = IdStrategy.Strategy.AUTO_INCREMENT == idStrategy ? entityMeta.getNonPkFieldMetas().values() : entityMeta.getFieldMetas().values();
+
             StringBuilder sqlBuilder = new StringBuilder();
-            String insertedColumnNames = fieldMetas.stream().map(FieldMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+            String insertedColumnNames = columnMetas.stream().map(FieldMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
             sqlBuilder.append("<script>");
             sqlBuilder.append("insert into ").append(tableName).append("(");
             sqlBuilder.append(insertedColumnNames);
             sqlBuilder.append(")values(");
-            fieldMetas.forEach(columnMeta -> {
+            columnMetas.forEach(columnMeta -> {
                 String typeHandler = "";
-                if (columnMeta.isColumnJson()) {
+                if (columnMeta.checkFieldLabel(FieldLabel.JSON)) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
-                } else if (columnMeta.isExtended()) {
+                } else if (columnMeta.checkFieldLabel(FieldLabel.EXTENDED)) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
                 }
                 sqlBuilder.append("#{").append(columnMeta.getFieldName()).append(typeHandler).append("},");
@@ -65,7 +72,7 @@ public enum MybatisExecutor {
             sqlBuilder.append(")");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class, entityMeta);
             logger.debug("create and cache insertId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
@@ -74,30 +81,31 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, entities, "{Collection.NotEmpty}");
+        ValidationUtil.INSTANCE.notEmpty(entities, "{Collection.NotEmpty}");
         Iterator<E> iterator = entities.iterator();
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBulk");
-        TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-        String tableName = tableMeta.getTableName();
+        EntityMeta entityMeta = entity.getEntityMeta();
+        String tableName = entityMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
-            // 缓存单个ID的setterMethod
-            cacheIdGenerator(cacheKey, entityClass, tableMeta.getPkColumnMetas());
-            Collection<ColumnMeta> columnMetas = tableMeta.getColumnMetas().values();
+            // 缓存单一ID的setterMethod
+            IdStrategy.Strategy idStrategy = cacheIdGenerator(cacheKey, entityMeta.getPkFieldMeta());
+            Collection<FieldMeta> columnMetas = IdStrategy.Strategy.AUTO_INCREMENT == idStrategy ? entityMeta.getNonPkFieldMetas().values() : entityMeta.getFieldMetas().values();
+
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
             sqlBuilder.append("insert into ").append(tableName).append("(");
-            String insertedColumnNames = columnMetas.stream().map(ColumnMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
+            String insertedColumnNames = columnMetas.stream().map(FieldMeta::getColumnName).collect(Collectors.joining(Symbol.COMMA.getSymbol()));
             sqlBuilder.append(insertedColumnNames);
             sqlBuilder.append(")values");
             sqlBuilder.append("<foreach collection=\"collection\" item=\"item\" separator=\",\">");
             sqlBuilder.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
             columnMetas.forEach(columnMeta -> {
                 String typeHandler = "";
-                if (columnMeta.isJson()) {
+                if (columnMeta.checkFieldLabel(FieldLabel.JSON)) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler";
-                } else if (columnMeta.isExtended()) {
+                } else if (columnMeta.checkFieldLabel(FieldLabel.EXTENDED)) {
                     typeHandler = ",typeHandler=wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler";
                 }
                 sqlBuilder.append("#{item.").append(columnMeta.getFieldName()).append(typeHandler).append("},");
@@ -106,7 +114,7 @@ public enum MybatisExecutor {
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, Collection.class, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, Collection.class, Integer.class, entityMeta);
             logger.debug("create and cache insertBulkId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
@@ -115,41 +123,41 @@ public enum MybatisExecutor {
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, entity, "{Parameter.NotNull}");
+        ValidationUtil.INSTANCE.notNull(entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
-        TableMeta tableMeta = TableMetas.INSTANCE.tableMeta(entityClass);
-        ColumnMeta columnDeleteMeta = tableMeta.getColumnDeleteMeta();
-        if (null != columnDeleteMeta) {
-            entity.addExtendedField("markDeleteValue", columnDeleteMeta.getMarkDeleteValue());
-        }
+        EntityMeta entityMeta = entity.getEntityMeta();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
+            FieldMeta softDeleteFieldMeta = entityMeta.getSoftDeleteFieldMeta();
+            if (null != softDeleteFieldMeta) {
+                entity.addExtendedField("softDeleteValue", softDeleteFieldMeta.getSoftDeleteValue());
+            }
+            String tableName = entityMeta.getTableName();
+            FieldMeta versionFieldMeta = entityMeta.getVersionFieldMeta();
             StringBuilder sqlBuilder = new StringBuilder();
-            ColumnMeta columnVersionMeta = tableMeta.getColumnVersionMeta();
-            String tableName = tableMeta.getTableName();
             sqlBuilder.append("<script>");
-            if (null == columnDeleteMeta) {
+            if (null == softDeleteFieldMeta) {
                 sqlBuilder.append("delete from ").append(tableName);
             } else {
                 sqlBuilder.append("update ").append(tableName).append("<set>");
-                if (null != columnVersionMeta) {
-                    sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnVersionMeta.getFieldName()).append(")\">");
-                    sqlBuilder.append(columnVersionMeta.getColumnName()).append("=").append(columnVersionMeta.getColumnName()).append("+1,");
+                if (null != versionFieldMeta) {
+                    sqlBuilder.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(versionFieldMeta.getFieldName()).append(")\">");
+                    sqlBuilder.append(versionFieldMeta.getColumnName()).append("=").append(versionFieldMeta.getColumnName()).append("+1, ");
                     sqlBuilder.append("</if>");
                 }
-                sqlBuilder.append(columnDeleteMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.markDeleteValue}");
+                sqlBuilder.append(softDeleteFieldMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{extendedFields.softDeleteValue}");
                 sqlBuilder.append("</set>");
             }
-            sqlBuilder.append(pkWhereSql(tableMeta.getPkColumnMetas(), columnVersionMeta));
+            sqlBuilder.append(pkWhereSql(entityMeta.getPkFieldMetas(), versionFieldMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class);
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class, entityMeta);
             logger.debug("create and cache deleteId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
         int rows = sqlSessionTemplate.delete(statementId, entity);
         // 使用后删除 markDeleteValue
-        entity.removeExtendedField("markDeleteValue");
+        entity.removeExtendedField("softDeleteValue");
         return rows;
     }
 
@@ -326,23 +334,29 @@ public enum MybatisExecutor {
 
     private <T> T populateContext(String tableName, Supplier<T> supplier) {
         // populate context
-        ExtendedColumnsContext.INSTANCE.setTableName(tableName);
+        SQLContext.INSTANCE.setTableName(tableName);
         try {
             return supplier.get();
         } finally {
-            ExtendedColumnsContext.INSTANCE.remove();
+            SQLContext.INSTANCE.remove();
         }
     }
 
-    private void cacheIdGenerator(String cacheKey, Class<? extends RootEntity> entityClass, Map<String, FieldMeta> pkFieldMetas) {
-        if (1 != pkFieldMetas.size()) {
-            return;
+    private IdStrategy.Strategy cacheIdGenerator(String cacheKey, FieldMeta pkFieldMeta) {
+        // if composite id, skip
+        if (null == pkFieldMeta) {
+            return IdStrategy.Strategy.NONE;
         }
-        for (FieldMeta fieldMeta : pkFieldMetas.values()) {
-            String setterMethod = StringUtil.INSTANCE.getSetter(fieldMeta.getFieldName());
-            String getterMethod = StringUtil.INSTANCE.getGetter(fieldMeta.getFieldName());
-            ID_METHOD_CACHE.put(cacheKey, new IDGenerator(fieldMeta.getFieldClass(), getterMethod, setterMethod, fieldMeta.getIdStrategy()));
+        // if auto increment, skip
+        IdStrategy.Strategy idStrategy = pkFieldMeta.getIdStrategy();
+        if (IdStrategy.Strategy.AUTO_INCREMENT == idStrategy) {
+            return IdStrategy.Strategy.AUTO_INCREMENT;
         }
+
+        String setterMethod = StringUtil.INSTANCE.getSetter(pkFieldMeta.getFieldName());
+        String getterMethod = StringUtil.INSTANCE.getGetter(pkFieldMeta.getFieldName());
+        ID_METHOD_CACHE.put(cacheKey, new IDGenerator(pkFieldMeta.getFieldClass(), getterMethod, setterMethod, idStrategy));
+        return idStrategy;
     }
 
     private <E extends RootEntity> void populateId(String cacheKey, Collection<E> entities) {
@@ -351,7 +365,7 @@ public enum MybatisExecutor {
             return;
         }
         IdStrategy.Strategy strategy = idGenerator.getStrategy();
-        if (null == strategy || IdStrategy.Strategy.NONE == strategy) {
+        if (null == strategy || IdStrategy.Strategy.NONE == strategy || IdStrategy.Strategy.AUTO_INCREMENT == strategy) {
             return;
         }
         Class<?> valueClass = idGenerator.getValueClass();
@@ -365,9 +379,18 @@ public enum MybatisExecutor {
             }
             Object value = null;
             // populate id if null
-            if (IdStrategy.Strategy.MatrixFlake == strategy) {
-                value = NumbericUid.INSTANCE.nextId();
+            switch (strategy) {
+                case UUID:
+                    value = UUID.randomUUID().toString();
+                    break;
+                case NANO:
+                    value = NanoIdUtil.INSTANCE.randomNanoId();
+                    break;
+                default:
+                    value = NumbericUid.INSTANCE.nextId();
+                    break;
             }
+
             if (String.class.isAssignableFrom(valueClass)) {
                 value = String.valueOf(value);
             }
@@ -375,45 +398,53 @@ public enum MybatisExecutor {
         }
     }
 
-    private StringBuilder pkWhereSql(Map<String, ColumnMeta> pkColumnMetas, ColumnMeta columnVersionMeta) {
+    private StringBuilder pkWhereSql(Map<String, FieldMeta> pkFieldMetas, FieldMeta versionFieldMeta) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        pkColumnMetas.values().forEach(columnMeta -> whereSql.append("and ")
-                .append(columnMeta.getColumnName()).append("=#{").append(columnMeta.getFieldName()).append("}"));
-        if (null != columnVersionMeta) {
-            whereSql.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(columnVersionMeta.getFieldName()).append(")\">");
-            whereSql.append(" and ").append(columnVersionMeta.getColumnName()).append("=").append("#{").append(columnVersionMeta.getColumnName()).append("}");
+        pkFieldMetas.values().forEach(fieldMeta -> whereSql.append("and ")
+                .append(fieldMeta.getColumnName()).append("=#{").append(fieldMeta.getFieldName()).append("}"));
+        if (null != versionFieldMeta) {
+            whereSql.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(versionFieldMeta.getFieldName()).append(")\">");
+            whereSql.append(" and ").append(versionFieldMeta.getColumnName()).append("=").append("#{").append(versionFieldMeta.getFieldName()).append("}");
             whereSql.append("</if>");
         }
         whereSql.append("</where>");
         return whereSql;
     }
 
-    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType) {
-        buildMappedStatement(sqlSessionTemplate, mappedStatementId, sqlCommandType, sqlScript, parameterType, resultType, null);
-    }
 
-    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType, TableMeta tableMeta) {
+    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType, EntityMeta entityMeta) {
         Configuration configuration = sqlSessionTemplate.getConfiguration();
-        List<ResultMapping> resultMappings = new ArrayList<>();
-        if (null != tableMeta) {
-            tableMeta.getColumnMetas().forEach((k, v) -> {
-                if (v.isJson()) {
+        LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlScript, parameterType);
+        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, mappedStatementId, sqlSource, sqlCommandType);
+        if (SqlCommandType.INSERT == sqlCommandType) {
+            FieldMeta pkFieldMeta = entityMeta.getPkFieldMeta();
+            // auto increment
+            if (null != pkFieldMeta && IdStrategy.Strategy.AUTO_INCREMENT == pkFieldMeta.getIdStrategy()) {
+                statementBuilder.keyGenerator(new Jdbc3KeyGenerator()).keyProperty(pkFieldMeta.getFieldName()).keyColumn(pkFieldMeta.getColumnName());
+            }
+            configuration.addMappedStatement(statementBuilder.build());
+            return;
+        }
+        if (SqlCommandType.SELECT == sqlCommandType) {
+            List<ResultMapping> resultMappings = new ArrayList<>();
+            // result mappings
+            entityMeta.getFieldMetas().forEach((k, v) -> {
+                if (v.checkFieldLabel(FieldLabel.JSON)) {
                     resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), new JsonTypeHandler(v.getFieldClass(), v.getFieldType())).build());
-                } else if (v.isExtended()) {
+                } else if (v.checkFieldLabel(FieldLabel.EXTENDED)) {
                     resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), new ExtendedColumnTypeHandler(v.getFieldClass(), v.getFieldType())).build());
                 } else {
                     resultMappings.add(new ResultMapping.Builder(configuration, k, v.getColumnName(), v.getFieldClass()).build());
                 }
             });
+            List<ResultMap> resultMaps = new ArrayList<ResultMap>() {{
+                add(new ResultMap.Builder(configuration, "defaultResultMap", resultType, resultMappings).build());
+            }};
+            statementBuilder.resultMaps(resultMaps);
+            configuration.addMappedStatement(statementBuilder.build());
         }
-        List<ResultMap> resultMaps = new ArrayList<ResultMap>() {{
-            add(new ResultMap.Builder(configuration, "defaultResultMap", resultType, resultMappings).build());
-        }};
-        LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
-        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlScript, parameterType);
-        MappedStatement ms = new MappedStatement.Builder(configuration, mappedStatementId, sqlSource, sqlCommandType).resultMaps(resultMaps).build();
-        configuration.addMappedStatement(ms);
     }
 
     static class IDGenerator {

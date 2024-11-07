@@ -318,12 +318,12 @@ public enum ValidationUtil {
     private String resolveMessage(DynamicMessage dynamicMessage) {
         Set<ConstraintViolation<DynamicMessage>> results = VALIDATOR.validate(dynamicMessage);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
-            return Symbol.BLANK.getSymbol();
+            return Symbol.EMPTY.getSymbol();
         }
         for (ConstraintViolation<DynamicMessage> result : results) {
             return result.getMessage();
         }
-        return Symbol.BLANK.getSymbol();
+        return Symbol.EMPTY.getSymbol();
     }
 
     private boolean isI18nKey(String message) {

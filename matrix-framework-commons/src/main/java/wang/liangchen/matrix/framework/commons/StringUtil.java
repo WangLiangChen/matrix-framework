@@ -156,7 +156,7 @@ public enum StringUtil {
     }
 
     public String blankString() {
-        return Symbol.BLANK.getSymbol();
+        return Symbol.EMPTY.getSymbol();
     }
 
     public String underline2lowerCamelCase(String string) {

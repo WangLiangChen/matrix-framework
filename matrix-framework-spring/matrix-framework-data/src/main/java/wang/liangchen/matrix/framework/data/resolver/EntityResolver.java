@@ -6,16 +6,14 @@ import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.annotation.*;
+import wang.liangchen.matrix.framework.data.entity.ExtendedFields;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.json.JsonField;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -60,10 +58,10 @@ public enum EntityResolver {
         Type fieldType = field.getGenericType();
         Column columnAnnotation = field.getAnnotation(Column.class);
         String columnName = null == columnAnnotation ? StringUtil.INSTANCE.camelCase2underline(fieldName) : columnAnnotation.name();
-        Id columnIdAnnotation = field.getAnnotation(Id.class);
-        boolean isColumnId = null != columnIdAnnotation;
         IdStrategy columnIdStrategyAnnotation = field.getAnnotation(IdStrategy.class);
         IdStrategy.Strategy idStrategy = null == columnIdStrategyAnnotation ? IdStrategy.Strategy.NONE : columnIdStrategyAnnotation.value();
+        Id columnIdAnnotation = field.getAnnotation(Id.class);
+        boolean isColumnId = null != columnIdAnnotation || null != columnIdStrategyAnnotation;
         UniqueConstraint columnUniqueAnnotation = field.getAnnotation(UniqueConstraint.class);
         boolean isColumnUnique = null != columnUniqueAnnotation;
         Version columnVersionAnnotation = field.getAnnotation(Version.class);
@@ -71,10 +69,34 @@ public enum EntityResolver {
         ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
         Class<?> fieldClass = field.getType();
         boolean isColumnJson = null != columnJsonAnnotation || JsonField.class.isAssignableFrom(fieldClass);
-        ColumnMarkDelete columnMarkDeleteAnnotation = field.getAnnotation(ColumnMarkDelete.class);
-        String markDeleteValue = null == columnMarkDeleteAnnotation ? null : columnMarkDeleteAnnotation.value();
+        boolean isColumnExtended = ExtendedFields.class.isAssignableFrom(fieldClass);
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         boolean isColumnState = null != columnStateAnnotation;
-        return new FieldMeta(fieldName, fieldClass, fieldType, columnName, isColumnId, idStrategy, isColumnUnique, isColumnVersion, isColumnJson, isColumnState, markDeleteValue);
+        ColumnSoftDelete columnSoftDeleteAnnotation = field.getAnnotation(ColumnSoftDelete.class);
+        String softDeleteValue = null == columnSoftDeleteAnnotation ? null : columnSoftDeleteAnnotation.value();
+
+        Map<FieldLabel, Optional<String>> fieldTypes = new HashMap<>();
+        if (isColumnId) {
+            fieldTypes.put(FieldLabel.ID, Optional.of(idStrategy.name()));
+        }
+        if (isColumnUnique) {
+            fieldTypes.put(FieldLabel.UNIQUE, Optional.empty());
+        }
+        if (isColumnVersion) {
+            fieldTypes.put(FieldLabel.VERSION, Optional.empty());
+        }
+        if (isColumnJson) {
+            fieldTypes.put(FieldLabel.JSON, Optional.empty());
+        }
+        if (isColumnExtended) {
+            fieldTypes.put(FieldLabel.EXTENDED, Optional.empty());
+        }
+        if (isColumnState) {
+            fieldTypes.put(FieldLabel.STATE, Optional.empty());
+        }
+        if (null != softDeleteValue) {
+            fieldTypes.put(FieldLabel.SOFT_DELETE, Optional.of(softDeleteValue));
+        }
+        return new FieldMeta(fieldName, fieldClass, fieldType, columnName, fieldTypes);
     }
 }

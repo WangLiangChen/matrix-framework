@@ -13,8 +13,8 @@ public @interface IdStrategy {
 
     enum Strategy {
         NONE,
-        MatrixFlake,
-        AutoIncrement,
+        MATRIX_FLAKE,
+        AUTO_INCREMENT,
         UUID,
         NANO;
     }

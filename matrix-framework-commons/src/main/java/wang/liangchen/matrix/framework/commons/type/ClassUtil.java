@@ -40,11 +40,22 @@ public enum ClassUtil {
         put(Float.class, () -> 0f);
         put(Boolean.class, () -> Boolean.FALSE);
         put(BigDecimal.class, () -> new BigDecimal(0));
-        put(String.class, Symbol.BLANK::getSymbol);
+        put(String.class, Symbol.EMPTY::getSymbol);
         put(Timestamp.class, () -> new Timestamp(System.currentTimeMillis()));
         put(LocalDate.class, LocalDate::now);
         put(LocalDateTime.class, LocalDateTime::now);
         put(Date.class, Date::new);
+    }};
+
+    public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>() {{
+        put(Boolean.class, boolean.class);
+        put(Character.class, char.class);
+        put(Byte.class, byte.class);
+        put(Short.class, short.class);
+        put(Integer.class, int.class);
+        put(Long.class, long.class);
+        put(Float.class, float.class);
+        put(Double.class, double.class);
     }};
 
     public Class<?> forName(String className) {
@@ -53,6 +64,18 @@ public enum ClassUtil {
         } catch (ClassNotFoundException e) {
             throw new MatrixErrorException(e, "The class '{}' cannot be located", className);
         }
+    }
+
+    public boolean isWrapperClass(Class<?> clazz) {
+        return WRAPPER_CLASSES.containsKey(clazz);
+    }
+
+    public boolean isPrimitive(Class<?> clazz) {
+        return clazz.isPrimitive();
+    }
+
+    public boolean isWrappedPrimitive(Class<?> clazz) {
+        return WRAPPER_CLASSES.containsKey(clazz);
     }
 
     @SuppressWarnings("unchecked")

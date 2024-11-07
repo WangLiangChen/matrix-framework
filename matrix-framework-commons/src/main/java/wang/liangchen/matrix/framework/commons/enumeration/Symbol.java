@@ -13,7 +13,7 @@ public enum Symbol {
     CARET_REGEX("\\^", "^正则"),
     EQUAL("=", "等号"),
     AND("&", "与"),
-    BLANK("", "空串"),
+    EMPTY("", "空串"),
     SPACE(" ", "空格"),
     TAB("    ", "TAB"),
     PLUS("+", "加号"),

@@ -83,7 +83,7 @@ public enum URIUtil {
 
     private String resolveMore(String... more) {
         if (null == more || more.length == 0) {
-            return Symbol.BLANK.getSymbol();
+            return Symbol.EMPTY.getSymbol();
         }
         for (int i = 0; i < more.length; i++) {
             // 把 \\ 替换为 /
@@ -91,7 +91,7 @@ public enum URIUtil {
                 more[i] = more[i].replaceAll(Symbol.DOUBLE_BACKSLASH.getSymbol(), Symbol.URI_SEPARATOR.getSymbol());
             }
             // 去除开头和结尾 /
-            more[i] = more[i].replaceAll("^/*|/*$", Symbol.BLANK.getSymbol());
+            more[i] = more[i].replaceAll("^/*|/*$", Symbol.EMPTY.getSymbol());
         }
         return Arrays.stream(more).collect(Collectors.joining(Symbol.URI_SEPARATOR.getSymbol()));
     }
