@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.data.criteria;
 
 import wang.liangchen.matrix.framework.commons.StringUtil;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;

@@ -7,7 +7,6 @@ import wang.liangchen.matrix.framework.data.resolver.EntityMeta;
 import wang.liangchen.matrix.framework.data.resolver.EntityResolver;
 import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
-
 import java.util.Collection;
 import java.util.Map;
 

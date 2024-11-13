@@ -53,6 +53,9 @@ abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
         return children;
     }
 
+    protected String resolveWhereSql() {
+        return resolveWhereSql(this);
+    }
 
     protected String resolveWhereSql(AbstractCriteriaResolver abstractCriteriaResolver) {
         // 多次同样调用,不再resolve直接返回.非线程安全
@@ -176,5 +179,13 @@ abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
         if (null != previousAbstractCriteriaResolver && !(previousAbstractCriteriaResolver instanceof OrCriteriaResolver)) {
             builder.append(abstractCriteriaResolver.getAndOr().getSymbol());
         }
+    }
+
+    protected Map<String, Object> getMergedValues() {
+        return mergedValues;
+    }
+
+    protected String getWhereSql() {
+        return whereSql;
     }
 }

@@ -1,0 +1,77 @@
+package wang.liangchen.matrix.framework.data.criteria;
+
+import jakarta.persistence.Transient;
+import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
+import wang.liangchen.matrix.framework.data.pagination.Pagination;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+
+/**
+ * @author LiangChen.Wang
+ */
+class QueryParameter extends EnhancedObject {
+    @Transient
+    private final transient Set<String> resultColumns = new HashSet<>();
+    @Transient
+    private final transient Pagination pagination = new Pagination();
+    /**
+     * 是否拼接distinct
+     */
+    @Transient
+    private transient Boolean distinct;
+    /**
+     * 是否拼接for update
+     */
+    @Transient
+    private transient Boolean forUpdate;
+
+
+    public void addResultColumn(String resultColumn) {
+        ValidationUtil.INSTANCE.notBlank(resultColumn, "resultColumn must not be blank");
+        resultColumns.add(resultColumn);
+    }
+
+    public void addResultColumns(Collection<String> resultColumns) {
+        ValidationUtil.INSTANCE.notEmpty(resultColumns, "resultColumns must not be empty");
+        this.resultColumns.addAll(resultColumns);
+    }
+
+    public Boolean getDistinct() {
+        return distinct;
+    }
+
+    public Boolean getForUpdate() {
+        return forUpdate;
+    }
+
+    public void setDistinct(Boolean distinct) {
+        this.distinct = distinct;
+    }
+
+    public void setForUpdate(Boolean forUpdate) {
+        this.forUpdate = forUpdate;
+    }
+
+    public Set<String> getResultColumns() {
+        return resultColumns;
+    }
+
+    public Pagination getPagination() {
+        return pagination;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", "QueryParameter[", "]")
+                .add("pagination=" + pagination)
+                .add("distinct=" + distinct)
+                .add("forUpdate=" + forUpdate)
+                .add("resultColumns=" + resultColumns)
+                .add(super.toString())
+                .toString();
+    }
+}

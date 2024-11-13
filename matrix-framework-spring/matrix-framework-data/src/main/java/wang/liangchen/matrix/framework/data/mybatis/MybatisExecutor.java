@@ -20,8 +20,8 @@ import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ExtendedColumnTypeHandler;
 import wang.liangchen.matrix.framework.data.mybatis.handler.JsonTypeHandler;
 import wang.liangchen.matrix.framework.data.resolver.EntityMeta;
-import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 import wang.liangchen.matrix.framework.data.resolver.FieldLabel;
+import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

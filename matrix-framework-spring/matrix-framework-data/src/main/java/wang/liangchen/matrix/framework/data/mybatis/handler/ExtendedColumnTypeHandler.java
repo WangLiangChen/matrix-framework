@@ -1,19 +1,13 @@
 package wang.liangchen.matrix.framework.data.mybatis.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.jackson.DefaultObjectMapper;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author Liangchen.Wang 2022-09-01 6:51

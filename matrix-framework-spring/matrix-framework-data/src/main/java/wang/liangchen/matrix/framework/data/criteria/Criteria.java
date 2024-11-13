@@ -9,22 +9,23 @@ import wang.liangchen.matrix.framework.data.pagination.Pagination;
 import wang.liangchen.matrix.framework.data.resolver.EntityGetter;
 import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
-
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
-public abstract class Criteria<E extends RootEntity> extends AbstractObjectCriteria<E> {
-    private Set<String> resultColumns;
-    private Boolean forUpdate;
+public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E> {
+    private final Set<String> resultColumns = new HashSet<>();
+    private final List<OrderBy> orderBys = new ArrayList<>();
+    private final Map<String, FieldMeta> fieldMetas = this.getFieldMetas();
     private Integer pageSize;
     private Integer pageNumber;
     private Boolean distinct;
     private Long version;
-    private List<OrderBy> orderBys;
     private boolean useCache = true;
+    private Boolean forUpdate;
 
     private Criteria(E entity) {
         super(entity);
@@ -44,58 +45,43 @@ public abstract class Criteria<E extends RootEntity> extends AbstractObjectCrite
         };
     }
 
-    @SafeVarargs
-    public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
-        this.resultColumns = null == this.resultColumns ? new HashSet<>() : this.resultColumns;
-        Map<String, FieldMeta> fieldMetas = this.getFieldMetas();
-        for (EntityGetter<E> resultField : resultFields) {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
-            String columnName = fieldMetas.get(fieldName).getColumnName();
-            this.resultColumns.add(columnName);
-        }
-        return this;
-    }
-
-    public final Criteria<E> resultColumns(String... resultColumns) {
-        this.resultColumns = null == this.resultColumns ? new HashSet<>() : this.resultColumns;
-        this.resultColumns.addAll(Arrays.asList(resultColumns));
-        return this;
-    }
-
     public final Criteria<E> resultColumns(Collection<String> resultColumns) {
-        this.resultColumns = null == this.resultColumns ? new HashSet<>() : this.resultColumns;
         this.resultColumns.addAll(resultColumns);
         return this;
     }
 
-    public Criteria<E> distinct() {
-        this.distinct = true;
-        return this;
+    public final Criteria<E> resultColumns(String... resultColumns) {
+        return resultColumns(Arrays.asList(resultColumns));
     }
 
-    public Criteria<E> forUpdate() {
-        this.forUpdate = true;
-        return this;
+    public final Criteria<E> resultFields(Collection<EntityGetter<E>> resultFields) {
+        List<String> resultColumns = resultFields.stream().map(resultField -> {
+            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
+            return this.fieldMetas.get(fieldName).getColumnName();
+        }).collect(Collectors.toList());
+        return resultColumns(resultColumns);
     }
 
-    public Criteria<E> disableCache() {
-        this.useCache = false;
-        return this;
-    }
-
-    public Criteria<E> orderBy(EntityGetter<E> fieldGetter, OrderByDirection orderByDirection) {
-        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
-        Map<String, FieldMeta> fieldMetas = this.getFieldMetas();
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
-        String columnName = fieldMetas.get(fieldName).getColumnName();
-        this.orderBys.add(OrderBy.newInstance(columnName, orderByDirection));
-        return this;
+    public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
+        return resultFields(Arrays.asList(resultFields));
     }
 
     public Criteria<E> orderBy(Collection<OrderBy> orderBys) {
-        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
         this.orderBys.addAll(orderBys);
         return this;
+    }
+
+    public Criteria<E> orderBy(String columnName, OrderByDirection orderByDirection) {
+        this.orderBys.add(OrderBy.newInstance(columnName, orderByDirection));
+        return this;
+
+    }
+
+    public Criteria<E> orderBy(EntityGetter<E> fieldGetter, OrderByDirection orderByDirection) {
+        Map<String, FieldMeta> fieldMetas = this.getFieldMetas();
+        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
+        String columnName = fieldMetas.get(fieldName).getColumnName();
+        return orderBy(columnName, orderByDirection);
     }
 
     public Criteria<E> pageSize(int pageSize) {
@@ -105,6 +91,26 @@ public abstract class Criteria<E extends RootEntity> extends AbstractObjectCrite
 
     public Criteria<E> pageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+        return this;
+    }
+
+    public Criteria<E> distinct() {
+        this.distinct = true;
+        return this;
+    }
+
+    public Criteria<E> version(long version) {
+        this.version = version;
+        return this;
+    }
+
+    public Criteria<E> disableCache() {
+        this.useCache = false;
+        return this;
+    }
+
+    public Criteria<E> forUpdate() {
+        this.forUpdate = true;
         return this;
     }
 
@@ -118,15 +124,9 @@ public abstract class Criteria<E extends RootEntity> extends AbstractObjectCrite
         if (null == paginationOrderBys) {
             return this;
         }
-        this.orderBys = null == this.orderBys ? new ArrayList<>() : this.orderBys;
-        this.orderBys.addAll(paginationOrderBys);
-        return this;
+        return orderBy(paginationOrderBys);
     }
 
-    public Criteria<E> version(long version) {
-        this.version = version;
-        return this;
-    }
 
     //--------------------------------start criteria--------------------------------------------------//
 
@@ -362,12 +362,8 @@ public abstract class Criteria<E extends RootEntity> extends AbstractObjectCrite
         return resultColumns;
     }
 
-    protected Boolean getDistinct() {
-        return distinct;
-    }
-
-    protected Boolean getForUpdate() {
-        return forUpdate;
+    protected List<OrderBy> getOrderBys() {
+        return orderBys;
     }
 
     protected Integer getPageSize() {
@@ -378,15 +374,19 @@ public abstract class Criteria<E extends RootEntity> extends AbstractObjectCrite
         return pageNumber;
     }
 
-    protected List<OrderBy> getOrderBys() {
-        return orderBys;
+    protected Boolean getDistinct() {
+        return distinct;
     }
 
     protected Long getVersion() {
         return version;
     }
 
-    public boolean isUseCache() {
+    protected boolean isUseCache() {
         return useCache;
+    }
+
+    protected Boolean getForUpdate() {
+        return forUpdate;
     }
 }
