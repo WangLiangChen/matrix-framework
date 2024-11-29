@@ -4,9 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.encryption.DigestSignUtil;
 import wang.liangchen.matrix.framework.commons.encryption.enums.DigestAlgorithm;
+import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.resolver.EntityMeta;
 import wang.liangchen.matrix.framework.data.resolver.EntityResolver;
+import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -17,29 +19,31 @@ import java.util.StringJoiner;
 public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private final static Logger logger = LoggerFactory.getLogger(CriteriaParameter.class);
     private final E entity;
-    private final Class<? extends RootEntity> entityClass;
+    private final Class<E> entityClass;
     private final EntityMeta entityMeta;
+    private final Map<String, FieldMeta> fieldMetas;
     private final String tableName;
 
     private String driverClassName;
     private String whereSql;
     private Map<String, Object> whereSqlValues;
 
-    private SoftDeleteColumnMeta deleteMeta;
-    private VersionColumnMeta versionMeta;
+    private String softDeleteColumnValue;
 
 
     public CriteriaParameter(E entity) {
         this.entity = entity;
-        this.entityClass = entity.getClass();
-        this.entityMeta = entity.getEntityMeta();
+        this.entityClass = (Class<E>) ValidationUtil.INSTANCE.notNull(entity).getClass();
+        this.entityMeta = EntityResolver.INSTANCE.resolveEntity(entityClass);
+        this.fieldMetas = this.entityMeta.getFieldMetas();
         this.tableName = this.entityMeta.getTableName();
     }
 
-    public CriteriaParameter(Class<? extends RootEntity> entityClass) {
+    public CriteriaParameter(Class<E> entityClass) {
         this.entity = null;
         this.entityClass = entityClass;
         this.entityMeta = EntityResolver.INSTANCE.resolveEntity(entityClass);
+        this.fieldMetas = this.entityMeta.getFieldMetas();
         this.tableName = this.entityMeta.getTableName();
     }
 
@@ -47,7 +51,7 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     @Override
     public String toString() {
         return new StringJoiner(", ", "CriteriaParameter[", "]")
-                .add("dataSourceType='" + dataSourceType + "'")
+                .add("driverClassName='" + driverClassName + "'")
                 .add("tableName='" + tableName + "'")
                 .add("whereSql='" + whereSql + "'")
                 .add("whereSqlValues=" + whereSqlValues)
@@ -102,19 +106,11 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
         this.whereSqlValues = whereSqlValues;
     }
 
-    public SoftDeleteColumnMeta getDeleteMeta() {
-        return deleteMeta;
+    public String getSoftDeleteColumnValue() {
+        return softDeleteColumnValue;
     }
 
-    public void setDeleteMeta(SoftDeleteColumnMeta deleteMeta) {
-        this.deleteMeta = deleteMeta;
-    }
-
-    public VersionColumnMeta getVersionMeta() {
-        return versionMeta;
-    }
-
-    public void setVersionMeta(VersionColumnMeta versionMeta) {
-        this.versionMeta = versionMeta;
+    public void setSoftDeleteColumnValue(String softDeleteColumnValue) {
+        this.softDeleteColumnValue = softDeleteColumnValue;
     }
 }

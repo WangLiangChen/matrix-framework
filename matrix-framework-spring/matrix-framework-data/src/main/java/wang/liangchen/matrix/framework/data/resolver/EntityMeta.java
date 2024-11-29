@@ -29,14 +29,14 @@ public final class EntityMeta {
             this.fieldMetas.put(fieldName, fieldMeta);
             if (fieldMeta.checkFieldLabel(FieldLabel.ID)) {
                 this.pkFieldMetas.put(fieldName, fieldMeta);
-            } else {
-                this.nonPkFieldMetas.put(fieldName, fieldMeta);
-                if (fieldMeta.checkFieldLabel(FieldLabel.SOFT_DELETE)) {
-                    this.softDeleteFieldMeta = fieldMeta;
-                }
-                if (fieldMeta.checkFieldLabel(FieldLabel.VERSION)) {
-                    this.versionFieldMeta = fieldMeta;
-                }
+                return;
+            }
+            this.nonPkFieldMetas.put(fieldName, fieldMeta);
+            if (fieldMeta.checkFieldLabel(FieldLabel.SOFT_DELETE)) {
+                this.softDeleteFieldMeta = fieldMeta;
+            }
+            if (fieldMeta.checkFieldLabel(FieldLabel.VERSION)) {
+                this.versionFieldMeta = fieldMeta;
             }
         });
         if (this.pkFieldMetas.size() == 1) {

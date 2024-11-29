@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author LiangChen.Wang 2021/5/31
- * 采用切面的方式 使用注解切换数据源
+ * 使用注解切换数据源, 使用切面拦截
  * 启动时，所有的Advisor都会被AnnotationAwareAspectJAutoProxyCreator这个BeanPostProcessor解析处理
  * 注册数据源切换切面 advisor=pointcut+advice
  */

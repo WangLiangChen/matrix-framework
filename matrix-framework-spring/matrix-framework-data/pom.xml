@@ -6,13 +6,13 @@
     <parent>
         <groupId>wang.liangchen.matrix</groupId>
         <artifactId>matrix-framework-spring</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>matrix-framework-data</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <version.mybatis>3.0.3</version.mybatis>
+        <version.mybatis>3.0.4</version.mybatis>
     </properties>
 
     <dependencies>

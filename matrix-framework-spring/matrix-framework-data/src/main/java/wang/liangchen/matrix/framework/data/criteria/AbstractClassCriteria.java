@@ -18,12 +18,16 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
     private final Class<E> entityClass;
     private final EntityMeta entityMeta;
     private final Map<String, FieldMeta> fieldMetas;
+    private final FieldMeta softDeleteFieldMeta;
+    private final FieldMeta versionFieldMeta;
 
     protected AbstractClassCriteria(Class<E> entityClass, AndOr andOr) {
         this.entityClass = entityClass;
         this.composedCriteriaResolver = ComposedCriteriaResolver.newInstance(andOr);
         this.entityMeta = EntityResolver.INSTANCE.resolveEntity(entityClass);
         this.fieldMetas = this.entityMeta.getFieldMetas();
+        this.softDeleteFieldMeta = this.entityMeta.getSoftDeleteFieldMeta();
+        this.versionFieldMeta = this.entityMeta.getVersionFieldMeta();
     }
 
     protected AbstractClassCriteria(Class<E> entityClass) {
@@ -284,24 +288,36 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
     }
 
     //--------------------------------start criteria--------------------------------------------------//
-    private FieldMeta resolveEntityGetter(EntityGetter<E> entityGetter) {
+    protected FieldMeta resolveEntityGetter(EntityGetter<E> entityGetter) {
         String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(entityGetter);
         return fieldMetas.get(fieldName);
     }
 
-    public ComposedCriteriaResolver getComposedCriteriaResolver() {
+    protected String resolveColumnName(EntityGetter<E> entityGetter) {
+        return resolveEntityGetter(entityGetter).getColumnName();
+    }
+
+    protected ComposedCriteriaResolver getComposedCriteriaResolver() {
         return composedCriteriaResolver;
     }
 
-    public Class<E> getEntityClass() {
+    protected Class<E> getEntityClass() {
         return entityClass;
     }
 
-    public EntityMeta getEntityMeta() {
+    protected EntityMeta getEntityMeta() {
         return entityMeta;
     }
 
-    public Map<String, FieldMeta> getFieldMetas() {
+    protected Map<String, FieldMeta> getFieldMetas() {
         return fieldMetas;
+    }
+
+    protected FieldMeta getSoftDeleteFieldMeta() {
+        return softDeleteFieldMeta;
+    }
+
+    protected FieldMeta getVersionFieldMeta() {
+        return versionFieldMeta;
     }
 }

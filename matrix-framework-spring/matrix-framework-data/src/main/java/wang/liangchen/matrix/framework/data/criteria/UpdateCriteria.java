@@ -1,36 +1,23 @@
 package wang.liangchen.matrix.framework.data.criteria;
 
 
-import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.resolver.EntityGetter;
-import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
-    private final Map<String, Object> mandatoryUpdatedColumns = new HashMap<>();
-    private final Map<String, FieldMeta> fieldMetas;
-    private VersionColumnMeta versionMeta;
     /**
-     * 默认刷新缓存
+     * 默认驱逐缓存
      */
-    private boolean flushCache = true;
+    private boolean evictCache = true;
 
     private UpdateCriteria(E entity) {
         super(entity);
-        this.fieldMetas = this.getFieldMetas();
-    }
-
-    private UpdateCriteria(Class<E> entityClass) {
-        super(entityClass);
-        this.fieldMetas = this.getFieldMetas();
     }
 
     public static <E extends RootEntity> UpdateCriteria<E> of(E entity) {
@@ -38,49 +25,21 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public static <E extends RootEntity> UpdateCriteria<E> of(Class<E> entityClass) {
-        return new UpdateCriteria<E>(entityClass) {
-        };
-    }
 
-    public UpdateCriteria<E> disableFlushCache() {
-        this.flushCache = false;
+    public UpdateCriteria<E> disableEvictCache() {
+        this.evictCache = false;
         return this;
     }
 
-    public UpdateCriteria<E> nonNullUpdate(E entity) {
-        UpdateCriteria<E> newCriteria = new UpdateCriteria<E>(entity) {
-        };
-        // populate new criteria
-        newCriteria.getComposedCriteriaResolver().add(this.getComposedCriteriaResolver());
-        newCriteria.mandatoryUpdatedColumns.putAll(this.mandatoryUpdatedColumns);
-        newCriteria.flushCache = this.flushCache;
-        return newCriteria;
-    }
 
-    public UpdateCriteria<E> mandatoryUpdate(EntityGetter<E> fieldGetter, Object value) {
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
-        FieldMeta fieldMeta = this.fieldMetas.get(fieldName);
-        mandatoryUpdatedColumns.put(fieldMeta.getColumnName(), value);
+    public UpdateCriteria<E> addUpdateToNullColumn(String columnName) {
+        this.getEntity().addUpdateToNullColumn(columnName);
         return this;
     }
 
-    public UpdateCriteria<E> mandatoryUpdate(String columnName, Object value) {
-        mandatoryUpdatedColumns.put(columnName, value);
-        return this;
+    public UpdateCriteria<E> addUpdateToNullColumn(EntityGetter<E> entityGetter) {
+        return addUpdateToNullColumn(resolveColumnName(entityGetter));
     }
-
-    public UpdateCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Object expectedValue, Object value) {
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
-        FieldMeta fieldMeta = this.fieldMetas.get(fieldName);
-        this.versionMeta = VersionColumnMeta.newInstance(fieldMeta.getColumnName(), expectedValue, value);
-        return this;
-    }
-
-    public UpdateCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Integer oldValue) {
-        return optimisticLock(fieldGetter, oldValue, null);
-    }
-
 
     //--------------------------------start criteria--------------------------------------------------//
 
@@ -311,16 +270,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return (UpdateCriteria<E>) super._and(consumer);
     }
 
-    protected Map<String, Object> getMandatoryUpdatedColumns() {
-        return mandatoryUpdatedColumns;
-    }
-
-
-    protected VersionColumnMeta getVersionMeta() {
-        return versionMeta;
-    }
-
-    protected boolean isFlushCache() {
-        return flushCache;
+    protected boolean isEvictCache() {
+        return evictCache;
     }
 }

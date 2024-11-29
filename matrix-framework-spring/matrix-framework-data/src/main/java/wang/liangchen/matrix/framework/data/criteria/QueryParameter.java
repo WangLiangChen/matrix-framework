@@ -1,13 +1,12 @@
 package wang.liangchen.matrix.framework.data.criteria;
 
 import jakarta.persistence.Transient;
+import wang.liangchen.matrix.framework.commons.object.EnhancedList;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
-import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.StringJoiner;
 
 /**
@@ -15,7 +14,7 @@ import java.util.StringJoiner;
  */
 class QueryParameter extends EnhancedObject {
     @Transient
-    private final transient Set<String> resultColumns = new HashSet<>();
+    private final transient List<String> selectColumns = new EnhancedList<>();
     @Transient
     private final transient Pagination pagination = new Pagination();
     /**
@@ -30,38 +29,36 @@ class QueryParameter extends EnhancedObject {
     private transient Boolean forUpdate;
 
 
-    public void addResultColumn(String resultColumn) {
-        ValidationUtil.INSTANCE.notBlank(resultColumn, "resultColumn must not be blank");
-        resultColumns.add(resultColumn);
+    public void addSelectColumn(String selectColumn) {
+        selectColumns.add(selectColumn);
     }
 
-    public void addResultColumns(Collection<String> resultColumns) {
-        ValidationUtil.INSTANCE.notEmpty(resultColumns, "resultColumns must not be empty");
-        this.resultColumns.addAll(resultColumns);
+    public void addSelectColumns(Collection<String> selectColumns) {
+        this.selectColumns.addAll(selectColumns);
+    }
+
+    public List<String> getSelectColumns() {
+        return selectColumns;
+    }
+
+    public Pagination getPagination() {
+        return pagination;
     }
 
     public Boolean getDistinct() {
         return distinct;
     }
 
-    public Boolean getForUpdate() {
-        return forUpdate;
-    }
-
     public void setDistinct(Boolean distinct) {
         this.distinct = distinct;
     }
 
+    public Boolean getForUpdate() {
+        return forUpdate;
+    }
+
     public void setForUpdate(Boolean forUpdate) {
         this.forUpdate = forUpdate;
-    }
-
-    public Set<String> getResultColumns() {
-        return resultColumns;
-    }
-
-    public Pagination getPagination() {
-        return pagination;
     }
 
     @Override
@@ -70,7 +67,7 @@ class QueryParameter extends EnhancedObject {
                 .add("pagination=" + pagination)
                 .add("distinct=" + distinct)
                 .add("forUpdate=" + forUpdate)
-                .add("resultColumns=" + resultColumns)
+                .add("selectColumns=" + selectColumns)
                 .add(super.toString())
                 .toString();
     }

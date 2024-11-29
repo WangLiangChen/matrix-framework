@@ -1,30 +1,29 @@
 package wang.liangchen.matrix.framework.data.criteria;
 
 
-import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.resolver.EntityGetter;
 import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
-    private final Map<String, FieldMeta> fieldMetas;
     /**
-     * 默认刷新缓存
+     * 默认驱逐缓存
      */
-    private boolean flushCache = true;
-    private SoftDeleteColumnMeta deleteMeta;
-    private VersionColumnMeta versionMeta;
+    private boolean evictCache = true;
+    private boolean hardDelete = false;
 
     private DeleteCriteria(Class<E> entityClass) {
         super(entityClass);
-        this.fieldMetas = this.getFieldMetas();
+        FieldMeta softDeleteFieldMeta = this.getSoftDeleteFieldMeta();
+        if (null == softDeleteFieldMeta) {
+            hardDelete = true;
+        }
     }
 
     public static <E extends RootEntity> DeleteCriteria<E> of(Class<E> entityClass) {
@@ -32,30 +31,15 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public DeleteCriteria<E> disableFlushCache() {
-        this.flushCache = false;
+    public DeleteCriteria<E> disableEvictCache() {
+        this.evictCache = false;
         return this;
     }
 
-    public DeleteCriteria<E> softDelete(EntityGetter<E> fieldGetter, Object sqlValue) {
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
-        FieldMeta fieldMeta = this.fieldMetas.get(fieldName);
-        this.deleteMeta = SoftDeleteColumnMeta.newInstance(fieldMeta.getColumnName(), sqlValue);
+    public DeleteCriteria<E> hardDelete() {
+        this.hardDelete = true;
         return this;
     }
-
-    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Object expectedValue, Object value) {
-        String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(fieldGetter);
-        FieldMeta fieldMeta = this.fieldMetas.get(fieldName);
-        this.versionMeta = VersionColumnMeta.newInstance(fieldMeta.getColumnName(), expectedValue, value);
-        return this;
-    }
-
-    public DeleteCriteria<E> optimisticLock(EntityGetter<E> fieldGetter, Integer expectedValue) {
-        return optimisticLock(fieldGetter, expectedValue, null);
-    }
-
-
     //--------------------------------start criteria--------------------------------------------------//
 
     @Override
@@ -256,15 +240,11 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
 
-    protected boolean isFlushCache() {
-        return flushCache;
+    protected boolean isEvictCache() {
+        return this.evictCache;
     }
 
-    protected SoftDeleteColumnMeta getDeleteMeta() {
-        return deleteMeta;
-    }
-
-    protected VersionColumnMeta getVersionMeta() {
-        return versionMeta;
+    protected boolean isHardDelete() {
+        return this.hardDelete;
     }
 }

@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.data.criteria;
 
 
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.commons.object.EnhancedList;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.pagination.OrderBy;
 import wang.liangchen.matrix.framework.data.pagination.OrderByDirection;
@@ -17,9 +18,8 @@ import java.util.stream.Collectors;
  * @author Liangchen.Wang 2022-04-15 17:06
  */
 public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E> {
-    private final Set<String> resultColumns = new HashSet<>();
+    private final List<String> selectColumns = new EnhancedList<>();
     private final List<OrderBy> orderBys = new ArrayList<>();
-    private final Map<String, FieldMeta> fieldMetas = this.getFieldMetas();
     private Integer pageSize;
     private Integer pageNumber;
     private Boolean distinct;
@@ -45,25 +45,22 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         };
     }
 
-    public final Criteria<E> resultColumns(Collection<String> resultColumns) {
-        this.resultColumns.addAll(resultColumns);
+    public final Criteria<E> selectColumns(Collection<String> resultColumns) {
+        this.selectColumns.addAll(resultColumns);
         return this;
     }
 
-    public final Criteria<E> resultColumns(String... resultColumns) {
-        return resultColumns(Arrays.asList(resultColumns));
+    public final Criteria<E> selectColumns(String... resultColumns) {
+        return selectColumns(Arrays.asList(resultColumns));
     }
 
-    public final Criteria<E> resultFields(Collection<EntityGetter<E>> resultFields) {
-        List<String> resultColumns = resultFields.stream().map(resultField -> {
-            String fieldName = LambdaUtil.INSTANCE.getReferencedFieldName(resultField);
-            return this.fieldMetas.get(fieldName).getColumnName();
-        }).collect(Collectors.toList());
-        return resultColumns(resultColumns);
+    public final Criteria<E> selectFields(Collection<EntityGetter<E>> resultFields) {
+        List<String> resultColumns = resultFields.stream().map(this::resolveColumnName).collect(Collectors.toList());
+        return selectColumns(resultColumns);
     }
 
-    public final Criteria<E> resultFields(EntityGetter<E>... resultFields) {
-        return resultFields(Arrays.asList(resultFields));
+    public final Criteria<E> selectFields(EntityGetter<E>... resultFields) {
+        return selectFields(Arrays.asList(resultFields));
     }
 
     public Criteria<E> orderBy(Collection<OrderBy> orderBys) {
@@ -358,8 +355,8 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return (Criteria<E>) super._and(consumer);
     }
 
-    protected Set<String> getResultColumns() {
-        return resultColumns;
+    protected List<String> getSelectColumns() {
+        return selectColumns;
     }
 
     protected List<OrderBy> getOrderBys() {

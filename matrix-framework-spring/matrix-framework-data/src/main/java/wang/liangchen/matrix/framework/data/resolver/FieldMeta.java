@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.data.resolver;
 
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 
 import java.lang.reflect.Type;
@@ -23,6 +24,9 @@ public final class FieldMeta {
         this.fieldType = fieldType;
         this.columnName = columnName;
         this.fieldLabels = fieldLabels;
+        if (fieldLabels.containsKey(FieldLabel.VERSION) && !(Long.class.isAssignableFrom(fieldClass) || Integer.class.isAssignableFrom(fieldClass))) {
+            throw new MatrixErrorException("Version field must be of type Integer or Long");
+        }
     }
 
     public boolean checkFieldLabel(FieldLabel fieldLabel) {
@@ -57,7 +61,4 @@ public final class FieldMeta {
         return columnName;
     }
 
-    public Map<FieldLabel, Optional<String>> getFieldLabels() {
-        return fieldLabels;
-    }
 }

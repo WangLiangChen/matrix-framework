@@ -10,12 +10,11 @@ import wang.liangchen.matrix.framework.data.resolver.FieldMeta;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author LiangChen.Wang 2024/11/6 18:22
  */
-enum CriteriaResolver {
+public enum CriteriaResolver {
     INSTANCE;
 
     public <E extends RootEntity> CriteriaParameter<E> resolve(AbstractCriteria<E> abstractCriteria) {
@@ -33,38 +32,25 @@ enum CriteriaResolver {
         criteriaParameter.setWhereSqlValues(composedCriteriaResolver.getMergedValues());
 
         if (abstractCriteria instanceof DeleteCriteria<E> deleteCriteria) {
-            SoftDeleteColumnMeta deleteMeta = deleteCriteria.getDeleteMeta();
-            if (null != deleteMeta && null != deleteMeta.getValue() && null != deleteMeta.getColumnName()) {
-                criteriaParameter.setDeleteMeta(deleteMeta);
+            if (!deleteCriteria.isHardDelete()) {
+                FieldMeta softDeleteFieldMeta = deleteCriteria.getSoftDeleteFieldMeta();
+                criteriaParameter.setSoftDeleteColumnValue(softDeleteFieldMeta.getSoftDeleteValue());
             }
-            VersionColumnMeta versionMeta = deleteCriteria.getVersionMeta();
-            if (null != versionMeta && null != versionMeta.getExpectedValue() && null != versionMeta.getValue() && null != versionMeta.getColumnName()) {
-                criteriaParameter.setVersionMeta(versionMeta);
-            }
+            return criteriaParameter;
         }
         if (abstractCriteria instanceof UpdateCriteria<E> updateCriteria) {
-            criteriaParameter.setVersionMeta(updateCriteria.getVersionMeta());
-            populateMandatoryUpdate(updateCriteria, criteriaParameter);
+            return criteriaParameter;
         }
 
         if (abstractCriteria instanceof Criteria<E> criteria) {
             populateResultColumns(criteria, criteriaParameter);
             populateOrderBy(criteria, criteriaParameter);
             populatePagination(criteria, criteriaParameter);
+            return criteriaParameter;
         }
-
         return criteriaParameter;
     }
 
-
-    private <E extends RootEntity> void populateMandatoryUpdate(UpdateCriteria<E> updateCriteria, CriteriaParameter<E> criteriaParameter) {
-        E entity = criteriaParameter.getEntity();
-        Map<String, Object> mandatoryUpdatedColumns = updateCriteria.getMandatoryUpdatedColumns();
-        if (CollectionUtil.INSTANCE.isEmpty(mandatoryUpdatedColumns)) {
-            return;
-        }
-        mandatoryUpdatedColumns.forEach(entity::addMandatoryUpdatedColumns);
-    }
 
     private <E extends RootEntity> void populatePagination(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
         criteriaParameter.setForUpdate(criteria.getForUpdate());
@@ -75,15 +61,15 @@ enum CriteriaResolver {
     }
 
     private <E extends RootEntity> void populateResultColumns(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {
-        Set<String> resultColumns = criteria.getResultColumns();
+        List<String> selectColumns = criteria.getSelectColumns();
         // 非空则使用设置的返回列
-        if (CollectionUtil.INSTANCE.isNotEmpty(resultColumns)) {
-            criteriaParameter.addResultColumns(resultColumns);
+        if (CollectionUtil.INSTANCE.isNotEmpty(selectColumns)) {
+            criteriaParameter.addSelectColumns(selectColumns);
             return;
         }
         // 为空则使用所有列
         Map<String, FieldMeta> fieldMetas = criteria.getFieldMetas();
-        fieldMetas.forEach((fieldName, fieldMeta) -> criteriaParameter.addResultColumn(fieldMeta.getColumnName()));
+        fieldMetas.forEach((fieldName, fieldMeta) -> criteriaParameter.addSelectColumn(fieldMeta.getColumnName()));
     }
 
     private <E extends RootEntity> void populateOrderBy(Criteria<E> criteria, CriteriaParameter<E> criteriaParameter) {

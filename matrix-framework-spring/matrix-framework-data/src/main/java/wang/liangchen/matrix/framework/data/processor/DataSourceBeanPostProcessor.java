@@ -1,5 +1,6 @@
-package wang.liangchen.matrix.framework.data.configuration;
+package wang.liangchen.matrix.framework.data.processor;
 
+import org.mybatis.spring.boot.autoconfigure.MybatisProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -12,6 +13,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.data.context.DataSourceContext;
@@ -32,6 +34,7 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
     private final static String DATASOURCE_PREFIX = "spring.datasource";
     private final static String MATRIX_DATASOURCE_PREFIX = "spring.datasource.matrix.datasources";
     private final static String DATASOURCE_BEAN_NAME = "dataSource";
+    private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
 
     private final static List<String> bindableNames = new ArrayList<>() {{
         add("hikari");
@@ -93,6 +96,25 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
         routingDataSource.setTargetDataSources(targetDataSources);
         routingDataSource.afterPropertiesSet();
         return routingDataSource;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        if (bean instanceof MybatisProperties) {
+            MybatisProperties mybatisProperties = (MybatisProperties) bean;
+            String[] mapperLocations = mybatisProperties.getMapperLocations();
+            if (null == mapperLocations) {
+                mybatisProperties.setMapperLocations(new String[]{StringUtil.INSTANCE.package2Path(DEFAULT_SCAN_PACKAGES)});
+                return true;
+            }
+            String[] newMapperLocations = new String[mapperLocations.length + 1];
+            newMapperLocations[0] = StringUtil.INSTANCE.package2Path(DEFAULT_SCAN_PACKAGES);
+            System.arraycopy(mapperLocations, 0, newMapperLocations, 1, mapperLocations.length);
+            mybatisProperties.setMapperLocations(newMapperLocations);
+            return true;
+        }
+
+        return true;
     }
 
     @Override

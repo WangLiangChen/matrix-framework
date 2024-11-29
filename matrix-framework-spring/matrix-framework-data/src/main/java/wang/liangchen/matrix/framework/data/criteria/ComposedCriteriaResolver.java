@@ -184,8 +184,4 @@ abstract class ComposedCriteriaResolver extends AbstractCriteriaResolver {
     protected Map<String, Object> getMergedValues() {
         return mergedValues;
     }
-
-    protected String getWhereSql() {
-        return whereSql;
-    }
 }

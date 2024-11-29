@@ -27,4 +27,12 @@ public abstract class AbstractDialect implements IDialect {
     public static AbstractDialect getDialect(String driverClassName) {
         return dialects.get(driverClassName);
     }
+
+    public String resolveCountSql(String targetSql) {
+        return null;
+    }
+
+    public String resolvePaginationSql(String targetSql) {
+            return null;
+    }
 }
