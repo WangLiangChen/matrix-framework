@@ -240,7 +240,7 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
 
-    protected boolean isEvictCache() {
+    public boolean isEvictCache() {
         return this.evictCache;
     }
 

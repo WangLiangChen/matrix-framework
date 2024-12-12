@@ -25,7 +25,7 @@ public enum EntityResolver {
         add(EnhancedObject.class);
     }};
 
-    public EntityMeta resolveEntity(Class<? extends RootEntity> entityClass) {
+    public <T extends RootEntity> EntityMeta resolveEntity(Class<T> entityClass) {
         return entityMetaCache.computeIfAbsent(entityClass, key -> {
             String tableName = resolveTableName(entityClass);
             // find and exclude fields

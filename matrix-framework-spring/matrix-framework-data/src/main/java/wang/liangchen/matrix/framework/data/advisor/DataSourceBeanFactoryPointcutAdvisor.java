@@ -75,7 +75,7 @@ public class DataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPoi
             try {
                 return methodInvocation.proceed();
             } finally {
-                DataSourceContext.INSTANCE.clear();
+                DataSourceContext.INSTANCE.evict();
             }
         };
     }

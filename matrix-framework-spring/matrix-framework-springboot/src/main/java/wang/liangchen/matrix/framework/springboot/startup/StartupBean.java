@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.springboot.startup;
 
 
 import com.alibaba.ttl.threadpool.TtlExecutors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.springboot.aop.ProxyAware;
 
@@ -108,6 +110,12 @@ public class StartupBean implements
             StartupApplicationListener.startupTask.addMessage("Set validator to Validation");
             StartupApplicationListener.startupTask.prettyPrint();
         }
+        if (bean instanceof ObjectMapper) {
+            JacksonUtil.INSTANCE.resetObjectMapper((ObjectMapper) bean);
+            StartupApplicationListener.startupTask.addMessage("Set ObjectMapper to JacksonUtil");
+            StartupApplicationListener.startupTask.prettyPrint();
+        }
+
         return bean;
     }
 

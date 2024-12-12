@@ -1,32 +1,34 @@
 package wang.liangchen.matrix.framework.data.criteria;
 
-import jakarta.persistence.Transient;
 import wang.liangchen.matrix.framework.commons.object.EnhancedList;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.Map;
 
 /**
  * @author LiangChen.Wang
  */
 class QueryParameter extends EnhancedObject {
-    @Transient
-    private final transient List<String> selectColumns = new EnhancedList<>();
-    @Transient
-    private final transient Pagination pagination = new Pagination();
+    private final List<String> selectColumns = new EnhancedList<>();
+    private final Pagination pagination = new Pagination();
     /**
      * 是否拼接distinct
      */
-    @Transient
-    private transient Boolean distinct;
+    private Boolean distinct;
     /**
      * 是否拼接for update
      */
-    @Transient
-    private transient Boolean forUpdate;
+    private Boolean forUpdate;
+
+    private String whereSql;
+    private Map<String, Object> whereSqlValues;
+
+    private String tableName;
+    private String driverClassName;
+    private String dataSourceName;
 
 
     public void addSelectColumn(String selectColumn) {
@@ -61,14 +63,43 @@ class QueryParameter extends EnhancedObject {
         this.forUpdate = forUpdate;
     }
 
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", "QueryParameter[", "]")
-                .add("pagination=" + pagination)
-                .add("distinct=" + distinct)
-                .add("forUpdate=" + forUpdate)
-                .add("selectColumns=" + selectColumns)
-                .add(super.toString())
-                .toString();
+    public String getWhereSql() {
+        return whereSql;
+    }
+
+    public void setWhereSql(String whereSql) {
+        this.whereSql = whereSql;
+    }
+
+    public Map<String, Object> getWhereSqlValues() {
+        return whereSqlValues;
+    }
+
+    public void setWhereSqlValues(Map<String, Object> whereSqlValues) {
+        this.whereSqlValues = whereSqlValues;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getDriverClassName() {
+        return driverClassName;
+    }
+
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
+    }
+
+    public String getDataSourceName() {
+        return dataSourceName;
+    }
+
+    public void setDataSourceName(String dataSourceName) {
+        this.dataSourceName = dataSourceName;
     }
 }

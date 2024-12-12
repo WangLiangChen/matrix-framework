@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.data.mybatis.handler;
 
 import org.apache.ibatis.type.JdbcType;
-import wang.liangchen.matrix.framework.commons.jackson.DefaultObjectMapper;
+import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;
@@ -25,7 +25,7 @@ public class ExtendedColumnTypeHandler extends AbstractObjectTypeHandler {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
-        String jsonString = DefaultObjectMapper.INSTANCE.writeValueAsString(parameter);
+        String jsonString = JacksonUtil.INSTANCE.writeValueAsString(parameter);
         ps.setObject(i, jsonString);
     }
 

@@ -1,11 +1,10 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
 
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
-import java.util.StringJoiner;
 
 /**
  * @author LiangChen.Wang
@@ -14,8 +13,8 @@ public final class OrderBy implements Serializable {
     private String orderBy;
     private OrderByDirection direction;
 
-    public OrderBy() {
-
+    public static OrderBy newInstance() {
+        return ClassUtil.INSTANCE.instantiate(OrderBy.class);
     }
 
     public static OrderBy newInstance(String orderBy, OrderByDirection direction) {
@@ -23,14 +22,14 @@ public final class OrderBy implements Serializable {
     }
 
     public OrderBy(String orderBy, OrderByDirection direction) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, direction, "Parameter 'direction' cannot be null");
+        ValidationUtil.INSTANCE.notBlank(orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notNull(direction, "Parameter 'direction' cannot be null");
         this.orderBy = orderBy;
         this.direction = direction;
     }
 
     public OrderBy(String orderBy) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notBlank(orderBy, "Parameter 'orderBy' cannot be blank");
         this.orderBy = orderBy;
     }
 
@@ -50,13 +49,5 @@ public final class OrderBy implements Serializable {
     public OrderBy setDirection(OrderByDirection direction) {
         this.direction = direction;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", "OrderBy[", "]")
-                .add("orderBy='" + orderBy + "'")
-                .add("direction='" + direction + "'")
-                .toString();
     }
 }

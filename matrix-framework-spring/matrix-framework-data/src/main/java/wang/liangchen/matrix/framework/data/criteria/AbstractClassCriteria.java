@@ -301,7 +301,7 @@ abstract class AbstractClassCriteria<E extends RootEntity> {
         return composedCriteriaResolver;
     }
 
-    protected Class<E> getEntityClass() {
+    public Class<E> getEntityClass() {
         return entityClass;
     }
 

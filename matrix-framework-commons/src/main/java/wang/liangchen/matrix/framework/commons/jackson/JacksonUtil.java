@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 /**
  * @author Liangchen.Wang 2022-12-12 17:25
  */
-public enum DefaultObjectMapper {
+public enum JacksonUtil {
     INSTANCE;
     private ObjectMapper objectMapper;
     private TypeFactory typeFactory;
@@ -32,7 +32,7 @@ public enum DefaultObjectMapper {
         this.typeFactory = this.objectMapper.getTypeFactory();
     }
 
-    DefaultObjectMapper() {
+    JacksonUtil() {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(Long.class, ToStringSerializer.instance);
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DEFAULT_DATETIME_FORMATTER));

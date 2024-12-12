@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.data.mybatis.handler;
 
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.JdbcType;
-import wang.liangchen.matrix.framework.commons.jackson.DefaultObjectMapper;
+import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;
@@ -26,7 +26,7 @@ public class JsonTypeHandler extends AbstractObjectTypeHandler {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
-        String jsonString = DefaultObjectMapper.INSTANCE.writeValueAsString(parameter);
+        String jsonString = JacksonUtil.INSTANCE.writeValueAsString(parameter);
         ps.setObject(i, jsonString);
     }
 
@@ -49,9 +49,9 @@ public class JsonTypeHandler extends AbstractObjectTypeHandler {
         Class<?>[] actualClasses = this.getActualClasses();
         Class<?> resultClass = this.getResultClass();
         if (null == actualClasses) {
-            return DefaultObjectMapper.INSTANCE.readValue(jsonString, resultClass);
+            return JacksonUtil.INSTANCE.readValue(jsonString, resultClass);
         }
-        JavaType javaType = DefaultObjectMapper.INSTANCE.typeFactory().constructParametricType(resultClass, actualClasses);
-        return DefaultObjectMapper.INSTANCE.readValue(jsonString, javaType);
+        JavaType javaType = JacksonUtil.INSTANCE.typeFactory().constructParametricType(resultClass, actualClasses);
+        return JacksonUtil.INSTANCE.readValue(jsonString, javaType);
     }
 }

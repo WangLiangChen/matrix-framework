@@ -2,8 +2,6 @@ package wang.liangchen.matrix.framework.data.processor;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -30,7 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassLoaderAware, InstantiationAwareBeanPostProcessor, BeanFactoryAware, Ordered {
+public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassLoaderAware, InstantiationAwareBeanPostProcessor, Ordered {
     private final static String DATASOURCE_PREFIX = "spring.datasource";
     private final static String MATRIX_DATASOURCE_PREFIX = "spring.datasource.matrix.datasources";
     private final static String DATASOURCE_BEAN_NAME = "dataSource";
@@ -43,7 +41,6 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
     }};
     private Environment environment;
     private ClassLoader classLoader;
-    private BeanFactory beanFactory;
 
     @Override
     public Object postProcessBeforeInstantiation(@NonNull Class<?> beanClass, @NonNull String beanName) throws BeansException {
@@ -71,7 +68,7 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
             }
             // resolve dialect
             String driverClassName = dataSourceProperties.determineDriverClassName();
-            AbstractDialect dialect = AbstractDialect.getDialect(driverClassName);
+            AbstractDialect dialect = AbstractDialect.resolveDialect(driverClassName);
             if (null == dialect) {
                 throw new MatrixErrorException("Unsupported database driver: {}, Please contact the author.", driverClassName);
             }
@@ -109,12 +106,7 @@ public class DataSourceBeanPostProcessor implements EnvironmentAware, BeanClassL
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
-
-    @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 }

@@ -45,22 +45,22 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         };
     }
 
-    public final Criteria<E> selectColumns(Collection<String> resultColumns) {
-        this.selectColumns.addAll(resultColumns);
+    public final Criteria<E> selectColumns(Collection<String> selectColumns) {
+        this.selectColumns.addAll(selectColumns);
         return this;
     }
 
-    public final Criteria<E> selectColumns(String... resultColumns) {
-        return selectColumns(Arrays.asList(resultColumns));
+    public final Criteria<E> selectColumns(String... selectColumns) {
+        return selectColumns(Arrays.asList(selectColumns));
     }
 
-    public final Criteria<E> selectFields(Collection<EntityGetter<E>> resultFields) {
-        List<String> resultColumns = resultFields.stream().map(this::resolveColumnName).collect(Collectors.toList());
-        return selectColumns(resultColumns);
+    public final Criteria<E> selectFields(Collection<EntityGetter<E>> selectFields) {
+        List<String> selectColumns = selectFields.stream().map(this::resolveColumnName).collect(Collectors.toList());
+        return selectColumns(selectColumns);
     }
 
-    public final Criteria<E> selectFields(EntityGetter<E>... resultFields) {
-        return selectFields(Arrays.asList(resultFields));
+    public final Criteria<E> selectFields(EntityGetter<E>... selectFields) {
+        return selectFields(Arrays.asList(selectFields));
     }
 
     public Criteria<E> orderBy(Collection<OrderBy> orderBys) {
@@ -379,7 +379,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return version;
     }
 
-    protected boolean isUseCache() {
+    public boolean isUseCache() {
         return useCache;
     }
 

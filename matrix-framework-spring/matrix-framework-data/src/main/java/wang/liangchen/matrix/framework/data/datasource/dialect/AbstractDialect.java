@@ -1,16 +1,14 @@
 package wang.liangchen.matrix.framework.data.datasource.dialect;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author LiangChen.Wang
  */
 public abstract class AbstractDialect implements IDialect {
-    private final static Map<String, AbstractDialect> dialects = Map.of(
-            MySQLDialect.DRIVER_CLASS_NAME, new MySQLDialect(),
-            PostgreSQLDialect.DRIVER_CLASS_NAME, new PostgreSQLDialect()
-    );
     private final String driverClassName;
+    private static final Map<String, AbstractDialect> dialects = new ConcurrentHashMap<>();
 
     protected AbstractDialect(String driverClassName) {
         this.driverClassName = driverClassName;
@@ -20,19 +18,16 @@ public abstract class AbstractDialect implements IDialect {
         return driverClassName;
     }
 
-    public AbstractDialect getDialect() {
-        return dialects.get(this.driverClassName);
-    }
-
-    public static AbstractDialect getDialect(String driverClassName) {
-        return dialects.get(driverClassName);
-    }
-
-    public String resolveCountSql(String targetSql) {
-        return null;
-    }
-
-    public String resolvePaginationSql(String targetSql) {
-            return null;
+    public static AbstractDialect resolveDialect(String driverClassName) {
+        return dialects.computeIfAbsent(driverClassName, key -> {
+            switch (key) {
+                case MySQLDialect.DRIVER_CLASS_NAME:
+                    return new MySQLDialect();
+                case PostgreSQLDialect.DRIVER_CLASS_NAME:
+                    return new PostgreSQLDialect();
+                default:
+                    return null;
+            }
+        });
     }
 }

@@ -21,6 +21,7 @@ public enum CriteriaResolver {
         CriteriaParameter<E> criteriaParameter = abstractCriteria.getCriteriaParameter();
 
         // 从线程上下文设置数据库类型
+        criteriaParameter.setDataSourceName(DataSourceContext.INSTANCE.get());
         AbstractDialect dialect = DataSourceContext.INSTANCE.getDialect();
         if (null != dialect) {
             criteriaParameter.setDriverClassName(dialect.getDriverClassName());

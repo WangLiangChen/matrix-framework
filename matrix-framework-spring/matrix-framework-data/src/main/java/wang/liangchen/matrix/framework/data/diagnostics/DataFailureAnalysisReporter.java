@@ -9,5 +9,6 @@ import org.springframework.boot.diagnostics.FailureAnalysisReporter;
 public class DataFailureAnalysisReporter implements FailureAnalysisReporter {
     @Override
     public void report(FailureAnalysis analysis) {
+
     }
 }

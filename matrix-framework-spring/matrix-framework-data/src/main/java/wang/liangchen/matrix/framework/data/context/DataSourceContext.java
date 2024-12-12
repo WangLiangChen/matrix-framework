@@ -45,7 +45,7 @@ public enum DataSourceContext {
         return peekedDataSourceName;
     }
 
-    public void clear() {
+    public void evict() {
         Deque<String> deque = context.get();
         // 出队 后进先出
         String polledDataSourceName = deque.poll();

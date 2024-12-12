@@ -2,7 +2,6 @@ package wang.liangchen.matrix.framework.data.pagination;
 
 
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -16,21 +15,21 @@ import java.util.function.BiConsumer;
  * @author LiangChen.Wang
  */
 public final class PaginationResult<E> implements Serializable {
-    public static <E> PaginationResult<E> newInstance() {
-        return new PaginationResult<>();
-    }
-
     private List<E> datas;
     private Integer totalRecords;
     private Integer pageNumber;
     private Integer pageSize;
+
+    public static <E> PaginationResult<E> newInstance() {
+        return new PaginationResult<>();
+    }
 
     public List<E> getDatas() {
         return datas;
     }
 
     public void setDatas(List<E> datas) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, datas, "datas must not be null");
+        ValidationUtil.INSTANCE.notNull(datas, "datas must not be null");
         this.datas = datas;
     }
 
@@ -39,7 +38,7 @@ public final class PaginationResult<E> implements Serializable {
     }
 
     public void setTotalRecords(Integer totalRecord) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, totalRecord, "totalRecord must not be null");
+        ValidationUtil.INSTANCE.notNull(totalRecord, "totalRecord must not be null");
         this.totalRecords = totalRecord;
     }
 
@@ -48,7 +47,7 @@ public final class PaginationResult<E> implements Serializable {
     }
 
     public void setPageNumber(Integer pageNumber) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, pageNumber, "pageNumber must not be null");
+        ValidationUtil.INSTANCE.notNull(pageNumber, "pageNumber must not be null");
         this.pageNumber = pageNumber;
     }
 
@@ -57,7 +56,7 @@ public final class PaginationResult<E> implements Serializable {
     }
 
     public void setPageSize(Integer pageSize) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, pageSize, "pageSize must not be null");
+        ValidationUtil.INSTANCE.notNull(pageSize, "pageSize must not be null");
         this.pageSize = pageSize;
     }
 

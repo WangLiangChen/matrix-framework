@@ -270,7 +270,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return (UpdateCriteria<E>) super._and(consumer);
     }
 
-    protected boolean isEvictCache() {
+    public boolean isEvictCache() {
         return evictCache;
     }
 }

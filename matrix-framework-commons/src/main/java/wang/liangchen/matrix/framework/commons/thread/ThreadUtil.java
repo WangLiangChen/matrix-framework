@@ -20,7 +20,10 @@ public enum ThreadUtil {
     private final Executor unboundedExecutor;
 
     ThreadUtil() {
-        // Core thread number 0, maximum thread number Integer.MAX_VALUE, idle thread timeout 60 SECONDS, thread waiting queue SynchronousQueue (queue with a capacity of 0)
+        // Core thread number 0
+        // maximum thread number Integer.MAX_VALUE
+        // idle thread timeout 60 SECONDS
+        // thread waiting queue SynchronousQueue (queue with a capacity of 0)
         unboundedExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), getThreadFactory("unbounded-executor-", false));
     }
@@ -47,21 +50,15 @@ public enum ThreadUtil {
         if (threadPool == null || threadPool.isTerminated()) {
             return;
         }
-
-        try {
-            // shutdown and reject new tasks
-            threadPool.shutdown();
-        } catch (Exception e) {
-            logger.error("Failed to shutdown thread pool", e);
-            return;
-        }
-
+        // shutdown and reject new tasks
+        threadPool.shutdown();
         try {
             if (!threadPool.awaitTermination(timeout, timeUnit)) {
                 threadPool.shutdownNow();
             }
         } catch (InterruptedException ex) {
             threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
         }
 
     }

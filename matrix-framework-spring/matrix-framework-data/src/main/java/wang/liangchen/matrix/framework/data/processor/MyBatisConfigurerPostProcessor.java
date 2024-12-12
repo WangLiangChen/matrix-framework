@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * MyBatisConfigurerPostProcessor
+ * mapperLocations配置支持多个路径
+ * MapperScanne
+ */
 @Component
 public class MyBatisConfigurerPostProcessor implements BeanDefinitionRegistryPostProcessor, BeanPostProcessor, BeanFactoryAware, Ordered {
     private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";

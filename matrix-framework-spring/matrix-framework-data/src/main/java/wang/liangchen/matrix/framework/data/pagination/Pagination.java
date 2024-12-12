@@ -6,7 +6,6 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 ;
 
@@ -19,19 +18,21 @@ public class Pagination implements Serializable {
      */
     private Integer pageNumber;
     /**
-     * 分页记录偏移(MySql)
+     * 分页大小
+     */
+    private Integer pageSize;
+
+    /**
+     * 分页记录偏移
      */
     private Integer offset;
     /**
      * 行数
      */
-    private Integer pageSize;
-
     private Integer rows;
     /**
      * 排序
      */
-
     private List<OrderBy> orderBys;
 
     public static Pagination newInstance() {
@@ -112,15 +113,5 @@ public class Pagination implements Serializable {
         }
         this.orderBys.addAll(orderBys);
         return this;
-    }
-
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", "Pagination[", "]")
-                .add("pageNumber=" + pageNumber)
-                .add("pageSize=" + pageSize)
-                .add("orderBys=" + orderBys)
-                .toString();
     }
 }
