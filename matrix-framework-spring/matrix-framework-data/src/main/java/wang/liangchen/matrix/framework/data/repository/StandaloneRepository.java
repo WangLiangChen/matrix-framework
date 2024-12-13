@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.data.repository;
 
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.data.cache.CacheOperator;
 import wang.liangchen.matrix.framework.data.criteria.*;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.mybatis.MyBatisExecutor;

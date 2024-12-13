@@ -20,12 +20,13 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -37,7 +38,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class StartupBean implements
         ApplicationContextAware,
         ApplicationRunner,
@@ -49,7 +49,7 @@ public class StartupBean implements
         SmartLifecycle,
         InitializingBean,
         DisposableBean,
-        Ordered {
+        PriorityOrdered {
     private final static Logger logger = LoggerFactory.getLogger(StartupBean.class);
     private boolean running;
     private ApplicationContext applicationContext;
@@ -84,6 +84,7 @@ public class StartupBean implements
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        AutoConfigurationPackages.register(registry, StartupApplicationListener.DEFAULT_SCAN_PACKAGES);
         // BeanDefinitionRegistryPostProcessor
     }
 
@@ -115,7 +116,6 @@ public class StartupBean implements
             StartupApplicationListener.startupTask.addMessage("Set ObjectMapper to JacksonUtil");
             StartupApplicationListener.startupTask.prettyPrint();
         }
-
         return bean;
     }
 

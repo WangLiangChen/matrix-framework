@@ -32,7 +32,7 @@ public enum JwtUtil {
 
     public String generateKey(int length) {
         //32 48 64
-        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[length];
         random.nextBytes(sharedSecret);
@@ -40,11 +40,11 @@ public enum JwtUtil {
     }
 
     public String sign(JWSAlgorithm algorithm, String secretKey, JWTClaimsSet claimsSet) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, algorithm, "algorithm must not be null");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, secretKey, "secretKey must not be blank");
+        ValidationUtil.INSTANCE.notNull(algorithm, "algorithm must not be null");
+        ValidationUtil.INSTANCE.notNullAndBlank(secretKey, "secretKey must not be blank");
         byte[] sharedSecret = Base64Util.INSTANCE.decode(secretKey);
         int length = sharedSecret.length;
-        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         JWSAlgorithm jwsAlgorithm;
         switch (length) {
             case 32:
@@ -72,11 +72,11 @@ public enum JwtUtil {
     }
 
     public JWTClaimsSet verify(String secretKey, String jwtString) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, secretKey, "secretKey must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, jwtString, "jwtString must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(secretKey, "secretKey must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(jwtString, "jwtString must not be blank");
         byte[] sharedSecret = Base64Util.INSTANCE.decode(secretKey);
         int length = sharedSecret.length;
-        ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN, length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
+        ValidationUtil.INSTANCE.isTrue(length == 32 || length == 48 || length == 64, "length must be equal to 32,48,64");
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwtString);
             JWSVerifier verifier = new MACVerifier(sharedSecret);
@@ -101,9 +101,9 @@ public enum JwtUtil {
     }
 
     public String rsaSign(JWSAlgorithm algorithm, String privateKeyString, JWTClaimsSet claimsSet) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, algorithm, "algorithm must not be null");
+        ValidationUtil.INSTANCE.notNull(algorithm, "algorithm must not be null");
         ValidationUtil.INSTANCE.isTrue(ExceptionLevel.WARN,algorithm.getName().startsWith("RS"),"algorithm must be RSA family");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, privateKeyString, "privateKey must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(privateKeyString, "privateKey must not be blank");
         PrivateKey privateKey = SecretKeyUtil.INSTANCE.generatePrivateKeyPKCS8(KeyPairAlgorithm.RSA, privateKeyString);
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(algorithm).build(),
@@ -118,8 +118,8 @@ public enum JwtUtil {
     }
 
     public JWTClaimsSet rsaVerify(String publicKeyString, String jwtString) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, publicKeyString, "publicKeyString must not be blank");
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, jwtString, "jwtString must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(publicKeyString, "publicKeyString must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(jwtString, "jwtString must not be blank");
         PublicKey publicKey = SecretKeyUtil.INSTANCE.generatePublicKeyX509(KeyPairAlgorithm.RSA, publicKeyString);
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwtString);

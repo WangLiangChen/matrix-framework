@@ -118,7 +118,7 @@ public enum NetUtil {
 
 
     public Map<String, String> queryString2Map(String queryString) {
-        if (StringUtil.INSTANCE.isEmpty(queryString)) {
+        if (StringUtil.INSTANCE.isNullOrEmpty(queryString)) {
             return Collections.emptyMap();
         }
         String[] kvs = queryString.split(Symbol.AND.getSymbol());

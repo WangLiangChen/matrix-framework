@@ -45,47 +45,40 @@ public enum ValidationUtil {
         VALIDATOR = validator;
     }
 
-    public Optional<String> resolveI18n(String message) {
-        if (null == message) {
-            return Optional.empty();
-        }
-        if (isI18nKey(message)) {
-            return Optional.of(message.substring(1, message.length() - 1));
-        }
-        return Optional.empty();
-    }
-
-    public String resolveMessage(String message, Object... args) {
-        if (null == message) {
-            return null;
-        }
-        if (isI18nKey(message)) {
-            message = resolveMessage(DynamicMessage.newInstantce(message));
-        }
-        // 如果仍然是i18n,说明未匹配
-        if (isI18nKey(message)) {
-            return message;
-        }
-        // i18n匹配成功或者无需i18n，都需要格式化
-        return StringUtil.INSTANCE.format(message, args);
-    }
-
     public <T> T validate(ExceptionLevel exceptionLevel, T object, Class<?>... groups) {
+        if (null == object) {
+            throw new MatrixErrorException("The object must not be null");
+        }
         Set<ConstraintViolation<T>> results = VALIDATOR.validate(object, groups);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
             return object;
         }
-        StringBuilder messageBuilder = new StringBuilder();
-        results.forEach(e -> {
-            messageBuilder.append(e.getMessage());
-            messageBuilder.append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
-        });
-        throwException(exceptionLevel, messageBuilder.toString());
+        handleValidationResult(exceptionLevel, results);
         return object;
     }
 
     public <T> T validate(T object, Class<?>... groups) {
         return validate(ExceptionLevel.ERROR, object, groups);
+    }
+
+
+    public <T> T validateProperty(ExceptionLevel exceptionLevel, T object, String propertyName, Class<?>... groups) {
+        if (null == object) {
+            throw new MatrixErrorException("The object must not be null");
+        }
+        if (StringUtil.INSTANCE.isNullOrBlank(propertyName)) {
+            throw new MatrixErrorException("The propertyName must not be null or blank");
+        }
+        Set<ConstraintViolation<T>> results = VALIDATOR.validateProperty(object, propertyName, groups);
+        if (CollectionUtil.INSTANCE.isEmpty(results)) {
+            return object;
+        }
+        handleValidationResult(exceptionLevel, results);
+        return object;
+    }
+
+    public <T> T validateProperty(T object, String propertyName, Class<?>... groups) {
+        return validateProperty(ExceptionLevel.ERROR, object, propertyName, groups);
     }
 
 
@@ -129,46 +122,6 @@ public enum ValidationUtil {
         return isFalse(condition, "condition must be false");
     }
 
-    public String isBlank(ExceptionLevel level, String string, String message, Object... args) {
-        if (StringUtil.INSTANCE.isEmpty(string)) {
-            return string;
-        }
-        dynamicException(level, message, args);
-        return string;
-    }
-
-    public String isBlank(String string, String message, Object... args) {
-        return isBlank(ExceptionLevel.ERROR, string, message, args);
-    }
-
-    public String isBlank(ExceptionLevel exceptionLevel, String string) {
-        return isBlank(exceptionLevel, string, "parameter must be blank");
-    }
-
-    public String isBlank(String string) {
-        return isBlank(string, "parameter must be blank");
-    }
-
-    public String notBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
-        if (StringUtil.INSTANCE.isEmpty(string)) {
-            dynamicException(exceptionLevel, message, args);
-            return string;
-        }
-        return string;
-    }
-
-    public String notBlank(String string, String message, Object... args) {
-        return notBlank(ExceptionLevel.ERROR, string, message, args);
-    }
-
-    public String notBlank(ExceptionLevel exceptionLevel, String string) {
-        return notBlank(exceptionLevel, string, "parameter must not be blank");
-    }
-
-    public String notBlank(String string) {
-        return notBlank(string, "parameter must not be blank");
-    }
-
     public <T> T isNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
             return null;
@@ -206,10 +159,10 @@ public enum ValidationUtil {
     }
 
     public <T> T notNull(T object) {
-        return notNull(object, "{jakarta.validation.constraints.NotNull.message}");
+        return notNull(object, "parameter must not be null");
     }
 
-    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T isNullOrEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             return object;
         }
@@ -217,19 +170,19 @@ public enum ValidationUtil {
         return object;
     }
 
-    public <T> T isEmpty(T object, String message, Object... args) {
-        return isEmpty(ExceptionLevel.ERROR, object, message, args);
+    public <T> T isNullOrEmpty(T object, String message, Object... args) {
+        return isNullOrEmpty(ExceptionLevel.ERROR, object, message, args);
     }
 
-    public <T> T isEmpty(ExceptionLevel exceptionLevel, T object) {
-        return isEmpty(exceptionLevel, object, "parameter must be empty");
+    public <T> T isNullOrEmpty(ExceptionLevel exceptionLevel, T object) {
+        return isNullOrEmpty(exceptionLevel, object, "parameter must be empty");
     }
 
-    public <T> T isEmpty(T object) {
-        return isEmpty(object, "parameter must be empty");
+    public <T> T isNullOrEmpty(T object) {
+        return isNullOrEmpty(object, "parameter must be empty");
     }
 
-    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
+    public <T> T notNullAndEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             dynamicException(exceptionLevel, message, args);
             return object;
@@ -237,17 +190,58 @@ public enum ValidationUtil {
         return object;
     }
 
-    public <T> T notEmpty(T object, String message, Object... args) {
-        return notEmpty(ExceptionLevel.ERROR, object, message, args);
+    public <T> T notNullAndEmpty(T object, String message, Object... args) {
+        return notNullAndEmpty(ExceptionLevel.ERROR, object, message, args);
     }
 
-    public <T> T notEmpty(ExceptionLevel exceptionLevel, T object) {
-        return notEmpty(exceptionLevel, object, "parameter must not be empty");
+    public <T> T notNullAndEmpty(ExceptionLevel exceptionLevel, T object) {
+        return notNullAndEmpty(exceptionLevel, object, "parameter must not be empty");
     }
 
-    public <T> T notEmpty(T object) {
-        return notEmpty(object, "parameter must not be empty");
+    public <T> T notNullAndEmpty(T object) {
+        return notNullAndEmpty(object, "parameter must not be empty");
     }
+
+    public String isNullOrBlank(ExceptionLevel level, String string, String message, Object... args) {
+        if (StringUtil.INSTANCE.isNullOrEmpty(string)) {
+            return string;
+        }
+        dynamicException(level, message, args);
+        return string;
+    }
+
+    public String isNullOrBlank(String string, String message, Object... args) {
+        return isNullOrBlank(ExceptionLevel.ERROR, string, message, args);
+    }
+
+    public String isNullOrBlank(ExceptionLevel exceptionLevel, String string) {
+        return isNullOrBlank(exceptionLevel, string, "parameter must be blank");
+    }
+
+    public String isNullOrBlank(String string) {
+        return isNullOrBlank(string, "parameter must be blank");
+    }
+
+    public String notNullAndBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
+        if (StringUtil.INSTANCE.isNullOrEmpty(string)) {
+            dynamicException(exceptionLevel, message, args);
+            return string;
+        }
+        return string;
+    }
+
+    public String notNullAndBlank(String string, String message, Object... args) {
+        return notNullAndBlank(ExceptionLevel.ERROR, string, message, args);
+    }
+
+    public String notNullAndBlank(ExceptionLevel exceptionLevel, String string) {
+        return notNullAndBlank(exceptionLevel, string, "parameter must not be blank");
+    }
+
+    public String notNullAndBlank(String string) {
+        return notNullAndBlank(string, "parameter must not be blank");
+    }
+
 
     public boolean equals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
@@ -289,6 +283,38 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
+    public Optional<String> resolveI18n(String message) {
+        if (StringUtil.INSTANCE.isNullOrBlank(message)) {
+            return Optional.empty();
+        }
+        if (isI18nKey(message)) {
+            return Optional.of(message.substring(1, message.length() - 1));
+        }
+        return Optional.empty();
+    }
+
+    public String resolveMessage(String message, Object... args) {
+        if (null == message) {
+            return null;
+        }
+        if (isI18nKey(message)) {
+            message = resolveMessage(DynamicMessage.newInstantce(message));
+        }
+        // 如果仍然是i18n,说明未匹配
+        if (isI18nKey(message)) {
+            return message;
+        }
+        // i18n匹配成功或者无需i18n，都需要格式化
+        return StringUtil.INSTANCE.format(message, args);
+    }
+
+    private <T> void handleValidationResult(ExceptionLevel exceptionLevel, Set<ConstraintViolation<T>> results) {
+        StringBuilder messageBuilder = new StringBuilder();
+        results.forEach(e -> {
+            messageBuilder.append(e.getMessage()).append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
+        });
+        throwException(exceptionLevel, messageBuilder.toString());
+    }
 
     public void throwException(ExceptionLevel exceptionLevel, String message) {
         switch (exceptionLevel) {
@@ -307,7 +333,7 @@ public enum ValidationUtil {
             throw constructor.newInstance(resolveMessage(message, args));
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
-            throw new MatrixErrorException("The class of exception has't Constructor(String message)");
+            throw new MatrixErrorException("The exception class hasn't Constructor(String message)");
         }
     }
 

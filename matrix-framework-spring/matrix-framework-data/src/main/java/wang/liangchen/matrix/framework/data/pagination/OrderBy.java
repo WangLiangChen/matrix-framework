@@ -22,14 +22,14 @@ public final class OrderBy implements Serializable {
     }
 
     public OrderBy(String orderBy, OrderByDirection direction) {
-        ValidationUtil.INSTANCE.notBlank(orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "Parameter 'orderBy' cannot be blank");
         ValidationUtil.INSTANCE.notNull(direction, "Parameter 'direction' cannot be null");
         this.orderBy = orderBy;
         this.direction = direction;
     }
 
     public OrderBy(String orderBy) {
-        ValidationUtil.INSTANCE.notBlank(orderBy, "Parameter 'orderBy' cannot be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "Parameter 'orderBy' cannot be blank");
         this.orderBy = orderBy;
     }
 

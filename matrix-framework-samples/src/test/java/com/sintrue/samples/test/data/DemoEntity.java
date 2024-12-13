@@ -1,4 +1,4 @@
-package com.sintrue.samples.test.criteria;
+package com.sintrue.samples.test.data;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

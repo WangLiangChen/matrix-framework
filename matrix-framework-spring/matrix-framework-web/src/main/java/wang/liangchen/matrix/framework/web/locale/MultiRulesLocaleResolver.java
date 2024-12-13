@@ -42,7 +42,7 @@ public class MultiRulesLocaleResolver extends AcceptHeaderLocaleResolver {
         // 级别最高的是显式指定的parameter
         for (String param : params) {
             String parameter = request.getParameter(param);
-            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+            if (StringUtil.INSTANCE.isNotNullAndBlank(parameter)) {
                 Locale locale = Locale.forLanguageTag(parameter);
                 if (null != locale) {
                     return locale;
@@ -53,7 +53,7 @@ public class MultiRulesLocaleResolver extends AcceptHeaderLocaleResolver {
         // 其次是Header
         for (String param : params) {
             String parameter = request.getHeader(param);
-            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+            if (StringUtil.INSTANCE.isNotNullAndBlank(parameter)) {
                 Locale locale = Locale.forLanguageTag(parameter);
                 if (null != locale) {
                     return locale;
@@ -63,7 +63,7 @@ public class MultiRulesLocaleResolver extends AcceptHeaderLocaleResolver {
         // 再次是Cookie
         for (String param : params) {
             String parameter = CookieUtil.INSTANCE.getCookieValue(request, param);
-            if (StringUtil.INSTANCE.isNotBlank(parameter)) {
+            if (StringUtil.INSTANCE.isNotNullAndBlank(parameter)) {
                 Locale locale = Locale.forLanguageTag(parameter);
                 if (null != locale) {
                     return locale;

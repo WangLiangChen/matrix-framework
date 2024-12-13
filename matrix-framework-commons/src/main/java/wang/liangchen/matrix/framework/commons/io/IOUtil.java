@@ -52,7 +52,7 @@ public enum IOUtil {
         if (bufferSize <= 0) {
             bufferSize = DEFAULT_BUFFER_SIZE;
         }
-        if (StringUtil.INSTANCE.isEmpty(encoding)) {
+        if (StringUtil.INSTANCE.isNullOrEmpty(encoding)) {
             encoding = DEFAULT_CHARSET.name();
         }
         byte[] buffer = new byte[bufferSize];

@@ -26,12 +26,12 @@ public class ConstantEnum implements Serializable {
     }
 
     public static <T extends ConstantEnum> T valueOf(String key) {
-        ValidationUtil.INSTANCE.notBlank(key);
+        ValidationUtil.INSTANCE.notNullAndBlank(key);
         return ObjectUtil.INSTANCE.cast(map.get(key));
     }
 
     public static String value(String key) {
-        ValidationUtil.INSTANCE.notBlank(key);
+        ValidationUtil.INSTANCE.notNullAndBlank(key);
         Object object = map.get(key);
         if (null == object) {
             return null;

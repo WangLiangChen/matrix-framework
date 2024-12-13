@@ -83,7 +83,7 @@ public enum MyBatisExecutor {
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
-        ValidationUtil.INSTANCE.notEmpty(entities, "{Collection.NotEmpty}");
+        ValidationUtil.INSTANCE.notNullAndEmpty(entities, "{Collection.NotEmpty}");
         Iterator<E> iterator = entities.iterator();
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();

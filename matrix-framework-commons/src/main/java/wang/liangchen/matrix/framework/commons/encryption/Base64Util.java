@@ -26,7 +26,7 @@ public enum Base64Util {
     }
 
     public String encode(String string, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,string, "string must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(ExceptionLevel.WARN,string, "string must not be blank");
         byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         if (urlSafe) {
             urlEncoder.encodeToString(bytes);
@@ -39,7 +39,7 @@ public enum Base64Util {
     }
 
     public String encode(byte[] bytes, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notNullAndEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlEncoder.encodeToString(bytes);
         }
@@ -51,7 +51,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(String string, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN,string, "string must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(ExceptionLevel.WARN,string, "string must not be blank");
         if (urlSafe) {
             return urlDecoder.decode(string);
         }
@@ -63,7 +63,7 @@ public enum Base64Util {
     }
 
     public byte[] decode(byte[] bytes, boolean urlSafe) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
+        ValidationUtil.INSTANCE.notNullAndEmpty(ExceptionLevel.WARN,bytes, "bytes must not be empty");
         if (urlSafe) {
             return urlDecoder.decode(bytes);
         }

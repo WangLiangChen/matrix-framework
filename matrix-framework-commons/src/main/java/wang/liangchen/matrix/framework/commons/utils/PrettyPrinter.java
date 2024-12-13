@@ -36,7 +36,7 @@ public enum PrettyPrinter {
         String threadMethod = StringUtil.INSTANCE.format("{}-{} {}", thread.getName(), thread.getId(), className);
         Map<String, List<Payload>> threadMethodMap = threadLocal.get();
         // 调用buffer
-        if (StringUtil.INSTANCE.isNotEmpty(message)) {
+        if (StringUtil.INSTANCE.isNotNullAndEmpty(message)) {
             if (null == threadMethodMap) {
                 threadLocal.set(threadMethodMap = new HashMap<>());
             }

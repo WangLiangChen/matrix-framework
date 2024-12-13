@@ -39,7 +39,7 @@ public enum DataSourceContext {
         // 从队列中获取 但不出队
         String peekedDataSourceName = deque.peek();
         logger.debug("Peeked DataSource: {}.and data in the queue is: {}", peekedDataSourceName, deque);
-        if (StringUtil.INSTANCE.isBlank(peekedDataSourceName)) {
+        if (StringUtil.INSTANCE.isNullOrBlank(peekedDataSourceName)) {
             return PRIMARY_DATASOURCE_NAME;
         }
         return peekedDataSourceName;

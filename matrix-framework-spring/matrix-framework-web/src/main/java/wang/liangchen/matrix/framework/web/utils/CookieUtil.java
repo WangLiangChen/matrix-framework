@@ -89,7 +89,7 @@ public enum CookieUtil {
         // 先从代理中获取
         for (String proxy : PROXIES) {
             ips = request.getHeader(proxy);
-            if (StringUtil.INSTANCE.isBlank(ips) || UNKNOWN.equalsIgnoreCase(ips)) {
+            if (StringUtil.INSTANCE.isNullOrBlank(ips) || UNKNOWN.equalsIgnoreCase(ips)) {
                 continue;
             }
             // 获取到ips,拆开看看,获取第一个不是unknown的ip

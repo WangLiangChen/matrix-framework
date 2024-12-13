@@ -1,15 +1,12 @@
 package wang.liangchen.matrix.framework.commons;
 
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author Liangchen.Wang 2021-08-19 19:53
@@ -26,10 +23,40 @@ public enum StringUtil {
     private final static Pattern integerPattern = Pattern.compile("[+-]?[0-9]+");
     private final static Pattern floatPattern = Pattern.compile("[+-]?[0-9]+(\\\\.[0-9]+)?([Ee][+-]?[0-9]+)?");
 
+    public boolean isNull(String string) {
+        return null == string;
+    }
+
+    public boolean isNotNull(String string) {
+        return null != string;
+    }
+
+    public boolean isNullOrEmpty(String string) {
+        if (null == string) {
+            return true;
+        }
+        return string.isEmpty();
+    }
+
+    public boolean isNotNullAndEmpty(String string) {
+        return !isNullOrEmpty(string);
+    }
+
+    public boolean isNullOrBlank(String string) {
+        if (null == string) {
+            return true;
+        }
+        return string.isBlank();
+    }
+
+    public boolean isNotNullAndBlank(String string) {
+        return !isNullOrBlank(string);
+    }
+
 
     public String format(String string, Object... args) {
         // 按顺序替换{}或者{0},{1}
-        if (isEmpty(string)) {
+        if (isNullOrBlank(string)) {
             return string;
         }
         if (CollectionUtil.INSTANCE.isEmpty(args)) {
@@ -51,55 +78,24 @@ public enum StringUtil {
         return MessageFormat.format(stringBuilder.toString(), args);
     }
 
-    public boolean isNull(String string) {
-        return null == string;
-    }
-
-    public boolean isNotNull(String string) {
-        return null != string;
-    }
-
-    public boolean isEmpty(String string) {
-        if (null == string) {
-            return true;
-        }
-        return string.isEmpty();
-    }
-
-    public boolean isNotEmpty(String string) {
-        return !isEmpty(string);
-    }
-
-    public boolean isBlank(String string) {
-        if (isEmpty(string)) {
-            return false;
-        }
-        return string.trim().isEmpty();
-    }
-
-    public boolean isNotBlank(String string) {
-        return !isBlank(string);
-    }
-
-
     public String join(String splitor, String... strings) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, splitor);
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
-        return Arrays.stream(strings).collect(Collectors.joining(splitor));
+        ValidationUtil.INSTANCE.notNullAndBlank( splitor);
+        ValidationUtil.INSTANCE.notNullAndEmpty(strings);
+        return String.join(splitor, strings);
     }
 
     public String concat(String... strings) {
-        ValidationUtil.INSTANCE.notEmpty(ExceptionLevel.WARN, strings);
+        ValidationUtil.INSTANCE.notNullAndEmpty(strings);
         StringBuilder builder = new StringBuilder();
         for (String string : strings) {
-            ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, string);
+            ValidationUtil.INSTANCE.notNull(string);
             builder.append(string);
         }
         return builder.toString();
     }
 
     public String firstLetterLowerCase(String string) {
-        if (isEmpty(string)) {
+        if (isNullOrEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -112,7 +108,7 @@ public enum StringUtil {
     }
 
     public String firstLetterUpperCase(String string) {
-        if (isEmpty(string)) {
+        if (isNullOrEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -125,7 +121,7 @@ public enum StringUtil {
     }
 
     public String firstLetterConvertCase(String string) {
-        if (isEmpty(string)) {
+        if (isNullOrEmpty(string)) {
             return string;
         }
         char[] chars = string.toCharArray();
@@ -141,14 +137,14 @@ public enum StringUtil {
     }
 
     public String clearBlank(String string) {
-        if (isEmpty(string)) {
+        if (isNullOrEmpty(string)) {
             return string;
         }
         return string.replaceAll("\\s", "");
     }
 
     public String extractNumbers(String string) {
-        if (isEmpty(string)) {
+        if (isNullOrEmpty(string)) {
             return string;
         }
         Matcher matcher = nonNumberPattern.matcher(string);
@@ -242,17 +238,17 @@ public enum StringUtil {
     }
 
     public String getGetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(fieldName, "fileldName must not be blank");
         return String.format("get%s", firstLetterUpperCase(fieldName));
     }
 
     public String getSetter(String fieldName) {
-        ValidationUtil.INSTANCE.notBlank(ExceptionLevel.WARN, fieldName, "fileldName must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(fieldName, "fileldName must not be blank");
         return String.format("set%s", firstLetterUpperCase(fieldName));
     }
 
     public boolean isISO_8859_1(String string) {
-        ValidationUtil.INSTANCE.notNull(ExceptionLevel.WARN, (Object) string, "parameter can not be null");
+        ValidationUtil.INSTANCE.notNull((Object) string, "parameter can not be null");
         return string.equals(new String(string.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1));
     }
 }

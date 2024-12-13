@@ -88,7 +88,7 @@ public class Pagination implements Serializable {
     }
 
     public Pagination addOrderBy(String orderBy, OrderByDirection orderByDirection, Integer index) {
-        ValidationUtil.INSTANCE.notBlank(orderBy, "orderBy must not be blank");
+        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "orderBy must not be blank");
         ValidationUtil.INSTANCE.notNull(orderByDirection, "orderByDirection must not be null");
         if (null == this.orderBys) {
             this.orderBys = new ArrayList<>();
@@ -107,7 +107,7 @@ public class Pagination implements Serializable {
     }
 
     public Pagination addOrderBys(List<OrderBy> orderBys) {
-        ValidationUtil.INSTANCE.notEmpty(orderBys, "orderBys must not be empty");
+        ValidationUtil.INSTANCE.notNullAndEmpty(orderBys, "orderBys must not be empty");
         if (null == this.orderBys) {
             this.orderBys = new ArrayList<>();
         }

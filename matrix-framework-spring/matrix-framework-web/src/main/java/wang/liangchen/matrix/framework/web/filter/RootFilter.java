@@ -26,7 +26,7 @@ public class RootFilter extends OncePerRequestFilter implements OrderedFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestId = request.getParameter(WebContext.REQUEST_ID);
-        if (StringUtil.INSTANCE.isBlank(requestId)) {
+        if (StringUtil.INSTANCE.isNullOrBlank(requestId)) {
             requestId = request.getHeader(WebContext.REQUEST_ID);
         }
         // Set request id to thread local

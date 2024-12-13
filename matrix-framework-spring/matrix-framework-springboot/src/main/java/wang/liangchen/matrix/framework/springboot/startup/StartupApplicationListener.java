@@ -24,7 +24,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
     private static boolean runned = false;
     private final static StopWatch stopWatch = new StopWatch();
     public final static StopWatch.WatchTask startupTask = stopWatch.startTask("Startup");
-    private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
+    public final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
