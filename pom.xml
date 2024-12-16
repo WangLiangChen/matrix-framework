@@ -42,6 +42,7 @@
         <module>matrix-framework-commons</module>
         <module>matrix-framework-samples</module>
         <module>matrix-framework-spring</module>
+        <module>matrix-framework-ddd</module>
     </modules>
 
     <properties>

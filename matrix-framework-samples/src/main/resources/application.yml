@@ -1,27 +1,27 @@
 spring:
   datasource:
-    url: jdbc:postgresql://10.196.173.197:5432/aps_tst
-    username: a_appconnect
-    password: NHAp7%N~
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=matrix
+    username: postgres
+    password: 123456
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      connection-timeout: 12345
+      connection-timeout: 1000
     matrix:
       datasources:
-        ds1:
-          url: jdbc:postgresql://10.196.173.197:5432/aps_tst
-          username: a_appconnect
-          password: NHAp7%N~
+        sintrue:
+          url: jdbc:postgresql://localhost:5432/postgres?currentSchema=sintrue
+          username: postgres
+          password: 123456
           driver-class-name: org.postgresql.Driver
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
-            connection-timeout: 12346
-        ds2:
-          url: jdbc:postgresql://10.196.173.197:5432/aps_tst
-          username: a_appconnect
-          password: NHAp7%N~
+            connection-timeout: 2000
+        sample:
+          url: jdbc:postgresql://localhost:5432/postgres?currentSchema=sample
+          username: postgres
+          password: 123456
           driver-class-name: org.postgresql.Driver
           type: com.zaxxer.hikari.HikariDataSource
           hikari:
-            connection-timeout: 12347
+            connection-timeout: 3000

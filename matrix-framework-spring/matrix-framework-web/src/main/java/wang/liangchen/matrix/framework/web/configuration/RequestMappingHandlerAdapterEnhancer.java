@@ -28,7 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,20 +84,23 @@ public class RequestMappingHandlerAdapterEnhancer {
 
         @Override
         public void handleReturnValue(Object returnValue, @NonNull MethodParameter methodParameter, @NonNull ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest) throws Exception {
-            Object enhancedValue = null;
             if (this.delegate instanceof RequestResponseBodyMethodProcessor) {
-                Class<?> returnType = Objects.requireNonNull(methodParameter.getMethod()).getReturnType();
-                if (void.class.isAssignableFrom(returnType)) {
-                    enhancedValue = JsonResponse.success();
-                } else if (JsonResponse.class.isAssignableFrom(returnType)) {
-                    enhancedValue = returnValue;
-                } else if (ReturnWrapper.class.isAssignableFrom(returnType)) {
-                    enhancedValue = JsonResponse.of((ReturnWrapper<?>) returnValue);
-                } else {
-                    enhancedValue = JsonResponse.success(returnValue);
+                if (null == returnValue) {
+                    this.delegate.handleReturnValue(JsonResponse.success(), methodParameter, mavContainer, webRequest);
+                    return;
                 }
+                if (returnValue instanceof JsonResponse<?>) {
+                    this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
+                    return;
+                }
+                if (returnValue instanceof ReturnWrapper<?>) {
+                    this.delegate.handleReturnValue(JsonResponse.of((ReturnWrapper<?>) returnValue), methodParameter, mavContainer, webRequest);
+                    return;
+                }
+                this.delegate.handleReturnValue(JsonResponse.success(returnValue), methodParameter, mavContainer, webRequest);
+                return;
             }
-            this.delegate.handleReturnValue(enhancedValue, methodParameter, mavContainer, webRequest);
+            this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
         }
     }
 

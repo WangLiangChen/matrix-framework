@@ -1,13 +1,11 @@
 package com.sintrue.samples.controller;
 
-import com.sintrue.samples.vo.INativeObject;
-import com.sintrue.samples.vo.NativeObjectA;
-import org.springframework.web.bind.annotation.*;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
-import wang.liangchen.matrix.framework.commons.runtime.MessageWrapper;
-import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
+import com.sintrue.samples.api.SampleResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import wang.liangchen.matrix.framework.web.response.JsonResponse;
 
 @RestController
@@ -18,43 +16,52 @@ public class SampleController {
     public void returnVoid() {
     }
 
-    @GetMapping("/string")
-    public String returnString() {
-        return "Hello, World!";
+    @GetMapping("/null")
+    public SampleResponse returnNull() {
+        return null;
     }
 
     @GetMapping("/nativeObject")
-    public NativeObjectA returnNativeObject() {
-        return new NativeObjectA();
+    public SampleResponse nativeObject() {
+        SampleResponse response = new SampleResponse();
+        response.setSampleId(0L);
+        response.setSampleName("name_0");
+        return response;
     }
 
-    @GetMapping("/returnWrapper")
-    public ReturnWrapper<?> returnWrapper() {
-        return ReturnWrapper.success();
+    @GetMapping("/monoNull")
+    public Mono<SampleResponse> monoNull() {
+        SampleResponse response = null;
+        return Mono.justOrEmpty(response);
     }
 
-    @GetMapping("/jsonResponse")
-    public JsonResponse<?> returnJsonResponse() {
-        return JsonResponse.success();
+    @GetMapping("/monoNativeObject")
+    public Mono<SampleResponse> monoNativeObject() {
+        SampleResponse response = new SampleResponse();
+        response.setSampleId(0L);
+        response.setSampleName("name_0");
+        return Mono.just(response);
     }
 
-    @GetMapping("/warnException")
-    public void warnException() {
-        throw new MatrixWarnException("warn exception");
+    @GetMapping("/monoJsonResponse")
+    public Mono<JsonResponse<SampleResponse>> monoJsonResponse() {
+        SampleResponse response = new SampleResponse();
+        response.setSampleId(0L);
+        response.setSampleName("name_0");
+        return Mono.just(JsonResponse.success(response));
     }
 
-    @GetMapping("/infoException")
-    public void infoException() {
-        throw new MatrixInfoException("info exception");
+    @GetMapping("/fluxNativeObject")
+    public Flux<SampleResponse> fluxNativeObject() {
+        SampleResponse response_0 = new SampleResponse();
+        response_0.setSampleId(0L);
+        response_0.setSampleName("name_0");
+        SampleResponse response_1 = new SampleResponse();
+        response_1.setSampleId(1L);
+        response_1.setSampleName("name_1");
+
+        return Flux.just(response_0, response_1);
     }
 
-    @GetMapping("/errorException")
-    public void errorException() {
-        throw new MatrixErrorException(MessageWrapper.of("error exception: {}", "error").withCode("ERROR"));
-    }
 
-    @PostMapping("/interfaceBody")
-    public String interfaceBody(@RequestBody INativeObject nativeObject) {
-        return nativeObject.getClass().toString();
-    }
 }

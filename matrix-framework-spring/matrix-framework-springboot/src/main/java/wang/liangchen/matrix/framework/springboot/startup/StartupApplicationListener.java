@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.springboot.startup;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.context.event.*;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -24,7 +25,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
     private static boolean runned = false;
     private final static StopWatch stopWatch = new StopWatch();
     public final static StopWatch.WatchTask startupTask = stopWatch.startTask("Startup");
-    public final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
+    private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
@@ -132,8 +133,10 @@ public final class StartupApplicationListener implements ApplicationListener<App
         Set<String> excludePackages = springApplication.getAllSources().stream()
                 .map(e -> ((Class<?>) e).getPackage().getName())
                 .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).collect(Collectors.toSet());
-        // 扫描框架包和排除框架子包(如matrix-cache)
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) applicationContext.getBeanFactory();
+        // register matrix
+        AutoConfigurationPackages.register(beanRegistry, DEFAULT_SCAN_PACKAGES);
+        // 扫描框架包和排除框架子包(如matrix-cache)
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
         if (CollectionUtil.INSTANCE.isNotEmpty(excludePackages)) {
