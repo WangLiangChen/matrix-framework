@@ -9,6 +9,8 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+import wang.liangchen.matrix.framework.springboot.event.EventPublisher;
+import wang.liangchen.matrix.framework.web.event.WebSocketMessageEvent;
 import wang.liangchen.matrix.framework.web.utils.PushUtil;
 
 
@@ -23,22 +25,30 @@ public class DefaultWebSocketConfigurer implements WebSocketConfigurer {
         registry.addHandler(new TextWebSocketHandler() {
             @Override
             public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-                PushUtil.INSTANCE.appendPusher(session);
+                PushUtil.INSTANCE.onWebSocketOpen(session);
             }
 
             @Override
             protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
+                EventPublisher.INSTANCE.publishEvent(new WebSocketMessageEvent(this, message.getPayload()));
             }
 
             @Override
             public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-                PushUtil.INSTANCE.onWebSocketError(session, exception);
+                PushUtil.INSTANCE.onWebSocketError(session).accept(exception);
             }
 
             @Override
             public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-                PushUtil.INSTANCE.onWebSocketCompletion(session, status);
+                if (CloseStatus.NORMAL.getCode() == status.getCode()) {
+                    PushUtil.INSTANCE.onWebSocketCompletion(session).run();
+                    return;
+                }
+                if (CloseStatus.SESSION_NOT_RELIABLE == status) {
+                    PushUtil.INSTANCE.onWebSocketTimeout(session).run();
+                    return;
+                }
+                PushUtil.INSTANCE.onWebSocketError(session).accept(new Exception(status.getReason()));
             }
         }, "/websocket").addInterceptors(new HttpSessionHandshakeInterceptor());
     }

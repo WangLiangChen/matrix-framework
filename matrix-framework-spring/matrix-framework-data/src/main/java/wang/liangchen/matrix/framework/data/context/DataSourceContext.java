@@ -31,17 +31,18 @@ public enum DataSourceContext {
         Deque<String> deque = context.get();
         // 入队
         deque.push(dataSourceName);
-        logger.debug("The datasource: {} enqueue.and data in the queue is: {}", dataSourceName, deque);
+        logger.debug("The datasource: {} enqueue. And datasource in the queue is: {}", dataSourceName, deque);
     }
 
     public String get() {
         Deque<String> deque = context.get();
         // 从队列中获取 但不出队
         String peekedDataSourceName = deque.peek();
-        logger.debug("Peeked DataSource: {}.and data in the queue is: {}", peekedDataSourceName, deque);
         if (StringUtil.INSTANCE.isNullOrBlank(peekedDataSourceName)) {
+            logger.debug("The queue is empty, return 'primary' datasource.");
             return PRIMARY_DATASOURCE_NAME;
         }
+        logger.debug("The datasource is peeked: {}. And datasource in the queue is: {}", peekedDataSourceName, deque);
         return peekedDataSourceName;
     }
 
@@ -49,9 +50,9 @@ public enum DataSourceContext {
         Deque<String> deque = context.get();
         // 出队 后进先出
         String polledDataSourceName = deque.poll();
-        logger.debug("Polled DataSource: {}.and data in the queue is: {}", polledDataSourceName, deque);
+        logger.debug("The datasource: {} dequeue. And datasource in the queue is: {}", polledDataSourceName, deque);
         if (null == polledDataSourceName) {
-            logger.debug("The queue is empty, remove the context.");
+            logger.debug("The queue is empty, remove from the context.");
             remove();
         }
     }

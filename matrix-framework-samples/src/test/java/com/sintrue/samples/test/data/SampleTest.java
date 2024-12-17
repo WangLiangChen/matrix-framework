@@ -1,6 +1,5 @@
 package com.sintrue.samples.test.data;
 
-import com.sintrue.samples.dao.entity.Sample;
 import com.sintrue.samples.service.SampleService;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,11 @@ public class SampleTest {
     private SampleService sampleService;
 
     @Test
-    public void testFindById() {
-        Sample byId = sampleService.findById(0L);
-        System.out.println();
+    public void testInsert() {
+        sampleService.insert();
+    }
+    @Test
+    public void testInsertBulk() {
+        sampleService.insertBulk();
     }
 }

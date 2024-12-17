@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.web.utils;
 
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
@@ -50,22 +50,23 @@ public enum PushUtil {
     }
 
     public void onWebSocketOpen(WebSocketSession webSocketSession) {
-        Map<String, Object> attributes = webSocketSession.getAttributes();
-        Object name = attributes.get("name");
-        Object group = attributes.get("group");
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("name", String.valueOf(name));
-        queryParams.put("group", String.valueOf(group));
-        PusherKey pusherKey = PusherKey.newInstance(queryParams, null);
+        PusherKey pusherKey = resolvePusherKey(webSocketSession);
         webSocketContainer.put(pusherKey, webSocketSession);
     }
 
-    public void onWebSocketError(WebSocketSession session, Throwable exception) {
-
+    public Consumer<Throwable> onWebSocketError(WebSocketSession webSocketSession) {
+        PusherKey pusherKey = resolvePusherKey(webSocketSession);
+        return errorCallBack(PusherType.WebSocket, pusherKey);
     }
 
-    public void onWebSocketCompletion(WebSocketSession session, CloseStatus status) {
+    public Runnable onWebSocketCompletion(WebSocketSession webSocketSession) {
+        PusherKey pusherKey = resolvePusherKey(webSocketSession);
+        return completionCallBack(PusherType.WebSocket, pusherKey);
+    }
 
+    public Runnable onWebSocketTimeout(WebSocketSession webSocketSession) {
+        PusherKey pusherKey = resolvePusherKey(webSocketSession);
+        return timeoutCallBack(PusherType.WebSocket, pusherKey);
     }
 
     public void unicast(PusherType pusherType, PusherKey pusherKey, Object message) {
@@ -86,6 +87,16 @@ public enum PushUtil {
                     }
                 }
                 break;
+            case WebSocket:
+                WebSocketSession webSocketSession = webSocketContainer.get(pusherKey);
+                if (null != webSocketSession) {
+                    try {
+                        webSocketSession.sendMessage(new TextMessage(JsonResponse.success(message).toString()));
+                    } catch (IOException e) {
+                        throw new MatrixErrorException(e);
+                    }
+                }
+                break;
             default:
                 throw new MatrixWarnException("Unsupported type");
         }
@@ -99,6 +110,9 @@ public enum PushUtil {
                 break;
             case SseEmitter:
                 pusherKeys = sseEmitterContainer.keySet();
+                break;
+            case WebSocket:
+                pusherKeys = webSocketContainer.keySet();
                 break;
             default:
                 throw new MatrixWarnException("Unsupported type");
@@ -115,6 +129,9 @@ public enum PushUtil {
             case SseEmitter:
                 pusherKeys = sseEmitterContainer.keySet();
                 break;
+            case WebSocket:
+                pusherKeys = webSocketContainer.keySet();
+                break;
             default:
                 throw new MatrixWarnException("Unsupported type");
         }
@@ -127,9 +144,22 @@ public enum PushUtil {
                 return deferredResultContainer.keySet().stream().filter(predicate).collect(Collectors.toSet());
             case SseEmitter:
                 return sseEmitterContainer.keySet().stream().filter(predicate).collect(Collectors.toSet());
+            case WebSocket:
+                return webSocketContainer.keySet().stream().filter(predicate).collect(Collectors.toSet());
             default:
                 throw new MatrixWarnException("Unsupported type");
         }
+    }
+
+    private PusherKey resolvePusherKey(WebSocketSession webSocketSession) {
+        Map<String, Object> attributes = webSocketSession.getAttributes();
+        String name = String.valueOf(attributes.get("name"));
+        String group = String.valueOf(attributes.get("group"));
+        String body = String.valueOf(attributes.get("body"));
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", name);
+        queryParams.put("group", group);
+        return PusherKey.newInstance(queryParams, body);
     }
 
     private DeferredResult<JsonResponse<?>> appendDeferredResult(PusherKey pusherKey) {
@@ -178,6 +208,8 @@ public enum PushUtil {
             case SseEmitter:
                 removeSseEmitter(pusherKey, removeCause);
                 break;
+            case WebSocket:
+                removeWebSocket(pusherKey, removeCause);
             default:
                 throw new MatrixWarnException("Unsupported type");
         }
@@ -209,5 +241,18 @@ public enum PushUtil {
         }
     }
 
-
+    private void removeWebSocket(PusherKey pusherKey, RemoveCause removeCause) {
+        WebSocketSession webSocketSession = webSocketContainer.get(pusherKey);
+        if (null == webSocketSession) {
+            return;
+        }
+        webSocketContainer.remove(pusherKey);
+        if (RemoveCause.COMPLETION != removeCause) {
+            try {
+                webSocketSession.sendMessage(new TextMessage(removeCause.name()));
+            } catch (IOException e) {
+                throw new MatrixErrorException(e);
+            }
+        }
+    }
 }

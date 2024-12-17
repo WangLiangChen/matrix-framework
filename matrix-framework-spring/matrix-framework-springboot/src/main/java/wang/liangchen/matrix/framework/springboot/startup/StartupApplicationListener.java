@@ -16,6 +16,7 @@ import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.utils.StopWatch;
 import wang.liangchen.matrix.framework.springboot.context.BeanContext;
 import wang.liangchen.matrix.framework.springboot.context.EnvironmentContext;
+import wang.liangchen.matrix.framework.springboot.event.EventPublisher;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,7 +87,8 @@ public final class StartupApplicationListener implements ApplicationListener<App
         SpringApplication springApplication = event.getSpringApplication();
         scanMatrixPackages(springApplication, applicationContext);
         BeanContext.INSTANCE.resetApplicationContext(applicationContext);
-        startupTask.addMessage("Set applicationContext to BeanContext");
+        EventPublisher.INSTANCE.resetApplicationContext(applicationContext);
+        startupTask.addMessage("Set applicationContext to BeanContext and EventPublisher");
         startupTask.prettyPrint();
     }
 

@@ -22,20 +22,20 @@ import java.util.Map;
 @RestController
 @RequestMapping("/push")
 public class PushController {
-    @GetMapping("/deferredResult")
-    @PostMapping("/deferredResult")
+
+    @RequestMapping(value = "deferredResult", method = {RequestMethod.GET, RequestMethod.POST})
     public DeferredResult<JsonResponse<?>> deferredResult(@RequestParam Map<String, String> queryParams, @Nullable @RequestBody String body) {
         return PushUtil.INSTANCE.appendPusher(PusherType.DeferredResult, PusherKey.newInstance(queryParams, body));
     }
 
-    @GetMapping("/sse")
-    @PostMapping("/sse")
+
+    @RequestMapping(value = "sse", method = {RequestMethod.GET, RequestMethod.POST})
     public SseEmitter sse(Map<String, String> queryParams, @RequestBody String body) {
         return PushUtil.INSTANCE.appendPusher(PusherType.DeferredResult, PusherKey.newInstance(queryParams, body));
     }
 
-    @GetMapping("/streamingResponseBody")
-    @PostMapping("/streamingResponseBody")
+
+    @RequestMapping(value = "streamingResponseBody", method = {RequestMethod.GET, RequestMethod.POST})
     public StreamingResponseBody streamingResponseBody(Map<String, String> queryParams, @RequestBody String body) {
         // 用于直接将结果写出到Response的OutputStream中； 如文件下载等
         return outputStream -> {
