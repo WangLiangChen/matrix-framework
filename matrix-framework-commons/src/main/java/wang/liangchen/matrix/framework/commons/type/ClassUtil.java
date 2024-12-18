@@ -99,13 +99,13 @@ public enum ClassUtil {
         return constructorAccess(clazz).newInstance();
     }
 
-    public void invokeSetter(Object target, String setterMethod, Object... args) {
+    public void invokeSetter(Object target, String setterMethod, Object arg) {
         MethodAccessor methodAccessor = methodAccessor(target.getClass());
         Map<String, Integer> setters = methodAccessor.getSetters();
         Integer index = setters.get(setterMethod);
         ValidationUtil.INSTANCE.notNull(index, "setter does not exist:{}", setterMethod);
         MethodAccess methodAccess = methodAccessor.getMethodAccess();
-        methodAccess.invoke(target, index, args);
+        methodAccess.invoke(target, index, arg);
     }
 
     public Object invokeGetter(Object target, String getterMethod) {
@@ -233,15 +233,13 @@ public enum ClassUtil {
 
     public static class MethodAccessor {
         private final MethodAccess methodAccess;
-        private final Map<String, Integer> getters;
-        private final Map<String, Integer> setters;
+        private final Map<String, Integer> getters = new HashMap<>();
+        private final Map<String, Integer> setters = new HashMap<>();
 
         public MethodAccessor(MethodAccess methodAccess) {
             this.methodAccess = methodAccess;
-            getters = new HashMap<>();
-            setters = new HashMap<>();
             String[] methodNames = this.methodAccess.getMethodNames();
-            for (int i = 0, n = methodNames.length; i < n; i++) {
+            for (int i = 0, l = methodNames.length; i < l; i++) {
                 String methodName = methodNames[i];
                 if (methodName.startsWith(Symbol.GETTER_PREFIX.getSymbol())) {
                     getters.put(methodName, i);

@@ -1,17 +1,18 @@
 package com.sintrue.samples.service;
 
 
+import com.sintrue.samples.api.SampleRequest;
 import com.sintrue.samples.api.SampleResponse;
 import com.sintrue.samples.dao.SampleMapper;
 import com.sintrue.samples.dao.entity.Sample;
 import com.sintrue.samples.dao.entity.SampleAutoIncrement;
 import jakarta.inject.Inject;
 import org.springframework.stereotype.Service;
+import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceRouter;
 import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,45 +27,52 @@ public class SampleService {
         this.standaloneRepository = standaloneRepository;
     }
 
-    public SampleResponse insertAutoIncrement() {
-        SampleAutoIncrement sample = new SampleAutoIncrement();
-        sample.setSampleName("name_" + System.currentTimeMillis());
-        sample.setCreateDatetime(LocalDateTime.now());
-        sample.setDeleted((byte) 0);
-        standaloneRepository.insert(sample);
-        return sample.copyPropertiesTo(SampleResponse.class);
+    public SampleResponse insertAutoIncrement(SampleRequest request) {
+        // copy properties to entity
+        SampleAutoIncrement entity = request.copyPropertiesTo(SampleAutoIncrement.class);
+        entity.setCreateDatetime(LocalDateTime.now());
+        entity.setDeleted((byte) 0);
+        standaloneRepository.insert(entity);
+        // copy properties to MessageContract
+        return entity.copyPropertiesTo(SampleResponse.class);
     }
 
-    public void insertAutoIncrementBulk() {
-        List<SampleAutoIncrement> sampleList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            SampleAutoIncrement sample = new SampleAutoIncrement();
-            sample.setSampleName("name_" + i);
-            sample.setCreateDatetime(LocalDateTime.now());
-            sample.setDeleted((byte) 0);
-            sampleList.add(sample);
-        }
-        standaloneRepository.insert(sampleList);
-        System.out.println();
+    public List<SampleResponse> insertAutoIncrementBulk(List<SampleRequest> requests) {
+        // copy properties to entities, and populate entity
+        List<SampleAutoIncrement> entities = JavaBeanUtil.INSTANCE.copyProperties(requests, SampleAutoIncrement.class, (o, entity) -> {
+            entity.setCreateDatetime(LocalDateTime.now());
+            entity.setDeleted((byte) 0);
+        });
+        standaloneRepository.insert(entities);
+        // copy properties to MessageContract
+        return JavaBeanUtil.INSTANCE.copyProperties(entities, SampleResponse.class);
     }
 
-    public void insert() {
-        Sample sample = new Sample();
-        sample.setSampleName("name_" + System.currentTimeMillis());
-        sample.setCreateDatetime(LocalDateTime.now());
-        sample.setDeleted((byte) 0);
-        standaloneRepository.insert(sample);
+    public SampleResponse insert(SampleRequest request) {
+        // copy properties to entity
+        Sample entity = request.copyPropertiesTo(Sample.class);
+        entity.setCreateDatetime(LocalDateTime.now());
+        entity.setDeleted((byte) 0);
+        standaloneRepository.insert(entity);
+        // copy properties to MessageContract
+        return entity.copyPropertiesTo(SampleResponse.class);
     }
 
-    public void insertBulk() {
-        List<Sample> sampleList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Sample sample = new Sample();
-            sample.setSampleName("name_" + i);
-            sample.setCreateDatetime(LocalDateTime.now());
-            sample.setDeleted((byte) 0);
-            sampleList.add(sample);
-        }
-        standaloneRepository.insert(sampleList);
+    public List<SampleResponse> insertBulk(List<SampleRequest> requests) {
+        // copy properties to entities, and populate entity
+        List<Sample> entities = JavaBeanUtil.INSTANCE.copyProperties(requests, Sample.class, (o, entity) -> {
+            entity.setCreateDatetime(LocalDateTime.now());
+            entity.setDeleted((byte) 0);
+        });
+        standaloneRepository.insert(entities);
+        // copy properties to MessageContract
+        return JavaBeanUtil.INSTANCE.copyProperties(entities, SampleResponse.class);
     }
+
+    public void delete(Long sampleId) {
+        Sample sample = Sample.newInstance(Sample.class);
+        sample.setSampleId(sampleId);
+        standaloneRepository.delete(sample);
+    }
+
 }

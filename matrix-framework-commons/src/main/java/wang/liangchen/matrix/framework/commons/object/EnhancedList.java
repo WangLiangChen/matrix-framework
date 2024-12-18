@@ -303,7 +303,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToBoolean(object);
+        return ObjectUtil.INSTANCE.castTo(object, Boolean.class);
     }
 
     public boolean getBooleanValue(int index) {
@@ -320,7 +320,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToByte(object);
+        return ObjectUtil.INSTANCE.castTo(object, Byte.class);
     }
 
     public byte getByteValue(int index) {
@@ -336,7 +336,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToShort(object);
+        return ObjectUtil.INSTANCE.castTo(object, Short.class);
     }
 
     public short getShortValue(int index) {
@@ -352,7 +352,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToInt(object);
+        return ObjectUtil.INSTANCE.castTo(object, Integer.class);
     }
 
     public int getIntegerValue(int index) {
@@ -368,7 +368,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToLong(object);
+        return ObjectUtil.INSTANCE.castTo(object, Long.class);
     }
 
     public long getLongValue(int index) {
@@ -384,7 +384,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToFloat(object);
+        return ObjectUtil.INSTANCE.castTo(object, Float.class);
     }
 
     public float getFloatValue(int index) {
@@ -400,7 +400,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToDouble(object);
+        return ObjectUtil.INSTANCE.castTo(object, Double.class);
     }
 
     public double getDoubleValue(int index) {
@@ -416,7 +416,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToBigDecimal(object);
+        return ObjectUtil.INSTANCE.castTo(object, BigDecimal.class);
     }
 
     public BigInteger getBigInteger(int index) {
@@ -424,7 +424,7 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castToBigInteger(object);
+        return ObjectUtil.INSTANCE.castTo(object, BigInteger.class);
     }
 
     public String getString(int index) {

@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.object;
 import com.esotericsoftware.reflectasm.MethodAccess;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.StringUtil;
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
@@ -33,7 +33,7 @@ public enum JavaBeanUtil {
         if (methodName.startsWith(IS)) {
             return StringUtil.INSTANCE.firstLetterLowerCase(methodName.substring(2));
         }
-        throw new MatrixWarnException("methodName is illegal");
+        throw new MatrixErrorException("methodName is illegal");
     }
 
     public String resolveGetterName(String fieldName) {
