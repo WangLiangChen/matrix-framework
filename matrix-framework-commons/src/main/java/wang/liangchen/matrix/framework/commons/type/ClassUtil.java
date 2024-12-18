@@ -10,6 +10,7 @@ import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,22 +32,33 @@ public enum ClassUtil {
     INSTANCE;
     private static final Map<Class<?>, ConstructorAccess<?>> CONSTRUCTOR_ACCESS_CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, MethodAccessor> METHOD_ACCESS_CACHE = new ConcurrentHashMap<>();
-    public static final Map<Class<?>, Supplier<?>> TYPE_DEFAULT_VALUE = new HashMap<>() {{
+    private static final Map<Class<?>, Supplier<?>> ClASSES_DEFAULT_VALUE = new HashMap<>() {{
         put(Long.class, () -> 0L);
         put(Integer.class, () -> 0);
         put(Short.class, () -> (short) 0);
         put(Byte.class, () -> (byte) 0);
         put(Double.class, () -> 0d);
         put(Float.class, () -> 0f);
+        put(Character.class, () -> '\u0000');
         put(Boolean.class, () -> Boolean.FALSE);
         put(BigDecimal.class, () -> new BigDecimal(0));
+        put(BigInteger.class, () -> new BigInteger("0"));
         put(String.class, Symbol.EMPTY::getSymbol);
         put(Timestamp.class, () -> new Timestamp(System.currentTimeMillis()));
         put(LocalDate.class, LocalDate::now);
         put(LocalDateTime.class, LocalDateTime::now);
         put(Date.class, Date::new);
     }};
-
+    public static final Map<Class<?>, Class<?>> PRIMITIVE_CLASSES = new HashMap<>() {{
+        put(boolean.class, Boolean.class);
+        put(char.class, Character.class);
+        put(byte.class, Byte.class);
+        put(short.class, Short.class);
+        put(int.class, Integer.class);
+        put(long.class, Long.class);
+        put(float.class, Float.class);
+        put(double.class, Double.class);
+    }};
     public static final Map<Class<?>, Class<?>> WRAPPER_CLASSES = new HashMap<>() {{
         put(Boolean.class, boolean.class);
         put(Character.class, char.class);
@@ -70,12 +82,12 @@ public enum ClassUtil {
         return WRAPPER_CLASSES.containsKey(clazz);
     }
 
-    public boolean isPrimitive(Class<?> clazz) {
-        return clazz.isPrimitive();
+    public Class<?> primitiveToWrapper(Class<?> primitiveClass) {
+        return PRIMITIVE_CLASSES.get(primitiveClass);
     }
 
-    public boolean isWrappedPrimitive(Class<?> clazz) {
-        return WRAPPER_CLASSES.containsKey(clazz);
+    public Class<?> wrapperToPrimitive(Class<?> wrapperClass) {
+        return WRAPPER_CLASSES.get(wrapperClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -123,7 +135,7 @@ public enum ClassUtil {
                 return;
             }
             Class<?> returnType = returnTypes[getterIndex];
-            Supplier<?> supplier = TYPE_DEFAULT_VALUE.getOrDefault(returnType, () -> {
+            Supplier<?> supplier = ClASSES_DEFAULT_VALUE.getOrDefault(returnType, () -> {
                 try {
                     return instantiate(returnType);
                 } catch (Exception e) {

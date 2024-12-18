@@ -36,6 +36,10 @@ public class EnhancedObject implements Serializable {
         return JavaBeanUtil.INSTANCE.copyProperties(this, targetClass);
     }
 
+    public void copyPropertiesTo(Object target) {
+        JavaBeanUtil.INSTANCE.copyProperties(this, target);
+    }
+
     public <E> void copyPropertiesFrom(Object object) {
         JavaBeanUtil.INSTANCE.copyProperties(object, this);
     }

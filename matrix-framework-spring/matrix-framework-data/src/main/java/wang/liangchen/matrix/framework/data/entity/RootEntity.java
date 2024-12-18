@@ -58,11 +58,4 @@ public abstract class RootEntity extends EnhancedObject {
     public EntityMeta getEntityMeta() {
         return entityMeta;
     }
-
-    @Override
-    public String toString() {
-        return "RootEntity{" +
-                "updateToNullColumns=" + updateToNullColumns +
-                '}';
-    }
 }

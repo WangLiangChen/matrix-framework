@@ -1,14 +1,17 @@
 package com.sintrue.samples.api;
 
-public class SampleResponse {
-    private Long sampleId;
-    private String sampleName;
+import java.time.LocalDateTime;
 
-    public Long getSampleId() {
+public class SampleResponse {
+    private String sampleId;
+    private String sampleName;
+    private LocalDateTime createDatetime;
+
+    public String getSampleId() {
         return sampleId;
     }
 
-    public void setSampleId(Long sampleId) {
+    public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
     }
 
@@ -18,5 +21,13 @@ public class SampleResponse {
 
     public void setSampleName(String sampleName) {
         this.sampleName = sampleName;
+    }
+
+    public LocalDateTime getCreateDatetime() {
+        return createDatetime;
+    }
+
+    public void setCreateDatetime(LocalDateTime createDatetime) {
+        this.createDatetime = createDatetime;
     }
 }

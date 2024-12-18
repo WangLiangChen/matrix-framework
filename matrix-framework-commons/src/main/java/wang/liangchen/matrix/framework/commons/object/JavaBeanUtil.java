@@ -25,6 +25,7 @@ public enum JavaBeanUtil {
     private final static String GET = "get";
     private final static String IS = "is";
 
+
     public String resolveFieldName(String methodName) {
         if (methodName.startsWith(GET) || methodName.startsWith(SET)) {
             return StringUtil.INSTANCE.firstLetterLowerCase(methodName.substring(3));
@@ -46,6 +47,7 @@ public enum JavaBeanUtil {
     public String resolveIsName(String fieldName) {
         return String.format("%s%s", IS, StringUtil.INSTANCE.firstLetterUpperCase(fieldName));
     }
+
     public <S, T> List<T> copyProperties(Collection<S> sources, Class<T> targetClass) {
         return copyProperties(sources, targetClass, null);
     }
@@ -80,6 +82,7 @@ public enum JavaBeanUtil {
         MethodAccess targetMethodAccess = targetMethodAccessor.getMethodAccess();
         Map<String, Integer> getters = sourceMethodAccessor.getGetters();
         Map<String, Integer> setters = targetMethodAccessor.getSetters();
+        Class<?>[][] targetParameterTypes = targetMethodAccess.getParameterTypes();
         setters.forEach((setter, setterIndex) -> {
             String fieldName = setter.substring(3);
             String getter = StringUtil.INSTANCE.getGetter(fieldName);
@@ -88,6 +91,14 @@ public enum JavaBeanUtil {
                 return;
             }
             Object returnValue = sourceMethodAccess.invoke(source, getterIndex);
+            if (null == returnValue) {
+                return;
+            }
+            Class<?> targetClass = targetParameterTypes[setterIndex][0];
+            Class<?> sourceClass = returnValue.getClass();
+            if (targetClass != sourceClass) {
+                returnValue = ObjectUtil.INSTANCE.castTo(returnValue, targetClass);
+            }
             targetMethodAccess.invoke(target, setterIndex, returnValue);
         });
     }

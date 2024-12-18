@@ -24,7 +24,7 @@ public class SampleController {
     @GetMapping("/nativeObject")
     public SampleResponse nativeObject() {
         SampleResponse response = new SampleResponse();
-        response.setSampleId(0L);
+        response.setSampleId("0");
         response.setSampleName("name_0");
         return response;
     }
@@ -38,7 +38,7 @@ public class SampleController {
     @GetMapping("/monoNativeObject")
     public Mono<SampleResponse> monoNativeObject() {
         SampleResponse response = new SampleResponse();
-        response.setSampleId(0L);
+        response.setSampleId("0");
         response.setSampleName("name_0");
         return Mono.just(response);
     }
@@ -46,7 +46,7 @@ public class SampleController {
     @GetMapping("/monoReturnWrapper")
     public Mono<ReturnWrapper<SampleResponse>> monoReturnWrapper() {
         SampleResponse response = new SampleResponse();
-        response.setSampleId(0L);
+        response.setSampleId("0");
         response.setSampleName("name_0");
         return Mono.just(ReturnWrapper.success(response));
     }
@@ -54,7 +54,7 @@ public class SampleController {
     @GetMapping("/monoJsonResponse")
     public Mono<JsonResponse<SampleResponse>> monoJsonResponse() {
         SampleResponse response = new SampleResponse();
-        response.setSampleId(0L);
+        response.setSampleId("0");
         response.setSampleName("name_0");
         return Mono.just(JsonResponse.success(response));
     }
