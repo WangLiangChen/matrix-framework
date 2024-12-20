@@ -56,4 +56,10 @@ public class SampleTest {
         List<SampleResponse> sampleResponses = sampleService.insertBulk(requestList);
         System.out.println(JacksonUtil.INSTANCE.writeValueAsString(sampleResponses));
     }
+
+    @Test
+    public void findById() {
+        SampleResponse response = sampleService.findById(559795816177401963L);
+        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(response));
+    }
 }

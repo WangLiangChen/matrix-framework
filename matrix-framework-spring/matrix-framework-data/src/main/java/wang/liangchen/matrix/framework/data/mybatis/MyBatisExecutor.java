@@ -47,7 +47,7 @@ public enum MyBatisExecutor {
         ValidationUtil.INSTANCE.notNull(entity, "The entity can not be null");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insert");
-        EntityMeta entityMeta = entity.getEntityMeta();
+        EntityMeta entityMeta = entity.findEntityMeta();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             String tableName = entityMeta.getTableName();
             // 缓存单一ID的setterMethod
@@ -88,7 +88,7 @@ public enum MyBatisExecutor {
         E entity = iterator.next();
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "insertBulk");
-        EntityMeta entityMeta = entity.getEntityMeta();
+        EntityMeta entityMeta = entity.findEntityMeta();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             String tableName = entityMeta.getTableName();
             // 缓存单一ID的setterMethod
@@ -128,7 +128,7 @@ public enum MyBatisExecutor {
         ValidationUtil.INSTANCE.notNull(entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "delete");
-        EntityMeta entityMeta = entity.getEntityMeta();
+        EntityMeta entityMeta = entity.findEntityMeta();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             FieldMeta softDeleteFieldMeta = entityMeta.getSoftDeleteFieldMeta();
             if (null != softDeleteFieldMeta) {
@@ -195,7 +195,7 @@ public enum MyBatisExecutor {
         ValidationUtil.INSTANCE.notNull(entity, "{Parameter.NotNull}");
         Class<? extends RootEntity> entityClass = entity.getClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "update");
-        EntityMeta entityMeta = entity.getEntityMeta();
+        EntityMeta entityMeta = entity.findEntityMeta();
         String tableName = entityMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
