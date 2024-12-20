@@ -18,8 +18,28 @@
             <version>3.4.0</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.1.8</version>
+        </dependency>
+        <dependency>
             <groupId>wang.liangchen.matrix</groupId>
             <artifactId>matrix-framework-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.cache</groupId>
+            <artifactId>matrix-cache-sdk-spring-boot-starter</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
