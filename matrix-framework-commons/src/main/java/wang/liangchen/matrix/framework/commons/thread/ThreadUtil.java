@@ -46,7 +46,7 @@ public enum ThreadUtil {
         };
     }
 
-    public static void shutdownThreadPool(ExecutorService threadPool, long timeout, TimeUnit timeUnit) {
+    public void shutdownThreadPool(ExecutorService threadPool, long timeout, TimeUnit timeUnit) {
         if (threadPool == null || threadPool.isTerminated()) {
             return;
         }

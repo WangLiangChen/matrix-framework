@@ -7,6 +7,9 @@ import com.sintrue.samples.dao.SampleMapper;
 import com.sintrue.samples.dao.entity.Sample;
 import com.sintrue.samples.dao.entity.SampleAutoIncrement;
 import jakarta.inject.Inject;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import wang.liangchen.matrix.cache.sdk.annotation.CacheExpire;
@@ -21,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @DataSourceRouter("sample")
-public class SampleService {
+public class SampleService implements BeanFactoryAware {
     private final SampleMapper sampleMapper;
     private final StandaloneRepository standaloneRepository;
 
@@ -79,11 +82,16 @@ public class SampleService {
         standaloneRepository.delete(sample);
     }
 
-    @CacheExpire(ttl = 60, timeUnit = TimeUnit.MINUTES)
+    @CacheExpire(ttl = 5, timeUnit = TimeUnit.SECONDS)
     @Cacheable(cacheNames = "Sample")
     public SampleResponse findById(long sampleId) {
         Criteria<Sample> criteria = Criteria.of(Sample.class)._equals(Sample::getSampleId, sampleId);
         Sample sample = standaloneRepository.select(criteria);
         return sample.copyPropertiesTo(SampleResponse.class);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+
     }
 }

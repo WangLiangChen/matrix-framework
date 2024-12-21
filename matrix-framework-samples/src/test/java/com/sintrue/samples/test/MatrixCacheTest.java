@@ -1,20 +1,17 @@
 package com.sintrue.samples.test;
 
-import com.sintrue.samples.dao.entity.Sample;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.Cache;
-import wang.liangchen.matrix.cache.sdk.cache.MatrixCache;
-import wang.liangchen.matrix.cache.sdk.cache.mlc.MultilevelMatrixCacheManager;
-import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
+import wang.liangchen.matrix.cache.sdk.cache.mlc.MultiLevelMatrixCacheManager;
 
 import java.time.Duration;
 
 @SpringBootTest
 public class MatrixCacheTest {
     @Inject
-    private MultilevelMatrixCacheManager cacheManager;
+    private MultiLevelMatrixCacheManager cacheManager;
 
     @Test
     public void testWithCacheManager() {
@@ -24,13 +21,8 @@ public class MatrixCacheTest {
         }
         cache.put("name", "Liangchen.Wang");
         cache.put("age", 25);
-        Sample sample = new Sample();
-        sample.setSampleId(0L);
-        sample.setSampleName("Sample");
-        cache.put("sample", sample);
-        System.out.println(cache.get("name").get());
-        System.out.println(cache.get("age").get());
-        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(cache.get("sample").get()));
-        System.out.println(((MatrixCache) cache).keys());
+        cache.evict("name");
+        cache.clear();
+        System.out.println();
     }
 }

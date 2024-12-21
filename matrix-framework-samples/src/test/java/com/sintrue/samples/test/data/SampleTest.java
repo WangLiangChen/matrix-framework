@@ -6,16 +6,25 @@ import com.sintrue.samples.service.SampleService;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.interceptor.CacheInterceptor;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
+import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class SampleTest {
     @Inject
     private SampleService sampleService;
+    @Inject
+    private Map<String, CacheManager> cacheManagers;
+    @Inject
+    private Map<String, CacheInterceptor> cacheInterceptors;
 
     @Test
     public void testInsertAutoIncrement() {
@@ -59,7 +68,10 @@ public class SampleTest {
 
     @Test
     public void findById() {
-        SampleResponse response = sampleService.findById(559795816177401963L);
-        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(response));
+        for (int i = 0; i < 20; i++) {
+            System.out.println(JacksonUtil.INSTANCE.writeValueAsString(sampleService.findById(559795816177401963L)));
+            ThreadUtil.INSTANCE.sleep(TimeUnit.SECONDS, 1);
+        }
+
     }
 }
