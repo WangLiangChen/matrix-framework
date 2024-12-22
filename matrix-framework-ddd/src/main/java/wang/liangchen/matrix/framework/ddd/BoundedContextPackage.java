@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.ddd.domain;
+package wang.liangchen.matrix.framework.ddd;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,9 +8,12 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * Marker annotation
- * Mark a Package of Domain Layer
+ * Mark a BoundedContext Package
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Domain {
+public @interface BoundedContextPackage {
+    String name();
+
+    DomainType domainType() default DomainType.Core;
 }

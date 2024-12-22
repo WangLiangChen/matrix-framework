@@ -8,10 +8,9 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * Marker annotation
- * Mark a Package of an aggregate
+ * Mark a Package of Domain Layer
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Aggregate {
-    String value();
+public @interface DomainPackage {
 }

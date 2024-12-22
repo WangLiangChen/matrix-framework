@@ -164,11 +164,11 @@ public enum MyBatisExecutor {
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
-        String entityClassName = criteriaParameter.getEntityClass().getName();
+        String entityClassName = criteriaParameter.findEntityClass().getName();
         String statementId = String.format("%s.%s", entityClassName, "deleteBulk");
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             String tableName = criteriaParameter.getTableName();
-            FieldMeta softDeleteFieldMeta = criteriaParameter.getEntityMeta().getSoftDeleteFieldMeta();
+            FieldMeta softDeleteFieldMeta = criteriaParameter.findEntityMeta().getSoftDeleteFieldMeta();
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.append("<script>");
             if (null == softDeleteFieldMeta) {
@@ -184,7 +184,7 @@ public enum MyBatisExecutor {
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class, criteriaParameter.getEntityMeta());
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
             logger.debug("create and cache deleteBulkId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
@@ -242,9 +242,9 @@ public enum MyBatisExecutor {
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
-        Class<? extends RootEntity> entityClass = criteriaParameter.getEntityClass();
+        Class<? extends RootEntity> entityClass = criteriaParameter.findEntityClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "updateBulk");
-        EntityMeta entityMeta = criteriaParameter.getEntityMeta();
+        EntityMeta entityMeta = criteriaParameter.findEntityMeta();
         String tableName = entityMeta.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
             StringBuilder sqlBuilder = new StringBuilder();
@@ -280,7 +280,7 @@ public enum MyBatisExecutor {
 
 
     public <E extends RootEntity> int count(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
-        Class<? extends RootEntity> entityClass = criteriaParameter.getEntityClass();
+        Class<? extends RootEntity> entityClass = criteriaParameter.findEntityClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "count");
         String tableName = criteriaParameter.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -290,7 +290,7 @@ public enum MyBatisExecutor {
             sqlBuilder.append("select count(*) from ").append(tableName);
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class, criteriaParameter.getEntityMeta());
+            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
             String sqlScript = sqlBuilder.toString();
             logger.debug("create and cache countId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
@@ -299,7 +299,7 @@ public enum MyBatisExecutor {
     }
 
     public <E extends RootEntity> List<E> list(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
-        Class<? extends RootEntity> entityClass = criteriaParameter.getEntityClass();
+        Class<? extends RootEntity> entityClass = criteriaParameter.findEntityClass();
         String statementId = String.format("%s.%s", entityClass.getName(), "list");
         String tableName = criteriaParameter.getTableName();
         STATEMENT_CACHE.computeIfAbsent(statementId, cacheKey -> {
@@ -324,11 +324,11 @@ public enum MyBatisExecutor {
             sqlBuilder.append("</if>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sqlScript, CriteriaParameter.class, entityClass, criteriaParameter.getEntityMeta());
+            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sqlScript, CriteriaParameter.class, entityClass, criteriaParameter.findEntityMeta());
             logger.debug("create and cache listId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return populateContext(criteriaParameter.getEntityMeta(), () -> sqlSessionTemplate.selectList(statementId, criteriaParameter));
+        return populateContext(criteriaParameter.findEntityMeta(), () -> sqlSessionTemplate.selectList(statementId, criteriaParameter));
     }
 
     private <T> T populateContext(EntityMeta entityMeta, Supplier<T> supplier) {

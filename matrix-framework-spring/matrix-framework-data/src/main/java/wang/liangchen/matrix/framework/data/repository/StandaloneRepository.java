@@ -157,13 +157,13 @@ public class StandaloneRepository extends AbstractRepository {
         if (null == cacheOperator) {
             return;
         }
-        this.cacheOperator.evict(entityClass.getName());
+        this.cacheOperator.clear(entityClass.getName());
     }
 
     private <R, E extends RootEntity> R loadCache(CriteriaParameter<E> criteriaParameter, String supplier, Supplier<R> cacheLoader) {
         if (null == cacheOperator) {
             return cacheLoader.get();
         }
-        return this.cacheOperator.load(criteriaParameter.getEntityClass().getName(), supplier.concat("_").concat(criteriaParameter.cacheKey()), cacheLoader);
+        return this.cacheOperator.load(criteriaParameter.findEntityClass().getName(), supplier.concat("_").concat(criteriaParameter.cacheKey()), cacheLoader);
     }
 }

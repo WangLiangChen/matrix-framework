@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.data.mybatis.handler.ConstantEnumTypeHandler;
-import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
 
 import java.util.Map;
 
@@ -18,11 +17,6 @@ import java.util.Map;
  */
 @AutoConfiguration
 public class MybatisCustomizerAutoConfiguration {
-    @Bean
-    public StandaloneRepository standaloneRepository() {
-        return new StandaloneRepository();
-    }
-
     @Bean
     public ConfigurationCustomizer configurationCustomizer() {
         return configuration -> {

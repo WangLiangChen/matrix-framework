@@ -10,9 +10,7 @@ import jakarta.inject.Inject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import wang.liangchen.matrix.cache.sdk.annotation.CacheExpire;
 import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceRouter;
 import wang.liangchen.matrix.framework.data.criteria.Criteria;
@@ -20,7 +18,6 @@ import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @DataSourceRouter("sample")
@@ -82,8 +79,6 @@ public class SampleService implements BeanFactoryAware {
         standaloneRepository.delete(sample);
     }
 
-    @CacheExpire(ttl = 5, timeUnit = TimeUnit.SECONDS)
-    @Cacheable(cacheNames = "Sample")
     public SampleResponse findById(long sampleId) {
         Criteria<Sample> criteria = Criteria.of(Sample.class)._equals(Sample::getSampleId, sampleId);
         Sample sample = standaloneRepository.select(criteria);

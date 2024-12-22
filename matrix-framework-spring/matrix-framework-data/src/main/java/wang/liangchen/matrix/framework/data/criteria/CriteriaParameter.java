@@ -54,19 +54,19 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     }
 
 
-    public E getEntity() {
+    public E findEntity() {
         return entity;
     }
 
-    public Class<? extends RootEntity> getEntityClass() {
+    public Class<? extends RootEntity> findEntityClass() {
         return entityClass;
     }
 
-    public EntityMeta getEntityMeta() {
+    public EntityMeta findEntityMeta() {
         return entityMeta;
     }
 
-    public String getSoftDeleteColumnValue() {
+    public String findSoftDeleteColumnValue() {
         return softDeleteColumnValue;
     }
 
