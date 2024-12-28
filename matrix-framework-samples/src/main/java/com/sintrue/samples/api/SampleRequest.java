@@ -13,4 +13,10 @@ public class SampleRequest extends EnhancedObject {
         this.sampleName = sampleName;
     }
 
+    @Override
+    public String toString() {
+        return "SampleRequest{" +
+                "sampleName='" + sampleName + '\'' +
+                "}";
+    }
 }

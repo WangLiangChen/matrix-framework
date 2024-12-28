@@ -61,10 +61,17 @@ public class SampleTest {
 
     @Test
     public void findById() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             System.out.println(JacksonUtil.INSTANCE.writeValueAsString(sampleService.findById(559795816177401963L)));
             ThreadUtil.INSTANCE.sleep(TimeUnit.SECONDS, 1);
         }
 
+    }
+
+    @Test
+    public void find() {
+        SampleRequest request = new SampleRequest();
+        request.setSampleName("findRequest");
+        sampleService.find(request);
     }
 }
