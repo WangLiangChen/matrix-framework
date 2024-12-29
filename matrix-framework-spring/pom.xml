@@ -20,8 +20,8 @@
     </modules>
 
     <properties>
-        <version.springboot>3.4.0</version.springboot>
-        <version.springcloud>2023.0.3</version.springcloud>
+        <version.springboot>3.4.1</version.springboot>
+        <version.springcloud>2024.0.0</version.springcloud>
     </properties>
 
     <dependencyManagement>
