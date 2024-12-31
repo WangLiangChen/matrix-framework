@@ -1,10 +1,11 @@
 package wang.liangchen.matrix.framework.data.pagination;
 
 
-import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * @author LiangChen.Wang
@@ -13,41 +14,54 @@ public final class OrderBy implements Serializable {
     private String orderBy;
     private OrderByDirection direction;
 
-    public static OrderBy newInstance() {
-        return ClassUtil.INSTANCE.instantiate(OrderBy.class);
-    }
-
-    public static OrderBy newInstance(String orderBy, OrderByDirection direction) {
-        return new OrderBy(orderBy, direction);
+    public OrderBy() {
     }
 
     public OrderBy(String orderBy, OrderByDirection direction) {
-        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "Parameter 'orderBy' cannot be blank");
-        ValidationUtil.INSTANCE.notNull(direction, "Parameter 'direction' cannot be null");
+        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "The parameter 'orderBy' cannot be blank");
         this.orderBy = orderBy;
         this.direction = direction;
     }
 
     public OrderBy(String orderBy) {
-        ValidationUtil.INSTANCE.notNullAndBlank(orderBy, "Parameter 'orderBy' cannot be blank");
-        this.orderBy = orderBy;
+        this(orderBy, OrderByDirection.asc);
     }
 
     public String getOrderBy() {
         return orderBy;
     }
 
-    public OrderBy setOrderBy(String orderBy) {
+    public void setOrderBy(String orderBy) {
         this.orderBy = orderBy;
-        return this;
     }
 
     public OrderByDirection getDirection() {
         return direction;
     }
 
-    public OrderBy setDirection(OrderByDirection direction) {
+    public void setDirection(OrderByDirection direction) {
         this.direction = direction;
-        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderBy, direction);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        OrderBy that = (OrderBy) object;
+        return Objects.equals(orderBy, that.orderBy) && direction == that.direction;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", "OrderBy[", "]")
+                .add("orderBy='" + orderBy + "'")
+                .add("direction=" + direction)
+                .toString();
     }
 }

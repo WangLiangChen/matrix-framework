@@ -435,4 +435,22 @@ public class EnhancedList<E> implements List<E>, RandomAccess, Serializable {
         return String.valueOf(object);
     }
 
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        return delegate.equals(object);
+    }
+
+    @Override
+    public String toString() {
+        return "EnhancedList[" + delegate.toString() + "]";
+    }
+
 }

@@ -13,9 +13,9 @@ import java.util.function.Consumer;
  */
 public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     /**
-     * 默认驱逐缓存
+     * 默认清理缓存
      */
-    private boolean evictCache = true;
+    private boolean clearCache = true;
     private boolean hardDelete = false;
 
     private DeleteCriteria(Class<E> entityClass) {
@@ -31,8 +31,8 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
         };
     }
 
-    public DeleteCriteria<E> disableEvictCache() {
-        this.evictCache = false;
+    public DeleteCriteria<E> disableClearCache() {
+        this.clearCache = false;
         return this;
     }
 
@@ -240,8 +240,8 @@ public abstract class DeleteCriteria<E extends RootEntity> extends AbstractCrite
     }
 
 
-    public boolean isEvictCache() {
-        return this.evictCache;
+    public boolean isClearCache() {
+        return this.clearCache;
     }
 
     protected boolean isHardDelete() {

@@ -16,6 +16,8 @@ import wang.liangchen.matrix.cache.sdk.annotation.CacheExpire;
 import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 import wang.liangchen.matrix.framework.data.annotation.DataSourceRouter;
 import wang.liangchen.matrix.framework.data.criteria.Criteria;
+import wang.liangchen.matrix.framework.data.criteria.DeleteCriteria;
+import wang.liangchen.matrix.framework.data.criteria.UpdateCriteria;
 import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
 
 import java.time.LocalDateTime;
@@ -76,10 +78,31 @@ public class SampleService implements BeanFactoryAware {
         return JavaBeanUtil.INSTANCE.copyProperties(entities, SampleResponse.class);
     }
 
-    public void delete(Long sampleId) {
-        Sample sample = Sample.newInstance(Sample.class);
+    public void deleteById(Long sampleId) {
+        Sample sample = new Sample();
         sample.setSampleId(sampleId);
         standaloneRepository.delete(sample);
+    }
+
+    public void deleteByName(String sampleName) {
+        DeleteCriteria<Sample> criteria = DeleteCriteria.of(Sample.class)._equals(Sample::getSampleName, sampleName);
+        criteria.disableClearCache();
+        standaloneRepository.delete(criteria);
+    }
+
+    public void updateById(Long sampleId) {
+        Sample sample = new Sample();
+        sample.setSampleId(sampleId);
+        sample.setSampleName(String.valueOf(sampleId));
+        sample.addUpdateToNullColumn(Sample::getCreateDatetime);
+        standaloneRepository.update(sample);
+    }
+
+    public void updateByName(String sampleName) {
+        Sample sample = new Sample();
+        sample.setSampleName(sampleName);
+        UpdateCriteria<Sample> criteria = UpdateCriteria.of(sample)._equals(Sample::getSampleName, sampleName).addUpdateToNullColumn(Sample::getCreateDatetime);
+        standaloneRepository.update(criteria);
     }
 
     public SampleResponse findById(long sampleId) {
@@ -92,7 +115,7 @@ public class SampleService implements BeanFactoryAware {
     @CacheExpire(ttl = 10, timeUnit = TimeUnit.MINUTES)
     public SampleResponse find(SampleRequest request) {
         SampleResponse response = new SampleResponse();
-        response.setSampleName("findName");
+        response.setSampleName("foundName");
         return response;
     }
 

@@ -3,6 +3,7 @@ package wang.liangchen.matrix.framework.data.resolver;
 import jakarta.persistence.*;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
+import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.*;
 import wang.liangchen.matrix.framework.data.entity.ExtendedFields;
@@ -70,9 +71,10 @@ public enum EntityResolver {
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         boolean isColumnState = null != columnStateAnnotation;
         ColumnSoftDelete columnSoftDeleteAnnotation = field.getAnnotation(ColumnSoftDelete.class);
-        String softDeleteValue = null == columnSoftDeleteAnnotation ? null : columnSoftDeleteAnnotation.value();
+        Object softDeleteValue = null == columnSoftDeleteAnnotation ? null : columnSoftDeleteAnnotation.value();
+        softDeleteValue = null == softDeleteValue ? null : ObjectUtil.INSTANCE.castTo(softDeleteValue, columnSoftDeleteAnnotation.type());
 
-        Map<FieldLabel, Optional<String>> fieldLabels = new HashMap<>();
+        Map<FieldLabel, Optional<Object>> fieldLabels = new HashMap<>();
         if (isColumnId) {
             fieldLabels.put(FieldLabel.ID, Optional.of(idStrategy.name()));
         }

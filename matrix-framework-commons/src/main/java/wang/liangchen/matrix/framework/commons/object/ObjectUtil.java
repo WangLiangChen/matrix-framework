@@ -122,6 +122,9 @@ public enum ObjectUtil {
             return null;
         }
         Class<?> sourceClass = source.getClass();
+        if (targetClass.isAssignableFrom(sourceClass)) {
+            return cast(source);
+        }
         if (Number.class.isAssignableFrom(sourceClass)) {
             sourceClass = Number.class;
         }

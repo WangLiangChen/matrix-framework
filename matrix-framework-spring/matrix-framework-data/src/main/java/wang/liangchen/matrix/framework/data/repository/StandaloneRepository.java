@@ -31,7 +31,7 @@ public class StandaloneRepository extends AbstractRepository {
     @Override
     public <E extends RootEntity> int insert(E entity) {
         int rows = MyBatisExecutor.INSTANCE.insert(sqlSessionTemplate, entity);
-        evictCache(entity.getClass());
+        clearCache(entity.getClass());
         return rows;
     }
 
@@ -40,7 +40,7 @@ public class StandaloneRepository extends AbstractRepository {
         // 先插入数据，再清除缓存
         int rows = MyBatisExecutor.INSTANCE.insert(sqlSessionTemplate, entities);
         for (E entity : entities) {
-            evictCache(entity.getClass());
+            clearCache(entity.getClass());
             return rows;
         }
         return rows;
@@ -49,7 +49,7 @@ public class StandaloneRepository extends AbstractRepository {
     @Override
     public <E extends RootEntity> int delete(E entity) {
         int rows = MyBatisExecutor.INSTANCE.delete(sqlSessionTemplate, entity);
-        evictCache(entity.getClass());
+        clearCache(entity.getClass());
         return rows;
     }
 
@@ -57,8 +57,8 @@ public class StandaloneRepository extends AbstractRepository {
     public <E extends RootEntity> int delete(DeleteCriteria<E> deleteCriteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(deleteCriteria);
         int rows = MyBatisExecutor.INSTANCE.delete(sqlSessionTemplate, criteriaParameter);
-        if (deleteCriteria.isEvictCache()) {
-            evictCache(deleteCriteria.getEntityClass());
+        if (deleteCriteria.isClearCache()) {
+            clearCache(deleteCriteria.getEntityClass());
         }
         return rows;
     }
@@ -66,7 +66,7 @@ public class StandaloneRepository extends AbstractRepository {
     @Override
     public <E extends RootEntity> int update(E entity) {
         int rows = MyBatisExecutor.INSTANCE.update(sqlSessionTemplate, entity);
-        evictCache(entity.getClass());
+        clearCache(entity.getClass());
         return rows;
     }
 
@@ -74,8 +74,8 @@ public class StandaloneRepository extends AbstractRepository {
     public <E extends RootEntity> int update(UpdateCriteria<E> updateCriteria) {
         CriteriaParameter<E> criteriaParameter = CriteriaResolver.INSTANCE.resolve(updateCriteria);
         int rows = MyBatisExecutor.INSTANCE.update(sqlSessionTemplate, criteriaParameter);
-        if (updateCriteria.isEvictCache()) {
-            evictCache(updateCriteria.getEntityClass());
+        if (updateCriteria.isClearCache()) {
+            clearCache(updateCriteria.getEntityClass());
         }
         return rows;
     }
@@ -153,7 +153,7 @@ public class StandaloneRepository extends AbstractRepository {
         return paginationResult;
     }
 
-    private <E extends RootEntity> void evictCache(Class<E> entityClass) {
+    private <E extends RootEntity> void clearCache(Class<E> entityClass) {
         if (null == cacheOperator) {
             return;
         }

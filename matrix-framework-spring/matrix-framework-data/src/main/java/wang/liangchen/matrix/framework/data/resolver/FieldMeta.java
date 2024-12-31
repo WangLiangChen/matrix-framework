@@ -15,10 +15,10 @@ public final class FieldMeta {
     private final Class<?> fieldClass;
     private final Type fieldType;
     private final String columnName;
-    private final Map<FieldLabel, Optional<String>> fieldLabels;
+    private final Map<FieldLabel, Optional<Object>> fieldLabels;
 
 
-    public FieldMeta(String fieldName, Class<?> fieldClass, Type fieldType, String columnName, Map<FieldLabel, Optional<String>> fieldLabels) {
+    public FieldMeta(String fieldName, Class<?> fieldClass, Type fieldType, String columnName, Map<FieldLabel, Optional<Object>> fieldLabels) {
         this.fieldName = fieldName;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
@@ -33,15 +33,15 @@ public final class FieldMeta {
         return fieldLabels.containsKey(fieldLabel);
     }
 
-    public Optional<String> fieldLabelValue(FieldLabel fieldLabel) {
+    public Optional<Object> fieldLabelValue(FieldLabel fieldLabel) {
         return fieldLabels.get(fieldLabel);
     }
 
     public IdStrategy.Strategy getIdStrategy() {
-        return fieldLabels.get(FieldLabel.ID).map(IdStrategy.Strategy::valueOf).orElse(IdStrategy.Strategy.NONE);
+        return fieldLabels.get(FieldLabel.ID).map(String::valueOf).map(IdStrategy.Strategy::valueOf).orElse(IdStrategy.Strategy.NONE);
     }
 
-    public String getSoftDeleteValue() {
+    public Object getSoftDeleteValue() {
         return fieldLabels.get(FieldLabel.SOFT_DELETE).orElse(null);
     }
 

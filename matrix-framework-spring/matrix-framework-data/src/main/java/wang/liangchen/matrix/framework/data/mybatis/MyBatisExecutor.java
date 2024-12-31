@@ -174,12 +174,9 @@ public enum MyBatisExecutor {
             if (null == softDeleteFieldMeta) {
                 sqlBuilder.append("delete from ").append(tableName);
             } else {
-                sqlBuilder.append("<choose><when test=\"true==hardDelete\">");
-                sqlBuilder.append("delete from ").append(tableName);
-                sqlBuilder.append("</when><otherwise>");
                 sqlBuilder.append("update ").append(tableName).append("<set>");
                 sqlBuilder.append(softDeleteFieldMeta.getColumnName()).append(Symbol.EQUAL.getSymbol()).append("#{softDeleteColumnValue}");
-                sqlBuilder.append("</set></otherwise></choose>");
+                sqlBuilder.append("</set>");
             }
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
@@ -443,7 +440,9 @@ public enum MyBatisExecutor {
             }};
             statementBuilder.resultMaps(resultMaps);
             configuration.addMappedStatement(statementBuilder.build());
+            return;
         }
+        configuration.addMappedStatement(statementBuilder.build());
     }
 
     static class IDGenerator {

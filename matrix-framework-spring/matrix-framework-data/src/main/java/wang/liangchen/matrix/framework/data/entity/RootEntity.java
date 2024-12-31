@@ -51,7 +51,7 @@ public abstract class RootEntity extends EnhancedObject {
         return fieldMetas.get(fieldName).getColumnName();
     }
 
-    public Set<String> findUpdateToNullColumns() {
+    public Set<String> getUpdateToNullColumns() {
         return updateToNullColumns;
     }
 

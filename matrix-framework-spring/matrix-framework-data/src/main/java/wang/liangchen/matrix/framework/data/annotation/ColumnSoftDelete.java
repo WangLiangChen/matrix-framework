@@ -15,4 +15,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface ColumnSoftDelete {
     String value();
+
+    Class<?> type() default String.class;
 }

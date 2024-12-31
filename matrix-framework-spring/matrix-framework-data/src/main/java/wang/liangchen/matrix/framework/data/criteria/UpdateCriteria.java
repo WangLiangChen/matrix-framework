@@ -12,9 +12,9 @@ import java.util.function.Consumer;
  */
 public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCriteria<E> {
     /**
-     * 默认驱逐缓存
+     * 默认清理缓存
      */
-    private boolean evictCache = true;
+    private boolean clearCache = true;
 
     private UpdateCriteria(E entity) {
         super(entity);
@@ -26,8 +26,8 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
     }
 
 
-    public UpdateCriteria<E> disableEvictCache() {
-        this.evictCache = false;
+    public UpdateCriteria<E> disableClearCache() {
+        this.clearCache = false;
         return this;
     }
 
@@ -270,7 +270,7 @@ public abstract class UpdateCriteria<E extends RootEntity> extends AbstractCrite
         return (UpdateCriteria<E>) super._and(consumer);
     }
 
-    public boolean isEvictCache() {
-        return evictCache;
+    public boolean isClearCache() {
+        return clearCache;
     }
 }

@@ -2,6 +2,7 @@ package com.sintrue.samples.dao.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import wang.liangchen.matrix.framework.data.annotation.ColumnSoftDelete;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 
@@ -14,6 +15,7 @@ public class Sample extends RootEntity {
     private Long sampleId;
     private String sampleName;
     private LocalDateTime createDatetime;
+    @ColumnSoftDelete(value = "1", type = Byte.class)
     private Byte deleted;
 
     public Long getSampleId() {

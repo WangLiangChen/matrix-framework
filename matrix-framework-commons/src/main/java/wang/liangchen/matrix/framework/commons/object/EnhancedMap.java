@@ -103,21 +103,6 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
     }
 
     @Override
-    public boolean equals(Object o) {
-        return delegate.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return delegate.toString();
-    }
-
-    @Override
     public V getOrDefault(Object key, V defaultValue) {
         return delegate.getOrDefault(key, defaultValue);
     }
@@ -254,7 +239,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Boolean.class);
+        return ObjectUtil.INSTANCE.castTo(object, Boolean.class);
     }
 
     public boolean getBooleanValue(String key) {
@@ -271,7 +256,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Byte.class);
+        return ObjectUtil.INSTANCE.castTo(object, Byte.class);
     }
 
     public byte getByteValue(String key) {
@@ -287,7 +272,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Short.class);
+        return ObjectUtil.INSTANCE.castTo(object, Short.class);
     }
 
     public short getShortValue(String key) {
@@ -303,7 +288,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Integer.class);
+        return ObjectUtil.INSTANCE.castTo(object, Integer.class);
     }
 
     public int getIntegerValue(String key) {
@@ -319,7 +304,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Long.class);
+        return ObjectUtil.INSTANCE.castTo(object, Long.class);
     }
 
     public long getLongValue(String key) {
@@ -335,7 +320,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,Float.class);
+        return ObjectUtil.INSTANCE.castTo(object, Float.class);
     }
 
     public float getFloatValue(String key) {
@@ -367,7 +352,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,BigDecimal.class);
+        return ObjectUtil.INSTANCE.castTo(object, BigDecimal.class);
     }
 
     public BigInteger getBigInteger(String key) {
@@ -375,7 +360,7 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         if (object == null) {
             return null;
         }
-        return ObjectUtil.INSTANCE.castTo(object,BigInteger.class);
+        return ObjectUtil.INSTANCE.castTo(object, BigInteger.class);
     }
 
     public String getString(String key) {
@@ -385,4 +370,23 @@ public class EnhancedMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, S
         }
         return String.valueOf(object);
     }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        return delegate.equals(object);
+    }
+
+    @Override
+    public String toString() {
+        return "EnhancedMap[" + delegate.toString() + "]";
+    }
+
 }

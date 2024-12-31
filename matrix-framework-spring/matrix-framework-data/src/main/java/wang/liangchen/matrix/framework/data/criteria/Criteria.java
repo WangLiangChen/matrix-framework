@@ -69,7 +69,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
     }
 
     public Criteria<E> orderBy(String columnName, OrderByDirection orderByDirection) {
-        this.orderBys.add(OrderBy.newInstance(columnName, orderByDirection));
+        this.orderBys.add(new OrderBy(columnName, orderByDirection));
         return this;
 
     }

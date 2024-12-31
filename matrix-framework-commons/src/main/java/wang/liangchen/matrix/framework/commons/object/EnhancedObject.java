@@ -16,18 +16,6 @@ public class EnhancedObject implements Serializable {
      */
     private final Map<String, Object> extendedFields = new EnhancedMap<>();
 
-    public static <T extends EnhancedObject> T newInstance(Class<T> clazz, boolean initializeFields) {
-        T object = ClassUtil.INSTANCE.instantiate(clazz);
-        if (initializeFields) {
-            ClassUtil.INSTANCE.initializeFields(object);
-        }
-        return object;
-    }
-
-    public static <T extends EnhancedObject> T newInstance(Class<T> clazz) {
-        return ClassUtil.INSTANCE.instantiate(clazz);
-    }
-
     public void initializeFields() {
         ClassUtil.INSTANCE.initializeFields(this);
     }
@@ -40,7 +28,7 @@ public class EnhancedObject implements Serializable {
         JavaBeanUtil.INSTANCE.copyProperties(this, target);
     }
 
-    public <E> void copyPropertiesFrom(Object object) {
+    public void copyPropertiesFrom(Object object) {
         JavaBeanUtil.INSTANCE.copyProperties(object, this);
     }
 
@@ -60,4 +48,27 @@ public class EnhancedObject implements Serializable {
         this.extendedFields.remove(name);
     }
 
+    public void clearExtendedFields() {
+        this.extendedFields.clear();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return extendedFields.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        EnhancedObject that = (EnhancedObject) object;
+        return extendedFields.equals(that.extendedFields);
+    }
+
+    @Override
+    public String toString() {
+        return "EnhancedObject[" + this.extendedFields + "]";
+    }
 }

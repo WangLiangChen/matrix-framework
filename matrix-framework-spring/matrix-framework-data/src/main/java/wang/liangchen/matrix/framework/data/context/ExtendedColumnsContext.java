@@ -1,7 +1,6 @@
 package wang.liangchen.matrix.framework.data.context;
 
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 
 /**
  * @author Liangchen.Wang 2023-03-30 19:14
@@ -11,7 +10,7 @@ public enum ExtendedColumnsContext {
     private final ThreadLocal<ExtendedColumnIsolationKey> context = new InheritableThreadLocal<>();
 
     public void setColumnGroup(String columnGroup) {
-        ExtendedColumnIsolationKey extendedColumnIsolationKey = ExtendedColumnIsolationKey.newInstance();
+        ExtendedColumnIsolationKey extendedColumnIsolationKey = new ExtendedColumnIsolationKey();
         extendedColumnIsolationKey.columnGroup = columnGroup;
         context.set(extendedColumnIsolationKey);
     }
@@ -48,8 +47,5 @@ public enum ExtendedColumnsContext {
         private String columnGroup;
         private String tableName;
 
-        public static ExtendedColumnIsolationKey newInstance() {
-            return ClassUtil.INSTANCE.instantiate(ExtendedColumnIsolationKey.class);
-        }
     }
 }
