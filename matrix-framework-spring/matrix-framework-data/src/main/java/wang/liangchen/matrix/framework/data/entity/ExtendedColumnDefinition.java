@@ -10,16 +10,13 @@ import wang.liangchen.matrix.framework.data.enumeration.DataType;
  * @author Liangchen.Wang 2023-03-23 21:51
  */
 @Entity(name = "matrix_columns")
-public class ExtendedColumn extends RootEntity {
+public class ExtendedColumnDefinition extends RootEntity {
     @Id
     @IdStrategy(IdStrategy.Strategy.MATRIX_FLAKE)
     private Long columnId;
-    private String columnKey;
-    private String columnGroup;
     private String tableName;
     private String columnName;
     private DataType dataType = DataType.STRING;
-    private String columnDefault = StringUtil.INSTANCE.blankString();
     private Byte isNullable = 1;
     private String columnRegex = StringUtil.INSTANCE.blankString();
     private String columnComment = StringUtil.INSTANCE.blankString();
@@ -30,22 +27,6 @@ public class ExtendedColumn extends RootEntity {
 
     public void setColumnId(Long columnId) {
         this.columnId = columnId;
-    }
-
-    public String getColumnKey() {
-        return columnKey;
-    }
-
-    public void setColumnKey(String columnKey) {
-        this.columnKey = columnKey;
-    }
-
-    public String getColumnGroup() {
-        return columnGroup;
-    }
-
-    public void setColumnGroup(String columnGroup) {
-        this.columnGroup = columnGroup;
     }
 
     public String getTableName() {
@@ -70,14 +51,6 @@ public class ExtendedColumn extends RootEntity {
 
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
-    }
-
-    public String getColumnDefault() {
-        return columnDefault;
-    }
-
-    public void setColumnDefault(String columnDefault) {
-        this.columnDefault = columnDefault;
     }
 
     public Byte getIsNullable() {

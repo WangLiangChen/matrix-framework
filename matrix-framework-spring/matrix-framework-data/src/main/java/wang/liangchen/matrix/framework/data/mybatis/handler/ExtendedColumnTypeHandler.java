@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
-import wang.liangchen.matrix.framework.data.context.ExtendedColumnsContext;
 import wang.liangchen.matrix.framework.data.criteria.Criteria;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumn;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnDefinition;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValueDetail;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
@@ -18,7 +19,6 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -61,41 +61,36 @@ public class ExtendedColumnTypeHandler extends AbstractObjectTypeHandler {
     }
 
     private Object jsonString2Object(String jsonString) throws SQLException {
-        // 查询配置的扩展字段
-        String columnGroup = ExtendedColumnsContext.INSTANCE.getColumnGroup();
-        String tableName = ExtendedColumnsContext.INSTANCE.getTableName();
-        List<ExtendedColumn> extendedColumns = standaloneRepository.list(Criteria.of(ExtendedColumn.class)
-                ._equals(ExtendedColumn::getColumnGroup, columnGroup)
-                ._equals(ExtendedColumn::getTableName, tableName));
-        if (CollectionUtil.INSTANCE.isEmpty(extendedColumns)) {
+        // find table name from context
+        String tableName = "";
+        // find column definition by table name
+        List<ExtendedColumnDefinition> extendedColumnDefinitions = standaloneRepository.list(Criteria.of(ExtendedColumnDefinition.class)
+                ._equals(ExtendedColumnDefinition::getTableName, tableName));
+        if (CollectionUtil.INSTANCE.isEmpty(extendedColumnDefinitions)) {
             return new ExtendedColumnValues<ExtendedColumnValueDetail>();
         }
         try {
-            JavaType javaType = JacksonUtil.INSTANCE.typeFactory().constructParametricType(this.getResultClass(), ExtendedColumnValueDetail.class);
-            ExtendedColumnValues<ExtendedColumnValueDetail> extendedColumnValues = JacksonUtil.INSTANCE.objectMapper().readValue(jsonString, javaType);
-            // 补充字段值
-            Iterator<ExtendedColumn> iterator = extendedColumns.iterator();
-            while (iterator.hasNext()) {
-                ExtendedColumn extendedColumn = iterator.next();
-                extendedColumnValues.forEach(detail -> {
-                    if (detail.getColumnName().equals(extendedColumn.getColumnName())) {
-                        detail.setColumnComment(extendedColumn.getColumnComment());
-                        detail.setDataType(extendedColumn.getDataType());
-                        iterator.remove();
+            // find column name and column value from json string
+            JavaType javaType = JacksonUtil.INSTANCE.typeFactory().constructParametricType(this.getResultClass(), ExtendedColumnValue.class);
+            ExtendedColumnValues<ExtendedColumnValue> extendedColumnValues = JacksonUtil.INSTANCE.objectMapper().readValue(jsonString, javaType);
+            ExtendedColumnValues<ExtendedColumnValueDetail> extendedColumnValuesDetails = new ExtendedColumnValues<>();
+            // Complete column definition
+            extendedColumnDefinitions.forEach(extendedColumnDefinition -> {
+                ExtendedColumnValueDetail detail = new ExtendedColumnValueDetail();
+                detail.setColumnName(extendedColumnDefinition.getColumnName());
+                detail.setDataType(extendedColumnDefinition.getDataType());
+                detail.setColumnComment(extendedColumnDefinition.getColumnComment());
+                // find value from extendedColumnValues
+                extendedColumnValues.forEach(extendedColumnValue -> {
+                    if (extendedColumnValue.getColumnName().equals(extendedColumnDefinition.getColumnName())) {
+                        detail.setColumnValue(extendedColumnValue.getColumnValue());
                     }
                 });
-            }
-            // 增加其余的字段
-            extendedColumns.forEach(extendedColumn -> {
-                ExtendedColumnValueDetail detail = new ExtendedColumnValueDetail();
-                detail.setColumnName(extendedColumn.getColumnName());
-                detail.setColumnComment(extendedColumn.getColumnComment());
-                detail.setDataType(extendedColumn.getDataType());
-                extendedColumnValues.add(detail);
+                extendedColumnValuesDetails.add(detail);
             });
-            return extendedColumnValues;
+            return extendedColumnValuesDetails;
         } catch (JsonProcessingException e) {
-            throw new SQLException(e);
+            throw new MatrixErrorException(e);
         }
     }
 }

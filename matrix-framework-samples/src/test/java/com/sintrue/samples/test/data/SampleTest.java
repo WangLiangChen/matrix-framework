@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.data.json.JsonField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,29 +21,21 @@ public class SampleTest {
     private SampleService sampleService;
 
     @Test
-    public void testInsertAutoIncrement() {
-        SampleRequest request = new SampleRequest();
-        request.setSampleName("name_" + NanoIdUtil.INSTANCE.randomNanoId());
-        SampleResponse response = sampleService.insertAutoIncrement(request);
-        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(response));
-    }
-
-    @Test
-    public void testInsertAutoIncrementBulk() {
-        List<SampleRequest> requestList = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            SampleRequest request = new SampleRequest();
-            request.setSampleName("name_" + NanoIdUtil.INSTANCE.randomNanoId());
-            requestList.add(request);
-        }
-        List<SampleResponse> sampleResponses = sampleService.insertAutoIncrementBulk(requestList);
-        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(sampleResponses));
-    }
-
-    @Test
     public void testInsert() {
         SampleRequest request = new SampleRequest();
         request.setSampleName("name_" + NanoIdUtil.INSTANCE.randomNanoId());
+        JsonField sampleJson = new JsonField();
+        sampleJson.put("name", "Liangchen.Wang");
+        sampleJson.put("age", 18);
+        request.setSampleJson(sampleJson);
+
+        ExtendedColumnValues<ExtendedColumnValue> sampleExtended = new ExtendedColumnValues<>();
+        ExtendedColumnValue extendedColumnValue = new ExtendedColumnValue();
+        extendedColumnValue.setColumnName("extended_name");
+        extendedColumnValue.setColumnValue("Fengyuan.Wang");
+        sampleExtended.add(extendedColumnValue);
+        request.setSampleExtended(sampleExtended);
+
         SampleResponse response = sampleService.insert(request);
         System.out.println(JacksonUtil.INSTANCE.writeValueAsString(response));
     }

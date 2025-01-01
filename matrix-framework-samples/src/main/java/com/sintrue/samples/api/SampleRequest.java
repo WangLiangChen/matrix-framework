@@ -1,11 +1,14 @@
 package com.sintrue.samples.api;
 
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
-
-import java.util.Objects;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.data.json.JsonField;
 
 public class SampleRequest extends EnhancedObject {
     private String sampleName;
+    private JsonField sampleJson;
+    private ExtendedColumnValues<ExtendedColumnValue> sampleExtended;
 
     public String getSampleName() {
         return sampleName;
@@ -15,23 +18,19 @@ public class SampleRequest extends EnhancedObject {
         this.sampleName = sampleName;
     }
 
-    // for caffeine cache
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.sampleName);
+    public JsonField getSampleJson() {
+        return sampleJson;
     }
 
-    // for caffeine cache
-    @Override
-    public boolean equals(Object object) {
-        return (this == object || (object instanceof SampleRequest thatRequest && Objects.equals(this.sampleName, thatRequest.sampleName)));
+    public void setSampleJson(JsonField sampleJson) {
+        this.sampleJson = sampleJson;
     }
 
-    // for redis cache
-    @Override
-    public String toString() {
-        return "SampleRequest{" +
-                "sampleName='" + sampleName + '\'' +
-                "}";
+    public ExtendedColumnValues<ExtendedColumnValue> getSampleExtended() {
+        return sampleExtended;
+    }
+
+    public void setSampleExtended(ExtendedColumnValues<ExtendedColumnValue> sampleExtended) {
+        this.sampleExtended = sampleExtended;
     }
 }

@@ -5,7 +5,6 @@ import com.sintrue.samples.api.SampleRequest;
 import com.sintrue.samples.api.SampleResponse;
 import com.sintrue.samples.dao.SampleMapper;
 import com.sintrue.samples.dao.entity.Sample;
-import com.sintrue.samples.dao.entity.SampleAutoIncrement;
 import jakarta.inject.Inject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -34,27 +33,6 @@ public class SampleService implements BeanFactoryAware {
     public SampleService(SampleMapper sampleMapper, StandaloneRepository standaloneRepository) {
         this.sampleMapper = sampleMapper;
         this.standaloneRepository = standaloneRepository;
-    }
-
-    public SampleResponse insertAutoIncrement(SampleRequest request) {
-        // copy properties to entity
-        SampleAutoIncrement entity = request.copyPropertiesTo(SampleAutoIncrement.class);
-        entity.setCreateDatetime(LocalDateTime.now());
-        entity.setDeleted((byte) 0);
-        standaloneRepository.insert(entity);
-        // copy properties to MessageContract
-        return entity.copyPropertiesTo(SampleResponse.class);
-    }
-
-    public List<SampleResponse> insertAutoIncrementBulk(List<SampleRequest> requests) {
-        // copy properties to entities, and populate entity
-        List<SampleAutoIncrement> entities = JavaBeanUtil.INSTANCE.copyProperties(requests, SampleAutoIncrement.class, (o, entity) -> {
-            entity.setCreateDatetime(LocalDateTime.now());
-            entity.setDeleted((byte) 0);
-        });
-        standaloneRepository.insert(entities);
-        // copy properties to MessageContract
-        return JavaBeanUtil.INSTANCE.copyProperties(entities, SampleResponse.class);
     }
 
     public SampleResponse insert(SampleRequest request) {

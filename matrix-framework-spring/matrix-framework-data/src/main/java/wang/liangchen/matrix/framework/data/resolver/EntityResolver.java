@@ -6,7 +6,7 @@ import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.*;
-import wang.liangchen.matrix.framework.data.entity.ExtendedFields;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
 import wang.liangchen.matrix.framework.data.json.JsonField;
 
@@ -67,7 +67,7 @@ public enum EntityResolver {
         ColumnJson columnJsonAnnotation = field.getAnnotation(ColumnJson.class);
         Class<?> fieldClass = field.getType();
         boolean isColumnJson = null != columnJsonAnnotation || JsonField.class.isAssignableFrom(fieldClass);
-        boolean isColumnExtended = ExtendedFields.class.isAssignableFrom(fieldClass);
+        boolean isColumnExtended = ExtendedColumnValues.class.isAssignableFrom(fieldClass);
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         boolean isColumnState = null != columnStateAnnotation;
         ColumnSoftDelete columnSoftDeleteAnnotation = field.getAnnotation(ColumnSoftDelete.class);
