@@ -5,12 +5,14 @@ import wang.liangchen.matrix.framework.commons.object.EnhancedMap;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * @author Liangchen.Wang 2022-12-12 13:05
  */
 public final class JsonField implements Serializable {
-    private Map<String, Object> delegate;
+    private final Map<String, Object> delegate;
 
     public JsonField() {
         this(new EnhancedMap<>());
@@ -28,7 +30,7 @@ public final class JsonField implements Serializable {
         return new JsonField();
     }
 
-    public Map<String, Object> getDelegate() {
+    public Map<String, Object> findDelegate() {
         return delegate;
     }
 
@@ -45,7 +47,21 @@ public final class JsonField implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hashCode(delegate);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        JsonField jsonField = (JsonField) object;
+        return Objects.equals(delegate, jsonField.delegate);
+    }
+
+    @Override
     public String toString() {
-        return String.valueOf(this.delegate);
+        return new StringJoiner(", ", "JsonField[", "]")
+                .add("delegate=" + delegate)
+                .toString();
     }
 }

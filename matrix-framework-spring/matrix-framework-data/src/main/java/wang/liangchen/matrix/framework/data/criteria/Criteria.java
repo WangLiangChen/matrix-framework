@@ -59,6 +59,7 @@ public abstract class Criteria<E extends RootEntity> extends AbstractCriteria<E>
         return selectColumns(selectColumns);
     }
 
+    @SafeVarargs
     public final Criteria<E> selectFields(EntityGetter<E>... selectFields) {
         return selectFields(Arrays.asList(selectFields));
     }

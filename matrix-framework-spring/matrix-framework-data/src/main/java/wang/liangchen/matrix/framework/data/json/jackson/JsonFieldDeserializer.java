@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.jackson;
+package wang.liangchen.matrix.framework.data.json.jackson;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

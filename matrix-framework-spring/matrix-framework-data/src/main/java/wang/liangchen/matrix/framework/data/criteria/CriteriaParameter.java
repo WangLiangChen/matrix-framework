@@ -14,6 +14,9 @@ import wang.liangchen.matrix.framework.data.resolver.EntityResolver;
  */
 public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
     private final static Logger logger = LoggerFactory.getLogger(CriteriaParameter.class);
+
+    @Transient
+    private transient final E entity;
     @Transient
     private transient final Class<E> entityClass;
     @Transient
@@ -22,12 +25,14 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     @SuppressWarnings("unchecked")
     public CriteriaParameter(E entity) {
+        this.entity = entity;
         this.entityClass = (Class<E>) entity.getClass();
         this.entityMeta = EntityResolver.INSTANCE.resolveEntity(entityClass);
         setTableName(this.entityMeta.getTableName());
     }
 
     public CriteriaParameter(Class<E> entityClass) {
+        this.entity = null;
         this.entityClass = entityClass;
         this.entityMeta = EntityResolver.INSTANCE.resolveEntity(entityClass);
         setTableName(this.entityMeta.getTableName());
@@ -46,5 +51,9 @@ public class CriteriaParameter<E extends RootEntity> extends QueryParameter {
 
     public EntityMeta findEntityMeta() {
         return entityMeta;
+    }
+
+    public E getEntity() {
+        return entity;
     }
 }

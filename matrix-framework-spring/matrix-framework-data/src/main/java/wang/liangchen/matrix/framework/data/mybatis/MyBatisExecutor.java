@@ -226,7 +226,7 @@ public enum MyBatisExecutor {
             }
             // updateToNullColumns
             sqlBuilder.append("<foreach collection=\"updateToNullColumns\" index=\"index\" item=\"item\" separator=\",\">");
-            sqlBuilder.append("${item} = null");
+            sqlBuilder.append("${item}=null");
             sqlBuilder.append("</foreach></set>");
             sqlBuilder.append(pkWhereSql(entityMeta.getPkFieldMetas(), versionFieldMeta));
             sqlBuilder.append("</script>");
@@ -263,7 +263,7 @@ public enum MyBatisExecutor {
             });
 
             sqlBuilder.append("<foreach collection=\"entity.updateToNullColumns\" index=\"index\" item=\"item\" separator=\",\">");
-            sqlBuilder.append("${item} = null");
+            sqlBuilder.append("${item}=null");
             sqlBuilder.append("</foreach></set>");
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");

@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.jackson;
+package wang.liangchen.matrix.framework.data.json.jackson;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import wang.liangchen.matrix.framework.data.json.JsonField;

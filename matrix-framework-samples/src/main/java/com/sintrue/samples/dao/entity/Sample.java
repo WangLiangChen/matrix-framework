@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import wang.liangchen.matrix.framework.data.annotation.ColumnSoftDelete;
 import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
+import wang.liangchen.matrix.framework.data.json.JsonField;
 
 import java.time.LocalDateTime;
 
@@ -14,39 +15,11 @@ public class Sample extends RootEntity {
     @IdStrategy(IdStrategy.Strategy.MATRIX_FLAKE)
     private Long sampleId;
     private String sampleName;
+    private Integer sampleNumber;
+    private JsonField sampleJson;
     private LocalDateTime createDatetime;
     @ColumnSoftDelete(value = "1", type = Byte.class)
     private Byte deleted;
 
-    public Long getSampleId() {
-        return sampleId;
-    }
 
-    public void setSampleId(Long sampleId) {
-        this.sampleId = sampleId;
-    }
-
-    public String getSampleName() {
-        return sampleName;
-    }
-
-    public void setSampleName(String sampleName) {
-        this.sampleName = sampleName;
-    }
-
-    public LocalDateTime getCreateDatetime() {
-        return createDatetime;
-    }
-
-    public void setCreateDatetime(LocalDateTime createDatetime) {
-        this.createDatetime = createDatetime;
-    }
-
-    public Byte getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Byte deleted) {
-        this.deleted = deleted;
-    }
 }
