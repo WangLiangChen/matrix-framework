@@ -12,6 +12,7 @@ import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.json.JsonField;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class SampleTest {
         JsonField sampleJson = new JsonField();
         sampleJson.put("name", "Liangchen.Wang");
         sampleJson.put("age", 18);
+        sampleJson.put("datetime", LocalDateTime.now());
         request.setSampleJson(sampleJson);
 
         ExtendedColumnValues<ExtendedColumnValue> sampleExtended = new ExtendedColumnValues<>();
@@ -46,6 +48,18 @@ public class SampleTest {
         for (int i = 0; i < 5; i++) {
             SampleRequest request = new SampleRequest();
             request.setSampleName("name_" + NanoIdUtil.INSTANCE.randomNanoId());
+            JsonField sampleJson = new JsonField();
+            sampleJson.put("name", "Liangchen.Wang");
+            sampleJson.put("age", 18);
+            sampleJson.put("datetime", LocalDateTime.now());
+            request.setSampleJson(sampleJson);
+
+            ExtendedColumnValues<ExtendedColumnValue> sampleExtended = new ExtendedColumnValues<>();
+            ExtendedColumnValue extendedColumnValue = new ExtendedColumnValue();
+            extendedColumnValue.setColumnName("extended_name");
+            extendedColumnValue.setColumnValue("Fengyuan.Wang");
+            sampleExtended.add(extendedColumnValue);
+            request.setSampleExtended(sampleExtended);
             requestList.add(request);
         }
         List<SampleResponse> sampleResponses = sampleService.insertBulk(requestList);
@@ -70,5 +84,11 @@ public class SampleTest {
     @Test
     public void testUpdateByName() {
         sampleService.updateByName("hello");
+    }
+
+    @Test
+    public void testFindById() {
+        SampleResponse response = sampleService.findById(561953428834633026L);
+        System.out.println(JacksonUtil.INSTANCE.writeValueAsString(response));
     }
 }

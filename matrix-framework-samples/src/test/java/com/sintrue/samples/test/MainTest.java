@@ -47,10 +47,25 @@ public class MainTest {
         Pagination pagination = new Pagination(1, 10);
         System.out.println(JacksonUtil.INSTANCE.writeValueAsString(pagination));
     }
+
     @Test
-    public void testCast(){
+    public void testCast() {
         String source = "123";
         Object o = ObjectUtil.INSTANCE.castTo(source, String.class);
         System.out.println(o);
+    }
+
+    @Test
+    public void testDouble() {
+        try {
+            String a = null;
+            System.out.println(a.toString());
+        } catch (Exception e) {
+            StringBuilder stringBuilder = new StringBuilder(e.getClass().getName() + ": " + e.getMessage() + "\n");
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                stringBuilder.append(stackTraceElement.toString()).append("\n");
+            }
+            System.out.println(stringBuilder.toString());
+        }
     }
 }

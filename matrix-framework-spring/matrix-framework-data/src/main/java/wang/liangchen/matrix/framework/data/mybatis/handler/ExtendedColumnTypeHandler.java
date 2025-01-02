@@ -6,6 +6,7 @@ import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
+import wang.liangchen.matrix.framework.data.context.DataSourceContext;
 import wang.liangchen.matrix.framework.data.criteria.Criteria;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnDefinition;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
@@ -64,8 +65,8 @@ public class ExtendedColumnTypeHandler extends AbstractObjectTypeHandler {
         // find table name from context
         String tableName = "";
         // find column definition by table name
-        List<ExtendedColumnDefinition> extendedColumnDefinitions = standaloneRepository.list(Criteria.of(ExtendedColumnDefinition.class)
-                ._equals(ExtendedColumnDefinition::getTableName, tableName));
+        List<ExtendedColumnDefinition> extendedColumnDefinitions = DataSourceContext.INSTANCE.executeWithPrimaryDataSource(() -> standaloneRepository.list(Criteria.of(ExtendedColumnDefinition.class)
+                ._equals(ExtendedColumnDefinition::getTableName, tableName)));
         if (CollectionUtil.INSTANCE.isEmpty(extendedColumnDefinitions)) {
             return new ExtendedColumnValues<ExtendedColumnValueDetail>();
         }

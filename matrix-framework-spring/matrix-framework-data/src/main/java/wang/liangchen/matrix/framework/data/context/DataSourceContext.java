@@ -9,6 +9,7 @@ import wang.liangchen.matrix.framework.data.datasource.dialect.AbstractDialect;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -34,6 +35,10 @@ public enum DataSourceContext {
         logger.debug("The datasource: {} enqueue. And datasource in the queue is: {}", dataSourceName, deque);
     }
 
+    public void setPrimary() {
+        set(PRIMARY_DATASOURCE_NAME);
+    }
+
     public String get() {
         Deque<String> deque = context.get();
         // 从队列中获取 但不出队
@@ -46,8 +51,13 @@ public enum DataSourceContext {
         return peekedDataSourceName;
     }
 
-    public void evict() {
+    public void evict(String dataSourceName) {
         Deque<String> deque = context.get();
+        String peekedDataSourceName = deque.peek();
+        if (!dataSourceName.equals(peekedDataSourceName)) {
+            logger.error("The datasource: {} is not the datasource: {} located at the first. Cannot evict.", dataSourceName, peekedDataSourceName);
+            return;
+        }
         // 出队 后进先出
         String polledDataSourceName = deque.poll();
         logger.debug("The datasource: {} dequeue. And datasource in the queue is: {}", polledDataSourceName, deque);
@@ -57,6 +67,10 @@ public enum DataSourceContext {
         }
     }
 
+    public void evictPrimary() {
+        evict(PRIMARY_DATASOURCE_NAME);
+    }
+
     public void remove() {
         context.remove();
     }
@@ -64,6 +78,32 @@ public enum DataSourceContext {
 
     public void putDataSource(String dataSourceName, DataSource dataSource, AbstractDialect dialect) {
         cache.put(dataSourceName, new CachedDataSource(dataSourceName, dataSource, dialect));
+    }
+
+    public void executeWithDataSource(String dataSourceName, Runnable runnable) {
+        set(dataSourceName);
+        try {
+            runnable.run();
+        } finally {
+            evict(dataSourceName);
+        }
+    }
+
+    public void executeWithPrimaryDataSource(Runnable runnable) {
+        executeWithDataSource(PRIMARY_DATASOURCE_NAME, runnable);
+    }
+
+    public <T> T executeWithDataSource(String dataSourceName, Supplier<T> supplier) {
+        set(dataSourceName);
+        try {
+            return supplier.get();
+        } finally {
+            evict(dataSourceName);
+        }
+    }
+
+    public <T> T executeWithPrimaryDataSource(Supplier<T> supplier) {
+        return executeWithDataSource(PRIMARY_DATASOURCE_NAME, supplier);
     }
 
     public Set<String> getDataSourceNames() {

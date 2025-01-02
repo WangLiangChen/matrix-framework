@@ -1,11 +1,14 @@
 package com.sintrue.samples.api;
 
-import java.time.LocalDateTime;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.data.json.JsonField;
 
 public class SampleResponse {
     private String sampleId;
     private String sampleName;
-    private LocalDateTime createDatetime;
+    private JsonField sampleJson;
+    private ExtendedColumnValues<ExtendedColumnValue> sampleExtended;
 
     public String getSampleId() {
         return sampleId;
@@ -23,11 +26,19 @@ public class SampleResponse {
         this.sampleName = sampleName;
     }
 
-    public LocalDateTime getCreateDatetime() {
-        return createDatetime;
+    public JsonField getSampleJson() {
+        return sampleJson;
     }
 
-    public void setCreateDatetime(LocalDateTime createDatetime) {
-        this.createDatetime = createDatetime;
+    public void setSampleJson(JsonField sampleJson) {
+        this.sampleJson = sampleJson;
+    }
+
+    public ExtendedColumnValues<ExtendedColumnValue> getSampleExtended() {
+        return sampleExtended;
+    }
+
+    public void setSampleExtended(ExtendedColumnValues<ExtendedColumnValue> sampleExtended) {
+        this.sampleExtended = sampleExtended;
     }
 }
