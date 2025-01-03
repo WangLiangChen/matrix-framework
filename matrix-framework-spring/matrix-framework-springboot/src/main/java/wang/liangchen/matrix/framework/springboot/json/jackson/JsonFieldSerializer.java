@@ -1,9 +1,9 @@
-package wang.liangchen.matrix.framework.data.json.jackson;
+package wang.liangchen.matrix.framework.springboot.json.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 import java.io.IOException;
 

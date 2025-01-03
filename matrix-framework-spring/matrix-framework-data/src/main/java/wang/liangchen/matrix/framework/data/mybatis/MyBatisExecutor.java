@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.data.mybatis;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.scripting.LanguageDriver;
@@ -41,7 +40,6 @@ public enum MyBatisExecutor {
     private final Logger logger = LoggerFactory.getLogger(MyBatisExecutor.class);
     private final Map<String, String> STATEMENT_CACHE = new ConcurrentHashMap<>(128);
     private final Map<String, IDGenerator> ID_METHOD_CACHE = new ConcurrentHashMap<>(128);
-    private final TransmittableThreadLocal<EntityMeta> entityMetaContext = new TransmittableThreadLocal<>();
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
         ValidationUtil.INSTANCE.notNull(entity, "The entity can not be null");
@@ -330,11 +328,11 @@ public enum MyBatisExecutor {
 
     private <T> T populateContext(EntityMeta entityMeta, Supplier<T> supplier) {
         // populate context
-        entityMetaContext.set(entityMeta);
+        MyBatisExecutorContext.INSTANCE.setTableName(entityMeta.getTableName());
         try {
             return supplier.get();
         } finally {
-            entityMetaContext.remove();
+            MyBatisExecutorContext.INSTANCE.removeTableName();
         }
     }
 

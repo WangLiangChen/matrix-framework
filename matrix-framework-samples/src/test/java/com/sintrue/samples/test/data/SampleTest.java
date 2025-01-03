@@ -10,7 +10,7 @@ import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

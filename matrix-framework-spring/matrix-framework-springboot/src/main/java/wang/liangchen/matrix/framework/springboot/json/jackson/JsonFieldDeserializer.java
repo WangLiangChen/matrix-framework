@@ -1,11 +1,11 @@
-package wang.liangchen.matrix.framework.data.json.jackson;
+package wang.liangchen.matrix.framework.springboot.json.jackson;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 import java.io.IOException;
 import java.util.Map;

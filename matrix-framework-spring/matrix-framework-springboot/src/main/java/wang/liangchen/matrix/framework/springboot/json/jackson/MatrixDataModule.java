@@ -1,7 +1,7 @@
-package wang.liangchen.matrix.framework.data.json.jackson;
+package wang.liangchen.matrix.framework.springboot.json.jackson;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 /**
  * @author Liangchen.Wang 2022-12-12 14:38

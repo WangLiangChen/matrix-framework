@@ -1,9 +1,10 @@
 package com.sintrue.samples.controller;
 
+import com.sintrue.samples.api.SampleRequest;
 import com.sintrue.samples.api.SampleResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.sintrue.samples.service.SampleService;
+import jakarta.inject.Inject;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.web.response.JsonResponse;
@@ -11,6 +12,38 @@ import wang.liangchen.matrix.framework.web.response.JsonResponse;
 @RestController
 @RequestMapping("/sample")
 public class SampleController {
+    private final SampleService sampleService;
+
+    @Inject
+    public SampleController(SampleService sampleService) {
+        this.sampleService = sampleService;
+    }
+
+    /**
+     * <pre>{@code
+     * {
+     *     "sampleName": "Sample",
+     *     "sampleJson": {
+     *         "json_name": "Liangchen.Wang",
+     *         "json_age": 18,
+     *         "json_datetime": "2000-05-01 12:20:30"
+     *     },
+     *     "sampleExtended": [
+     *         {
+     *             "columnName": "extended_name",
+     *             "columnValue": "Fengyuan.Wang"
+     *         }
+     *     ]
+     * }
+     * }</pre>
+     * @param request
+     * @return
+     */
+
+    @PostMapping("/create")
+    public SampleResponse create(@RequestBody SampleRequest request) {
+        return sampleService.insert(request);
+    }
 
     @GetMapping("/void")
     public void returnVoid() {

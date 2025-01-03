@@ -2,7 +2,7 @@ package com.sintrue.samples.api;
 
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 public class SampleResponse {
     private String sampleId;

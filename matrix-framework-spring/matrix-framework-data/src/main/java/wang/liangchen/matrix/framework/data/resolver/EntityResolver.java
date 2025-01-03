@@ -8,7 +8,7 @@ import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.data.annotation.*;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.data.entity.RootEntity;
-import wang.liangchen.matrix.framework.data.json.JsonField;
+import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

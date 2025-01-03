@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.data.json;
+package wang.liangchen.matrix.framework.springboot.json;
 
 
 import wang.liangchen.matrix.framework.commons.object.EnhancedMap;

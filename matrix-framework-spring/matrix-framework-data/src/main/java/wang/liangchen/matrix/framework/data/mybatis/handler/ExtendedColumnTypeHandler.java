@@ -12,6 +12,7 @@ import wang.liangchen.matrix.framework.data.entity.ExtendedColumnDefinition;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValueDetail;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.data.mybatis.MyBatisExecutorContext;
 import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
 import wang.liangchen.matrix.framework.springboot.context.BeanContext;
 
@@ -61,9 +62,9 @@ public class ExtendedColumnTypeHandler extends AbstractObjectTypeHandler {
         return jsonString2Object(cs.getString(columnIndex));
     }
 
-    private Object jsonString2Object(String jsonString) throws SQLException {
+    private Object jsonString2Object(String jsonString) {
         // find table name from context
-        String tableName = "";
+        String tableName = MyBatisExecutorContext.INSTANCE.getTableName();
         // find column definition by table name
         List<ExtendedColumnDefinition> extendedColumnDefinitions = DataSourceContext.INSTANCE.executeWithPrimaryDataSource(() -> standaloneRepository.list(Criteria.of(ExtendedColumnDefinition.class)
                 ._equals(ExtendedColumnDefinition::getTableName, tableName)));
