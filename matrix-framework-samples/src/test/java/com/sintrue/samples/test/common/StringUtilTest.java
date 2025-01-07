@@ -10,4 +10,8 @@ public class StringUtilTest {
         System.out.println(StringUtil.INSTANCE.isNullOrEmpty(string));
         System.out.println(StringUtil.INSTANCE.isNotNullAndEmpty(string));
     }
+    @Test
+    public void testFormat(){
+        System.out.println(StringUtil.INSTANCE.format("a{}","a","b","c"));
+    }
 }

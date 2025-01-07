@@ -21,6 +21,7 @@ import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.web.annotation.ReturnRawText;
 import wang.liangchen.matrix.framework.web.response.JsonResponse;
 
 import java.io.ByteArrayInputStream;
@@ -95,6 +96,10 @@ public class RequestMappingHandlerAdapterEnhancer {
                 }
                 if (returnValue instanceof ReturnWrapper<?>) {
                     this.delegate.handleReturnValue(JsonResponse.of((ReturnWrapper<?>) returnValue), methodParameter, mavContainer, webRequest);
+                    return;
+                }
+                if (returnValue instanceof String && methodParameter.hasMethodAnnotation(ReturnRawText.class)) {
+                    this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }
                 this.delegate.handleReturnValue(JsonResponse.success(returnValue), methodParameter, mavContainer, webRequest);

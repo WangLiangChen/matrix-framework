@@ -19,59 +19,70 @@ public final class JsonResponse<T> extends ReturnWrapper<T> {
     private String debug;
     private ExceptionLevel level = ExceptionLevel.OFF;
 
+    private JsonResponse(T payload, boolean success, String message, Object... args) {
+        super(payload, success, message, args);
+    }
 
-    private JsonResponse(boolean success, T payload, MessageWrapper messageWrapper) {
-        super(success, payload, messageWrapper);
+    private JsonResponse(T payload, MessageWrapper messageWrapper) {
+        super(payload, messageWrapper);
+    }
+
+    private JsonResponse(MessageWrapper messageWrapper) {
+        super(messageWrapper);
     }
 
     private JsonResponse(ReturnWrapper<T> returnWrapper) {
         super(returnWrapper);
     }
 
+    public static <T> JsonResponse<T> of(MessageWrapper messageWrapper) {
+        return new JsonResponse<>(messageWrapper);
+    }
+
     public static <T> JsonResponse<T> of(ReturnWrapper<T> returnWrapper) {
         return new JsonResponse<>(returnWrapper);
     }
 
-    public static <T> JsonResponse<T> success(T payload, MessageWrapper messageWrapper) {
-        return new JsonResponse<>(true, payload, messageWrapper);
+    public static <T> JsonResponse<T> success(T payload, String message, Object... args) {
+        return new JsonResponse<>(payload, true, message, args);
     }
 
     public static <T> JsonResponse<T> success(T payload) {
-        return new JsonResponse<>(true, payload, null);
+        return new JsonResponse<>(payload, true, null);
     }
 
-    public static <T> JsonResponse<T> success(MessageWrapper messageWrapper) {
-        return new JsonResponse<>(true, null, messageWrapper);
+    public static <T> JsonResponse<T> success(String message, Object... args) {
+        return new JsonResponse<>(null, true, message, args);
     }
 
     public static <T> JsonResponse<T> success() {
-        return new JsonResponse<>(true, null, null);
+        return new JsonResponse<>(null, true, null);
     }
 
-    public static <T> JsonResponse<T> failure(T payload, MessageWrapper messageWrapper) {
-        return new JsonResponse<>(false, payload, messageWrapper);
+    public static <T> JsonResponse<T> failure(T payload, String message, Object... args) {
+        return new JsonResponse<>(payload, false, message, args);
     }
 
     public static <T> JsonResponse<T> failure(T payload) {
-        return new JsonResponse<>(false, payload, null);
+        return new JsonResponse<>(payload, false, null);
     }
 
-    public static <T> JsonResponse<T> failure(MessageWrapper messageWrapper) {
-        return new JsonResponse<>(false, null, messageWrapper);
+    public static <T> JsonResponse<T> failure(String message, Object... args) {
+        return new JsonResponse<>(null, false, message, args);
     }
 
     public static <T> JsonResponse<T> failure() {
-        return new JsonResponse<>(false, null, null);
+        return new JsonResponse<>(null, false, null);
     }
 
     public static <T> JsonResponse<T> failure(Throwable throwable) {
         logger.error("JsonResponse.failure", throwable);
         if (throwable instanceof MatrixRuntimeException matrixRuntimeException) {
-            JsonResponse<T> jsonResponse = failure(matrixRuntimeException.getMessageWrapper());
+            JsonResponse<T> jsonResponse = new JsonResponse<>(matrixRuntimeException.getMessageWrapper());
             jsonResponse.withLevel(matrixRuntimeException.getLevel());
             return jsonResponse.withDebug(throwable);
         }
-        JsonResponse<T> jsonResponse = failure(MessageWrapper.of(throwable.getMessage()));
+        JsonResponse<T> jsonResponse = new JsonResponse<>(null, false, throwable.getMessage());
         return jsonResponse.withDebug(throwable);
     }
 

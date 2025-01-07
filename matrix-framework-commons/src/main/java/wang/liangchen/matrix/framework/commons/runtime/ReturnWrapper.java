@@ -6,59 +6,63 @@ import java.io.Serializable;
  * @author Liangchen.Wang 2022-10-16 10:06
  */
 public class ReturnWrapper<T> extends MessageWrapper implements Serializable {
-    private final boolean success;
     private final T payload;
 
-    protected ReturnWrapper(ReturnWrapper<T> returnWrapper) {
-        super(returnWrapper);
-        this.success = returnWrapper.isSuccess();
-        this.payload = returnWrapper.getPayload();
-    }
-
-    protected ReturnWrapper(boolean success, T payload, MessageWrapper messageWrapper) {
-        super(messageWrapper);
-        this.success = success;
+    protected ReturnWrapper(T payload, boolean success, String message, Object... args) {
+        super(success, message, args);
         this.payload = payload;
     }
 
-    public static <T> ReturnWrapper<T> of(boolean success, T payload, MessageWrapper messageWrapper) {
-        return new ReturnWrapper<>(success, payload, messageWrapper);
+    protected ReturnWrapper(T payload, MessageWrapper messageWrapper) {
+        super(messageWrapper);
+        this.payload = payload;
     }
 
-    public static <T> ReturnWrapper<T> success(T payload, MessageWrapper messageWrapper) {
-        return of(true, payload, messageWrapper);
+    protected ReturnWrapper(MessageWrapper messageWrapper) {
+        super(messageWrapper);
+        this.payload = null;
+    }
+
+    protected ReturnWrapper(ReturnWrapper<T> returnWrapper) {
+        super(returnWrapper);
+        this.payload = returnWrapper.payload;
+    }
+
+    public static <T> ReturnWrapper<T> success(T payload, String message, Object... args) {
+        return new ReturnWrapper<>(payload, true, message, args);
     }
 
     public static <T> ReturnWrapper<T> success(T payload) {
-        return of(true, payload, null);
+        return new ReturnWrapper<>(payload, true, null);
     }
 
-    public static <T> ReturnWrapper<T> success(MessageWrapper messageWrapper) {
-        return of(true, null, messageWrapper);
+    public static <T> ReturnWrapper<T> success(String message, Object... args) {
+        return new ReturnWrapper<>(null, true, message, args);
     }
 
     public static <T> ReturnWrapper<T> success() {
-        return of(true, null, null);
+        return new ReturnWrapper<>(null, true, null);
     }
 
-    public static <T> ReturnWrapper<T> failure(T payload, MessageWrapper messageWrapper) {
-        return of(false, payload, messageWrapper);
+    public static <T> ReturnWrapper<T> failure(T payload, String message, Object... args) {
+        return new ReturnWrapper<>(payload, false, message, args);
     }
 
     public static <T> ReturnWrapper<T> failure(T payload) {
-        return of(false, payload, null);
+        return new ReturnWrapper<>(payload, false, null);
     }
 
-    public static <T> ReturnWrapper<T> failure(MessageWrapper messageWrapper) {
-        return of(false, null, messageWrapper);
+    public static <T> ReturnWrapper<T> failure(String message, Object... args) {
+        return new ReturnWrapper<>(null, false, message, args);
     }
 
     public static <T> ReturnWrapper<T> failure() {
-        return of(false, null, null);
+        return new ReturnWrapper<>(null, false, null);
     }
 
-    public boolean isSuccess() {
-        return success;
+    public ReturnWrapper<T> withCode(String code) {
+        super.withCode(code);
+        return this;
     }
 
     public T getPayload() {

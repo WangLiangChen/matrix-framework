@@ -9,32 +9,30 @@ public class MatrixRuntimeException extends RuntimeException {
     private final ExceptionLevel level = ExceptionLevel.OFF;
     private final MessageWrapper messageWrapper;
 
-
     public MatrixRuntimeException() {
         this.messageWrapper = null;
     }
 
-    public MatrixRuntimeException(MessageWrapper messageWrapper) {
-        super(messageWrapper.getMessage());
-        this.messageWrapper = messageWrapper;
-    }
-
     public MatrixRuntimeException(String message, Object... args) {
-        this(MessageWrapper.of(message, args));
-    }
-
-    public MatrixRuntimeException(Throwable throwable, MessageWrapper messageWrapper) {
-        super(messageWrapper.getMessage(), throwable);
-        this.messageWrapper = messageWrapper;
+        this.messageWrapper = MessageWrapper.of(message, args);
     }
 
     public MatrixRuntimeException(Throwable throwable, String message, Object... args) {
-        this(throwable, MessageWrapper.of(message, args));
+        super(throwable);
+        this.messageWrapper = MessageWrapper.of(message, args);
     }
 
     public MatrixRuntimeException(Throwable throwable) {
         super(throwable);
         this.messageWrapper = null;
+    }
+
+    @Override
+    public String getMessage() {
+        if (null == messageWrapper) {
+            return super.getMessage();
+        }
+        return messageWrapper.getMessage();
     }
 
     public ExceptionLevel getLevel() {

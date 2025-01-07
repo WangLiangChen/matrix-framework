@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @interface DynamicMessageMaker {
 
-    String message() default "{defaultMessage}";
+    String message() default "{message}";
 
     Class<?>[] groups() default {};
 

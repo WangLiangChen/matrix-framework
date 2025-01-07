@@ -14,7 +14,10 @@ import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -25,8 +28,7 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
-    private final Pattern MESSAGE_PATTERN = Pattern.compile("^\\{\\d*}$");
-    private final Pattern VALIDATION_PATTERN = Pattern.compile("^\\{[^{}]+}$");
+    private static final Pattern VALIDATION_PATTERN = Pattern.compile("^\\{[^{}]+?}$");
 
     private final ValidatorFactory VALIDATOR_FACTORY;
     private Validator VALIDATOR;
@@ -283,14 +285,17 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    public Optional<String> resolveI18n(String message) {
+    public String resolveI18n(String message) {
         if (StringUtil.INSTANCE.isNullOrBlank(message)) {
-            return Optional.empty();
+            return null;
+        }
+        if (message.length() < 3) {
+            return null;
         }
         if (isI18nKey(message)) {
-            return Optional.of(message.substring(1, message.length() - 1));
+            return message.substring(1, message.length() - 1);
         }
-        return Optional.empty();
+        return null;
     }
 
     public String resolveMessage(String message, Object... args) {
@@ -353,9 +358,6 @@ public enum ValidationUtil {
     }
 
     private boolean isI18nKey(String message) {
-        if (MESSAGE_PATTERN.matcher(message).matches()) {
-            return false;
-        }
         return VALIDATION_PATTERN.matcher(message).matches();
     }
 }

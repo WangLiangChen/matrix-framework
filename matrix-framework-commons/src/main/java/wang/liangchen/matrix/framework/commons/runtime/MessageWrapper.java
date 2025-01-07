@@ -6,42 +6,33 @@ import java.util.Locale;
 
 
 public class MessageWrapper {
-    private final String message;
+    private final boolean success;
     private String code;
-    private String i18n;
+    private final String message;
+    private final String i18n;
     private final Locale locale;
 
-    protected MessageWrapper() {
-        this.message = null;
+    // 只允许其子类修改success
+    protected MessageWrapper(boolean success, String message, Object... args) {
         this.locale = LocaleTimeZoneContext.INSTANCE.getLocale();
+        this.success = success;
+        if (null == message) {
+            this.message = this.i18n = null;
+            return;
+        }
+        this.i18n = ValidationUtil.INSTANCE.resolveI18n(message);
+        this.message = ValidationUtil.INSTANCE.resolveMessage(message, args);
     }
 
     protected MessageWrapper(MessageWrapper messageWrapper) {
-        if (null == messageWrapper) {
-            messageWrapper = MessageWrapper.of();
-        }
-        this.message = messageWrapper.getMessage();
-        this.code = messageWrapper.getCode();
-        this.i18n = messageWrapper.getI18n();
-        this.locale = messageWrapper.getLocale();
-    }
-
-    protected MessageWrapper(String message, Object... args) {
-        this.message = ValidationUtil.INSTANCE.resolveMessage(message, args);
-        ValidationUtil.INSTANCE.resolveI18n(message).ifPresent(i18n -> this.i18n = i18n);
-        this.locale = LocaleTimeZoneContext.INSTANCE.getLocale();
+        this.success = messageWrapper.success;
+        this.locale = messageWrapper.locale;
+        this.i18n = messageWrapper.i18n;
+        this.message = messageWrapper.message;
     }
 
     public static MessageWrapper of(String message, Object... args) {
-        return new MessageWrapper(message, args);
-    }
-
-    public static MessageWrapper of(MessageWrapper messageWrapper) {
-        return new MessageWrapper(messageWrapper);
-    }
-
-    public static MessageWrapper of() {
-        return new MessageWrapper();
+        return new MessageWrapper(false, message, args);
     }
 
     public MessageWrapper withCode(String code) {
@@ -49,13 +40,18 @@ public class MessageWrapper {
         return this;
     }
 
-    public String getMessage() {
-        return message;
+    public boolean isSuccess() {
+        return success;
     }
 
     public String getCode() {
         return code;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
 
     public String getI18n() {
         return i18n;

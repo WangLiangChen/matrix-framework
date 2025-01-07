@@ -5,7 +5,7 @@ import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
 import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.springboot.json.JsonField;
 
-public class SampleRequest extends EnhancedObject {
+public class SampleRequest extends EnhancedObject implements ISampleRequest {
     private String sampleName;
     private JsonField sampleJson;
     private ExtendedColumnValues<ExtendedColumnValue> sampleExtended;
