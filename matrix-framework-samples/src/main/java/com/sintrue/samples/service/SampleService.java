@@ -1,6 +1,7 @@
 package com.sintrue.samples.service;
 
 
+import com.sintrue.samples.api.ISampleRequest;
 import com.sintrue.samples.api.SampleRequest;
 import com.sintrue.samples.api.SampleResponse;
 import com.sintrue.samples.dao.SampleMapper;
@@ -35,14 +36,17 @@ public class SampleService implements BeanFactoryAware {
         this.standaloneRepository = standaloneRepository;
     }
 
-    public SampleResponse insert(SampleRequest request) {
-        // copy properties to entity
-        Sample entity = request.copyPropertiesTo(Sample.class);
-        entity.setCreateDatetime(LocalDateTime.now());
-        entity.setDeleted((byte) 0);
-        standaloneRepository.insert(entity);
-        // copy properties to MessageContract
-        return entity.copyPropertiesTo(SampleResponse.class);
+    public SampleResponse create(ISampleRequest request) {
+        if (request instanceof SampleRequest sampleRequest) {
+            // copy properties to entity
+            Sample entity = sampleRequest.copyPropertiesTo(Sample.class);
+            entity.setCreateDatetime(LocalDateTime.now());
+            entity.setDeleted((byte) 0);
+            standaloneRepository.insert(entity);
+            // copy properties to MessageContract
+            return entity.copyPropertiesTo(SampleResponse.class);
+        }
+        return null;
     }
 
     public List<SampleResponse> insertBulk(List<SampleRequest> requests) {
@@ -101,4 +105,6 @@ public class SampleService implements BeanFactoryAware {
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 
     }
+
+
 }

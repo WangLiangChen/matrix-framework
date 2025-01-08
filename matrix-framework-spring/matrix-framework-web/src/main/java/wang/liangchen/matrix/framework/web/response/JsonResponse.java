@@ -2,15 +2,26 @@ package wang.liangchen.matrix.framework.web.response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
+import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 import wang.liangchen.matrix.framework.commons.runtime.MessageWrapper;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.web.context.WebContext;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 public final class JsonResponse<T> extends ReturnWrapper<T> {
     private final static Logger logger = LoggerFactory.getLogger(JsonResponse.class);
-    private final static String DEFAULT_MESSAGE_I18N = "{system.error}";
+    private final static Map<Locale, String> SYSTEM_ERRORS = new HashMap<>() {{
+        put(Locale.CHINA, "系统错误,请联系管理员!");
+        put(Locale.US, "System error, please contact the administrator!");
+        put(Locale.UK, "System error, please contact the administrator!");
+        put(Locale.JAPAN, "システムエラー、管理者に連絡してください！");
+    }};
     /**
      * 前端传递的requestId,原样返回。
      * 用于标识同一个请求
@@ -82,7 +93,7 @@ public final class JsonResponse<T> extends ReturnWrapper<T> {
             jsonResponse.withLevel(matrixRuntimeException.getLevel());
             return jsonResponse.withDebug(throwable);
         }
-        JsonResponse<T> jsonResponse = new JsonResponse<>(null, false, throwable.getMessage());
+        JsonResponse<T> jsonResponse = new JsonResponse<>(null, false, SYSTEM_ERRORS.get(LocaleTimeZoneContext.INSTANCE.getLocale()));
         return jsonResponse.withDebug(throwable);
     }
 
@@ -103,8 +114,12 @@ public final class JsonResponse<T> extends ReturnWrapper<T> {
 
     private String getStackTrace(Throwable throwable) {
         StringBuilder stringBuilder = new StringBuilder();
+        String message = throwable.getMessage();
+        if (null != message) {
+            stringBuilder.append(message).append(Symbol.LINE_SEPARATOR.getSymbol()).append(Symbol.LINE_SEPARATOR.getSymbol());
+        }
         for (StackTraceElement stackTraceElement : throwable.getStackTrace()) {
-            stringBuilder.append(stackTraceElement.toString()).append("\n");
+            stringBuilder.append(stackTraceElement.toString()).append(Symbol.LINE_SEPARATOR.getSymbol());
         }
         return stringBuilder.toString();
     }
