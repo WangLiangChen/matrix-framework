@@ -9,6 +9,7 @@ import wang.liangchen.matrix.framework.data.mybatis.MyBatisExecutor;
 import wang.liangchen.matrix.framework.data.pagination.Pagination;
 import wang.liangchen.matrix.framework.data.pagination.PaginationResult;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +43,30 @@ public class StandaloneRepository extends AbstractRepository {
         for (E entity : entities) {
             clearCache(entity.getClass());
             return rows;
+        }
+        return rows;
+    }
+
+    @Override
+    public <E extends RootEntity> int insert(Collection<E> entities, int batchSize) {
+        int rows = 0;
+        Class<? extends RootEntity> entityClass = null;
+        List<E> batch = new ArrayList<>(batchSize);
+        for (E entity : entities) {
+            if (0 == rows) {
+                entityClass = entity.getClass();
+            }
+            batch.add(entity);
+            if (batch.size() >= batchSize) {
+                rows += MyBatisExecutor.INSTANCE.insert(sqlSessionTemplate, batch);
+                batch.clear();
+            }
+        }
+        if (!batch.isEmpty()) {
+            rows += MyBatisExecutor.INSTANCE.insert(sqlSessionTemplate, batch);
+        }
+        if (null != entityClass) {
+            clearCache(entityClass);
         }
         return rows;
     }

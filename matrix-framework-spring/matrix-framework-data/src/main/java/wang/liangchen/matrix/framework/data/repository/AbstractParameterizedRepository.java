@@ -48,6 +48,11 @@ public abstract class AbstractParameterizedRepository<E extends RootEntity> exte
     }
 
     @Override
+    public <E extends RootEntity> int insert(Collection<E> entities, int batchSize) {
+        return standaloneRepository.insert(entities, batchSize);
+    }
+
+    @Override
     public <E extends RootEntity> int delete(E entity) {
         return standaloneRepository.delete(entity);
     }

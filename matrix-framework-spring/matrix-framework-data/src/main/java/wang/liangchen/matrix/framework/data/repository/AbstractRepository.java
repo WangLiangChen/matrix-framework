@@ -1,8 +1,6 @@
 package wang.liangchen.matrix.framework.data.repository;
 
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +19,6 @@ public abstract class AbstractRepository implements IRepository {
     protected JdbcTemplate jdbcTemplate;
     @Inject
     protected SqlSessionTemplate sqlSessionTemplate;
-    @PersistenceContext
-    protected EntityManager entityManager;
 
     protected <I> I getMyBatisMapper(Class<I> type) {
         return this.sqlSessionTemplate.getMapper(type);

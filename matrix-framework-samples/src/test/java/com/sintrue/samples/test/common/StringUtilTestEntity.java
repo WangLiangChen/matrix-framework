@@ -3,7 +3,7 @@ package com.sintrue.samples.test.common;
 import org.junit.jupiter.api.Test;
 import wang.liangchen.matrix.framework.commons.StringUtil;
 
-public class StringUtilTest {
+public class StringUtilTestEntity {
     @Test
     public void testEmpty() {
         String string = " ";

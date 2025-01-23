@@ -17,6 +17,8 @@ public interface IRepository {
 
     <E extends RootEntity> int insert(Collection<E> entities);
 
+    <E extends RootEntity> int insert(Collection<E> entities, int batchSize);
+
 
     <E extends RootEntity> int delete(E entity);
 

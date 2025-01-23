@@ -72,12 +72,14 @@ public enum MyBatisExecutor {
             sqlBuilder.append(")");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class, entityMeta);
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.INSERT, sqlScript, entityClass, Integer.class, entityMeta);
             logger.debug("create and cache insertId:{}, sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        populateId(statementId, Collections.singletonList(entity));
-        return populateContext(entityMeta, () -> sqlSessionTemplate.insert(statementId, entity));
+        return populateContextAndExecute(entity.findEntityMeta(), () -> {
+            populateUniquePk(statementId, Collections.singletonList(entity));
+            return sqlSessionTemplate.insert(statementId, entity);
+        });
     }
 
     public <E extends RootEntity> int insert(final SqlSessionTemplate sqlSessionTemplate, final Collection<E> entities) {
@@ -114,12 +116,14 @@ public enum MyBatisExecutor {
             sqlBuilder.append("</foreach>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.INSERT, sqlScript, Collection.class, Integer.class, entityMeta);
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.INSERT, sqlScript, Collection.class, Integer.class, entityMeta);
             logger.debug("create and cache insertBulkId:{}, sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        populateId(statementId, entities);
-        return populateContext(entityMeta, () -> sqlSessionTemplate.insert(statementId, entities));
+        return populateContextAndExecute(entityMeta, () -> {
+            populateUniquePk(statementId, entities);
+            return sqlSessionTemplate.insert(statementId, entities);
+        });
     }
 
     public <E extends RootEntity> int delete(final SqlSessionTemplate sqlSessionTemplate, final E entity) {
@@ -151,7 +155,7 @@ public enum MyBatisExecutor {
             sqlBuilder.append(pkWhereSql(entityMeta.getPkFieldMetas(), versionFieldMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class, entityMeta);
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.DELETE, sqlScript, entityClass, Integer.class, entityMeta);
             logger.debug("create and cache deleteId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
@@ -179,7 +183,7 @@ public enum MyBatisExecutor {
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.DELETE, sqlScript, CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
             logger.debug("create and cache deleteBulkId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
@@ -229,11 +233,11 @@ public enum MyBatisExecutor {
             sqlBuilder.append(pkWhereSql(entityMeta.getPkFieldMetas(), versionFieldMeta));
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, entityClass, Integer.class, entityMeta);
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.UPDATE, sqlScript, entityClass, Integer.class, entityMeta);
             logger.debug("create and cache updateId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return populateContext(entityMeta, () -> sqlSessionTemplate.update(statementId, entity));
+        return populateContextAndExecute(entityMeta, () -> sqlSessionTemplate.update(statementId, entity));
     }
 
     public <E extends RootEntity> int update(final SqlSessionTemplate sqlSessionTemplate, final CriteriaParameter<E> criteriaParameter) {
@@ -266,11 +270,11 @@ public enum MyBatisExecutor {
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.UPDATE, sqlScript, CriteriaParameter.class, Integer.class, entityMeta);
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.UPDATE, sqlScript, CriteriaParameter.class, Integer.class, entityMeta);
             logger.debug("create and cache updateBatchId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return populateContext(entityMeta, () -> sqlSessionTemplate.update(statementId, criteriaParameter));
+        return populateContextAndExecute(entityMeta, () -> sqlSessionTemplate.update(statementId, criteriaParameter));
     }
 
 
@@ -285,7 +289,7 @@ public enum MyBatisExecutor {
             sqlBuilder.append("select count(*) from ").append(tableName);
             sqlBuilder.append("<where>${whereSql}</where>");
             sqlBuilder.append("</script>");
-            buildMappedStatement(sqlSessionTemplate, statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), statementId, SqlCommandType.SELECT, sqlBuilder.toString(), CriteriaParameter.class, Integer.class, criteriaParameter.findEntityMeta());
             String sqlScript = sqlBuilder.toString();
             logger.debug("create and cache countId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
@@ -319,14 +323,14 @@ public enum MyBatisExecutor {
             sqlBuilder.append("</if>");
             sqlBuilder.append("</script>");
             String sqlScript = sqlBuilder.toString();
-            buildMappedStatement(sqlSessionTemplate, cacheKey, SqlCommandType.SELECT, sqlScript, CriteriaParameter.class, entityClass, criteriaParameter.findEntityMeta());
+            buildMappedStatement(sqlSessionTemplate.getConfiguration(), cacheKey, SqlCommandType.SELECT, sqlScript, CriteriaParameter.class, entityClass, criteriaParameter.findEntityMeta());
             logger.debug("create and cache listId:{},sqlScript:{}", statementId, sqlScript);
             return sqlScript;
         });
-        return populateContext(criteriaParameter.findEntityMeta(), () -> sqlSessionTemplate.selectList(statementId, criteriaParameter));
+        return populateContextAndExecute(criteriaParameter.findEntityMeta(), () -> sqlSessionTemplate.selectList(statementId, criteriaParameter));
     }
 
-    private <T> T populateContext(EntityMeta entityMeta, Supplier<T> supplier) {
+    private <T> T populateContextAndExecute(EntityMeta entityMeta, Supplier<T> supplier) {
         // populate context
         MyBatisExecutorContext.INSTANCE.setTableName(entityMeta.getTableName());
         try {
@@ -353,7 +357,7 @@ public enum MyBatisExecutor {
         return idStrategy;
     }
 
-    private <E extends RootEntity> void populateId(String cacheKey, Collection<E> entities) {
+    private <E extends RootEntity> void populateUniquePk(String cacheKey, Collection<E> entities) {
         IDGenerator idGenerator = ID_METHOD_CACHE.get(cacheKey);
         if (null == idGenerator) {
             return;
@@ -407,8 +411,7 @@ public enum MyBatisExecutor {
     }
 
 
-    private void buildMappedStatement(SqlSessionTemplate sqlSessionTemplate, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType, EntityMeta entityMeta) {
-        Configuration configuration = sqlSessionTemplate.getConfiguration();
+    private void buildMappedStatement(Configuration configuration, String mappedStatementId, SqlCommandType sqlCommandType, String sqlScript, Class<?> parameterType, Class<?> resultType, EntityMeta entityMeta) {
         LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
         SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlScript, parameterType);
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, mappedStatementId, sqlSource, sqlCommandType);
