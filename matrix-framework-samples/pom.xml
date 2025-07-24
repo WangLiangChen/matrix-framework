@@ -15,17 +15,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>3.4.1</version>
+            <version>3.4.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
-            <version>3.4.1</version>
+            <version>3.4.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
-            <version>3.4.1</version>
+            <version>3.4.3</version>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -39,11 +39,11 @@
         </dependency>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-web</artifactId>
+            <artifactId>matrix-framework-spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-data</artifactId>
+            <artifactId>matrix-framework-spring-data</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

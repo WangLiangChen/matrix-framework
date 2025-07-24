@@ -13,15 +13,16 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>matrix-framework-springboot</module>
-        <module>matrix-framework-web</module>
-        <module>matrix-framework-data</module>
-        <module>matrix-framework-springcloud</module>
+        <module>matrix-framework-spring-boot</module>
+        <module>matrix-framework-spring-web</module>
+        <module>matrix-framework-spring-data</module>
+        <module>matrix-framework-spring-cloud</module>
+        <module>matrix-framework-spring-ai</module>
     </modules>
 
     <properties>
-        <version.springboot>3.4.1</version.springboot>
-        <version.springcloud>2024.0.0</version.springcloud>
+        <version.spring.boot>3.5.3</version.spring.boot>
+        <version.spring.cloud>2025.0.0</version.spring.cloud>
     </properties>
 
     <dependencyManagement>
@@ -29,14 +30,14 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${version.springboot}</version>
+                <version>${version.spring.boot}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${version.springcloud}</version>
+                <version>${version.spring.cloud}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

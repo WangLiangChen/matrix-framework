@@ -8,8 +8,8 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <description>A rapid development framework based on springboot,which is distributed, asynchronous non-blocking and
-        reactive
+    <description>
+        A rapid development framework based on spring boot,which is distributed, asynchronous non-blocking and reactive
     </description>
     <url>https://github.com/WangLiangChen/matrix-framework</url>
 
@@ -40,9 +40,9 @@
 
     <modules>
         <module>matrix-framework-commons</module>
-        <module>matrix-framework-samples</module>
-        <module>matrix-framework-spring</module>
         <module>matrix-framework-ddd</module>
+        <module>matrix-framework-spring</module>
+        <module>matrix-framework-samples</module>
     </modules>
 
     <properties>
@@ -61,22 +61,22 @@
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-springboot</artifactId>
+                <artifactId>matrix-framework-spring-boot</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-springcloud</artifactId>
+                <artifactId>matrix-framework-spring-cloud</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-web</artifactId>
+                <artifactId>matrix-framework-spring-web</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
-                <artifactId>matrix-framework-data</artifactId>
+                <artifactId>matrix-framework-spring-data</artifactId>
                 <version>${revision}</version>
             </dependency>
         </dependencies>
