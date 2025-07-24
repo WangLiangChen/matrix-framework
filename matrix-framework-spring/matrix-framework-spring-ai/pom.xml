@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <version.spring.ai>1.0.0-M6</version.spring.ai>
+        <version.spring.ai>1.0.0</version.spring.ai>
     </properties>
 
     <dependencyManagement>
@@ -27,5 +27,12 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-deepseek</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

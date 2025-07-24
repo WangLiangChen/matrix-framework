@@ -4,9 +4,8 @@ import com.sintrue.samples.api.SampleRequest;
 import org.junit.jupiter.api.Test;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
-import wang.liangchen.matrix.framework.data.enumeration.DataMode;
-import wang.liangchen.matrix.framework.data.pagination.OrderBy;
-import wang.liangchen.matrix.framework.data.pagination.Pagination;
+import wang.liangchen.matrix.framework.spring.data.pagination.OrderBy;
+import wang.liangchen.matrix.framework.spring.data.pagination.Pagination;
 
 import java.lang.reflect.Method;
 import java.time.Duration;

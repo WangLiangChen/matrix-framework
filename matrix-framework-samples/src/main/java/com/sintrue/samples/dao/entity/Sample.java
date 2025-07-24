@@ -2,12 +2,12 @@ package com.sintrue.samples.dao.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import wang.liangchen.matrix.framework.data.annotation.ColumnSoftDelete;
-import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.data.entity.RootEntity;
-import wang.liangchen.matrix.framework.springboot.json.JsonField;
+import wang.liangchen.matrix.framework.spring.data.annotation.ColumnSoftDelete;
+import wang.liangchen.matrix.framework.spring.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.spring.data.entity.RootEntity;
+import wang.liangchen.matrix.framework.spring.boot.json.JsonField;
 
 import java.time.LocalDateTime;
 

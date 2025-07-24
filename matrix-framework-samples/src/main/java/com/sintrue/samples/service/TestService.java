@@ -2,8 +2,8 @@ package com.sintrue.samples.service;
 
 import jakarta.inject.Inject;
 import org.springframework.stereotype.Service;
-import wang.liangchen.matrix.framework.data.annotation.DataSourceRouter;
-import wang.liangchen.matrix.framework.data.repository.StandaloneRepository;
+import wang.liangchen.matrix.framework.spring.data.annotation.DataSourceRouter;
+import wang.liangchen.matrix.framework.spring.data.repository.StandaloneRepository;
 
 @Service
 @DataSourceRouter("test")

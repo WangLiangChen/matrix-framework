@@ -9,9 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 import wang.liangchen.matrix.framework.commons.uid.NanoIdUtil;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.springboot.json.JsonField;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.spring.boot.json.JsonField;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

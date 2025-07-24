@@ -129,7 +129,7 @@ public class Configuration {
 
 ```properties
 # primary is required
-primary.dialect=wang.liangchen.matrix.framework.data.datasource.dialect.MySQLDialect
+primary.dialect=dialect.datasource.wang.liangchen.matrix.framework.spring.data.MySQLDialect
 primary.datasource=com.zaxxer.hikari.HikariDataSource
 #primary.url=
 primary.host=127.0.0.1
@@ -141,7 +141,7 @@ primary.password=
 #primary.extra.MaximumPoolSize=100
 #primary.extra.maximum-pool-size=100
 # other is optional
-one.dialect=wang.liangchen.matrix.framework.data.datasource.dialect.PostgreSQLDialect
+one.dialect=dialect.datasource.wang.liangchen.matrix.framework.spring.data.PostgreSQLDialect
 one.datasource=com.zaxxer.hikari.HikariDataSource
 one.host=127.0.0.1
 one.port=5432

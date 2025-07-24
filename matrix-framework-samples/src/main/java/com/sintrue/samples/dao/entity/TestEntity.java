@@ -2,8 +2,8 @@ package com.sintrue.samples.dao.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import wang.liangchen.matrix.framework.data.annotation.IdStrategy;
-import wang.liangchen.matrix.framework.data.entity.RootEntity;
+import wang.liangchen.matrix.framework.spring.data.annotation.IdStrategy;
+import wang.liangchen.matrix.framework.spring.data.entity.RootEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

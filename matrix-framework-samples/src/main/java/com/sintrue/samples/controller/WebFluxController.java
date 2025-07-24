@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
-import wang.liangchen.matrix.framework.web.annotation.ReturnRawText;
-import wang.liangchen.matrix.framework.web.response.JsonResponse;
+import wang.liangchen.matrix.framework.spring.web.annotation.ReturnRawText;
+import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
 
 @RestController
 @RequestMapping("/webflux")

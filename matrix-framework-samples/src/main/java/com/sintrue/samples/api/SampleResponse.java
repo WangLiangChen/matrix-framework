@@ -1,8 +1,8 @@
 package com.sintrue.samples.api;
 
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValue;
-import wang.liangchen.matrix.framework.data.entity.ExtendedColumnValues;
-import wang.liangchen.matrix.framework.springboot.json.JsonField;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValue;
+import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValues;
+import wang.liangchen.matrix.framework.spring.boot.json.JsonField;
 
 public class SampleResponse {
     private String sampleId;

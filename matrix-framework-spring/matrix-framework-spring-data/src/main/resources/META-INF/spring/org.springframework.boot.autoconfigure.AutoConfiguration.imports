@@ -1,1 +1,1 @@
-wang.liangchen.matrix.framework.data.configuration.MybatisCustomizerAutoConfiguration
+configuration.wang.liangchen.matrix.framework.spring.data.MybatisCustomizerAutoConfiguration

@@ -3,9 +3,9 @@ package com.sintrue.samples.controller;
 import com.sintrue.samples.api.SampleResponse;
 import org.springframework.web.bind.annotation.*;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
-import wang.liangchen.matrix.framework.springboot.json.JsonField;
-import wang.liangchen.matrix.framework.web.annotation.ReturnRawText;
-import wang.liangchen.matrix.framework.web.response.JsonResponse;
+import wang.liangchen.matrix.framework.spring.boot.json.JsonField;
+import wang.liangchen.matrix.framework.spring.web.annotation.ReturnRawText;
+import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
 
 @RestController
 @RequestMapping("/webmvc")

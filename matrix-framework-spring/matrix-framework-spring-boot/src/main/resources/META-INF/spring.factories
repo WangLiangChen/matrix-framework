@@ -4,7 +4,7 @@
 
 # Application Listeners
 org.springframework.context.ApplicationListener=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupApplicationListener
+  startup.wang.liangchen.matrix.framework.spring.boot.StartupApplicationListener
 
 # Environment Post Processors
 #org.springframework.boot.env.EnvironmentPostProcessor=\
@@ -16,22 +16,22 @@ org.springframework.context.ApplicationListener=\
 
 # Failure Analyzers
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-  wang.liangchen.matrix.framework.springboot.startup.StartupFailureAnalyzer
+  startup.wang.liangchen.matrix.framework.spring.boot.StartupFailureAnalyzer
 
 # Servlet Context Initializers
 # org.springframework.boot.web.servlet.ServletContextInitializer=\
 
 # Property Source Loaders
 org.springframework.boot.env.PropertySourceLoader=\
-  wang.liangchen.matrix.framework.springboot.env.JsonPropertySourceLoader
+  env.wang.liangchen.matrix.framework.spring.boot.JsonPropertySourceLoader
 
 # Config Data Location Resolvers
 org.springframework.boot.context.config.ConfigDataLocationResolver=\
-  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLocationResolver
+  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLocationResolver
 
 # Config Data Loaders
 org.springframework.boot.context.config.ConfigDataLoader=\
-  wang.liangchen.matrix.framework.springboot.config.MatrixConfigDataLoader
+  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLoader
 
 # Auto Configuration Import Listeners
 # org.springframework.boot.autoconfigure.AutoConfigurationImportListener=\
