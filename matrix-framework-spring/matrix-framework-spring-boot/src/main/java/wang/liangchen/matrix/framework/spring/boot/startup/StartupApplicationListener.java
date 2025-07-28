@@ -21,11 +21,13 @@ import wang.liangchen.matrix.framework.spring.boot.event.EventPublisher;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.stopWatch;
+import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.watchTask;
+
 
 public final class StartupApplicationListener implements ApplicationListener<ApplicationEvent> {
     private static boolean runned = false;
-    private final static StopWatch stopWatch = new StopWatch();
-    public final static StopWatch.WatchTask startupTask = stopWatch.startTask("Startup");
+
     private final static String DEFAULT_SCAN_PACKAGES = "wang.liangchen.matrix.framework";
 
     @Override
@@ -61,7 +63,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
             return;
         }
         runned = true;
-        startupTask.addMessage("Matrix Framework is staring...");
+        watchTask.addMessage("Matrix Framework is staring...");
         registerShutdownHook();
         event.getSpringApplication().setBannerMode(Banner.Mode.OFF);
     }
@@ -73,8 +75,8 @@ public final class StartupApplicationListener implements ApplicationListener<App
             return;
         }
         EnvironmentContext.INSTANCE.setEnvironment(environment);
-        startupTask.addMessage("Set environment to EnvironmentContext");
-        startupTask.prettyPrint();
+        watchTask.addMessage("Set environment to EnvironmentContext");
+        watchTask.prettyPrint();
 
     }
 
@@ -88,8 +90,8 @@ public final class StartupApplicationListener implements ApplicationListener<App
         scanMatrixPackages(springApplication, applicationContext);
         BeanContext.INSTANCE.resetApplicationContext(applicationContext);
         EventPublisher.INSTANCE.resetApplicationContext(applicationContext);
-        startupTask.addMessage("Set applicationContext to BeanContext and EventPublisher");
-        startupTask.prettyPrint();
+        watchTask.addMessage("Set applicationContext to BeanContext and EventPublisher");
+        watchTask.prettyPrint();
     }
 
     private void onApplicationPreparedEvent(ApplicationPreparedEvent event) {
@@ -105,9 +107,9 @@ public final class StartupApplicationListener implements ApplicationListener<App
     }
 
     private void onApplicationReadyEvent(ApplicationReadyEvent event) {
-        startupTask.addMessage("Matrix Framework has been started");
-        startupTask.stop();
-        startupTask.prettyPrint();
+        watchTask.addMessage("Matrix Framework has been started");
+        watchTask.stop();
+        watchTask.prettyPrint();
     }
 
     private void onContextClosedEvent(ContextClosedEvent event) {
@@ -118,7 +120,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
         // 注册一个虚拟机关闭钩子,监听虚拟机关闭
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             StopWatch.WatchTask closeTask = stopWatch.startTask("Close");
-            closeTask.addMessage("Matrix Framework is closing...");
+            closeTask.addMessage("JVM is closing...");
             closeTask.prettyPrint();
         }));
         // 注册一个Spring关闭钩子,监听Spring关闭
@@ -151,6 +153,6 @@ public final class StartupApplicationListener implements ApplicationListener<App
             });
         }
         scanner.scan(DEFAULT_SCAN_PACKAGES);
-        startupTask.addMessage("Scan Matrix's packages: " + DEFAULT_SCAN_PACKAGES + ", and excluded packages: " + excludePackages);
+        watchTask.addMessage("Scan Matrix's packages: " + DEFAULT_SCAN_PACKAGES + ", and excluded packages: " + excludePackages);
     }
 }

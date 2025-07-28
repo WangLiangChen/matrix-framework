@@ -31,10 +31,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
-import wang.liangchen.matrix.framework.spring.boot.aop.ProxyAware;
+import wang.liangchen.matrix.framework.spring.boot.aop.ProxyObjectAware;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.watchTask;
 
 @Component
 public class StartupBean implements
@@ -95,36 +97,27 @@ public class StartupBean implements
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         // BeanPostProcessor
+        // inject proxy object
+        if (bean instanceof ProxyObjectAware proxyObjectAware) {
+            proxyObjectAware.setProxyObject(applicationContext.getBean(beanName));
+        }
+        if (bean instanceof Validator validator) {
+            ValidationUtil.INSTANCE.resetValidator(validator);
+            watchTask.addMessage("Set validator to Validation");
+            watchTask.prettyPrint();
+        }
+        if (bean instanceof ObjectMapper objectMapper) {
+            JacksonUtil.INSTANCE.resetObjectMapper(objectMapper);
+            watchTask.addMessage("Set ObjectMapper to JacksonUtil");
+            watchTask.prettyPrint();
+        }
         return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         // BeanPostProcessor
-        if (bean instanceof ProxyAware) {
-            proxyAware((ProxyAware) bean, beanName);
-        }
-        if (bean instanceof Validator) {
-            ValidationUtil.INSTANCE.resetValidator((Validator) bean);
-            StartupApplicationListener.startupTask.addMessage("Set validator to Validation");
-            StartupApplicationListener.startupTask.prettyPrint();
-        }
-        if (bean instanceof ObjectMapper) {
-            JacksonUtil.INSTANCE.resetObjectMapper((ObjectMapper) bean);
-            StartupApplicationListener.startupTask.addMessage("Set ObjectMapper to JacksonUtil");
-            StartupApplicationListener.startupTask.prettyPrint();
-        }
         return bean;
-    }
-
-    private void proxyAware(ProxyAware proxy, String beanName) {
-        // 如果当前对象已经是代理对象，直接注入
-        if (AopUtils.isAopProxy(proxy)) {
-            proxy.setProxy(proxy);
-            return;
-        }
-        // 如果不是代理对象，则获取代理对象后注入
-        proxy.setProxy(applicationContext.getBean(beanName));
     }
 
 

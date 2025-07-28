@@ -6,6 +6,6 @@ import org.springframework.boot.diagnostics.FailureAnalyzer;
 public final class StartupFailureAnalyzer implements FailureAnalyzer {
     @Override
     public FailureAnalysis analyze(Throwable failure) {
-        return null;
+        return new FailureAnalysis("Matrix Framework startup failed", null, failure);
     }
 }

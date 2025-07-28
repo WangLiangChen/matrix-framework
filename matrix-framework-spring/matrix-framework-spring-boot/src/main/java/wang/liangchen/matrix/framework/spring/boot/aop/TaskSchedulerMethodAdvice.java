@@ -11,18 +11,15 @@ import org.springframework.scheduling.TaskScheduler;
 public abstract class TaskSchedulerMethodAdvice implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        Object object = invocation.getThis();
-        if (null == object) {
+        Object proxyObject = invocation.getThis();
+        if (null == proxyObject) {
             return invocation.proceed();
         }
-        Class<?> objectClass = object.getClass();
-        // TaskScheduler method
-        if (TaskScheduler.class.isAssignableFrom(objectClass)) {
-            Object[] arguments = invocation.getArguments();
-            if (arguments.length > 0 && arguments[0] instanceof Runnable) {
-                // 包装arguments[0]的runnable
-                arguments[0] = wrapRunnable((Runnable) arguments[0]);
-            }
+        // TaskScheduler method arguments
+        Object[] arguments = invocation.getArguments();
+        if (arguments.length > 0 && arguments[0] instanceof Runnable runnable) {
+            // 包装runnable
+            arguments[0] = wrapRunnable(runnable);
         }
         return invocation.proceed();
     }
