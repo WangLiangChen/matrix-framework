@@ -32,6 +32,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
+        watchTask.addMessage("Dispatch event: " + event);
         if (event instanceof ApplicationStartingEvent) {
             onApplicationStartingEvent((ApplicationStartingEvent) event);
         }
@@ -74,7 +75,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
         if (isSpringCloud) {
             return;
         }
-        EnvironmentContext.INSTANCE.setEnvironment(environment);
+        EnvironmentContext.INSTANCE.resetEnvironmentContext(environment);
         watchTask.addMessage("Set environment to EnvironmentContext");
         watchTask.prettyPrint();
 

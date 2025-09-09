@@ -16,9 +16,12 @@ import java.lang.reflect.Method;
 
 /**
  * @author Liangchen.Wang 2022-08-26 14:08
+ * <p>
+ * Advisor of TaskScheduler
+ *
  */
 public class TaskSchedulerAdvisor extends AbstractPointcutAdvisor {
-    private final static Logger logger = LoggerFactory.getLogger(TaskSchedulerAdvisor.class);
+    private final static String methods = "execute, schedule, scheduleAtFixedRate, scheduleWithFixedDelay";
     private final Advice advice;
 
     public TaskSchedulerAdvisor(TaskSchedulerMethodAdvice advice) {
@@ -39,7 +42,7 @@ public class TaskSchedulerAdvisor extends AbstractPointcutAdvisor {
                 return new StaticMethodMatcher() {
                     @Override
                     public boolean matches(Method method, Class<?> targetClass) {
-                        return "execute, schedule, scheduleAtFixedRate, scheduleWithFixedDelay".contains(method.getName());
+                        return methods.contains(method.getName());
                     }
                 };
             }

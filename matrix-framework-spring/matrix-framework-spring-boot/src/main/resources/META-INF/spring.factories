@@ -1,37 +1,32 @@
 # Application Run Listeners
-#org.springframework.boot.SpringApplicationRunListener=\
-#  wang.liangchen.matrix.framework.springboot.startup.StartupRunListener
+# org.springframework.boot.SpringApplicationRunListener=\
 
 # Application Listeners
 org.springframework.context.ApplicationListener=\
-  startup.wang.liangchen.matrix.framework.spring.boot.StartupApplicationListener
+  wang.liangchen.matrix.framework.spring.boot.startup.StartupApplicationListener
 
 # Environment Post Processors
-#org.springframework.boot.env.EnvironmentPostProcessor=\
-#  wang.liangchen.matrix.framework.springboot.startup.StartupProcessorNew
+# org.springframework.boot.env.EnvironmentPostProcessor=\
 
-# ApplicationContext Initializers, before ApplicationContext refresh
-#org.springframework.context.ApplicationContextInitializer=\
-#  wang.liangchen.matrix.framework.springboot.startup.StartupProcessorNew
+# ApplicationContext Initializers
+# org.springframework.context.ApplicationContextInitializer=\
 
 # Failure Analyzers
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-  startup.wang.liangchen.matrix.framework.spring.boot.StartupFailureAnalyzer
+  wang.liangchen.matrix.framework.spring.boot.startup.StartupFailureAnalyzer
 
-# Servlet Context Initializers
-# org.springframework.boot.web.servlet.ServletContextInitializer=\
 
 # Property Source Loaders
-org.springframework.boot.env.PropertySourceLoader=\
-  env.wang.liangchen.matrix.framework.spring.boot.JsonPropertySourceLoader
+#org.springframework.boot.env.PropertySourceLoader=\
+#  env.wang.liangchen.matrix.framework.spring.boot.JsonPropertySourceLoader
 
 # Config Data Location Resolvers
-org.springframework.boot.context.config.ConfigDataLocationResolver=\
-  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLocationResolver
+#org.springframework.boot.context.config.ConfigDataLocationResolver=\
+#  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLocationResolver
 
 # Config Data Loaders
-org.springframework.boot.context.config.ConfigDataLoader=\
-  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLoader
+#org.springframework.boot.context.config.ConfigDataLoader=\
+#  config.wang.liangchen.matrix.framework.spring.boot.MatrixConfigDataLoader
 
 # Auto Configuration Import Listeners
 # org.springframework.boot.autoconfigure.AutoConfigurationImportListener=\
@@ -44,6 +39,9 @@ org.springframework.boot.context.config.ConfigDataLoader=\
 
 # Condition Evaluation Report Listeners
 # org.springframework.boot.autoconfigure.condition.ConditionEvaluationReportListener=\
+
+# Servlet Context Initializers
+# org.springframework.boot.web.servlet.ServletContextInitializer=\
 
 # DataSource Initializer Detectors
 # org.springframework.boot.sql.init.dependency.DatabaseInitializerDetector=\

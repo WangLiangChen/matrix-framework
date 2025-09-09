@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.jackson;
+package wang.liangchen.matrix.framework.commons.json.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

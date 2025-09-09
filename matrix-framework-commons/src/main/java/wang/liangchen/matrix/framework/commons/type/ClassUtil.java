@@ -82,6 +82,10 @@ public enum ClassUtil {
         return WRAPPER_CLASSES.containsKey(clazz);
     }
 
+    public boolean isPrimitiveOrWrapperClass(Class<?> clazz) {
+        return WRAPPER_CLASSES.containsKey(clazz) || PRIMITIVE_CLASSES.containsKey(clazz);
+    }
+
     public Class<?> primitiveToWrapper(Class<?> primitiveClass) {
         return PRIMITIVE_CLASSES.get(primitiveClass);
     }

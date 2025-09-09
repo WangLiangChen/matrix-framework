@@ -5,62 +5,77 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public enum BeanContext {
     INSTANCE;
-    private ApplicationContext applicationContext;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private volatile ApplicationContext applicationContext;
 
-    public void resetApplicationContext(ConfigurableApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public void resetApplicationContext(ApplicationContext applicationContext) {
+        lock.writeLock().lock();
+        try {
+            this.applicationContext = applicationContext;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public ApplicationContext getApplicationContext() {
-        return this.applicationContext;
+        lock.readLock().lock();
+        try {
+            return this.applicationContext;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public <T> T getBean(String name) {
-        Object bean = this.applicationContext.getBean(name);
+        Object bean = this.getApplicationContext().getBean(name);
         return ObjectUtil.INSTANCE.cast(bean);
     }
 
     public <T> T getBean(Class<T> clazz) {
-        return this.applicationContext.getBean(clazz);
+        return this.getApplicationContext().getBean(clazz);
     }
 
     public <T> T getBean(String name, Class<T> clazz) {
-        return this.applicationContext.getBean(name, clazz);
+        return this.getApplicationContext().getBean(name, clazz);
     }
 
     public <T> Map<String, T> getBeansOfType(Class<T> clazz) {
-        return this.applicationContext.getBeansOfType(clazz);
+        return this.getApplicationContext().getBeansOfType(clazz);
     }
 
     public Class<?> getType(String name) {
-        return this.applicationContext.getType(name);
+        return this.getApplicationContext().getType(name);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T registerBean(String name, Class<T> clazz, Object... args) {
-        if (applicationContext.containsBean(name)) {
-            Object bean = applicationContext.getBean(name);
-            if (bean.getClass().isAssignableFrom(clazz)) {
+    public <T> T registerBean(String beanName, Class<T> beanClass, Object... constructorArgValues) {
+        ApplicationContext innerApplicatonContext = this.getApplicationContext();
+        if (innerApplicatonContext.containsBean(beanName)) {
+            Object bean = innerApplicatonContext.getBean(beanName);
+            if (bean.getClass().isAssignableFrom(beanClass)) {
                 return (T) bean;
             } else {
-                throw new MatrixWarnException("Duplicate Bean Name");
+                throw new MatrixErrorException("Duplicate Bean Name");
             }
         }
-        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
-        for (Object arg : args) {
-            beanDefinitionBuilder.addConstructorArgValue(arg);
+        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
+        for (Object constructorArgValue : constructorArgValues) {
+            beanDefinitionBuilder.addConstructorArgValue(constructorArgValue);
         }
-        BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
-        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
+        BeanDefinition beanDefinition = beanDefinitionBuilder.getBeanDefinition();
+        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) innerApplicatonContext;
         BeanDefinitionRegistry beanFactory = (BeanDefinitionRegistry) configurableApplicationContext.getBeanFactory();
-        beanFactory.registerBeanDefinition(name, beanDefinition);
-        return applicationContext.getBean(name, clazz);
+        beanFactory.registerBeanDefinition(beanName, beanDefinition);
+        return innerApplicatonContext.getBean(beanName, beanClass);
     }
 }

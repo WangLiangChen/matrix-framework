@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.spring.data.mybatis.handler;
 
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.JdbcType;
-import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
+import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
 
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;

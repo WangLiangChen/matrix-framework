@@ -42,13 +42,13 @@
         <module>matrix-framework-commons</module>
         <module>matrix-framework-ddd</module>
         <module>matrix-framework-spring</module>
-        <module>matrix-framework-samples</module>
     </modules>
 
     <properties>
         <revision>3.0.0-SNAPSHOT</revision>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss(+8)</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.resources.sourceEncoding>UTF-8</project.build.resources.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>

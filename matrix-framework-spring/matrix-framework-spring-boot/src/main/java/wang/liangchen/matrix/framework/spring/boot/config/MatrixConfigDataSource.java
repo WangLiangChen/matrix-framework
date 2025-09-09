@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.spring.boot.config;
 
 import org.springframework.boot.context.config.ConfigDataResource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public class MatrixConfigDataSource extends ConfigDataResource {
 
     public MatrixConfigDataSource(String configRoot, List<String> activeProfiles) {
         this.configRoot = configRoot;
-        this.activeProfiles = activeProfiles;
+        this.activeProfiles = null == activeProfiles ? new ArrayList<>() : activeProfiles;
     }
 
     public String getConfigRoot() {

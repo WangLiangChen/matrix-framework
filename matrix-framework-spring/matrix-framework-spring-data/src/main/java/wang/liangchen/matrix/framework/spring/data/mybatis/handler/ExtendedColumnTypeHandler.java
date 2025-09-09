@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.JdbcType;
 import wang.liangchen.matrix.framework.commons.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.jackson.JacksonUtil;
+import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.spring.data.context.DataSourceContext;
 import wang.liangchen.matrix.framework.spring.data.criteria.Criteria;
 import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnDefinition;

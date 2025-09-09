@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.spring.boot.context;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
@@ -7,24 +8,30 @@ import wang.liangchen.matrix.framework.spring.boot.config.MatrixConfigDataSource
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public enum EnvironmentContext {
     INSTANCE;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private Environment environment;
 
-    public void setEnvironment(ConfigurableEnvironment environment) {
-
+    public void resetEnvironmentContext(Environment environment) {
+        lock.writeLock().lock();
+        try {
+            this.environment = environment;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    /**
-     * 该方法会被ConfigDataLoader调用
-     * 没有配置 spring.config.import=matrix://xxx. 会调用1次，参数为classpath*:
-     * 配置了  spring.config.import=matrix://xxx. 会调用2次，参数分别为classpath*:,xxx
-     *
-     * @param matrixConfigDataSource activeProfiles and configRoot
-     * @return PropertySources
-     */
-    public Collection<? extends PropertySource<?>> loadPropertySources(MatrixConfigDataSource matrixConfigDataSource) {
-        return Collections.emptyList();
+    public Environment getEnvironment() {
+        lock.readLock().lock();
+        try {
+            return this.environment;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
+
 }
