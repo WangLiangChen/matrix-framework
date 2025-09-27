@@ -20,9 +20,6 @@ public enum ThreadUtil {
     private final Executor unboundedExecutor;
 
     ThreadUtil() {
-        // Core thread number 0
-        // maximum thread number Integer.MAX_VALUE
-        // idle thread timeout 60 SECONDS
         // thread waiting queue SynchronousQueue (queue with a capacity of 0)
         unboundedExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), getThreadFactory("unbounded-executor-", false));
@@ -32,7 +29,11 @@ public enum ThreadUtil {
         return unboundedExecutor;
     }
 
-    public ThreadFactory getThreadFactory(String threadName, boolean daemon) {
+    public ForkJoinPool getForkJoinPool() {
+        return new ForkJoinPool();
+    }
+
+    public ThreadFactory getThreadFactory(String threadNamePrefix, boolean daemon) {
         return new ThreadFactory() {
             private final AtomicInteger counter = new AtomicInteger();
 
@@ -40,7 +41,22 @@ public enum ThreadUtil {
             public Thread newThread(Runnable runnable) {
                 Thread thread = new Thread(runnable);
                 thread.setDaemon(daemon);
-                thread.setName(String.format("%s(%d)", threadName, counter.incrementAndGet()));
+                thread.setName(String.format("%s-%d", threadNamePrefix, counter.getAndIncrement()));
+                return thread;
+            }
+        };
+    }
+
+    public ForkJoinPool.ForkJoinWorkerThreadFactory getForkJoinWorkerThreadFactory(String threadNamePrefix, boolean daemon) {
+        return new ForkJoinPool.ForkJoinWorkerThreadFactory() {
+            private final AtomicInteger counter = new AtomicInteger();
+
+            @Override
+            public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+                ForkJoinWorkerThread thread = new ForkJoinWorkerThread(pool) {
+                };
+                thread.setDaemon(daemon);
+                thread.setName(String.format("%s-%d", threadNamePrefix, counter.getAndIncrement()));
                 return thread;
             }
         };
@@ -53,14 +69,18 @@ public enum ThreadUtil {
         // shutdown and reject new tasks
         threadPool.shutdown();
         try {
-            if (!threadPool.awaitTermination(timeout, timeUnit)) {
-                threadPool.shutdownNow();
+            if (threadPool.awaitTermination(timeout, timeUnit)) {
+                return;
             }
+            threadPool.shutdownNow();
         } catch (InterruptedException ex) {
             threadPool.shutdownNow();
             Thread.currentThread().interrupt();
         }
+    }
 
+    public void shutdownThreadPool(ExecutorService threadPool, Duration duration) {
+        shutdownThreadPool(threadPool, duration.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     public void sleep(TimeUnit timeUnit, long timeout) {

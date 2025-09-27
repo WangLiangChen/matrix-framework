@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.spring.data.entity;
 
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.spring.data.enumeration.DataType;
 
 /**

@@ -2,7 +2,7 @@ package wang.liangchen.matrix.framework.spring.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.spring.data.annotation.IdStrategy;
 import wang.liangchen.matrix.framework.spring.data.enumeration.DataType;
 

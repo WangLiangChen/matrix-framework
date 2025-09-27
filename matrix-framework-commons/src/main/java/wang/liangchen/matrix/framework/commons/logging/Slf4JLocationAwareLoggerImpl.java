@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.commons.logging;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.slf4j.spi.LocationAwareLogger;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 11:54

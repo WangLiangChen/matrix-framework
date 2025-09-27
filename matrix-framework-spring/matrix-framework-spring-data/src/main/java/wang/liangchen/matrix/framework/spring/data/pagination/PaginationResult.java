@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.spring.data.pagination;
 
 
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 

@@ -18,8 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = DynamicMessageValidator.class)
 @Documented
 @interface DynamicMessageMaker {
-
-    String message() default "{message}";
+    String message() default "{message.default}";
 
     Class<?>[] groups() default {};
 

@@ -3,9 +3,10 @@ package wang.liangchen.matrix.framework.spring.data.mybatis.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.type.JdbcType;
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
+import wang.liangchen.matrix.framework.spring.boot.context.BeanContext;
 import wang.liangchen.matrix.framework.spring.data.context.DataSourceContext;
 import wang.liangchen.matrix.framework.spring.data.criteria.Criteria;
 import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnDefinition;
@@ -14,7 +15,6 @@ import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValueDet
 import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.spring.data.mybatis.MyBatisExecutorContext;
 import wang.liangchen.matrix.framework.spring.data.repository.StandaloneRepository;
-import wang.liangchen.matrix.framework.spring.boot.context.BeanContext;
 
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;

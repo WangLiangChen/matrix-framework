@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
-import wang.liangchen.matrix.framework.spring.boot.event.EventPublisher;
+import wang.liangchen.matrix.framework.spring.boot.context.BeanContext;
 import wang.liangchen.matrix.framework.spring.web.event.WebSocketMessageEvent;
 import wang.liangchen.matrix.framework.spring.web.utils.PushUtil;
 
@@ -30,7 +30,7 @@ public class DefaultWebSocketConfigurer implements WebSocketConfigurer {
 
             @Override
             protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-                EventPublisher.INSTANCE.publishEvent(new WebSocketMessageEvent(this, message.getPayload()));
+                BeanContext.INSTANCE.publishEvent(new WebSocketMessageEvent(this, message.getPayload()));
             }
 
             @Override

@@ -7,7 +7,7 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.apache.logging.log4j.spi.AbstractLogger;
 import org.apache.logging.log4j.spi.ExtendedLoggerWrapper;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:28

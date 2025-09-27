@@ -1,8 +1,6 @@
 package wang.liangchen.matrix.framework.spring.boot.aop;
 
 import org.aopalliance.aop.Advice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
@@ -21,7 +19,7 @@ import java.lang.reflect.Method;
  *
  */
 public class TaskSchedulerAdvisor extends AbstractPointcutAdvisor {
-    private final static String methods = "execute, schedule, scheduleAtFixedRate, scheduleWithFixedDelay";
+    private final static String methods = "execute, submit, schedule, scheduleAtFixedRate, scheduleWithFixedDelay";
     private final Advice advice;
 
     public TaskSchedulerAdvisor(TaskSchedulerMethodAdvice advice) {

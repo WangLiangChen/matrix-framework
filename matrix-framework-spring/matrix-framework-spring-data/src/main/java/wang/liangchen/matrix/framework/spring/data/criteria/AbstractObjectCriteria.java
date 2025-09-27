@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.spring.data.criteria;
 
-import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.function.LambdaUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.spring.data.entity.RootEntity;

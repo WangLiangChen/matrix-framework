@@ -4,12 +4,8 @@ import org.springframework.boot.context.config.ConfigData;
 import org.springframework.boot.context.config.ConfigDataLoader;
 import org.springframework.boot.context.config.ConfigDataLoaderContext;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
-import org.springframework.core.env.PropertySource;
-import wang.liangchen.matrix.framework.spring.boot.context.EnvironmentContext;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author Liangchen.Wang 2022-06-21 11:57

@@ -14,11 +14,12 @@ org.springframework.context.ApplicationListener=\
 # Failure Analyzers
 org.springframework.boot.diagnostics.FailureAnalyzer=\
   wang.liangchen.matrix.framework.spring.boot.startup.StartupFailureAnalyzer
-
+org.springframework.boot.diagnostics.FailureAnalysisReporter=\
+  wang.liangchen.matrix.framework.spring.boot.startup.StartupFailureAnalyzer
 
 # Property Source Loaders
-#org.springframework.boot.env.PropertySourceLoader=\
-#  env.wang.liangchen.matrix.framework.spring.boot.JsonPropertySourceLoader
+org.springframework.boot.env.PropertySourceLoader=\
+  wang.liangchen.matrix.framework.spring.boot.env.JsonPropertySourceLoader
 
 # Config Data Location Resolvers
 #org.springframework.boot.context.config.ConfigDataLocationResolver=\
@@ -39,12 +40,3 @@ org.springframework.boot.diagnostics.FailureAnalyzer=\
 
 # Condition Evaluation Report Listeners
 # org.springframework.boot.autoconfigure.condition.ConditionEvaluationReportListener=\
-
-# Servlet Context Initializers
-# org.springframework.boot.web.servlet.ServletContextInitializer=\
-
-# DataSource Initializer Detectors
-# org.springframework.boot.sql.init.dependency.DatabaseInitializerDetector=\
-
-# Depends on Database Initialization Detectors
-# org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializationDetector=\

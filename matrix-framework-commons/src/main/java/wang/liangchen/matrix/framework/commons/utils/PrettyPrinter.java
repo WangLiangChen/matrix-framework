@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.utils;
 
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

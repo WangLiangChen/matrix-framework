@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
 import org.apache.logging.log4j.LogManager;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
  * @author Liangchen.Wang 2022-06-20 14:26

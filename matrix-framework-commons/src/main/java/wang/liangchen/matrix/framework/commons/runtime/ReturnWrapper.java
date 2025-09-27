@@ -6,10 +6,11 @@ import java.io.Serializable;
  * @author Liangchen.Wang 2022-10-16 10:06
  */
 public class ReturnWrapper<T> extends MessageWrapper implements Serializable {
+    private String code;
     private final T payload;
 
     protected ReturnWrapper(T payload, boolean success, String message, Object... args) {
-        super(success, message, args);
+        super( message, args);
         this.payload = payload;
     }
 
@@ -60,10 +61,7 @@ public class ReturnWrapper<T> extends MessageWrapper implements Serializable {
         return new ReturnWrapper<>(null, false, null);
     }
 
-    public ReturnWrapper<T> withCode(String code) {
-        super.withCode(code);
-        return this;
-    }
+
 
     public T getPayload() {
         return payload;

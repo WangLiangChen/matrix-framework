@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.commons.datetime;
 
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.thread.ThreadUtil;
 
 import java.time.*;
@@ -26,6 +27,41 @@ public enum DateTimeUtil {
     public final static ZoneId CN_ZONE = ZoneId.of("Asia/Shanghai");
     public final static ZoneOffset DEFAULT_ZONE_OFFSET = ZonedDateTime.now(DEFAULT_ZONE).getOffset();
     public final static ZoneOffset CN_ZONE_OFFSET = ZonedDateTime.now(CN_ZONE).getOffset();
+
+    public ZonedDateTime localDateTime2UTC(ZonedDateTime localDateTime) {
+        return localDateTime.withZoneSameInstant(ZoneOffset.UTC);
+    }
+
+    public LocalDateTime localDateTime2UTC(LocalDateTime localDateTime, ZoneId zoneId) {
+        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+        zonedDateTime = localDateTime2UTC(zonedDateTime);
+        return zonedDateTime.toLocalDateTime();
+    }
+
+    public LocalDateTime localDateTime2UTC(LocalDateTime localDateTime) {
+        return localDateTime2UTC(localDateTime, ZoneId.systemDefault());
+    }
+
+    public ZonedDateTime utc2LocalDateTime(ZonedDateTime utc, ZoneId localZoneId) {
+        if (ZoneOffset.UTC.equals(utc.getOffset())) {
+            return utc.withZoneSameInstant(localZoneId);
+        }
+        throw new MatrixErrorException("The parameter 'utc' must be a UTC datetime");
+    }
+
+    public ZonedDateTime utc2LocalDateTime(ZonedDateTime utc) {
+        return utc2LocalDateTime(utc, ZoneId.systemDefault());
+    }
+
+    public LocalDateTime utc2LocalDateTime(LocalDateTime utc, ZoneId localZoneId) {
+        ZonedDateTime zonedDateTime = utc.atZone(ZoneOffset.UTC);
+        zonedDateTime = zonedDateTime.withZoneSameInstant(localZoneId);
+        return zonedDateTime.toLocalDateTime();
+    }
+
+    public LocalDateTime utc2LocalDateTime(LocalDateTime utc) {
+        return utc2LocalDateTime(utc, ZoneId.systemDefault());
+    }
 
 
     public LocalDateTime instant2LocalDateTime(Instant instant, ZoneId zoneId) {

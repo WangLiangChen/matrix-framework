@@ -16,7 +16,7 @@ public enum RmbUtil {
     INSTANCE;
 
     public String fen2Yuan(Long fen) {
-        ValidationUtil.INSTANCE.notNull(fen, "fen can not by null");
+        ValidationUtil.INSTANCE.notNull(fen, "fen must not be null");
         if (0 == fen) {
             return "0";
         }
@@ -25,7 +25,7 @@ public enum RmbUtil {
     }
 
     public String fen2Yuan(Integer fen) {
-        ValidationUtil.INSTANCE.notNull(fen, "fen can not by null");
+        ValidationUtil.INSTANCE.notNull(fen, "fen must not be null");
         if (0 == fen) {
             return "0";
         }
@@ -33,7 +33,7 @@ public enum RmbUtil {
     }
 
     public Long yuan2Fen(String yuan) {
-        ValidationUtil.INSTANCE.notNullAndBlank(yuan, "{ParameterNotBlank}");
+        ValidationUtil.INSTANCE.notNullAndBlank(yuan, "yuan must not be null or blank");
         BigDecimal bigDecimal = NumberUtil.INSTANCE.multiply(yuan, "100", 0);
         return bigDecimal.longValue();
     }

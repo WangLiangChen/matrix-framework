@@ -1,8 +1,9 @@
 package wang.liangchen.matrix.framework.commons.bytes;
 
 
-import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 
 import java.io.*;
@@ -36,8 +37,7 @@ public enum BytesUtil {
     public byte[] toBytes(Object object) {
         ValidationUtil.INSTANCE.notNull(object, "object must not be null");
         ValidationUtil.INSTANCE.isTrue(object instanceof Serializable, "object must be Serializable");
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ObjectOutputStream output = new ObjectOutputStream(outputStream);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream output = new ObjectOutputStream(outputStream)) {
             output.writeObject(object);
             output.flush();
             return outputStream.toByteArray();
@@ -154,13 +154,11 @@ public enum BytesUtil {
         return new String(bytes, charset);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T toObject(byte[] bytes) {
         ValidationUtil.INSTANCE.notNullAndEmpty(bytes, "bytes must not be null or empty");
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-            ObjectInputStream intput = new ObjectInputStream(inputStream);
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes); ObjectInputStream intput = new ObjectInputStream(inputStream)) {
             Object object = intput.readObject();
-            return (T) object;
+            return ObjectUtil.INSTANCE.cast(object);
         } catch (IOException | ClassNotFoundException e) {
             throw new MatrixErrorException(e);
         }
@@ -184,7 +182,6 @@ public enum BytesUtil {
         int d2 = n % 16;
         return hexDigits[d1] + hexDigits[d2];
     }
-
 
 
 }

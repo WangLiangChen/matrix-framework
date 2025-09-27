@@ -12,17 +12,16 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.utils.StopWatch;
 import wang.liangchen.matrix.framework.spring.boot.context.BeanContext;
 import wang.liangchen.matrix.framework.spring.boot.context.EnvironmentContext;
-import wang.liangchen.matrix.framework.spring.boot.event.EventPublisher;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.stopWatch;
-import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.watchTask;
+import static wang.liangchen.matrix.framework.spring.boot.startup.StartupStopWatch.stopWatch;
+import static wang.liangchen.matrix.framework.spring.boot.startup.StartupStopWatch.watchTask;
 
 
 public final class StartupApplicationListener implements ApplicationListener<ApplicationEvent> {
@@ -32,7 +31,6 @@ public final class StartupApplicationListener implements ApplicationListener<App
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        watchTask.addMessage("Dispatch event: " + event);
         if (event instanceof ApplicationStartingEvent) {
             onApplicationStartingEvent((ApplicationStartingEvent) event);
         }
@@ -57,6 +55,9 @@ public final class StartupApplicationListener implements ApplicationListener<App
         if (event instanceof ContextClosedEvent) {
             onContextClosedEvent((ContextClosedEvent) event);
         }
+        if (event instanceof ApplicationFailedEvent) {
+            onApplicationFailedEvent((ApplicationFailedEvent) event);
+        }
     }
 
     private void onApplicationStartingEvent(ApplicationStartingEvent event) {
@@ -76,8 +77,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
             return;
         }
         EnvironmentContext.INSTANCE.resetEnvironmentContext(environment);
-        watchTask.addMessage("Set environment to EnvironmentContext");
-        watchTask.prettyPrint();
+        watchTask.addMessage("Environment is prepared, Set environment to EnvironmentContext");
 
     }
 
@@ -90,31 +90,30 @@ public final class StartupApplicationListener implements ApplicationListener<App
         SpringApplication springApplication = event.getSpringApplication();
         scanMatrixPackages(springApplication, applicationContext);
         BeanContext.INSTANCE.resetApplicationContext(applicationContext);
-        EventPublisher.INSTANCE.resetApplicationContext(applicationContext);
-        watchTask.addMessage("Set applicationContext to BeanContext and EventPublisher");
+        watchTask.addMessage("ApplicationContext is initialized, Set applicationContext to BeanContext");
         watchTask.prettyPrint();
     }
 
     private void onApplicationPreparedEvent(ApplicationPreparedEvent event) {
-
     }
 
     private void onContextRefreshedEvent(ContextRefreshedEvent event) {
-
+        watchTask.prettyPrint();
     }
 
     private void onApplicationStartedEvent(ApplicationStartedEvent event) {
-
     }
 
     private void onApplicationReadyEvent(ApplicationReadyEvent event) {
-        watchTask.addMessage("Matrix Framework has been started");
+        watchTask.addMessage("Matrix Framework has been started!");
         watchTask.stop();
         watchTask.prettyPrint();
     }
 
     private void onContextClosedEvent(ContextClosedEvent event) {
+    }
 
+    private void onApplicationFailedEvent(ApplicationFailedEvent event) {
     }
 
     private void registerShutdownHook() {
@@ -122,7 +121,6 @@ public final class StartupApplicationListener implements ApplicationListener<App
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             StopWatch.WatchTask closeTask = stopWatch.startTask("Close");
             closeTask.addMessage("JVM is closing...");
-            closeTask.prettyPrint();
         }));
         // 注册一个Spring关闭钩子,监听Spring关闭
         SpringApplication.getShutdownHandlers().add(() -> {
@@ -135,7 +133,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
 
     private void scanMatrixPackages(SpringApplication springApplication, ConfigurableApplicationContext applicationContext) {
         // 排除多余的matrix包，扫描默认的matrix包
-        Set<String> excludePackages = springApplication.getAllSources().stream()
+        Set<String> excludedPackages = springApplication.getAllSources().stream()
                 .map(e -> ((Class<?>) e).getPackage().getName())
                 .filter(e -> e.startsWith(DEFAULT_SCAN_PACKAGES)).collect(Collectors.toSet());
         BeanDefinitionRegistry beanRegistry = (BeanDefinitionRegistry) applicationContext.getBeanFactory();
@@ -144,16 +142,16 @@ public final class StartupApplicationListener implements ApplicationListener<App
         // 扫描框架包和排除框架子包(如matrix-cache)
         ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanRegistry);
         scanner.setResourceLoader(applicationContext);
-        if (CollectionUtil.INSTANCE.isNotEmpty(excludePackages)) {
+        if (CollectionUtil.INSTANCE.isNotEmpty(excludedPackages)) {
             scanner.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
                 String className = metadataReader.getClassMetadata().getClassName();
-                for (String excludeScanPackage : excludePackages) {
-                    return className.startsWith(excludeScanPackage);
+                for (String excludedPackage : excludedPackages) {
+                    return className.startsWith(excludedPackage);
                 }
                 return false;
             });
         }
         scanner.scan(DEFAULT_SCAN_PACKAGES);
-        watchTask.addMessage("Scan Matrix's packages: " + DEFAULT_SCAN_PACKAGES + ", and excluded packages: " + excludePackages);
+        watchTask.addMessage("Scan Matrix's packages: " + DEFAULT_SCAN_PACKAGES + ", but exclude packages: " + excludedPackages);
     }
 }

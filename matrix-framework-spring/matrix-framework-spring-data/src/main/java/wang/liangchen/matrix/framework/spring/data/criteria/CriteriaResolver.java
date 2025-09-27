@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.spring.data.criteria;
 
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.spring.data.context.DataSourceContext;
 import wang.liangchen.matrix.framework.spring.data.datasource.dialect.AbstractDialect;
 import wang.liangchen.matrix.framework.spring.data.entity.RootEntity;

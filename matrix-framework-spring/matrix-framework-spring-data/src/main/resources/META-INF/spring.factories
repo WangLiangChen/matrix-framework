@@ -1,3 +1,8 @@
-# Failure Analysis Reporters
-org.springframework.boot.diagnostics.FailureAnalysisReporter=\
-diagnostics.wang.liangchen.matrix.framework.spring.data.DataFailureAnalysisReporter
+# DataSource Initializer Detectors
+# org.springframework.boot.sql.init.dependency.DatabaseInitializerDetector=\
+
+# Depends on Database Initialization Detectors
+# org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
+
+#org.springframework.boot.sql.init.DataSourceInitializer
+#DataSourceInitializedEvent

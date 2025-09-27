@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public final class StopWatch {
-    private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+    private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss.SSS");
     private final ConcurrentMap<String, WatchTask> tasks = new ConcurrentHashMap<>();
 
     public WatchTask startTask(String taskName) {
@@ -47,7 +47,7 @@ public final class StopWatch {
     }
 
     public void prettyPrintAll() {
-        System.out.println("| Start             | End               | Duration | Task Name");
+        System.out.println("| Start                 | End                   | Duration | Task Name");
         tasks.values().stream().sorted(Comparator.comparing(WatchTask::getStartDateTime)).forEach(task -> task.prettyPrint(false));
     }
 
@@ -95,8 +95,11 @@ public final class StopWatch {
         }
 
         public void prettyPrint(boolean withTitle) {
+            if (messages.isEmpty()) {
+                return;
+            }
             if (withTitle) {
-                System.out.println("| Start             | End               | Duration | Task Name");
+                System.out.println("| Start                 | End                   | Duration | Task Name");
             }
 
             String startString = getStartDateTime().format(dateTimeFormatter);
@@ -104,7 +107,7 @@ public final class StopWatch {
             String stopString;
             Duration duration;
             if (null == stopDateTime) {
-                stopString = "00-00-00 00:00:00";
+                stopString = "00-00-00 00:00:00.000";
                 duration = Duration.between(getStartDateTime(), LocalDateTime.now());
             } else {
                 stopString = stopDateTime.format(dateTimeFormatter);

@@ -107,10 +107,7 @@ public final class JsonResponse<T> extends ReturnWrapper<T> {
         return this;
     }
 
-    public JsonResponse<T> withCode(String code) {
-        super.withCode(code);
-        return this;
-    }
+
 
     private String getStackTrace(Throwable throwable) {
         StringBuilder stringBuilder = new StringBuilder();

@@ -1,14 +1,14 @@
 package wang.liangchen.matrix.framework.spring.data.resolver;
 
 import jakarta.persistence.*;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.object.Dictionary;
 import wang.liangchen.matrix.framework.commons.object.EnhancedObject;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.spring.data.annotation.*;
 import wang.liangchen.matrix.framework.spring.data.entity.ExtendedColumnValues;
 import wang.liangchen.matrix.framework.spring.data.entity.RootEntity;
-import wang.liangchen.matrix.framework.commons.object.Dictionary;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

@@ -21,8 +21,22 @@ public final class BatchProcessor<E> {
     private final int batchSize;
     private final Duration timeout;
     private Consumer<List<E>> consumer;
-    private Runnable finishRunable;
-    private boolean finished = false;
+    private Runnable finishRunnable;
+    private volatile boolean finished = false;
+
+    public BatchProcessor(int batchSize, Duration timeout) {
+        if (batchSize <= 0) {
+            throw new MatrixErrorException("the batchsize must be positive integer");
+        }
+        this.batchSize = batchSize;
+        this.blockingQueue = new ArrayBlockingQueue<>(batchSize * 10);
+        this.batchList = new ArrayList<>(batchSize);
+        this.timeout = timeout;
+    }
+
+    public BatchProcessor(int batchSize) {
+        this(batchSize, Duration.ofSeconds(5));
+    }
 
     public static <T> BatchProcessor<T> newInstance(int batchSize) {
         return new BatchProcessor<>(batchSize);
@@ -32,26 +46,15 @@ public final class BatchProcessor<E> {
         return new BatchProcessor<>(batchSize, timeout);
     }
 
-    public BatchProcessor(int batchSize) {
-        this(batchSize, Duration.ofSeconds(5));
-    }
-
-    public BatchProcessor(int batchSize, Duration timeout) {
-        if (batchSize <= 0) {
-            throw new MatrixWarnException("the batchsize must be positive integer");
-        }
-        this.batchSize = batchSize;
-        this.blockingQueue = new ArrayBlockingQueue<>(batchSize * 4);
-        this.batchList = new ArrayList<>(batchSize * 2);
-        this.timeout = timeout;
-    }
-
     public boolean put(E e) {
+        if (null == consumer) {
+            throw new MatrixErrorException("The consumer must first be configured via the onConsumer method.");
+        }
+        if (null == finishRunnable) {
+            throw new MatrixErrorException("The 'runnable' must first be configured via the onFinish method.");
+        }
         if (finished) {
             return false;
-        }
-        if (null == consumer) {
-            throw new MatrixWarnException("Set Consumer by method onConsume");
         }
         try {
             blockingQueue.put(e);
@@ -71,7 +74,7 @@ public final class BatchProcessor<E> {
     }
 
     public void onFinish(Runnable finishRunnable) {
-        this.finishRunable = finishRunnable;
+        this.finishRunnable = finishRunnable;
     }
 
     private void onDrain() {
@@ -100,7 +103,7 @@ public final class BatchProcessor<E> {
                     this.consumer.accept(batchList);
                 }
                 if (this.finished) {
-                    this.finishRunable.run();
+                    this.finishRunnable.run();
                     break;
                 }
             }

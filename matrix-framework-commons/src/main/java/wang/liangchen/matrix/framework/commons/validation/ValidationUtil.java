@@ -2,8 +2,7 @@ package wang.liangchen.matrix.framework.commons.validation;
 
 import jakarta.validation.*;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
@@ -11,6 +10,7 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixInfoException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
 /**
@@ -28,10 +29,10 @@ public enum ValidationUtil {
      * instance
      */
     INSTANCE;
-    private static final Pattern VALIDATION_PATTERN = Pattern.compile("^\\{[^{}]+?}$");
-
+    private final static Pattern I18N_KEY_PATTERN = Pattern.compile("^\\{[^{}]+?}$");
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ValidatorFactory VALIDATOR_FACTORY;
-    private Validator VALIDATOR;
+    private volatile Validator VALIDATOR;
 
     ValidationUtil() {
         MessageInterpolator messageInterpolator = new ResourceBundleMessageInterpolator(Collections.emptySet(), Locale.getDefault(), context -> LocaleTimeZoneContext.INSTANCE.getLocale(), false);
@@ -45,6 +46,7 @@ public enum ValidationUtil {
             VALIDATOR_FACTORY.close();
         }
         VALIDATOR = validator;
+
     }
 
     public <T> T validate(ExceptionLevel exceptionLevel, T object, Class<?>... groups) {
@@ -285,7 +287,7 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    public String resolveI18n(String message) {
+    public String resolveI18nKey(String message) {
         if (StringUtil.INSTANCE.isNullOrBlank(message)) {
             return null;
         }
@@ -305,12 +307,15 @@ public enum ValidationUtil {
         if (isI18nKey(message)) {
             message = resolveMessage(DynamicMessage.newInstantce(message));
         }
-        // 如果仍然是i18n,说明未匹配
+        // 解析后仍然是key的样式, 则说明未匹配成功
         if (isI18nKey(message)) {
             return message;
         }
-        // i18n匹配成功或者无需i18n，都需要格式化
         return StringUtil.INSTANCE.format(message, args);
+    }
+
+    public boolean isI18nKey(String message) {
+        return I18N_KEY_PATTERN.matcher(message).matches();
     }
 
     private <T> void handleValidationResult(ExceptionLevel exceptionLevel, Set<ConstraintViolation<T>> results) {
@@ -355,9 +360,5 @@ public enum ValidationUtil {
             return result.getMessage();
         }
         return Symbol.EMPTY.getSymbol();
-    }
-
-    private boolean isI18nKey(String message) {
-        return VALIDATION_PATTERN.matcher(message).matches();
     }
 }

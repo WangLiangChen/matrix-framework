@@ -4,9 +4,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
 import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 
 import java.util.Map;
@@ -77,5 +77,9 @@ public enum BeanContext {
         BeanDefinitionRegistry beanFactory = (BeanDefinitionRegistry) configurableApplicationContext.getBeanFactory();
         beanFactory.registerBeanDefinition(beanName, beanDefinition);
         return innerApplicatonContext.getBean(beanName, beanClass);
+    }
+
+    public void publishEvent(ApplicationEvent event) {
+        this.getApplicationContext().publishEvent(event);
     }
 }

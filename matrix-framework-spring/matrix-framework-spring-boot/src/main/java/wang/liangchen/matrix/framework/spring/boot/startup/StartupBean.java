@@ -1,15 +1,15 @@
 package wang.liangchen.matrix.framework.spring.boot.startup;
 
 
-import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -19,27 +19,31 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.autoconfigure.thread.Threading;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.core.Ordered;
-import org.springframework.core.PriorityOrdered;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.spring.boot.aop.ProxyObjectAware;
+import wang.liangchen.matrix.framework.spring.boot.reflect.DelegatingConcurrentMethodInterceptor;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import static wang.liangchen.matrix.framework.spring.boot.startup.BootStartupStopWatch.watchTask;
+import static wang.liangchen.matrix.framework.spring.boot.startup.StartupStopWatch.watchTask;
 
 @Component
 public class StartupBean implements
         ApplicationContextAware,
+        EnvironmentAware,
         ApplicationRunner,
         CommandLineRunner,
         BeanFactoryPostProcessor,
@@ -49,12 +53,17 @@ public class StartupBean implements
         SmartLifecycle,
         InitializingBean,
         DisposableBean,
-        PriorityOrdered {
+        SmartInitializingSingleton {
     private final static Logger logger = LoggerFactory.getLogger(StartupBean.class);
+    private final static String SCHEDULINGCONFIGURER_BEANNAME = "matrixSchedulingConfigurer";
+    private final static String ASYNC_THREAD_PREFIX = "matrix-async-";
+    private final static String SCHEDULED_THREAD_PREFIX = "matrix-scheduled-";
+    private final static String DEFAULT_EXECUTOR = "taskExecutor";
+    private final static String DEFAULT_SCHEDULER = "taskScheduler";
+
     private boolean running;
     private ApplicationContext applicationContext;
-    private final static String ASYNCCONFIGURER_BEANNAME = "asyncConfigurer";
-    private final static String ASYNC_THREAD_PREFIX = "async-";
+    private Environment environment;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -62,8 +71,90 @@ public class StartupBean implements
     }
 
     @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Override
     public void afterPropertiesSet() throws Exception {
         // InitializingBean
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        // BeanDefinitionRegistryPostProcessor
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        // BeanFactoryPostProcessor
+        registerAsyncConfigurer(beanFactory);
+        registerSchedulingConfigurer(beanFactory);
+        // ConditionEvaluationReport conditionEvaluationReport = ConditionEvaluationReport.get(beanFactory);
+    }
+
+    @Override
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        // InstantiationAwareBeanPostProcessor
+        return InstantiationAwareBeanPostProcessor.super.postProcessBeforeInstantiation(beanClass, beanName);
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        // InstantiationAwareBeanPostProcessor
+        return InstantiationAwareBeanPostProcessor.super.postProcessAfterInstantiation(bean, beanName);
+    }
+
+    @Override
+    public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        // InstantiationAwareBeanPostProcessor
+        return InstantiationAwareBeanPostProcessor.super.postProcessProperties(pvs, bean, beanName);
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        // BeanPostProcessor
+        // inject proxy object
+        if (bean instanceof ProxyObjectAware proxyObjectAware) {
+            proxyObjectAware.setProxyObject(applicationContext.getBean(beanName));
+        }
+        if (bean instanceof Validator validator) {
+            ValidationUtil.INSTANCE.resetValidator(validator);
+            watchTask.addMessage("Initialize Validator, Set Validator to ValidationUtil");
+        }
+        if (bean instanceof ObjectMapper objectMapper) {
+            JacksonUtil.INSTANCE.resetObjectMapper(objectMapper);
+            watchTask.addMessage("Initialize ObjectMapper, Set ObjectMapper to JacksonUtil");
+        }
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        // BeanPostProcessor
+        return bean;
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        // SmartInitializingSingleton
+    }
+
+    @Override
+    public boolean isAutoStartup() {
+        return SmartLifecycle.super.isAutoStartup();
+    }
+
+    @Override
+    public int getPhase() {
+        return SmartLifecycle.super.getPhase();
+    }
+
+
+    @Override
+    public boolean isRunning() {
+        // SmartLifecycle
+        return this.running;
     }
 
     @Override
@@ -83,42 +174,9 @@ public class StartupBean implements
     }
 
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        // BeanDefinitionRegistryPostProcessor
+    public void stop(Runnable callback) {
+        SmartLifecycle.super.stop(callback);
     }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        // BeanFactoryPostProcessor
-        registerAsyncConfigurer(beanFactory);
-    }
-
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        // BeanPostProcessor
-        // inject proxy object
-        if (bean instanceof ProxyObjectAware proxyObjectAware) {
-            proxyObjectAware.setProxyObject(applicationContext.getBean(beanName));
-        }
-        if (bean instanceof Validator validator) {
-            ValidationUtil.INSTANCE.resetValidator(validator);
-            watchTask.addMessage("Set validator to Validation");
-            watchTask.prettyPrint();
-        }
-        if (bean instanceof ObjectMapper objectMapper) {
-            JacksonUtil.INSTANCE.resetObjectMapper(objectMapper);
-            watchTask.addMessage("Set ObjectMapper to JacksonUtil");
-            watchTask.prettyPrint();
-        }
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        // BeanPostProcessor
-        return bean;
-    }
-
 
     @Override
     public void stop() {
@@ -131,70 +189,70 @@ public class StartupBean implements
         // DisposableBean
     }
 
-    @Override
-    public boolean isRunning() {
-        // SmartLifecycle
-        return this.running;
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
-    }
 
     /**
      * 使用 EnableAsync后，避免AsyncConfigurer出现 not eligible for getting processed by all BeanPostProcessors
-     * 用这种方式注册的Bean，在BeanFactory的BeanDefinition集合中是不存在的，但通过getBean可以获取对象
-     * ThreadPoolTaskExecutor 在TaskExecutionAutoConfiguration中注册
-     * ThreadPoolTaskScheduler 在TaskSchedulingAutoConfiguration中注册
+     * 使用registerSingleton注册的Bean，立即进入单例缓存（singletonObjects），在BeanFactory的BeanDefinition集合中是不存在的，但通过getBean可以获取
+     * ThreadPoolTaskExecutor 在TaskExecutionAutoConfiguration中注册 @Async
+     * ThreadPoolTaskScheduler 在TaskSchedulingAutoConfiguration中注册 @Scheduled
      * 注意：在这里getBean会导致提前初始化
      *
      * @param beanFactory
      */
     private void registerAsyncConfigurer(ConfigurableListableBeanFactory beanFactory) {
-        ThreadPoolTaskExecutor defaultExecutor = null;
-        if (beanFactory.containsBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)) {
-            defaultExecutor = beanFactory.getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME, ThreadPoolTaskExecutor.class);
+        if (Threading.VIRTUAL.isActive(this.environment)) {
+            return;
         }
-        beanFactory.registerSingleton(ASYNCCONFIGURER_BEANNAME, asyncConfigurer(defaultExecutor));
+        Map<String, AsyncConfigurer> asyncConfigurers = beanFactory.getBeansOfType(AsyncConfigurer.class);
+        asyncConfigurers.forEach((beanName, asyncConfigurer) -> {
+            Executor defaultExecutor = asyncConfigurer.getAsyncExecutor();
+
+            if (beanFactory instanceof BeanDefinitionRegistry beanDefinitionRegistry) {
+                beanDefinitionRegistry.removeBeanDefinition(beanName);
+            }
+            beanFactory.destroyBean(beanName);
+
+            if (defaultExecutor instanceof ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+                threadPoolTaskExecutor.setThreadNamePrefix(ASYNC_THREAD_PREFIX);
+                if (threadPoolTaskExecutor.getMaxPoolSize() == Integer.MAX_VALUE) {
+                    threadPoolTaskExecutor.setMaxPoolSize(threadPoolTaskExecutor.getCorePoolSize() * 5);
+                    threadPoolTaskExecutor.setQueueCapacity(threadPoolTaskExecutor.getCorePoolSize() * 100);
+                    threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
+                    threadPoolTaskExecutor.setAwaitTerminationSeconds(60);
+                    threadPoolTaskExecutor.setThreadGroupName(DEFAULT_EXECUTOR);
+                }
+            }
+            Executor delegatedExecutor = DelegatingConcurrentMethodInterceptor.createProxy(defaultExecutor);
+            asyncConfigurer = new AsyncConfigurer() {
+                @Override
+                public Executor getAsyncExecutor() {
+                    return delegatedExecutor;
+                }
+            };
+            beanFactory.registerSingleton(beanName, asyncConfigurer);
+        });
     }
 
-    /**
-     * 使用TransmittableThreadLocal,用Ttl**包装一下
-     * TtlRunnable和TtlCallable来包装Runnable和Callable。
-     * getTtlExecutor包装Executor
-     * getTtlExecutorService包装ExecutorService
-     * getTtlScheduledExecutorService包装ScheduledExecutorService
-     *
-     * @param defaultExecutor
-     * @return AsyncConfigurer
-     */
-    private AsyncConfigurer asyncConfigurer(ThreadPoolTaskExecutor defaultExecutor) {
-        return new AsyncConfigurer() {
-            @Override
-            public Executor getAsyncExecutor() {
-                if (null != defaultExecutor) {
-                    defaultExecutor.setThreadNamePrefix(ASYNC_THREAD_PREFIX);
-                    return TtlExecutors.getTtlExecutor(defaultExecutor);
-                }
-                ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-                int processors = Runtime.getRuntime().availableProcessors();
-                executor.setCorePoolSize(processors + 2);
-                executor.setMaxPoolSize(processors * 16);
-                executor.setQueueCapacity(processors * 16);
-                executor.setThreadNamePrefix(ASYNC_THREAD_PREFIX);
-                executor.setWaitForTasksToCompleteOnShutdown(true);
-                executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-                executor.initialize();
-                //jvm退出时关闭task，解决使用tomcat的shutdown后进程依然存在的问题
-                Runtime.getRuntime().addShutdownHook(new Thread(executor::shutdown));
-                return TtlExecutors.getTtlExecutor(executor);
-            }
+    private void registerSchedulingConfigurer(ConfigurableListableBeanFactory beanFactory) {
+        if (Threading.VIRTUAL.isActive(this.environment)) {
+            return;
+        }
+        if (!beanFactory.containsBean(DEFAULT_SCHEDULER)) {
+            return;
+        }
 
-            @Override
-            public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-                return (ex, method, params) -> logger.error("Async thread run exception", ex);
+        SchedulingConfigurer schedulingConfigurer = taskRegistrar -> {
+            ThreadPoolTaskScheduler defaultScheduler = beanFactory.getBean(DEFAULT_SCHEDULER, ThreadPoolTaskScheduler.class);
+            int corePoolSize = defaultScheduler.getScheduledThreadPoolExecutor().getCorePoolSize();
+            if (corePoolSize == 1) {
+                defaultScheduler.setPoolSize(8);
             }
+            defaultScheduler.setThreadNamePrefix(SCHEDULED_THREAD_PREFIX);
+            defaultScheduler.setWaitForTasksToCompleteOnShutdown(true);
+            defaultScheduler.setAwaitTerminationSeconds(60);
+            defaultScheduler.setThreadGroupName(DEFAULT_SCHEDULER);
+            taskRegistrar.setTaskScheduler(defaultScheduler);
         };
+        beanFactory.registerSingleton(SCHEDULINGCONFIGURER_BEANNAME, schedulingConfigurer);
     }
 }

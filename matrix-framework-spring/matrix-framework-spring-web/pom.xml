@@ -14,10 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix</groupId>
-            <artifactId>matrix-framework-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>wang.liangchen.matrix</groupId>
             <artifactId>matrix-framework-spring-boot</artifactId>
         </dependency>
         <dependency>

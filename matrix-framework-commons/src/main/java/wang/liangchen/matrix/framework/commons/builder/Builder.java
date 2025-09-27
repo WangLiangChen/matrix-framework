@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * @author Liangchen.Wang 2021-08-23 10:31
  * Generic Builder base on jdk8+
- * <pre> {@code
+ * <pre>{@code
  * Builder<Book> builder = Builder.of(Book::new);
  * builder.with(Book::setBookId,1).build();
  * }</pre>

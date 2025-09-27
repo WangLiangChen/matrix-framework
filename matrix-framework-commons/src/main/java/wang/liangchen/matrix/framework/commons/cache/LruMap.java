@@ -3,6 +3,12 @@ package wang.liangchen.matrix.framework.commons.cache;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * LRU - Least Recently Used
+ * LFU - Least Frequently Used
+ * @param <K>
+ * @param <V>
+ */
 class LruMap<K, V> extends LinkedHashMap<K, ExpiredValue<V>> {
     private final int capacity;
 

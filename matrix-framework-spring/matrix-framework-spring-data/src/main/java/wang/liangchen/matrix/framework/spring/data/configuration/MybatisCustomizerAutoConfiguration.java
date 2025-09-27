@@ -7,7 +7,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.spring.data.mybatis.handler.ConstantEnumTypeHandler;
 
 import java.util.Map;

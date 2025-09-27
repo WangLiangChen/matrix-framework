@@ -14,8 +14,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
-import wang.liangchen.matrix.framework.commons.StringUtil;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.util.Arrays;
 import java.util.HashSet;

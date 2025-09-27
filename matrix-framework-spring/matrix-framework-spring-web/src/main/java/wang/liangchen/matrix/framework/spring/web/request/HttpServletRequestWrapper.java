@@ -20,8 +20,7 @@ public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpSe
 
     private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
     private CachedServletInputStream inputStream;
-    private BufferedReader reader;
-
+    private BufferedReader bufferedReader;
 
     public HttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
@@ -29,10 +28,7 @@ public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpSe
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        if (null == this.inputStream) {
-            return new CachedServletInputStream(this.getRequest());
-        }
-        return this.inputStream;
+        return null == this.inputStream ? new CachedServletInputStream(this.getRequest()) : this.inputStream;
     }
 
     @Override
@@ -43,10 +39,7 @@ public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpSe
 
     @Override
     public BufferedReader getReader() throws IOException {
-        if (this.reader == null) {
-            this.reader = new BufferedReader(new InputStreamReader(this.inputStream, getCharacterEncoding()));
-        }
-        return this.reader;
+        return null == this.bufferedReader ? new BufferedReader(new InputStreamReader(this.getInputStream(), this.getCharacterEncoding())) : this.bufferedReader;
     }
 
     private boolean isFormPost() {

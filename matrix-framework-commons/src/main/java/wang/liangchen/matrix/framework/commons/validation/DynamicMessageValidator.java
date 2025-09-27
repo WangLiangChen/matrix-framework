@@ -13,7 +13,7 @@ public class DynamicMessageValidator implements ConstraintValidator<DynamicMessa
         //禁止默认消息返回
         constraintValidatorContext.disableDefaultConstraintViolation();
         //输出设置的信息(校验的内容,也就是DynamicMessage中message的值)
-        constraintValidatorContext.buildConstraintViolationWithTemplate(string).addBeanNode().addConstraintViolation();
+        constraintValidatorContext.buildConstraintViolationWithTemplate(string).addPropertyNode("message").addConstraintViolation();
         return false;
     }
 }

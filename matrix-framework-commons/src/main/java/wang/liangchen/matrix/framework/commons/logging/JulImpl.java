@@ -1,6 +1,6 @@
 package wang.liangchen.matrix.framework.commons.logging;
 
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 import java.util.logging.Level;
 

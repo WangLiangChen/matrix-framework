@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.spring.web.configuration;
 
+import jakarta.inject.Inject;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -12,12 +13,14 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FastByteArrayOutputStream;
+import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
-import wang.liangchen.matrix.framework.commons.CollectionUtil;
+import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
@@ -38,13 +41,38 @@ import java.util.regex.Pattern;
 
 @Component
 public class RequestMappingHandlerAdapterEnhancer {
+    private final RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
+    @Inject
     public RequestMappingHandlerAdapterEnhancer(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
-        enhanceReturnValueHandlers(requestMappingHandlerAdapter);
-        enhanceMessageConverters(requestMappingHandlerAdapter);
+        this.requestMappingHandlerAdapter = requestMappingHandlerAdapter;
+        enhanceArgumentResolver();
+        enhanceReturnValueHandlers();
+        enhanceMessageConverters();
     }
 
-    private void enhanceMessageConverters(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
+    private void enhanceArgumentResolver() {
+        List<HandlerMethodArgumentResolver> argumentResolvers = requestMappingHandlerAdapter.getArgumentResolvers();
+        if (CollectionUtil.INSTANCE.isEmpty(argumentResolvers)) {
+            return;
+        }
+        List<HandlerMethodArgumentResolver> enhancedArgumentResolvers = new ArrayList<>();
+        argumentResolvers.forEach(resolver -> enhancedArgumentResolvers.add(new HandlerMethodArgumentResolverEnhancer(resolver)));
+        requestMappingHandlerAdapter.setArgumentResolvers(enhancedArgumentResolvers);
+    }
+
+    private void enhanceReturnValueHandlers() {
+        List<HandlerMethodReturnValueHandler> returnValueHandlers = requestMappingHandlerAdapter.getReturnValueHandlers();
+        if (CollectionUtil.INSTANCE.isEmpty(returnValueHandlers)) {
+            return;
+        }
+        List<HandlerMethodReturnValueHandler> enhancedReturnValueHandlers = new ArrayList<>();
+        returnValueHandlers.forEach(handler -> enhancedReturnValueHandlers.add(new HandlerMethodReturnValueHandlerEnhancer(handler)));
+        requestMappingHandlerAdapter.setReturnValueHandlers(enhancedReturnValueHandlers);
+    }
+
+
+    private void enhanceMessageConverters() {
         List<HttpMessageConverter<?>> messageConverters = requestMappingHandlerAdapter.getMessageConverters();
         if (CollectionUtil.INSTANCE.isEmpty(messageConverters)) {
             return;
@@ -60,14 +88,23 @@ public class RequestMappingHandlerAdapterEnhancer {
         requestMappingHandlerAdapter.setMessageConverters(enhancedMessageConverters);
     }
 
-    private void enhanceReturnValueHandlers(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
-        List<HandlerMethodReturnValueHandler> returnValueHandlers = requestMappingHandlerAdapter.getReturnValueHandlers();
-        if (CollectionUtil.INSTANCE.isEmpty(returnValueHandlers)) {
-            return;
+
+    private static class HandlerMethodArgumentResolverEnhancer implements HandlerMethodArgumentResolver {
+        private final HandlerMethodArgumentResolver delegate;
+
+        private HandlerMethodArgumentResolverEnhancer(HandlerMethodArgumentResolver delegate) {
+            this.delegate = delegate;
         }
-        List<HandlerMethodReturnValueHandler> enhancedReturnValueHandlers = new ArrayList<>();
-        returnValueHandlers.forEach(handler -> enhancedReturnValueHandlers.add(new HandlerMethodReturnValueHandlerEnhancer(handler)));
-        requestMappingHandlerAdapter.setReturnValueHandlers(enhancedReturnValueHandlers);
+
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            return delegate.supportsParameter(parameter);
+        }
+
+        @Override
+        public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+            return delegate.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+        }
     }
 
 
@@ -106,46 +143,6 @@ public class RequestMappingHandlerAdapterEnhancer {
                 return;
             }
             this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
-        }
-    }
-
-    private static class HttpInputMessageWrapper implements HttpInputMessage {
-        private final HttpInputMessage delegate;
-        private final InputStream inputStream;
-        private final String bodyString;
-
-        private HttpInputMessageWrapper(HttpInputMessage delegate) {
-            this.delegate = delegate;
-            byte[] buffer = new byte[2048];
-            int length;
-            try (FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream()) {
-                try (InputStream body = delegate.getBody();) {
-                    while ((length = body.read(buffer)) > -1) {
-                        outputStream.write(buffer, 0, length);
-                    }
-                } catch (IOException e) {
-                    throw new MatrixErrorException("read request body error.", e);
-                }
-                byte[] bytes = outputStream.toByteArray();
-                this.bodyString = new String(bytes);
-                this.inputStream = new ByteArrayInputStream(bytes);
-            }
-        }
-
-        @NonNull
-        @Override
-        public InputStream getBody() throws IOException {
-            return this.inputStream;
-        }
-
-        @NonNull
-        @Override
-        public HttpHeaders getHeaders() {
-            return this.delegate.getHeaders();
-        }
-
-        public String getBodyString() {
-            return bodyString;
         }
     }
 
@@ -242,5 +239,43 @@ public class RequestMappingHandlerAdapterEnhancer {
         }
     }
 
+    private static class HttpInputMessageWrapper implements HttpInputMessage {
+        private final HttpInputMessage delegate;
+        private final InputStream inputStream;
+        private final String bodyString;
 
+        private HttpInputMessageWrapper(HttpInputMessage delegate) {
+            this.delegate = delegate;
+            byte[] buffer = new byte[2048];
+            int length;
+            try (FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream()) {
+                try (InputStream body = delegate.getBody();) {
+                    while ((length = body.read(buffer)) > -1) {
+                        outputStream.write(buffer, 0, length);
+                    }
+                } catch (IOException e) {
+                    throw new MatrixErrorException("read request body error.", e);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                this.bodyString = new String(bytes);
+                this.inputStream = new ByteArrayInputStream(bytes);
+            }
+        }
+
+        @NonNull
+        @Override
+        public InputStream getBody() throws IOException {
+            return this.inputStream;
+        }
+
+        @NonNull
+        @Override
+        public HttpHeaders getHeaders() {
+            return this.delegate.getHeaders();
+        }
+
+        public String getBodyString() {
+            return bodyString;
+        }
+    }
 }

@@ -3,7 +3,7 @@ package wang.liangchen.matrix.framework.spring.data.context;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wang.liangchen.matrix.framework.commons.StringUtil;
+import wang.liangchen.matrix.framework.commons.string.StringUtil;
 import wang.liangchen.matrix.framework.spring.data.datasource.dialect.AbstractDialect;
 
 import javax.sql.DataSource;
