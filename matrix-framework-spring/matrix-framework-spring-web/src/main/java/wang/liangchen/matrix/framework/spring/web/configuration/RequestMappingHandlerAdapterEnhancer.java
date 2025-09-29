@@ -1,6 +1,7 @@
 package wang.liangchen.matrix.framework.spring.web.configuration;
 
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -22,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.runtime.ReturnWrapper;
+import wang.liangchen.matrix.framework.commons.runtime.ReturnValue;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.spring.web.annotation.ReturnRawText;
 import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
@@ -127,12 +128,16 @@ public class RequestMappingHandlerAdapterEnhancer {
                     this.delegate.handleReturnValue(JsonResponse.success(), methodParameter, mavContainer, webRequest);
                     return;
                 }
-                if (returnValue instanceof JsonResponse<?>) {
+                if (returnValue instanceof JsonResponse<?> jsonResponse) {
+                    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+                    if (null != response) {
+                        response.setStatus(jsonResponse.getHttpStatus());
+                    }
                     this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }
-                if (returnValue instanceof ReturnWrapper<?>) {
-                    this.delegate.handleReturnValue(JsonResponse.of((ReturnWrapper<?>) returnValue), methodParameter, mavContainer, webRequest);
+                if (returnValue instanceof ReturnValue<?>) {
+                    this.delegate.handleReturnValue(JsonResponse.of((ReturnValue<?>) returnValue), methodParameter, mavContainer, webRequest);
                     return;
                 }
                 if (returnValue instanceof String && methodParameter.hasMethodAnnotation(ReturnRawText.class)) {

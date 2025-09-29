@@ -5,6 +5,34 @@ import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+/**
+ * <pre>{@code
+ * {Α, α, Alpha, 阿尔法}
+ * {Β, β, Beta, 贝塔}
+ * {Γ, γ, Gamma, 伽马}
+ * {Δ, δ, Delta, 德尔塔}
+ * {Ε, ε, Epsilon, 艾普西隆}
+ * {Ζ, ζ, Zeta, 泽塔}
+ * {Η, η, Eta, 伊塔}
+ * {Θ, θ, Theta, 西塔}
+ * {Ι, ι, Iota, 约塔}
+ * {Κ, κ, Kappa, 卡帕}
+ * {Λ, λ, Lambda, 拉姆达}
+ * {Μ, μ, Mu, 缪}
+ * {Ν, ν, Nu, 纽}
+ * {Ξ, ξ, Xi, 克西}
+ * {Ο, ο, Omicron, 奥米克戎}
+ * {Π, π, Pi, 派}
+ * {Ρ, ρ, Rho, 柔}
+ * {Σ, σ, Sigma, 西格玛}
+ * {Τ, τ, Tau, 陶}
+ * {Υ, υ, Upsilon, 宇普西隆}
+ * {Φ, φ, Phi, 斐}
+ * {Χ, χ, Chi, 希}
+ * {Ψ, ψ, Psi, 普西}
+ * {Ω, ω, Omega, 欧米伽}
+ * }</pre>
+ */
 public enum AstronomicalAlgorithmUtil {
     INSTANCE;
 
@@ -113,25 +141,34 @@ public enum AstronomicalAlgorithmUtil {
     public double solveKeplerEquation(double M, double e) {
         // 将平近点角转换为弧度
         double M_rad = M * DEG_TO_RAD;
-        // 初始猜测：E0 = M（对于小偏心率这是好的近似）
         double E = M_rad;
-        double tolerance = 1e-8;
-        double delta;
-        int maxIterations = 100;
-        int iteration = 0;
-        do {
-            // 开普勒方程：f(E) = E - e*sin(E) - M
+
+        // 对于大偏心率提供更好的初始猜测
+        if (e > 0.8) {
+            E = Math.PI; // 对于高偏心率，从π开始更好
+        }
+
+        double tolerance = 1e-12; // 提高精度要求
+        int maxIterations = 50;
+
+        for (int i = 0; i < maxIterations; i++) {
             double f = E - e * Math.sin(E) - M_rad;
-            // 导数：f'(E) = 1 - e*cos(E)
+            if (Math.abs(f) < tolerance) break;
+
             double f_prime = 1 - e * Math.cos(E);
-            // 牛顿迭代：E_{n+1} = E_n - f(E_n)/f'(E_n)
-            delta = f / f_prime;
-            E -= delta;
-            iteration++;
-            if (iteration > maxIterations) {
-                throw new RuntimeException("开普勒方程未收敛，迭代次数超过" + maxIterations);
+            // 防止除零和数值不稳定
+            if (Math.abs(f_prime) < 1e-12) {
+                E += 0.1; // 小扰动继续迭代
+                continue;
             }
-        } while (Math.abs(delta) > tolerance);
+
+            double delta = f / f_prime;
+            // 限制步长，避免振荡
+            if (Math.abs(delta) > 1.0) {
+                delta = Math.copySign(1.0, delta);
+            }
+            E -= delta;
+        }
         return E;
     }
 
@@ -338,6 +375,7 @@ public enum AstronomicalAlgorithmUtil {
     private int INT(double x) {
         return (int) Math.floor(x);
     }
+
     private double normalizeDegreesTo180(double degrees) {
         degrees %= 360;
         if (degrees > 180) degrees -= 360;
