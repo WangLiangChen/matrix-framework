@@ -59,6 +59,32 @@ public enum AstronomicalAlgorithmUtil {
     private static final double EARTH_SEMI_MAJOR_AXIS_AU = 1.0000010178;
 
     /**
+     *
+     * Jean Meeus《Astronomical Algorithms》
+     */
+    public double eot(double T) {
+        // 修正后的黄赤交角
+        double epsilon = obliquityCorrection(T);
+        double L0 = meanSolarLongitude(T);
+        double e = earthOrbitEccentricity(T);
+        double M = meanSolarAnomaly(T);
+
+        double y = Math.tan(epsilon * DEG_TO_RAD / 2.0);
+        y *= y;
+
+        double sin2l0 = Math.sin(2.0 * L0 * DEG_TO_RAD);
+        double sinm = Math.sin(M * DEG_TO_RAD);
+        double cos2l0 = Math.cos(2.0 * L0 * DEG_TO_RAD);
+        double sin4l0 = Math.sin(4.0 * L0 * DEG_TO_RAD);
+        double sin2m = Math.sin(2.0 * M * DEG_TO_RAD);
+        // 轨道偏心率效应（公式中的e项）;黄赤交角效应（公式中的y项）
+        double Etime = y * sin2l0 - 2.0 * e * sinm + 4.0 * e * y * sinm * cos2l0 - 0.5 * y * y * sin4l0 - 1.25 * e * e * sin2m;
+        Etime += -0.0003 * sin(6 * L0) + 0.0002 * sin(3 * M);
+        return Etime * RAD_TO_DEG * 4.0;    // in minutes of time
+    }
+
+
+    /**
      * 直接计算均时差（分钟）
      */
     public double equationOfTimeMinutes(ZonedDateTime utc) {
@@ -81,11 +107,11 @@ public enum AstronomicalAlgorithmUtil {
         double[] nutation = nutation(T);
         double deltaPsi = nutation[0];
         double deltaEpsilon = nutation[1];
-        // 光行差
-        double aberration = aberration(M, e);
 
         // 太阳真黄经(包含中心差+黄经章动deltaPsi+光行差)
         double C = solarEquationOfCenter(M, e);
+        // 光行差
+        double aberration = aberration(M, C, e, T);
         double lambda = L0 + C + deltaPsi + aberration;
 
         // 真黄赤交角(含交角章动deltaEpsilon)
@@ -93,7 +119,7 @@ public enum AstronomicalAlgorithmUtil {
         double epsilon = meanObliquity + deltaEpsilon;
 
         // 太阳赤经
-        double alpha = sunRightAscension(lambda, 0, epsilon);
+        double alpha = solarRightAscension(lambda, 0, epsilon);
 
         // 地球轨道偏心率导致的地球公转速度不均匀（速度分量）
         double E_eccentricity = -C;
@@ -166,6 +192,10 @@ public enum AstronomicalAlgorithmUtil {
         return julianCentury(utc2JulianDay(utc));
     }
 
+    public double julianDay(double T) {
+        return T * 36525.0 + 2451545.0;
+    }
+
     /**
      * 太阳平黄经 L0
      */
@@ -207,65 +237,52 @@ public enum AstronomicalAlgorithmUtil {
     }
 
     /**
-     * 计算真近点角
-     *
-     * @param M 平近点角（角度）
-     * @param e 偏心率
-     * @return 真近点角ν（角度）
+     * 太阳中心差由于地球轨道偏心引起 C
      */
-    public double trueSolarAnomaly(double M, double e) {
-        double M_rad = normalizeRadians(M * DEG_TO_RAD);
-        // 初始估计值
-        double E;
-        if (e < 0.05) {
-            E = M_rad + e * sin(M_rad) * (1.0 + e * cos(M_rad));
-        } else {
-            // 大偏心率使用Mikkola方法
-            double alpha = (3 * Math.PI + 2) * e / (3 * Math.PI + 4);
-            E = M_rad + alpha * sin(M_rad) / (1.0 - cos(M_rad + alpha));
-        }
 
-        double tolerance = 1e-12;
-        int maxIterations = 50;
-        int iteration = 0;
-        double delta;
-        // 牛顿迭代法求解开普勒方程
-        do {
-            double sinE = sin(E);
-            double cosE = cos(E);
-            double f = E - e * sinE - M_rad;
+    public double solarEquationOfCenter(double T) {
+        double M = meanSolarAnomaly(T);
+        double e = earthOrbitEccentricity(T);
+        return solarEquationOfCenter(M, e);
+    }
 
-            // 检查收敛
-            if (Math.abs(f) < tolerance) {
-                break;
-            }
+    public double solarEquationOfCenter(double M, double e) {
+        double M_rad = M * DEG_TO_RAD;
+        // return Math.sin(M_rad) * (1.914602 - T * (0.004817 + 0.000014 * T)) + Math.sin(2 * M_rad) * (0.019993 - 0.000101 * T) + Math.sin(3 * M_rad) * 0.000289;
+        double C = (2 * e - 0.25 * Math.pow(e, 3) + 5.0/96.0 * Math.pow(e, 5)) * Math.sin(M_rad)
+                + (1.25 * Math.pow(e, 2) - 11.0/24.0 * Math.pow(e, 4)) * Math.sin(2 * M_rad)
+                + (13.0/12.0 * Math.pow(e, 3) - 43.0/64.0 * Math.pow(e, 5)) * Math.sin(3 * M_rad)
+                + (103.0/96.0 * Math.pow(e, 4)) * Math.sin(4 * M_rad)
+                + (1097.0/960.0 * Math.pow(e, 5)) * Math.sin(5 * M_rad);
 
-            double fPrime = 1.0 - e * cosE;
-            double fDoublePrime = e * sinE;
-
-            // 使用Halley方法，但防止除零
-            double denominator = fPrime - 0.5 * f * fDoublePrime / fPrime;
-            if (Math.abs(denominator) < 1e-12) {
-                // 退回到牛顿法
-                E -= f / fPrime;
-            } else {
-                E -= f / denominator;
-            }
-
-            iteration++;
-        } while (iteration < maxIterations && Math.abs(E) < 10 * Math.PI);
-
-        // 计算真近点角ν (使用atan2确保正确象限)
-        double nu = Math.atan2(Math.sqrt(1.0 - e * e) * Math.sin(E), Math.cos(E) - e);
-        return normalizeDegrees(nu * RAD_TO_DEG);
+        return C * RAD_TO_DEG;
     }
 
     /**
-     * 太阳中心差由于地球轨道偏心引起的。C
+     * 太阳真黄经
      */
+    public double trueSolarLongitude(double T) {
+        double L0 = meanSolarLongitude(T);
+        double C = solarEquationOfCenter(T);
+        return L0 + C;
+    }
 
-    public double solarEquationOfCenter(double M, double e) {
-        return normalizeDegreesTo180(trueSolarAnomaly(M, e) - M);
+    /**
+     * 太阳真近点角
+     */
+    public double trueSolarAnomaly(double T) {
+        double M = meanSolarAnomaly(T);
+        double C = solarEquationOfCenter(T);
+        return M + C;
+    }
+
+    /**
+     * 太阳视黄经 lambda
+     */
+    public double apparentSolarLongitude(double T) {
+        double O = trueSolarLongitude(T);
+        var omega = 125.04 - 1934.136 * T;
+        return O - 0.00569 - 0.00478 * Math.sin(omega * DEG_TO_RAD);
     }
 
     /**
@@ -275,14 +292,16 @@ public enum AstronomicalAlgorithmUtil {
      * @param e 偏心率
      * @return 日地距离（AU）
      */
-    public double solarEarthDistance(double M, double e) {
-        double nu_rad = trueSolarAnomaly(M, e) * DEG_TO_RAD;
-        // 轨道方程：R = a * (1 - e²) / (1 + e * cos(ν))
-        double denom = 1 + e * cos(nu_rad);
-        // 避免 (1-e²)/denom = (1-e)(1+e)/denom 的精度损失
-        return EARTH_SEMI_MAJOR_AXIS_AU * (1 + e) * (1 - e) / denom;
+    public double solarEarthDistance(double M, double C, double e, double T) {
+        double trueSolarAnomaly = M + C;
+        double nu_rad = trueSolarAnomaly * DEG_TO_RAD;
+        // in AUs
+        return (earthSemiMajorAxis(T) * (1 - e * e)) / (1 + e * Math.cos(nu_rad));
     }
 
+    public double earthSemiMajorAxis(double T) {
+        return EARTH_SEMI_MAJOR_AXIS_AU * (1 - 4e-8 * T); // 简化变化模型
+    }
 
     /**
      * 平黄赤交角 epsilon
@@ -299,23 +318,50 @@ public enum AstronomicalAlgorithmUtil {
         return epsilon_arcsec * ARC_SEC_TO_DEG;
     }
 
+    double obliquityCorrection(double T) {
+        double e0 = meanObliquityOfEcliptic(T);
+        double omega = 125.04 - 1934.136 * T;
+        return e0 + 0.00256 * Math.cos(omega * DEG_TO_RAD);        // in degrees
+    }
+
     /**
      * 太阳赤经
      */
-    public double sunRightAscension(double lambda, double beta, double epsilon) {
+    public double solarRightAscension(double lambda, double beta, double epsilon) {
         // beta=0 黄纬
         double lambda_rad = lambda * DEG_TO_RAD;
         double epsilon_rad = epsilon * DEG_TO_RAD;
         double beta_rad = beta * DEG_TO_RAD;
 
         // 球面三角公式α = atan2(sinλ·cosε - tanβ·sinε, cosλ)
-        double y = sin(lambda_rad) * cos(epsilon_rad) - tan(beta_rad) * sin(epsilon_rad);
-        double x = cos(lambda_rad);
+        double tananum = sin(lambda_rad) * cos(epsilon_rad) - tan(beta_rad) * sin(epsilon_rad);
+        double tanadenom = cos(lambda_rad);
 
-        double alpha_rad = Math.atan2(y, x);
+        double alpha_rad = Math.atan2(tananum, tanadenom);
         double alpha_deg = alpha_rad * RAD_TO_DEG;
 
         return normalizeDegrees(alpha_deg);
+    }
+
+    /**
+     * 太阳赤纬
+     */
+    public double solarDeclination(double T) {
+        var e = obliquityCorrection(T);
+        var lambda = apparentSolarLongitude(T);
+        var sint = Math.sin(e * DEG_TO_RAD) * Math.sin(lambda * DEG_TO_RAD);
+        return Math.asin(sint) * RAD_TO_DEG;
+    }
+
+    /**
+     * 日出时角 HA
+     */
+    public double hourAngleAtSunrise(double lat, double solarDeclination) {
+        var latRad = lat * DEG_TO_RAD;
+        var sdRad = solarDeclination * DEG_TO_RAD;
+        var HAarg = (Math.cos(90.833 * DEG_TO_RAD) / (Math.cos(latRad) * Math.cos(sdRad)) - Math.tan(latRad) * Math.tan(sdRad));
+        // in radians (for sunset, use -HA)
+        return Math.acos(HAarg);
     }
 
     /**
@@ -332,7 +378,7 @@ public enum AstronomicalAlgorithmUtil {
         for (int i = 0; i < maxIterations; i++) {
             double T = utc2JulianCentury(estimatedTime);
             // 计算当前时间的太阳真黄经
-            double lambda = trueSolarLongitude(T);
+            double lambda = apparentSolarLongitude(T);
             // 计算与目标黄经的差值
             double delta = normalizeDegreesTo180(lambda - targetLongitude);
             // 若差值小于阈值，结束迭代
@@ -362,22 +408,6 @@ public enum AstronomicalAlgorithmUtil {
         }
 
         return estimatedTime;
-    }
-
-
-    /**
-     * 计算给定儒略日对应的太阳真黄经
-     */
-    public double trueSolarLongitude(double T) {
-        double L0 = meanSolarLongitude(T);
-        double M = meanSolarAnomaly(T);
-        double e = earthOrbitEccentricity(T);
-        double[] nutation = nutation(T);
-        double deltaPsi = nutation[0];
-        double aberration = aberration(M, e);
-        double C = solarEquationOfCenter(M, e);
-        double lambda = L0 + C + deltaPsi + aberration;
-        return normalizeDegrees(lambda);
     }
 
     /**
@@ -472,9 +502,9 @@ public enum AstronomicalAlgorithmUtil {
      * 光行差
      *
      */
-    private double aberration(double M, double e) {
-        double k = 20.49552; // 角秒
-        return -k * ARC_SEC_TO_DEG / solarEarthDistance(M, e);
+    private double aberration(double M, double C, double e, double T) {
+        double R = solarEarthDistance(M, C, e, T);
+        return LIGHT_TIME_ABERRATION_DEGREE / R;
     }
 
 
@@ -493,6 +523,7 @@ public enum AstronomicalAlgorithmUtil {
         long daysOffset = Math.round(termIndex * meanTermInterval);
         return vernalEquinoxApprox.plusDays(daysOffset);
     }
+
 
     /**
      * 应用岁差修正
