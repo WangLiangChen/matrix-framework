@@ -32,8 +32,8 @@ public enum DateTimeUtil {
         return localDateTime.withZoneSameInstant(ZoneOffset.UTC);
     }
 
-    public LocalDateTime localDateTime2UTC(LocalDateTime localDateTime, ZoneId zoneId) {
-        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+    public LocalDateTime localDateTime2UTC(LocalDateTime localDateTime, ZoneId localZoneId) {
+        ZonedDateTime zonedDateTime = localDateTime.atZone(localZoneId);
         zonedDateTime = localDateTime2UTC(zonedDateTime);
         return zonedDateTime.toLocalDateTime();
     }
