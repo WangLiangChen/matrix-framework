@@ -10,14 +10,14 @@ import java.util.function.Supplier;
  * @author Liangchen.Wang
  */
 public class DefaultCacheOperator implements CacheOperator {
-    private final Supplier<CacheManager> cacheManager;
+    private final Supplier<CacheManager> cacheManagerSupplier;
 
     static {
         System.setProperty("matrix.cache.ttl.random", "true");
     }
 
-    public DefaultCacheOperator(Supplier<CacheManager> cacheManager) {
-        this.cacheManager = cacheManager;
+    public DefaultCacheOperator(Supplier<CacheManager> cacheManagerSupplier) {
+        this.cacheManagerSupplier = cacheManagerSupplier;
     }
 
     @Override
@@ -36,10 +36,10 @@ public class DefaultCacheOperator implements CacheOperator {
     }
 
     public Optional<Cache> findCache(String cacheName) {
-        CacheManager manager = this.cacheManager.get();
-        if (null == manager) {
+        CacheManager cacheManager = this.cacheManagerSupplier.get();
+        if (null == cacheManager) {
             return Optional.empty();
         }
-        return Optional.ofNullable(manager.getCache(cacheName));
+        return Optional.ofNullable(cacheManager.getCache(cacheName));
     }
 }

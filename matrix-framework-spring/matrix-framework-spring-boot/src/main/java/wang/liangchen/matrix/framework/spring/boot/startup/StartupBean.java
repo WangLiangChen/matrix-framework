@@ -29,7 +29,6 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.stereotype.Component;
 import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.validation.ValidationUtil;
 import wang.liangchen.matrix.framework.spring.boot.aop.ProxyObjectAware;
@@ -40,7 +39,6 @@ import java.util.concurrent.Executor;
 
 import static wang.liangchen.matrix.framework.spring.boot.startup.StartupStopWatch.watchTask;
 
-@Component
 public class StartupBean implements
         ApplicationContextAware,
         EnvironmentAware,

@@ -5,17 +5,17 @@ package wang.liangchen.matrix.framework.commons.validation;
  */
 class DynamicMessage {
     @DynamicMessageMaker
-    private final String message;
+    private final String i18n;
 
-    private DynamicMessage(String message) {
-        this.message = message;
+    private DynamicMessage(String i18n) {
+        this.i18n = i18n;
     }
 
-    public static DynamicMessage newInstantce(String message) {
-        return new DynamicMessage(message);
+    public static DynamicMessage newInstance(String i18n) {
+        return new DynamicMessage(i18n);
     }
 
-    public String getMessage() {
-        return message;
+    public String getI18n() {
+        return i18n;
     }
 }

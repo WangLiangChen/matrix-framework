@@ -1,16 +1,26 @@
 package wang.liangchen.matrix.framework.commons.runtime;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
+
 import java.util.Locale;
 import java.util.TimeZone;
 
 public enum LocaleTimeZoneContext {
     INSTANCE;
-    private static final ThreadLocal<LocaleTimeZone> container = new ThreadLocal<>();
-    private static final ThreadLocal<LocaleTimeZone> inheritableContainer = new InheritableThreadLocal<>();
+    private static final TransmittableThreadLocal<LocaleTimeZone> context =
+            TransmittableThreadLocal.withInitial(() -> new LocaleTimeZone(Locale.getDefault(), TimeZone.getDefault()));
 
-    public void reset() {
-        container.remove();
-        inheritableContainer.remove();
+    public void remove() {
+        context.remove();
+    }
+
+    public LocaleTimeZone getLocaleTimeZone() {
+        LocaleTimeZone localeTimeZone = context.get();
+        if (null == localeTimeZone) {
+            throw new MatrixErrorException("The LocaleTimeZone has been removed");
+        }
+        return localeTimeZone;
     }
 
     public Locale getLocale() {
@@ -21,57 +31,17 @@ public enum LocaleTimeZoneContext {
         return getLocaleTimeZone().getTimeZone();
     }
 
-    public LocaleTimeZone getLocaleTimeZone() {
-        LocaleTimeZone localeTimeZone = container.get();
-        if (null == localeTimeZone) {
-            localeTimeZone = inheritableContainer.get();
-        }
-        if (null == localeTimeZone) {
-            localeTimeZone = new LocaleTimeZone(Locale.getDefault(), TimeZone.getDefault());
-        }
-        return localeTimeZone;
-    }
-
-    public void setTimeZone(TimeZone timeZone) {
-        setTimeZone(timeZone, false);
-    }
-
-    public void setTimeZone(TimeZone timeZone, boolean inheritable) {
-        setLocaleTimeZone(null, timeZone, inheritable);
-    }
-
-    public void setLocale(Locale locale) {
-        setLocale(locale, false);
-    }
-
-    public void setLocale(Locale locale, boolean inheritable) {
-        setLocaleTimeZone(locale, null, inheritable);
+    public void setLocaleTimeZone(LocaleTimeZone localeTimeZone) {
+        context.set(localeTimeZone);
     }
 
     public void setLocaleTimeZone(Locale locale, TimeZone timeZone) {
-        setLocaleTimeZone(locale, timeZone, false);
-    }
-
-    public void setLocaleTimeZone(Locale locale, TimeZone timeZone, boolean inheritable) {
-        LocaleTimeZone localeTimeZone = getLocaleTimeZone();
         if (null == locale) {
-            locale = localeTimeZone.getLocale();
+            locale = Locale.getDefault();
         }
         if (null == timeZone) {
-            timeZone = localeTimeZone.getTimeZone();
+            timeZone = TimeZone.getDefault();
         }
-
-        if (inheritable) {
-            inheritableContainer.set(new LocaleTimeZone(locale, timeZone));
-            container.remove();
-            return;
-        }
-        container.set(new LocaleTimeZone(locale, timeZone));
-        inheritableContainer.remove();
-    }
-
-    public void remove() {
-        container.remove();
-        inheritableContainer.remove();
+        setLocaleTimeZone(new LocaleTimeZone(locale, timeZone));
     }
 }

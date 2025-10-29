@@ -4,7 +4,7 @@ package wang.liangchen.matrix.framework.commons.exception;
  * @author Liangchen.Wang 2021-08-19 20:19
  */
 public class MatrixErrorException extends MatrixRuntimeException {
-    private final ExceptionLevel level = ExceptionLevel.ERROR;
+    private final ExceptionLevel exceptionLevel = ExceptionLevel.ERROR;
 
     public MatrixErrorException() {
     }
@@ -13,7 +13,6 @@ public class MatrixErrorException extends MatrixRuntimeException {
     public MatrixErrorException(String message, Object... args) {
         super(message, args);
     }
-
 
 
     public MatrixErrorException(Throwable throwable, String message, Object... args) {
@@ -25,7 +24,7 @@ public class MatrixErrorException extends MatrixRuntimeException {
     }
 
     @Override
-    public ExceptionLevel getLevel() {
-        return this.level;
+    public ExceptionLevel getExceptionLevel() {
+        return exceptionLevel;
     }
 }

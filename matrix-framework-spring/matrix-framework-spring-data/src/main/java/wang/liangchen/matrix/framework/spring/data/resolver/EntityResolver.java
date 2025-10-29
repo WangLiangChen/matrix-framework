@@ -70,9 +70,9 @@ public enum EntityResolver {
         boolean isColumnExtended = ExtendedColumnValues.class.isAssignableFrom(fieldClass);
         ColumnState columnStateAnnotation = field.getAnnotation(ColumnState.class);
         boolean isColumnState = null != columnStateAnnotation;
-        ColumnSoftDelete columnSoftDeleteAnnotation = field.getAnnotation(ColumnSoftDelete.class);
-        Object softDeleteValue = null == columnSoftDeleteAnnotation ? null : columnSoftDeleteAnnotation.value();
-        softDeleteValue = null == softDeleteValue ? null : ObjectUtil.INSTANCE.castTo(softDeleteValue, columnSoftDeleteAnnotation.type());
+        ColumnSoftDeletion columnSoftDeletionAnnotation = field.getAnnotation(ColumnSoftDeletion.class);
+        Object softDeleteValue = null == columnSoftDeletionAnnotation ? null : columnSoftDeletionAnnotation.value();
+        softDeleteValue = null == softDeleteValue ? null : ObjectUtil.INSTANCE.castTo(softDeleteValue, columnSoftDeletionAnnotation.type());
 
         Map<FieldLabel, Optional<Object>> fieldLabels = new HashMap<>();
         if (isColumnId) {

@@ -6,6 +6,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixWarnException;
+import wang.liangchen.matrix.framework.commons.runtime.Message;
 import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
 import wang.liangchen.matrix.framework.spring.web.webpush.PusherKey;
 import wang.liangchen.matrix.framework.spring.web.webpush.PusherType;
@@ -222,7 +223,7 @@ public enum PushUtil {
         }
         deferredResultContainer.remove(pusherKey);
         if (RemoveCause.COMPLETION != removeCause) {
-            deferredResult.setResult(JsonResponse.failure().withCode(removeCause.name()));
+            deferredResult.setResult(JsonResponse.failure(Message.of(removeCause.name())));
         }
     }
 
@@ -234,7 +235,7 @@ public enum PushUtil {
         sseEmitterContainer.remove(pusherKey);
         if (RemoveCause.COMPLETION != removeCause) {
             try {
-                sseEmitter.send(JsonResponse.failure().withCode(removeCause.name()));
+                sseEmitter.send(JsonResponse.failure(Message.of(removeCause.name())));
             } catch (IOException e) {
                 throw new MatrixErrorException(e);
             }

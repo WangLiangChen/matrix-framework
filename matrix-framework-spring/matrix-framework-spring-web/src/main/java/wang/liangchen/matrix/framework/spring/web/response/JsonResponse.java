@@ -5,16 +5,15 @@ import org.slf4j.LoggerFactory;
 import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
 import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
-import wang.liangchen.matrix.framework.commons.runtime.I18nMessage;
 import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
-import wang.liangchen.matrix.framework.commons.runtime.ReturnValue;
+import wang.liangchen.matrix.framework.commons.runtime.Message;
 import wang.liangchen.matrix.framework.spring.web.context.WebContext;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public final class JsonResponse<T> extends ReturnValue<T> {
+public final class JsonResponse<T> {
     private final static Logger logger = LoggerFactory.getLogger(JsonResponse.class);
     private final static Map<Locale, String> SYSTEM_ERRORS = new HashMap<>() {{
         put(Locale.CHINA, "系统错误,请联系管理员!");
@@ -26,93 +25,75 @@ public final class JsonResponse<T> extends ReturnValue<T> {
      * 前端传递的requestId,原样返回。
      * 用于标识同一个请求
      */
+    private final boolean success;
+    private final T payload;
+    private final Message message;
     private final String requestId = WebContext.INSTANCE.getRequestId();
-    private int httpStatus = 200;
+    private ExceptionLevel exceptionLevel = ExceptionLevel.OFF;
     private String debug;
-    private ExceptionLevel level = ExceptionLevel.OFF;
 
-    private JsonResponse(boolean success, T payload, String message, Object... args) {
-        super(success, payload, message, args);
+    private JsonResponse(boolean success, T payload, Message message) {
+        this.success = success;
+        this.payload = payload;
+        this.message = message;
     }
 
-    private JsonResponse(boolean success, T payload, I18nMessage i18nMessage) {
-        super(success, payload, i18nMessage);
+    private JsonResponse(boolean success, Message message) {
+        this(success, null, message);
     }
 
-    private JsonResponse(boolean success, I18nMessage i18nMessage) {
-        super(success, i18nMessage);
+    private JsonResponse(boolean success, T payload) {
+        this(success, payload, null);
     }
 
-    private JsonResponse(ReturnValue<T> returnValue) {
-        super(returnValue);
-    }
-
-    public static <T> JsonResponse<T> of(boolean success, I18nMessage i18nMessage) {
-        return new JsonResponse<>(success, i18nMessage);
-    }
-
-    public static <T> JsonResponse<T> of(ReturnValue<T> returnValue) {
-        return new JsonResponse<>(returnValue);
-    }
-
-    public static <T> JsonResponse<T> success(T payload, String message, Object... args) {
-        return new JsonResponse<>(true, payload, message, args);
-    }
-
-    public static <T> JsonResponse<T> success(T payload) {
-        return new JsonResponse<>(true, payload, null);
-    }
-
-    public static <T> JsonResponse<T> success(String message, Object... args) {
-        return new JsonResponse<>(true, null, message, args);
-    }
-
-    public static <T> JsonResponse<T> success() {
-        return new JsonResponse<>(true, null, null);
-    }
-
-    public static <T> JsonResponse<T> failure(T payload, String message, Object... args) {
-        return new JsonResponse<>(false, payload, message, args);
-    }
-
-    public static <T> JsonResponse<T> failure(T payload) {
-        return new JsonResponse<>(false, payload, null);
-    }
-
-    public static <T> JsonResponse<T> failure(String message, Object... args) {
-        return new JsonResponse<>(false, null, message, args);
-    }
-
-    public static <T> JsonResponse<T> failure() {
-        return new JsonResponse<>(false, null, null);
+    private JsonResponse(boolean success) {
+        this(success, null, null);
     }
 
     public static <T> JsonResponse<T> failure(Throwable throwable) {
         logger.error("JsonResponse.failure", throwable);
         if (throwable instanceof MatrixRuntimeException matrixRuntimeException) {
-            JsonResponse<T> jsonResponse = new JsonResponse<>(false, matrixRuntimeException.getI18nMessage());
-            jsonResponse.withLevel(matrixRuntimeException.getLevel());
-            return jsonResponse.withDebug(throwable);
+            JsonResponse<T> jsonResponse = new JsonResponse<>(false, matrixRuntimeException.getExceptionMessage());
+            jsonResponse.exceptionLevel = matrixRuntimeException.getExceptionLevel();
+            jsonResponse.debug = jsonResponse.getStackTrace(throwable);
+            return jsonResponse;
         }
-        JsonResponse<T> jsonResponse = new JsonResponse<>(false, null, SYSTEM_ERRORS.get(LocaleTimeZoneContext.INSTANCE.getLocale()));
-        return jsonResponse.withDebug(throwable);
+        JsonResponse<T> jsonResponse = new JsonResponse<>(false, null, Message.of(SYSTEM_ERRORS.get(LocaleTimeZoneContext.INSTANCE.getLocale())));
+        jsonResponse.debug = jsonResponse.getStackTrace(throwable);
+        return jsonResponse;
     }
 
-    public JsonResponse<T> withLevel(ExceptionLevel level) {
-        this.level = level;
-        return this;
+    public static <T> JsonResponse<T> failure(T payload, Message message) {
+        return new JsonResponse<>(false, payload, message);
     }
 
-    public JsonResponse<T> withDebug(Throwable throwable) {
-        this.debug = getStackTrace(throwable);
-        return this;
+    public static <T> JsonResponse<T> failure(T payload) {
+        return new JsonResponse<>(false, payload);
     }
 
-    public JsonResponse<T> withHttpStatus(int httpStatus) {
-        this.httpStatus = httpStatus;
-        return this;
+    public static <T> JsonResponse<T> failure(Message message) {
+        return new JsonResponse<>(false, message);
     }
 
+    public static <T> JsonResponse<T> failure() {
+        return new JsonResponse<>(false);
+    }
+
+    public static <T> JsonResponse<T> success(T payload, Message message) {
+        return new JsonResponse<>(true, payload, message);
+    }
+
+    public static <T> JsonResponse<T> success(T payload) {
+        return new JsonResponse<>(true, payload);
+    }
+
+    public static <T> JsonResponse<T> success(Message message) {
+        return new JsonResponse<>(true, message);
+    }
+
+    public static <T> JsonResponse<T> success() {
+        return new JsonResponse<>(true);
+    }
 
     private String getStackTrace(Throwable throwable) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -126,19 +107,27 @@ public final class JsonResponse<T> extends ReturnValue<T> {
         return stringBuilder.toString();
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public T getPayload() {
+        return payload;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
     public String getRequestId() {
         return requestId;
     }
 
-    public int getHttpStatus() {
-        return httpStatus;
+    public ExceptionLevel getExceptionLevel() {
+        return exceptionLevel;
     }
 
     public String getDebug() {
         return debug;
-    }
-
-    public ExceptionLevel getLevel() {
-        return level;
     }
 }

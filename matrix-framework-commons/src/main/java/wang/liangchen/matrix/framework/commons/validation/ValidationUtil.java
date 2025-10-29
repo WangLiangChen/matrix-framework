@@ -12,8 +12,6 @@ import wang.liangchen.matrix.framework.commons.object.ObjectUtil;
 import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
@@ -90,7 +88,7 @@ public enum ValidationUtil {
         if (condition) {
             return true;
         }
-        dynamicException(exceptionLevel, message, args);
+        throwDynamicException(exceptionLevel, message, args);
         return false;
     }
 
@@ -108,7 +106,7 @@ public enum ValidationUtil {
 
     public boolean isFalse(ExceptionLevel level, boolean condition, String message, Object... args) {
         if (condition) {
-            dynamicException(level, message, args);
+            throwDynamicException(level, message, args);
             return true;
         }
         return false;
@@ -130,7 +128,7 @@ public enum ValidationUtil {
         if (null == object) {
             return null;
         }
-        dynamicException(exceptionLevel, message, args);
+        throwDynamicException(exceptionLevel, message, args);
         return object;
     }
 
@@ -148,7 +146,7 @@ public enum ValidationUtil {
 
     public <T> T notNull(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (null == object) {
-            dynamicException(exceptionLevel, message, args);
+            throwDynamicException(exceptionLevel, message, args);
             return null;
         }
         return object;
@@ -170,7 +168,7 @@ public enum ValidationUtil {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
             return object;
         }
-        dynamicException(exceptionLevel, message, args);
+        throwDynamicException(exceptionLevel, message, args);
         return object;
     }
 
@@ -188,7 +186,7 @@ public enum ValidationUtil {
 
     public <T> T notNullAndEmpty(ExceptionLevel exceptionLevel, T object, String message, Object... args) {
         if (ObjectUtil.INSTANCE.isEmpty(object)) {
-            dynamicException(exceptionLevel, message, args);
+            throwDynamicException(exceptionLevel, message, args);
             return object;
         }
         return object;
@@ -210,7 +208,7 @@ public enum ValidationUtil {
         if (StringUtil.INSTANCE.isNullOrEmpty(string)) {
             return string;
         }
-        dynamicException(level, message, args);
+        throwDynamicException(level, message, args);
         return string;
     }
 
@@ -228,7 +226,7 @@ public enum ValidationUtil {
 
     public String notNullAndBlank(ExceptionLevel exceptionLevel, String string, String message, Object... args) {
         if (StringUtil.INSTANCE.isNullOrEmpty(string)) {
-            dynamicException(exceptionLevel, message, args);
+            throwDynamicException(exceptionLevel, message, args);
             return string;
         }
         return string;
@@ -251,7 +249,7 @@ public enum ValidationUtil {
         if (Objects.equals(from, to)) {
             return true;
         }
-        dynamicException(exceptionLevel, message, args);
+        throwDynamicException(exceptionLevel, message, args);
         return false;
     }
 
@@ -269,7 +267,7 @@ public enum ValidationUtil {
 
     public boolean notEquals(ExceptionLevel exceptionLevel, Object from, Object to, String message, Object... args) {
         if (Objects.equals(from, to)) {
-            dynamicException(exceptionLevel, message, args);
+            throwDynamicException(exceptionLevel, message, args);
             return true;
         }
         return false;
@@ -287,43 +285,28 @@ public enum ValidationUtil {
         return notEquals(from, to, "parameters must not be equal");
     }
 
-    public String resolveI18nKey(String message) {
-        if (StringUtil.INSTANCE.isNullOrBlank(message)) {
+    public String extractI18nKey(String i18n) {
+        if (StringUtil.INSTANCE.isNullOrBlank(i18n)) {
             return null;
         }
-        if (message.length() < 3) {
+        if (i18n.length() < 3) {
             return null;
         }
-        if (isI18nKey(message)) {
-            return message.substring(1, message.length() - 1);
+        if (isI18n(i18n)) {
+            return i18n.substring(1, i18n.length() - 1);
         }
         return null;
     }
 
-    public String resolveMessage(String message, Object... args) {
-        if (null == message) {
-            return null;
+    public boolean isI18n(String i18n) {
+        if (null == i18n || i18n.isBlank()) {
+            return false;
         }
-        if (isI18nKey(message)) {
-            message = resolveMessage(DynamicMessage.newInstantce(message));
-        }
-        // 解析后仍然是key的样式, 则说明未匹配成功
-        if (isI18nKey(message)) {
-            return message;
-        }
-        return StringUtil.INSTANCE.format(message, args);
+        return I18N_KEY_PATTERN.matcher(i18n).matches();
     }
 
-    public boolean isI18nKey(String message) {
-        return I18N_KEY_PATTERN.matcher(message).matches();
-    }
-
-    private <T> void handleValidationResult(ExceptionLevel exceptionLevel, Set<ConstraintViolation<T>> results) {
-        StringBuilder messageBuilder = new StringBuilder();
-        results.forEach(e -> {
-            messageBuilder.append(e.getMessage()).append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
-        });
-        throwException(exceptionLevel, messageBuilder.toString());
+    public String resolveI18n(String i18n, Object... args) {
+        return resolveDynamicMessage(i18n, args);
     }
 
     public void throwException(ExceptionLevel exceptionLevel, String message) {
@@ -337,21 +320,26 @@ public enum ValidationUtil {
         }
     }
 
-    public <T extends RuntimeException> void throwException(Class<T> exceptionClass, String message, Object... args) {
-        try {
-            Constructor<T> constructor = exceptionClass.getConstructor(String.class);
-            throw constructor.newInstance(resolveMessage(message, args));
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                 InvocationTargetException e) {
-            throw new MatrixErrorException("The exception class hasn't Constructor(String message)");
-        }
+    private <T> void handleValidationResult(ExceptionLevel exceptionLevel, Set<ConstraintViolation<T>> results) {
+        StringBuilder messageBuilder = new StringBuilder();
+        results.forEach(e -> {
+            messageBuilder.append(e.getMessage()).append(Symbol.OPEN_PAREN).append(e.getPropertyPath()).append(Symbol.CLOSE_PAREN).append(Symbol.SEMICOLON);
+        });
+        throwException(exceptionLevel, messageBuilder.toString());
     }
 
-    private void dynamicException(ExceptionLevel exceptionLevel, String message, Object... args) {
-        throwException(exceptionLevel, resolveMessage(message, args));
+
+    private void throwDynamicException(ExceptionLevel exceptionLevel, String i18n, Object... args) {
+        throwException(exceptionLevel, resolveI18n(i18n, args));
     }
 
-    private String resolveMessage(DynamicMessage dynamicMessage) {
+    private String resolveDynamicMessage(String i18n, Object... args) {
+        String message = resolveDynamicMessage(DynamicMessage.newInstance(i18n));
+        // 替换值中的占位符
+        return StringUtil.INSTANCE.format(message, args);
+    }
+
+    private String resolveDynamicMessage(DynamicMessage dynamicMessage) {
         Set<ConstraintViolation<DynamicMessage>> results = VALIDATOR.validate(dynamicMessage);
         if (CollectionUtil.INSTANCE.isEmpty(results)) {
             return Symbol.EMPTY.getSymbol();

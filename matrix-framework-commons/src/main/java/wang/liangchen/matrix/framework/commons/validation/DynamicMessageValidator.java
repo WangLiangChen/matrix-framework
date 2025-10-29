@@ -12,8 +12,8 @@ public class DynamicMessageValidator implements ConstraintValidator<DynamicMessa
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
         //禁止默认消息返回
         constraintValidatorContext.disableDefaultConstraintViolation();
-        //输出设置的信息(校验的内容,也就是DynamicMessage中message的值)
-        constraintValidatorContext.buildConstraintViolationWithTemplate(string).addPropertyNode("message").addConstraintViolation();
+        //输出设置的信息(校验的内容,也就是DynamicMessage中i18n的值)
+        constraintValidatorContext.buildConstraintViolationWithTemplate(string).addPropertyNode("i18n").addConstraintViolation();
         return false;
     }
 }

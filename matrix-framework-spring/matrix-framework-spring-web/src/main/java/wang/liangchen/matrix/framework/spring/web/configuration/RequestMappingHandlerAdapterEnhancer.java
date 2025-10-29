@@ -23,7 +23,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
-import wang.liangchen.matrix.framework.commons.runtime.ReturnValue;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
 import wang.liangchen.matrix.framework.spring.web.annotation.ReturnRawText;
 import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
@@ -129,18 +128,14 @@ public class RequestMappingHandlerAdapterEnhancer {
                     return;
                 }
                 if (returnValue instanceof JsonResponse<?> jsonResponse) {
-                    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-                    if (null != response) {
-                        response.setStatus(jsonResponse.getHttpStatus());
-                    }
                     this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }
-                if (returnValue instanceof ReturnValue<?>) {
-                    this.delegate.handleReturnValue(JsonResponse.of((ReturnValue<?>) returnValue), methodParameter, mavContainer, webRequest);
-                    return;
-                }
                 if (returnValue instanceof String && methodParameter.hasMethodAnnotation(ReturnRawText.class)) {
+                    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+                    if (null != response) {
+                        response.setContentType("text/plain; charset=UTF-8");
+                    }
                     this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }

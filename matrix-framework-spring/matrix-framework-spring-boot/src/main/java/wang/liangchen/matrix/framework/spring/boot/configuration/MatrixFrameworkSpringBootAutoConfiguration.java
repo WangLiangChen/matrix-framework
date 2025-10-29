@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import wang.liangchen.matrix.framework.commons.datetime.DateTimeUtil;
+import wang.liangchen.matrix.framework.spring.boot.startup.StartupBean;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -18,7 +19,12 @@ import java.time.LocalTime;
  * @author Liangchen.Wang
  */
 @AutoConfiguration
-public class MatrixFramewrokAutoConfiguration {
+public class MatrixFrameworkSpringBootAutoConfiguration {
+
+    @Bean
+    public StartupBean startupBean() {
+        return new StartupBean();
+    }
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
@@ -33,7 +39,6 @@ public class MatrixFramewrokAutoConfiguration {
             builder.deserializerByType(LocalDate.class, new LocalDateTimeDeserializer(DateTimeUtil.DEFAULT_DATE_FORMATTER));
             builder.deserializerByType(LocalTime.class, new LocalDateTimeDeserializer(DateTimeUtil.DEFAULT_TIME_FORMATTER));
         };
-
     }
 
 }

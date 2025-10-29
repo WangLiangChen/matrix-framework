@@ -12,7 +12,7 @@ import java.util.Map;
 public enum WebContext {
     //
     INSTANCE;
-    private final TransmittableThreadLocal<Map<String, Object>> threadLocal = TransmittableThreadLocal.withInitial(HashMap::new);
+    private static final TransmittableThreadLocal<Map<String, Object>> threadLocal = TransmittableThreadLocal.withInitial(HashMap::new);
     public static final String REQUEST_ID = "requestId";
 
     public void setRequestId(String requestId) {

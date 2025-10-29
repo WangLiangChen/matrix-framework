@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * @Author: Liangchen.Wang
+ * author: Liangchen.Wang
  */
 public enum DataSourceContext {
     /**

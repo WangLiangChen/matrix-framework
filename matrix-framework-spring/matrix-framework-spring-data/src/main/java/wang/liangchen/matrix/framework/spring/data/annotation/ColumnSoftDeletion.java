@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ColumnSoftDelete {
+public @interface ColumnSoftDeletion {
     String value();
 
     Class<?> type() default String.class;

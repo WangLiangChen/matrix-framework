@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
  */
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class DataSourceBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPointcutAdvisor {
+public class DataSourceRouterBeanFactoryPointcutAdvisor extends AbstractBeanFactoryPointcutAdvisor {
     @NonNull
     @Override
     public Pointcut getPointcut() {
