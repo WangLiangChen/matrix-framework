@@ -1,47 +1,35 @@
 package wang.liangchen.matrix.framework.commons.runtime;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public enum LocaleTimeZoneContext {
     INSTANCE;
-    private static final TransmittableThreadLocal<LocaleTimeZone> context =
-            TransmittableThreadLocal.withInitial(() -> new LocaleTimeZone(Locale.getDefault(), TimeZone.getDefault()));
+    private static final TransmittableThreadLocal<Map<String, Object>> threadLocal = TransmittableThreadLocal.withInitial(HashMap::new);
+    public static final String LOCALE = "LOCALE";
+    public static final String TIMEZONE = "TIMEZONE";
 
     public void remove() {
-        context.remove();
-    }
-
-    public LocaleTimeZone getLocaleTimeZone() {
-        LocaleTimeZone localeTimeZone = context.get();
-        if (null == localeTimeZone) {
-            throw new MatrixErrorException("The LocaleTimeZone has been removed");
-        }
-        return localeTimeZone;
+        threadLocal.remove();
     }
 
     public Locale getLocale() {
-        return getLocaleTimeZone().getLocale();
+        return (Locale) threadLocal.get().get(LOCALE);
     }
 
     public TimeZone getTimeZone() {
-        return getLocaleTimeZone().getTimeZone();
+        return (TimeZone) threadLocal.get().get(TIMEZONE);
     }
 
-    public void setLocaleTimeZone(LocaleTimeZone localeTimeZone) {
-        context.set(localeTimeZone);
+    public void setLocale(Locale locale) {
+        threadLocal.get().put(LOCALE, locale);
     }
 
-    public void setLocaleTimeZone(Locale locale, TimeZone timeZone) {
-        if (null == locale) {
-            locale = Locale.getDefault();
-        }
-        if (null == timeZone) {
-            timeZone = TimeZone.getDefault();
-        }
-        setLocaleTimeZone(new LocaleTimeZone(locale, timeZone));
+    public void setTimeZone(TimeZone timeZone) {
+        threadLocal.get().put(TIMEZONE, timeZone);
     }
 }

@@ -70,9 +70,9 @@ public enum ClassUtil {
         put(Double.class, double.class);
     }};
 
-    public Class<?> forName(String className) {
+    public <T> Class<T> forName(String className) {
         try {
-            return Class.forName(className);
+            return (Class<T>) Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new MatrixErrorException(e, "The class '{}' cannot be located", className);
         }

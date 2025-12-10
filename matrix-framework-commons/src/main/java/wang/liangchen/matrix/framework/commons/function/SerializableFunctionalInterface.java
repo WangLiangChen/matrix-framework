@@ -5,5 +5,5 @@ import java.io.Serializable;
 /**
  * @author Liangchen.Wang 2022-04-15 14:49
  */
-public interface SerializableFunctionInterface extends Serializable {
+public interface SerializableFunctionalInterface<T> extends Serializable {
 }

@@ -2,8 +2,8 @@ package wang.liangchen.matrix.framework.spring.web.response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wang.liangchen.matrix.framework.commons.enumeration.Symbol;
-import wang.liangchen.matrix.framework.commons.exception.ExceptionLevel;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import wang.liangchen.matrix.framework.commons.exception.MatrixRuntimeException;
 import wang.liangchen.matrix.framework.commons.runtime.LocaleTimeZoneContext;
 import wang.liangchen.matrix.framework.commons.runtime.Message;
@@ -16,10 +16,9 @@ import java.util.Map;
 public final class JsonResponse<T> {
     private final static Logger logger = LoggerFactory.getLogger(JsonResponse.class);
     private final static Map<Locale, String> SYSTEM_ERRORS = new HashMap<>() {{
-        put(Locale.CHINA, "系统错误,请联系管理员!");
-        put(Locale.US, "System error, please contact the administrator!");
-        put(Locale.UK, "System error, please contact the administrator!");
-        put(Locale.JAPAN, "システムエラー、管理者に連絡してください！");
+        put(Locale.SIMPLIFIED_CHINESE, "系统错误,请联系管理员!");
+        put(Locale.ENGLISH, "System error, please contact the administrator!");
+        put(Locale.JAPANESE, "システムエラー、管理者に連絡してください！");
     }};
     /**
      * 前端传递的requestId,原样返回。
@@ -29,8 +28,6 @@ public final class JsonResponse<T> {
     private final T payload;
     private final Message message;
     private final String requestId = WebContext.INSTANCE.getRequestId();
-    private ExceptionLevel exceptionLevel = ExceptionLevel.OFF;
-    private String debug;
 
     private JsonResponse(boolean success, T payload, Message message) {
         this.success = success;
@@ -51,16 +48,15 @@ public final class JsonResponse<T> {
     }
 
     public static <T> JsonResponse<T> failure(Throwable throwable) {
-        logger.error("JsonResponse.failure", throwable);
+        logger.error("JsonResponse.Failure", throwable);
         if (throwable instanceof MatrixRuntimeException matrixRuntimeException) {
-            JsonResponse<T> jsonResponse = new JsonResponse<>(false, matrixRuntimeException.getExceptionMessage());
-            jsonResponse.exceptionLevel = matrixRuntimeException.getExceptionLevel();
-            jsonResponse.debug = jsonResponse.getStackTrace(throwable);
-            return jsonResponse;
+            matrixRuntimeException.withDebug();
+            return new JsonResponse<>(false, matrixRuntimeException.getExceptionMessage());
         }
-        JsonResponse<T> jsonResponse = new JsonResponse<>(false, null, Message.of(SYSTEM_ERRORS.get(LocaleTimeZoneContext.INSTANCE.getLocale())));
-        jsonResponse.debug = jsonResponse.getStackTrace(throwable);
-        return jsonResponse;
+        if (throwable instanceof NoResourceFoundException || throwable instanceof NoHandlerFoundException) {
+            return new JsonResponse<>(false, null, Message.of(throwable.getMessage()).withCode("404"));
+        }
+        return new JsonResponse<>(false, null, Message.of(SYSTEM_ERRORS.get(LocaleTimeZoneContext.INSTANCE.getLocale())));
     }
 
     public static <T> JsonResponse<T> failure(T payload, Message message) {
@@ -95,17 +91,6 @@ public final class JsonResponse<T> {
         return new JsonResponse<>(true);
     }
 
-    private String getStackTrace(Throwable throwable) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String message = throwable.getMessage();
-        if (null != message) {
-            stringBuilder.append(message).append(Symbol.LINE_SEPARATOR.getSymbol()).append(Symbol.LINE_SEPARATOR.getSymbol());
-        }
-        for (StackTraceElement stackTraceElement : throwable.getStackTrace()) {
-            stringBuilder.append(stackTraceElement.toString()).append(Symbol.LINE_SEPARATOR.getSymbol());
-        }
-        return stringBuilder.toString();
-    }
 
     public boolean isSuccess() {
         return success;
@@ -121,13 +106,5 @@ public final class JsonResponse<T> {
 
     public String getRequestId() {
         return requestId;
-    }
-
-    public ExceptionLevel getExceptionLevel() {
-        return exceptionLevel;
-    }
-
-    public String getDebug() {
-        return debug;
     }
 }

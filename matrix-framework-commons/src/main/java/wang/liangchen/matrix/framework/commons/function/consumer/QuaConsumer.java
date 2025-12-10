@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.framework.commons.function;
+package wang.liangchen.matrix.framework.commons.function.consumer;
 
 import java.util.Objects;
 

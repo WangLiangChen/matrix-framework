@@ -1,6 +1,5 @@
 package wang.liangchen.matrix.framework.commons.function;
 
-import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.object.JavaBeanUtil;
 
@@ -17,20 +16,24 @@ public enum LambdaUtil {
      */
     INSTANCE;
 
-    public String getReferencedFieldName(SerializableFunctionInterface serializableFunctionInterface) {
-        String methodName = serializedLambda(serializableFunctionInterface).getImplMethodName();
+    public String getReferencedFieldName(SerializableFunctionalInterface serializableFunctionalInterface) {
+        String methodName = serializedLambda(serializableFunctionalInterface).getImplMethodName();
         return JavaBeanUtil.INSTANCE.resolveFieldName(methodName);
     }
 
-    public String getReferencedMethodName(SerializableFunctionInterface serializableFunctionInterface) {
-        return serializedLambda(serializableFunctionInterface).getImplMethodName();
+    public String getReferencedMethodName(SerializableFunctionalInterface serializableFunctionalInterface) {
+        return serializedLambda(serializableFunctionalInterface).getImplMethodName();
     }
 
-    public SerializedLambda serializedLambda(SerializableFunctionInterface serializableFunctionInterface) {
+    public String getReferencedClassName(SerializableFunctionalInterface serializableFunctionalInterface) {
+        return serializedLambda(serializableFunctionalInterface).getImplClass().replace('/', '.');
+    }
+
+    public SerializedLambda serializedLambda(SerializableFunctionalInterface serializableFunctionalInterface) {
         try {
-            Method writeReplace = serializableFunctionInterface.getClass().getDeclaredMethod("writeReplace");
+            Method writeReplace = serializableFunctionalInterface.getClass().getDeclaredMethod("writeReplace");
             writeReplace.setAccessible(true);
-            return (SerializedLambda) writeReplace.invoke(serializableFunctionInterface, CollectionUtil.INSTANCE.emptyArray());
+            return (SerializedLambda) writeReplace.invoke(serializableFunctionalInterface);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new MatrixErrorException("functionInterface is not a serializable FunctionInterface");
         }

@@ -88,7 +88,7 @@ public final class StartupApplicationListener implements ApplicationListener<App
             return;
         }
         SpringApplication springApplication = event.getSpringApplication();
-        // scanMatrixPackages(springApplication, applicationContext);
+        scanMatrixPackages(springApplication, applicationContext);
         BeanContext.INSTANCE.resetApplicationContext(applicationContext);
         watchTask.addMessage("ApplicationContext is initialized, Set applicationContext to BeanContext");
         watchTask.prettyPrint();

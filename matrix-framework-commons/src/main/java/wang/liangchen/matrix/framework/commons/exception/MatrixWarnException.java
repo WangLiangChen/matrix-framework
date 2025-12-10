@@ -4,7 +4,6 @@ package wang.liangchen.matrix.framework.commons.exception;
  * @author Liangchen.Wang 2021-08-19 20:19
  */
 public class MatrixWarnException extends MatrixRuntimeException {
-    private final ExceptionLevel exceptionLevel = ExceptionLevel.WARN;
 
     public MatrixWarnException() {
     }
@@ -22,7 +21,7 @@ public class MatrixWarnException extends MatrixRuntimeException {
     }
 
     @Override
-    public ExceptionLevel getExceptionLevel() {
-        return exceptionLevel;
+    ExceptionLevel exceptionLevel() {
+        return ExceptionLevel.WARN;
     }
 }

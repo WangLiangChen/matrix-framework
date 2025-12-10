@@ -10,11 +10,20 @@ public class I18nMessage extends Message {
 
     protected I18nMessage(String i18n, Object... args) {
         super(ValidationUtil.INSTANCE.resolveI18n(i18n, args));
-        this.i18n = i18n;
+        if (ValidationUtil.INSTANCE.isI18n(i18n)) {
+            this.i18n = i18n;
+            return;
+        }
+        this.i18n = null;
     }
 
     public static I18nMessage of(String i18n, Object... args) {
         return new I18nMessage(i18n, args);
+    }
+
+    @Override
+    public I18nMessage withCode(String code) {
+        return (I18nMessage) super.withCode(code);
     }
 
     public String getI18n() {
@@ -24,4 +33,5 @@ public class I18nMessage extends Message {
     public Locale getLocale() {
         return this.locale;
     }
+
 }

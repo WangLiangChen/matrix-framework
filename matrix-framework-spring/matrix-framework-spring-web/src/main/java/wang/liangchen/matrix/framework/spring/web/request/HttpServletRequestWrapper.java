@@ -1,16 +1,10 @@
 package wang.liangchen.matrix.framework.spring.web.request;
 
-import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.util.WebUtils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Objects;
 
 /**
  * @author LiangChen.Wang
@@ -18,97 +12,69 @@ import java.io.InputStreamReader;
  */
 public final class HttpServletRequestWrapper extends jakarta.servlet.http.HttpServletRequestWrapper {
 
-    private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
-    private CachedServletInputStream inputStream;
-    private BufferedReader bufferedReader;
+    private ByteArrayServletInputStream inputStream;
+    private byte[] cachedBytes;
 
-    public HttpServletRequestWrapper(HttpServletRequest request) {
+    public HttpServletRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
+        cacheRequestBody();
+    }
+
+    private void cacheRequestBody() throws IOException {
+        if (Objects.isNull(cachedBytes)) {
+            try (InputStream is = super.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                byte[] temp = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = is.read(temp)) != -1) {
+                    buffer.write(temp, 0, bytesRead);
+                }
+                cachedBytes = buffer.toByteArray();
+            }
+        }
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return null == this.inputStream ? new CachedServletInputStream(this.getRequest()) : this.inputStream;
-    }
-
-    @Override
-    public String getCharacterEncoding() {
-        String encoding = super.getCharacterEncoding();
-        return (encoding == null ? WebUtils.DEFAULT_CHARACTER_ENCODING : encoding);
+    public ServletInputStream getInputStream() {
+        if (Objects.isNull(inputStream)) {
+            inputStream = new ByteArrayServletInputStream(cachedBytes);
+        }
+        return inputStream;
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
-        return null == this.bufferedReader ? new BufferedReader(new InputStreamReader(this.getInputStream(), this.getCharacterEncoding())) : this.bufferedReader;
-    }
-
-    private boolean isFormPost() {
-        String contentType = getContentType();
-        return (contentType != null && contentType.contains(FORM_CONTENT_TYPE) && HttpMethod.POST.matches(getMethod()));
+        return new BufferedReader(new InputStreamReader(this.getInputStream(), this.getCharacterEncoding()));
     }
 
     public byte[] getByteArray() {
-        return this.inputStream.getCachedOutputStream().toByteArray();
+        return cachedBytes;
     }
 
+    private static class ByteArrayServletInputStream extends ServletInputStream {
+        private final ByteArrayInputStream inputStream;
 
-    private static class CachedServletInputStream extends ServletInputStream {
-        private final ServletInputStream servletInputStream;
-        private final ByteArrayOutputStream cachedOutputStream;
-
-        public CachedServletInputStream(ServletRequest request) throws IOException {
-            this.servletInputStream = request.getInputStream();
-            this.cachedOutputStream = new ByteArrayOutputStream(request.getContentLength());
+        public ByteArrayServletInputStream(byte[] cachedBytes) {
+            this.inputStream = new ByteArrayInputStream(cachedBytes);
         }
 
         @Override
-        public int read() throws IOException {
-            int nextByte = this.servletInputStream.read();
-            if (-1 == nextByte) {
-                return nextByte;
-            }
-            this.cachedOutputStream.write(nextByte);
-            return nextByte;
-        }
-
-        @Override
-        public int read(byte[] bytes) throws IOException {
-            int offset = this.servletInputStream.read(bytes);
-            if (-1 == offset) {
-                return offset;
-            }
-            this.cachedOutputStream.write(bytes);
-            return offset;
-        }
-
-        @Override
-        public int read(byte[] bytes, int off, int len) throws IOException {
-            int offset = this.servletInputStream.read(bytes, off, len);
-            if (-1 == offset) {
-                return offset;
-            }
-            this.cachedOutputStream.write(bytes, off, len);
-            return offset;
+        public int read() {
+            return inputStream.read();
         }
 
         @Override
         public boolean isFinished() {
-            return this.servletInputStream.isFinished();
+            return inputStream.available() == 0;
         }
 
         @Override
         public boolean isReady() {
-            return this.servletInputStream.isReady();
+            return true;
         }
 
         @Override
-        public void setReadListener(ReadListener readListener) {
-            this.servletInputStream.setReadListener(readListener);
-        }
-
-        public ByteArrayOutputStream getCachedOutputStream() {
-            return cachedOutputStream;
+        public void setReadListener(jakarta.servlet.ReadListener readListener) {
+            // No-op: ReadListener is not supported in this implementation
         }
     }
-
 }

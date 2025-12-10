@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.framework.commons.builder;
 
-import wang.liangchen.matrix.framework.commons.function.QuaConsumer;
-import wang.liangchen.matrix.framework.commons.function.TriConsumer;
+import wang.liangchen.matrix.framework.commons.function.consumer.QuaConsumer;
+import wang.liangchen.matrix.framework.commons.function.consumer.TriConsumer;
 
 import java.util.ArrayList;
 import java.util.List;

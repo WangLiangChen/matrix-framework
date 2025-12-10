@@ -1,5 +1,6 @@
 package wang.liangchen.matrix.framework.commons.runtime;
 
+import wang.liangchen.matrix.framework.commons.json.jackson.JacksonUtil;
 import wang.liangchen.matrix.framework.commons.string.StringUtil;
 
 /**
@@ -28,5 +29,10 @@ public class Message {
 
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public String toString() {
+        return JacksonUtil.INSTANCE.writeValueAsString(this);
     }
 }

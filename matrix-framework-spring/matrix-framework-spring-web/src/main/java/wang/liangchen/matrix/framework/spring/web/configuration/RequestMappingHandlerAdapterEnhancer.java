@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBody
 import wang.liangchen.matrix.framework.commons.collection.CollectionUtil;
 import wang.liangchen.matrix.framework.commons.exception.MatrixErrorException;
 import wang.liangchen.matrix.framework.commons.type.ClassUtil;
+import wang.liangchen.matrix.framework.spring.web.annotation.Redirect;
 import wang.liangchen.matrix.framework.spring.web.annotation.ReturnRawText;
 import wang.liangchen.matrix.framework.spring.web.response.JsonResponse;
 
@@ -127,7 +128,7 @@ public class RequestMappingHandlerAdapterEnhancer {
                     this.delegate.handleReturnValue(JsonResponse.success(), methodParameter, mavContainer, webRequest);
                     return;
                 }
-                if (returnValue instanceof JsonResponse<?> jsonResponse) {
+                if (returnValue instanceof JsonResponse<?>) {
                     this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }
@@ -139,9 +140,19 @@ public class RequestMappingHandlerAdapterEnhancer {
                     this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
                     return;
                 }
+                if (returnValue instanceof String && methodParameter.hasMethodAnnotation(Redirect.class)) {
+                    HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+                    if (null != response) {
+                        response.sendRedirect(String.valueOf(returnValue));
+                    }
+                    mavContainer.setRequestHandled(true);
+                    return;
+                }
                 this.delegate.handleReturnValue(JsonResponse.success(returnValue), methodParameter, mavContainer, webRequest);
                 return;
             }
+            // Handle others, such as ResponseBodyEmitterReturnValueHandler, DeferredResultMethodReturnValueHandler...
+            // Mono -> DeferredResult
             this.delegate.handleReturnValue(returnValue, methodParameter, mavContainer, webRequest);
         }
     }
@@ -244,17 +255,14 @@ public class RequestMappingHandlerAdapterEnhancer {
         private final InputStream inputStream;
         private final String bodyString;
 
+
         private HttpInputMessageWrapper(HttpInputMessage delegate) {
             this.delegate = delegate;
-            byte[] buffer = new byte[2048];
-            int length;
             try (FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream()) {
-                try (InputStream body = delegate.getBody();) {
-                    while ((length = body.read(buffer)) > -1) {
-                        outputStream.write(buffer, 0, length);
-                    }
+                try (InputStream body = delegate.getBody()) {
+                    body.transferTo(outputStream);
                 } catch (IOException e) {
-                    throw new MatrixErrorException("read request body error.", e);
+                    throw new MatrixErrorException("Failed to read request body.", e);
                 }
                 byte[] bytes = outputStream.toByteArray();
                 this.bodyString = new String(bytes);
