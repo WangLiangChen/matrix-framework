@@ -5,6 +5,6 @@ package wang.liangchen.matrix.framework.ddd.domain;
  * Marker interface
  * Mark an Identity of an Entity
  */
-public interface IIdentity<T> {
+public interface IIdentity<T> extends IValueObject {
     T value();
 }

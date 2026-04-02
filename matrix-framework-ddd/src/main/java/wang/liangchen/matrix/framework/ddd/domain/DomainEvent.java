@@ -4,11 +4,16 @@ import java.time.Clock;
 import java.util.EventObject;
 
 /**
- * @author Liangchen.Wang 2022-04-24 14:29
- * DomainEvent
+ * Represents a domain event.
+ *
+ * @author Liangchen.Wang
+ * @since 2022-04-24
  */
 public class DomainEvent extends EventObject {
 
+    /**
+     * The timestamp indicating when the event was created, in milliseconds since the epoch(1970-01-01T00:00:00Z).
+     */
     private final long timestamp;
 
     public DomainEvent(Object source) {

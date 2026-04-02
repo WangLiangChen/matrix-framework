@@ -21,8 +21,8 @@
     </modules>
 
     <properties>
-        <version.spring.boot>3.5.8</version.spring.boot>
-        <version.spring.cloud>2025.0.0</version.spring.cloud>
+        <version.spring.boot>3.5.13</version.spring.boot>
+        <version.spring.cloud>2025.1.1</version.spring.cloud>
     </properties>
 
     <dependencyManagement>

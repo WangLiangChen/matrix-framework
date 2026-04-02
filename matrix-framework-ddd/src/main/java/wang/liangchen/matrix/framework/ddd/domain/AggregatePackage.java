@@ -6,12 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Liangchen.Wang
- * Marker annotation
- * Mark a Package of an aggregate
+ * Marker annotation to specify the package of an aggregate.
+ *
+ * @author Liangchen Wang
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface AggregatePackage {
+    /**
+     * Specifies the name or identifier of an aggregate.
+     * Usually the name of the aggregated-root entity.
+     */
     String value();
 }

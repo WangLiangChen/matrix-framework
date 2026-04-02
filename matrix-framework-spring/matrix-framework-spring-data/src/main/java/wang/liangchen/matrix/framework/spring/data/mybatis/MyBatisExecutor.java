@@ -399,7 +399,7 @@ public enum MyBatisExecutor {
     private StringBuilder pkWhereSql(Map<String, FieldMeta> pkFieldMetas, FieldMeta versionFieldMeta) {
         StringBuilder whereSql = new StringBuilder();
         whereSql.append("<where>");
-        pkFieldMetas.values().forEach(fieldMeta -> whereSql.append("and ")
+        pkFieldMetas.values().forEach(fieldMeta -> whereSql.append(" and ")
                 .append(fieldMeta.getColumnName()).append("=#{").append(fieldMeta.getFieldName()).append("}"));
         if (null != versionFieldMeta) {
             whereSql.append("<if test=\"@wang.liangchen.matrix.framework.data.mybatis.Ognl@isNotNull(").append(versionFieldMeta.getFieldName()).append(")\">");
