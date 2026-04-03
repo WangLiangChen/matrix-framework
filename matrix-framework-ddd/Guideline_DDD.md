@@ -11,33 +11,38 @@
 
 ### 值对象
 
-* 作为实体对象的属性，其生命期完全依赖于所属的实体对象，没有唯一身份标识，不能单独存在。
+* 没有唯一身份标识，通过其属性值的组合来定义相等性。它通常作为实体的属性、领域服务的参数或返回值。
+* 值对象是不可变的，其生命周期通常由所属实体或聚合管理。
 * 拥有自我验证、自我组合、自我运算等领域行为。
 * 可以表达细粒度的领域概念（业务含义、逻辑、验证等），相比于内建的基本类型更有优势。
 
 ### 身份标识
 
-* 实体的唯一标识，通常包含通用类型(无业务含义)和领域类型(有业务含义)。是值对象的一个特例。
+* 实体的唯一标识，通常包含通用类型(无业务含义)和领域类型(有业务含义)。
+* 值对象的一个特例，具有值对象的特征。
 
 ### 聚合
 
 * 将实体和值对象围绕一个边界组织成一个聚合，选择一个实体作为聚合的根，外部对象仅能持有聚合根的引用。
-* 完整的领域概念整体，内部维护这个领域概念的完整性。
-* 一个整体参与业务行为的协作，是表达领域知识，封装领域逻辑的自制单元。
-* 一个聚合必须满足事务一致性。
+* 完整的领域概念整体，内部维护这个领域概念的完整性，由聚合根负责维护不变式。
+* 一个整体参与业务行为的协作，是表达领域知识，封装领域逻辑的自治单元。
+* 聚合是事务一致性的边界,聚合内部的不变式应在一次业务操作中得到维护；跨聚合协作通常通过领域事件或应用层编排实现最终一致性。
+* 跨聚合的状态变更应通过领域事件或应用层编排实现最终一致性，避免使用分布式事务。
 
 ### 聚合根
 
-* 聚合根是聚合的唯一访问入口，负责维护聚合内部的一致性和完整性。
+* 外部对象只能持有聚合根的引用，并通过聚合根来修改聚合内部状态,负责维护聚合内部的一致性和完整性。
 * 向外暴露聚合整体的行为。
 
 ### 领域服务
 
 * 业务行为无法找到一个实体对象来承担时，可以使用领域服务来实现。
+* 领域服务应是无状态的，且其方法命名应体现业务语义（动词短语）
 
 ### 领域事件
 
-* 封装了实体的状态，代表了因动作导致的属性或状态变化，是已经发生的事实。
+* 领域事件表示领域中已经发生的业务事实，通常由聚合内的重要状态变化或业务动作触发。
+* 事件中只应包含消费方所需的必要领域数据，而不是简单复制整个实体状态。
 
 ### 领域工厂
 
@@ -45,11 +50,15 @@
 
 ### 领域仓储
 
-## 关系
+* 领域仓储用于持久化和重建聚合根，为领域层提供面向聚合的集合式访问能力。
+* 仓储接口定义在领域层，具体实现位于基础设施层/南向适配层。
+* 一般以聚合根为单位建仓储，不直接暴露聚合内部实体的独立仓储。
+* 仓储接口的方法应使用领域语言命名，例如 findById、save、remove。查询条件复杂时可引入规格（Specification）模式。
+
+## 领域元模型关系
 
 ```mermaid
 graph TD
-    DDDMetaModel(领域设计元模型)
     Aggregate(聚合)
     DomainFactory(领域工厂)
     AggregateRoot[聚合根]
@@ -59,41 +68,41 @@ graph TD
     Identity[身份标识]
     DomainEvent[领域事件]
     DomainRepository[领域仓储]
-    DDDMetaModel -- 包含 --> Aggregate
-    DDDMetaModel -- 包含 --> DomainFactory
     Aggregate -- 包含 --> AggregateRoot
-    Aggregate -- 包含 --> DomainService
     Aggregate -- 包含 --> Entity
     Aggregate -- 包含 --> ValueObject
-    Aggregate -- 包含 --> DomainEvent
-    Aggregate -- 包含 --> DomainRepository
+    AggregateRoot -- 产生 --> DomainEvent
+    Entity -- 作为 --> AggregateRoot
+    Entity -- 具有 --> Identity
+    Identity -- 特例 --> ValueObject
+    DomainService -- 协调 --> Aggregate
     DomainFactory -- 创建 --> AggregateRoot
     DomainFactory -- 创建 --> Entity
     DomainFactory -- 创建 --> ValueObject
-    ValueObject -- 特例 --> Identity -- 作为唯一标识属性 --> Entity
-    ValueObject -- 作为属性 --> Entity -- 作为 --> AggregateRoot -- 作为唯一访问入口 --> Aggregate
-    AggregateRoot -- 使用 --> DomainRepository
-    DomainRepository -- 提供数据 --> DomainService
+    DomainService -- 使用 --> DomainRepository
 ```
 
 ## 其它相关定义和术语
 
 ### 属性
 
-用来说明实体的静态特征;组合属性:由值对象或者另一个实体组成的属性,可以有自己的约束规则、组合因子或者领域行为;原子属性:
-由基本数据类型或者字符串组成的属性.
+用来说明实体的静态特征;
+
+* 组合属性:由值对象或者另一个实体组成的属性,可以有自己的约束规则、组合因子或者领域行为;
+* 原子属性:由基本数据类型或者字符串组成的属性.
 
 ### 领域行为
 
-用来说明实体的动态特征，领域行为影响的是对象的内存状态，与持久化无关。
+用来说明实体的动态特征，领域行为关注业务语义和模型状态变化，不直接依赖持久化等技术实现细节；持久化通常由仓储或应用层在领域行为之后完成。
 
 * 变更属性的领域行为，通过满足业务含义的方法来修改实体的属性值，来改变实体的状态。
 * 自给自足的领域行为，只用自有的属性值或组合属性的领域行为来完成领域逻辑。
 * 互为协作的领域行为，由调用者将另一领域对象作为参数传入来参与实现领域逻辑。
+* 查询的领域行为，只读操作，不改变状态，无需事务。
 
 ### 不变类(Immutable Class)
 
-* 使用final定义类，并且增加@Immutable注解，并且所有属性都必须是final的，任何操作都返回一个新的对象。
+* 使用final定义类，并且所有属性都必须是final的，任何操作都推荐返回一个新的对象。
 * 使用属性值来判断对象的相等性，而不是使用对象的引用来判断相等性，重写equals()和hashCode()方法，来保证正确比较和使用。
 
 ### 类的关系
@@ -116,28 +125,79 @@ graph TD
 ## 身份标识(Identity)
 
 * 不变类，需符合不变类的定义和特征。
-* 实现接口IIdentity,默认泛型为Long
+* 实现接口IIdentity,可以通过泛型来指定身份标识的类型，并且重写equals()和hashCode()方法，来保证身份标识的正确比较和使用。
+* 添加注解@DomainModel(DomainMetaModel.Identity)
 
 ## 值对象(Value Object)
 
 * 不变类(Immutable Class)，需符合不变类(Immutable Class)的定义和特征。
-* 无唯一身份标识(No Identity)，没有独立的生命周期，完全依赖于实体，不能单独存在。
+* 没有唯一身份标识(No Identity)，没有独立的生命周期，完全依赖于实体，不能单独存在。
 * 实现接口IValueObject,并且重写equals()和hashCode()方法，来保证值对象的正确比较和使用。
 * 添加注解@DomainModel(DomainMetaModel.ValueObject)
 
 ## 实体(Entity)
 
 * 具有唯一身份标识(Identity)，有独立的生命周期。
+* 所有状态变更通过明确的业务方法完成。
+* 实现接口IEntity
+* 添加注解@DomainModel(DomainMetaModel.Entity)
+
+## 聚合(Aggregate)
+
+* 一个聚合内，只有聚合根是public的，其它实体和值对象都应是protected的，外部只能通过聚合根来访问和修改聚合内部的状态。
+
+## 领域服务(DomainService)
+
+* 应为无状态，不持有业务数据
+* 实现接口 IDomainService
+* 添加注解 @DomainModel(DomainMetaModel.DomainService)
+
+## 聚合根(AggregateRoot)
+
+* 是实体的特例，同时也是聚合的唯一入口，外部只能持有聚合根的引用。
+* 负责维护聚合内部的不变式，所有跨实体的状态变更必须通过聚合根的业务方法完成。
+* 跨聚合只能通过身份标识(Identity)引用其他聚合根，不能持有其他聚合根的对象引用。
+* 实现接口 IAggregateRoot
+* 添加注解 @DomainModel(DomainMetaModel.AggregateRoot)
+
+## 领域事件(DomainEvent)
+
+* 不可变类(Immutable Class)，事件一旦发生不可修改。
+* 命名使用过去时态，体现业务事实，例如 OrderPlaced、PaymentConfirmed。
+* 必须包含事件发生时间(occurredOn)和事件唯一标识(eventId)等基础信息。
+* 只携带消费方必要的数据，不应是整个聚合根的完整快照。
+* 实现接口 IDomainEvent
+* 添加注解 @DomainModel(DomainMetaModel.DomainEvent)
+
+## 领域工厂(DomainFactory)
+
+* 负责封装复杂的聚合根、实体、值对象的创建逻辑。
+* 工厂方法命名应体现业务语义，例如 create、reconstitute（重建已有聚合）。
+* create 用于创建全新的聚合，reconstitute 用于从持久化数据中重建聚合。
+* 实现接口 IDomainFactory
+* 添加注解 @DomainModel(DomainMetaModel.DomainFactory)
+
+## 领域仓储(DomainRepository)
+
+* 仅以聚合根为读写单位；
+* 接口定义在领域层、实现位于南向适配层；
+* 不暴露 ORM/DAO 细节；
+* 方法命名使用领域语言；
+* 查询与变更职责分离（必要时 CQRS）。
+* save/remove 仅接收聚合根，不暴露内部实体持久化接口；
+  返回类型保持领域对象，不泄漏 PO/DO/EntityModel 等基础设施类型。
 
 # DDD技术组件结构
 
 ```mermaid
 graph TD
-    subgraph NorthBound_OHS[北向-开放主机服务层]
-        subgraph Remote[远程调用]
-            Provider[提供者]
+    subgraph NorthBound[北向]
+        subgraph Remote[远程调用-开放主机服务层]
+            Controller[控制器]
             Resource[资源]
+            Provider[提供者]
             Subscriber[订阅者]
+            Scheduler[调度器]
         end
         subgraph Local[本地调用]
             ApplicationService[应用服务]
@@ -151,13 +211,18 @@ graph TD
         Port[南向-防腐层接口]
     end
     subgraph SouthBound_ACL[南向-防腐层]
-        RepositoryAdapter[仓储库适配器]
+        RepositoryAdapter[仓储适配器]
         ClientAdapter[上游客户端适配器]
         PublisherAdapter[事件发布适配器]
+        FileAdapter[文件适配器]
     end
-    ApplicationService --> SouthBound_ACL
-    Remote --> ApplicationService --> Domain
-    DomainService --> SouthBound_ACL
+    Remote --> ApplicationService
+    ApplicationService -- 发布 --> ApplicationEvent
+    ApplicationService --> DomainService
+    ApplicationService --> Port
+    ApplicationService --> AggregateRoot
+    DomainService --> Port
+    AggregateRoot -- 产生 --> DomainEvent
     Port <-.-|依赖倒置| SouthBound_ACL
 ```
 

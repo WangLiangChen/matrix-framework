@@ -8,4 +8,5 @@ import java.io.Serializable;
  * Mark a ValueObject of an Aggregate
  */
 public interface IValueObject extends Serializable {
+
 }
