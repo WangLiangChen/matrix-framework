@@ -1,5 +1,7 @@
 package wang.liangchen.matrix.framework.ddd.exception;
 
+import wang.liangchen.matrix.framework.ddd.domain.DomainException;
+
 /**
  * @author Liangchen.Wang
  */

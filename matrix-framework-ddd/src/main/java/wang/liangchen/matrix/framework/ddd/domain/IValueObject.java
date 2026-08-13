@@ -4,8 +4,7 @@ import java.io.Serializable;
 
 /**
  * @author Liangchen.Wang
- * Marker interface
- * Mark a ValueObject of an Aggregate
+ * Marker interface for a Value Object that is part of an Aggregate.
  */
 public interface IValueObject extends Serializable {
 

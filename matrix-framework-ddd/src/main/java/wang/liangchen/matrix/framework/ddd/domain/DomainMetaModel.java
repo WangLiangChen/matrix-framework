@@ -10,7 +10,7 @@ package wang.liangchen.matrix.framework.ddd.domain;
  *   <li><b>ValueObject</b>: An object defined by its attributes, with no distinct identity.</li>
  *   <li><b>DomainService</b>: A stateless service encapsulating domain logic not naturally fitting in entities or value objects.</li>
  *   <li><b>DomainEvent</b>: An event representing something that happened in the domain.</li>
- *   <li><b>Factory</b>: Responsible for creating complex domain objects or aggregates.</li>
+ *   <li><b>DomainFactory</b>: Responsible for creating complex domain objects or aggregates.</li>
  * </ul>
  *
  * @author Liangchen.Wang
@@ -22,5 +22,5 @@ public enum DomainMetaModel {
     ValueObject,
     DomainService,
     DomainEvent,
-    Factory
+    DomainFactory
 }

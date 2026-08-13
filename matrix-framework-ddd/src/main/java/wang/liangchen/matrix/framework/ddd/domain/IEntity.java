@@ -4,8 +4,7 @@ import java.io.Serializable;
 
 /**
  * @author Liangchen.Wang 2022-11-25 15:23
- * Marker interface
- * Mark an Entity of an Aggregate
+ * Marker interface for a Entity that is part of an Aggregate.
  */
-public interface IEntity extends Serializable {
+public interface IEntity<ID extends Serializable> extends Serializable {
 }
