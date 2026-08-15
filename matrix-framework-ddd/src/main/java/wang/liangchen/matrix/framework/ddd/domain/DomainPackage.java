@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
  * Mark a Package of Domain Layer
  */
 @Target(ElementType.PACKAGE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface DomainPackage {
 }

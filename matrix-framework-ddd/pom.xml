@@ -11,16 +11,20 @@
 
     <artifactId>matrix-framework-ddd</artifactId>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
     <dependencies>
+        <!-- 领域驱动架构规则集（DddArchitectureRules）依赖：optional，不随框架传递。
+             业务模块如需在测试中守护分层依赖规则，需在pom中自行声明archunit测试依赖（scope=test） -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <version>1.3.0</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- 框架规则集自测（dogfooding）依赖 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
+            <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

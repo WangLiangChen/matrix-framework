@@ -8,10 +8,12 @@ import java.lang.annotation.Target;
 /**
  * @author Liangchen.Wang
  * Marker annotation
- * Mark a domain model
+ * Mark a domain model with DomainMetaModel
+ * <p>
+ * 注意：@Inherited 不适用于接口，实现类上的标注不会被继承；业务类必须自行标注本注解。
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface DomainModel {
     DomainMetaModel value();
 }

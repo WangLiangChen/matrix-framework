@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Mark a BoundedContext Package
  */
 @Target(ElementType.PACKAGE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface BoundedContextPackage {
     String name();
 
