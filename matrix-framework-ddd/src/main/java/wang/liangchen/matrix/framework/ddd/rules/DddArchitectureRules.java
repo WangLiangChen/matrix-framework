@@ -1,23 +1,23 @@
 package wang.liangchen.matrix.framework.ddd.rules;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaField;
-import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaModifier;
-import com.tngtech.archunit.core.domain.JavaPackage;
+import com.tngtech.archunit.core.domain.*;
 import com.tngtech.archunit.core.domain.properties.HasModifiers;
-import com.tngtech.archunit.lang.ArchCondition;
-import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.lang.CompositeArchRule;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
+import com.tngtech.archunit.lang.*;
 import com.tngtech.archunit.lang.conditions.ArchConditions;
 import wang.liangchen.matrix.framework.ddd.BoundedContextPackage;
+import wang.liangchen.matrix.framework.ddd.contract.MessageContract;
+import wang.liangchen.matrix.framework.ddd.contract.MessageContractType;
+import wang.liangchen.matrix.framework.ddd.contract.MessageExchangePattern;
+import wang.liangchen.matrix.framework.ddd.contract.event.AbstractContractEvent;
+import wang.liangchen.matrix.framework.ddd.contract.event.IContractEvent;
+import wang.liangchen.matrix.framework.ddd.contract.request.ICommandRequest;
+import wang.liangchen.matrix.framework.ddd.contract.request.IQueryRequest;
+import wang.liangchen.matrix.framework.ddd.contract.request.IRequest;
+import wang.liangchen.matrix.framework.ddd.contract.request.ISchedulingRequest;
+import wang.liangchen.matrix.framework.ddd.contract.response.IResponse;
+import wang.liangchen.matrix.framework.ddd.contract.response.IResult;
+import wang.liangchen.matrix.framework.ddd.contract.response.IView;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainPackage;
@@ -28,56 +28,25 @@ import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
 import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
 import wang.liangchen.matrix.framework.ddd.domain.identity.IIdentity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
-import wang.liangchen.matrix.framework.ddd.southbound.port.IClientPort;
-import wang.liangchen.matrix.framework.ddd.southbound.port.IFilePort;
-import wang.liangchen.matrix.framework.ddd.southbound.port.IPort;
-import wang.liangchen.matrix.framework.ddd.southbound.port.IPublisherPort;
-import wang.liangchen.matrix.framework.ddd.southbound.port.IRepositoryPort;
-import wang.liangchen.matrix.framework.ddd.southbound.port.Port;
-import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.framework.ddd.domain.service.IDomainService;
 import wang.liangchen.matrix.framework.ddd.domain.valueobject.IValueObject;
-import wang.liangchen.matrix.framework.ddd.contract.MessageContract;
-import wang.liangchen.matrix.framework.ddd.contract.MessageContractType;
-import wang.liangchen.matrix.framework.ddd.contract.MessageDirection;
-import wang.liangchen.matrix.framework.ddd.contract.MessageExchangePattern;
-import wang.liangchen.matrix.framework.ddd.contract.event.AbstractContractEvent;
-import wang.liangchen.matrix.framework.ddd.contract.request.ICommandRequest;
-import wang.liangchen.matrix.framework.ddd.contract.request.IQueryRequest;
-import wang.liangchen.matrix.framework.ddd.contract.request.IRequest;
-import wang.liangchen.matrix.framework.ddd.contract.request.ISchedulingRequest;
-import wang.liangchen.matrix.framework.ddd.contract.response.IResponse;
-import wang.liangchen.matrix.framework.ddd.contract.response.IResult;
-import wang.liangchen.matrix.framework.ddd.contract.response.IView;
+import wang.liangchen.matrix.framework.ddd.assembler.Assembler;
+import wang.liangchen.matrix.framework.ddd.assembler.IAssembler;
 import wang.liangchen.matrix.framework.ddd.northbound.event.AbstractApplicationEvent;
-import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
-import wang.liangchen.matrix.framework.ddd.northbound.local.IApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.local.IEventApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.local.IQueryApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.local.ISchedulingApplicationService;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.IControllerRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.IProviderRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.IRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.IResourceRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.ISchedulerRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.ISubscriberRemote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.Remote;
-import wang.liangchen.matrix.framework.ddd.northbound.remote.RemoteType;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IAdapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IClientAdapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IFileAdapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IPublisherAdapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
+import wang.liangchen.matrix.framework.ddd.northbound.event.IApplicationEvent;
+import wang.liangchen.matrix.framework.ddd.northbound.local.*;
+import wang.liangchen.matrix.framework.ddd.northbound.remote.*;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.*;
+import wang.liangchen.matrix.framework.ddd.southbound.port.*;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
 /**
  * 领域驱动架构规则集：基于ArchUnit守护分层依赖规则、领域模型规则、消息契约规则、包与架构标注规则（《解构领域驱动设计》的领域驱动架构风格）。
@@ -95,6 +64,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
  *     static final ArchRule packages = DddArchitectureRules.packageAnnotationRules("wang.liangchen.matrix.shop.order");
  *     &#64;ArchTest
  *     static final ArchRule annotated = DddArchitectureRules.architectureAnnotationRules("wang.liangchen.matrix.shop.order");
+ *     &#64;ArchTest
+ *     static final ArchRule placement = DddArchitectureRules.architecturePlacementRules("wang.liangchen.matrix.shop.order");
  * }
  * </pre>
  * 约定包结构：{rootPackage}.domain（含domain.port）/ .message / .northbound.{local,remote,event,exception} / .southbound.adapter
@@ -105,12 +76,33 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
  */
 public final class DddArchitectureRules {
 
+    /**
+     * 框架自身的基础包：守护规则在拦截业务模块内部越界依赖的同时，
+     * 也拦截对框架契约(contract)/北向(northbound)/南向适配器(southbound.adapter)/领域层(domain)类型的越界依赖，
+     * 避免"领域类继承框架AbstractContractEvent、远程服务直接使用领域类型"等跨层依赖从包前缀匹配中漏网。
+     */
+    private static final String FRAMEWORK_BASE_PACKAGE = "wang.liangchen.matrix.framework.ddd";
+
+    private static final Set<String> IMMUTABLE_TYPE_NAMES = Set.of(
+            "boolean", "byte", "char", "short", "int", "long", "float", "double",
+            "java.lang.Boolean", "java.lang.Byte", "java.lang.Character",
+            "java.lang.Short", "java.lang.Integer", "java.lang.Long",
+            "java.lang.Float", "java.lang.Double",
+            "java.lang.String",
+            "java.time.Instant", "java.time.LocalDate", "java.time.LocalTime",
+            "java.time.LocalDateTime", "java.time.ZonedDateTime",
+            "java.time.OffsetDateTime", "java.time.Year", "java.time.YearMonth",
+            "java.time.MonthDay", "java.time.Duration", "java.time.Period",
+            "java.math.BigDecimal", "java.math.BigInteger",
+            "java.util.UUID", "java.util.Optional"
+    );
+
     private DddArchitectureRules() {
     }
 
     /**
-     * 分层依赖规则全集：领域层纯净性、消息契约隔离、端口依赖倒置、
-     * 应用服务经端口访问外部资源、远程服务只操作消息契约、
+     * 分层依赖规则全集：领域层纯净性、消息契约隔离（不依赖领域模型与北向）、端口依赖倒置、
+     * 应用服务经端口访问外部资源、远程服务只操作消息契约、南向适配器不反向依赖北向、
      * 聚合等领域模型类（领域服务除外）不得使用端口。
      */
     public static ArchRule layeredDependencyRules(String rootPackage) {
@@ -119,16 +111,19 @@ public final class DddArchitectureRules {
                 .and(domainDoesNotDependOnSouthboundAdapter(rootPackage))
                 .and(domainModelClassesDoNotDependOnPorts(rootPackage))
                 .and(messageDoesNotDependOnDomain(rootPackage))
+                .and(messageDoesNotDependOnNorthbound(rootPackage))
                 .and(portDoesNotDependOnAdapter(rootPackage))
                 .and(applicationServiceDoesNotDependOnAdapter(rootPackage))
                 .and(applicationServiceDoesNotDependOnRemote(rootPackage))
                 .and(remoteDoesNotDependOnDomain(rootPackage))
-                .and(remoteDoesNotDependOnAdapter(rootPackage));
+                .and(remoteDoesNotDependOnAdapter(rootPackage))
+                .and(adapterDoesNotDependOnNorthbound(rootPackage));
     }
 
     /**
      * 领域模型规则全集：统一语言命名、领域模型注解、实体身份标识与相等性、聚合封装、
-     * 值对象不可变、领域事件不可变、无公共setter、领域对象不可序列化。
+     * 值对象不可变（含深度不可变字段类型校验）、领域事件不可变、无公共setter、领域对象不可序列化、
+     * 有领域工厂时聚合根构造不得public。
      */
     public static ArchRule domainModelRules(String rootPackage) {
         return CompositeArchRule.of(domainNamingRule(rootPackage))
@@ -139,16 +134,18 @@ public final class DddArchitectureRules {
                 .and(valueObjectImmutability(rootPackage))
                 .and(eventImmutability(rootPackage))
                 .and(domainDoesNotUsePublicSetters(rootPackage))
-                .and(domainDoesNotImplementSerializable(rootPackage));
+                .and(domainDoesNotImplementSerializable(rootPackage))
+                .and(aggregateRootConstructorsNotPublicWithFactory(rootPackage));
     }
 
     /**
-     * 消息契约规则全集：契约注解与标记接口匹配、契约命名规范、契约不得担任工厂。
+     * 消息契约规则全集：契约注解与标记接口匹配、契约命名规范、契约不得担任工厂、message包只放契约。
      */
     public static ArchRule messageContractRules(String rootPackage) {
         return CompositeArchRule.of(messageContractsAnnotated(rootPackage))
                 .and(messageContractNaming(rootPackage))
-                .and(messageContractsDoNotProvideFactoryMethods(rootPackage));
+                .and(messageContractsDoNotProvideFactoryMethods(rootPackage))
+                .and(messagePackageContainsOnlyContracts(rootPackage));
     }
 
     /**
@@ -161,14 +158,35 @@ public final class DddArchitectureRules {
     }
 
     /**
-     * 架构标注规则全集：应用服务、应用事件、远程服务、端口与适配器必须标注对应注解/继承对应基类且注解值与标记接口匹配。
+     * 架构标注规则全集：应用服务、应用事件、远程服务、端口与适配器、装配器必须标注对应注解/继承对应基类且注解值与标记接口匹配。
      */
     public static ArchRule architectureAnnotationRules(String rootPackage) {
         return CompositeArchRule.of(applicationServicesAnnotated(rootPackage))
                 .and(applicationEventsExtendBase(rootPackage))
                 .and(remotesAnnotated(rootPackage))
                 .and(portsAnnotated(rootPackage))
-                .and(adaptersAnnotated(rootPackage));
+                .and(adaptersAnnotated(rootPackage))
+                .and(assemblersAnnotated(rootPackage));
+    }
+
+    /**
+     * 架构放置规则全集：架构元素的具体实现类必须位于约定包内——
+     * 应用服务→northbound.local、远程服务→northbound.remote、应用事件→northbound.event、
+     * 装配器→northbound.assembler、适配器→southbound.adapter、消息契约→message、领域模型→domain、
+     * 业务端口→domain.port（框架自身的端口基接口位于框架包southbound.port，豁免）；
+     * 并守护装配完整性：message包只放消息契约，业务端口必须由至少一个适配器实现。
+     */
+    public static ArchRule architecturePlacementRules(String rootPackage) {
+        return CompositeArchRule.of(applicationServicePlacement(rootPackage))
+                .and(remotePlacement(rootPackage))
+                .and(applicationEventPlacement(rootPackage))
+                .and(assemblerPlacement(rootPackage))
+                .and(adapterPlacement(rootPackage))
+                .and(messageContractPlacement(rootPackage))
+                .and(domainModelPlacement(rootPackage))
+                .and(portPlacement(rootPackage))
+                .and(messagePackageContainsOnlyContracts(rootPackage))
+                .and(portsImplementedByAdapters(rootPackage));
     }
 
     /**
@@ -215,9 +233,24 @@ public final class DddArchitectureRules {
     public static ArchRule domainDoesNotImplementSerializable(String rootPackage) {
         return noClasses().that(describe("domain classes (excluding exceptions) in the domain layer of " + rootPackage,
                         domainClassesExcludingExceptions(rootPackage)))
-                .should().implement(Serializable.class)
+                .should(implementSerializable())
                 .allowEmptyShould(true)
                 .because("领域对象不可序列化直传：跨边界通信一律经消息契约，由消息总线以发布语言序列化传输");
+    }
+
+    /**
+     * 基于反射判断是否实现Serializable：implement(Class)条件依赖已导入类图的完整性，
+     * JDK接口在部分导入集下（如仅导入单个固件包）可能未被解析而漏判，反射判断不依赖导入集。
+     */
+    private static ArchCondition<JavaClass> implementSerializable() {
+        return new ArchCondition<JavaClass>("implement java.io.Serializable") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                boolean satisfied = Serializable.class.isAssignableFrom(item.reflect());
+                String message = String.format("%s implements Serializable=%s", item.getSimpleName(), satisfied);
+                events.add(new SimpleConditionEvent(item, satisfied, message));
+            }
+        };
     }
 
     /**
@@ -358,33 +391,182 @@ public final class DddArchitectureRules {
     }
 
     /**
-     * 领域层不得依赖消息契约(message)：领域模型与消息契约的转换（装配）只发生在应用服务内。
+     * 装配器标注：northbound.assembler包内实现IAssembler的具体类必须标注@Assembler。
+     * 装配器是消息契约与领域对象互转的唯一装配点（消息契约不担任工厂），命名xxxAssembler。
      */
-    public static ArchRule domainDoesNotDependOnMessage(String rootPackage) {
-        return noClasses().that().resideInAPackage(rootPackage + ".domain..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".message..")
+    public static ArchRule assemblersAnnotated(String rootPackage) {
+        return classes().that(describe("concrete assemblers in the northbound.assembler package of " + rootPackage,
+                        concreteClassIn(rootPackage, ".northbound.assembler").and(assignableTo(IAssembler.class))))
+                .should(ArchConditions.beAnnotatedWith(Assembler.class))
                 .allowEmptyShould(true)
-                .because("领域层不得依赖消息契约，领域模型与消息契约的装配只发生在应用服务内");
+                .because("装配器必须自行标注@Assembler（接口上的注解不会传播给实现类）");
     }
 
     /**
-     * 领域层不得依赖北向接口（应用服务/远程服务）：依赖方向只能由外向内。
+     * 应用服务放置规则：实现IApplicationService的具体类必须位于northbound.local包（含子包）。
+     * 防止应用服务实现类放错包位后，依赖方向守护规则（按包前缀匹配）对其失明。
+     */
+    public static ArchRule applicationServicePlacement(String rootPackage) {
+        return classes().that(describe("concrete application services in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(assignableTo(IApplicationService.class))))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".northbound.local.."))
+                .allowEmptyShould(true)
+                .because("应用服务具体类必须位于northbound.local包");
+    }
+
+    /**
+     * 远程服务放置规则：实现IRemote的具体类必须位于northbound.remote包（含子包）。
+     */
+    public static ArchRule remotePlacement(String rootPackage) {
+        return classes().that(describe("concrete remote services in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(assignableTo(IRemote.class))))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".northbound.remote.."))
+                .allowEmptyShould(true)
+                .because("远程服务具体类必须位于northbound.remote包");
+    }
+
+    /**
+     * 应用事件放置规则：继承AbstractApplicationEvent（或实现IApplicationEvent）的具体类必须位于northbound.event包（含子包）。
+     */
+    public static ArchRule applicationEventPlacement(String rootPackage) {
+        return classes().that(describe("concrete application events in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(assignableTo(IApplicationEvent.class))))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".northbound.event.."))
+                .allowEmptyShould(true)
+                .because("应用事件具体类必须位于northbound.event包");
+    }
+
+    /**
+     * 装配器放置规则：实现IAssembler的具体类必须位于northbound.assembler包（含子包）。
+     */
+    public static ArchRule assemblerPlacement(String rootPackage) {
+        return classes().that(describe("concrete assemblers in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(assignableTo(IAssembler.class))))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".northbound.assembler.."))
+                .allowEmptyShould(true)
+                .because("装配器具体类必须位于northbound.assembler包");
+    }
+
+    /**
+     * 适配器放置规则：实现IAdapter的具体类必须位于southbound.adapter包（含子包）。
+     */
+    public static ArchRule adapterPlacement(String rootPackage) {
+        return classes().that(describe("concrete adapters in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(assignableTo(IAdapter.class))))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".southbound.adapter.."))
+                .allowEmptyShould(true)
+                .because("适配器具体类必须位于southbound.adapter包");
+    }
+
+    /**
+     * 消息契约放置规则：实现契约标记接口（或继承AbstractContractEvent）的具体类必须位于message包（含子包）。
+     * 应用事件（AbstractApplicationEvent体系）是进程内协作机制而非发布语言，不按消息契约放置，位于northbound.event。
+     */
+    public static ArchRule messageContractPlacement(String rootPackage) {
+        return classes().that(describe("concrete message contracts in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(implementsContractMarker())))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".message.."))
+                .allowEmptyShould(true)
+                .because("消息契约具体类必须位于message包（应用事件除外，它位于northbound.event）");
+    }
+
+    /**
+     * 领域模型放置规则：实现领域标记接口（实体/聚合根/值对象/身份标识/领域服务/领域事件/领域工厂）的具体类必须位于domain包（含子包）。
+     */
+    public static ArchRule domainModelPlacement(String rootPackage) {
+        return classes().that(describe("concrete domain model classes in " + rootPackage,
+                        concreteClassInRoot(rootPackage).and(implementsDomainModelMarker())))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".domain.."))
+                .allowEmptyShould(true)
+                .because("领域模型具体类必须位于domain包");
+    }
+
+    /**
+     * 端口放置规则：业务端口（IPort实现，适配器实现类除外）必须位于domain.port包（含子包）。
+     * 端口放错包位后，按包前缀匹配的端口守护规则（portDoesNotDependOnAdapter/portsAnnotated等）对其失明。
+     * 框架自身的端口基接口（IRepositoryPort等）位于框架包southbound.port，予以豁免（dogfooding）。
+     */
+    public static ArchRule portPlacement(String rootPackage) {
+        return classes().that(describe("port candidates (IPort implementations, excluding adapters and the framework itself) in " + rootPackage,
+                        portCandidatesInRoot(rootPackage)))
+                .should(ArchConditions.resideInAPackage(rootPackage + ".domain.port.."))
+                .allowEmptyShould(true)
+                .because("业务端口必须位于domain.port包（框架自身的端口基接口位于框架包southbound.port，豁免）");
+    }
+
+    /**
+     * message包只放契约：message包内的具体类必须实现契约标记接口（IRequest/IResponse）或继承AbstractContractEvent，
+     * 禁止在message包放置普通POJO/工具类。
+     */
+    public static ArchRule messagePackageContainsOnlyContracts(String rootPackage) {
+        return classes().that(describe("concrete classes in the message package of " + rootPackage,
+                        concreteClassIn(rootPackage, ".message")))
+                .should(implementContractMarker())
+                .allowEmptyShould(true)
+                .because("message包只放消息契约：具体类必须实现契约标记接口或继承AbstractContractEvent");
+    }
+
+    /**
+     * 端口装配完整性：domain.port包下每个业务端口必须由至少一个适配器（IAdapter实现类）实现。
+     * 依赖倒置若只有端口没有适配器，缺口会在运行期才暴露，本规则将其提前到构建期。
+     */
+    public static ArchRule portsImplementedByAdapters(String rootPackage) {
+        return classes().that(describe("ports (IPort implementations, excluding IPort itself) in " + rootPackage,
+                        portCandidatesIn(rootPackage)))
+                .should(beImplementedByAdapter())
+                .allowEmptyShould(true)
+                .because("每个业务端口必须由至少一个适配器（IAdapter实现类）实现，装配缺口应静态暴露");
+    }
+
+    /**
+     * 聚合根构造可见性规则：聚合包内存在领域工厂时，聚合根的构造方法不得为public，
+     * 保证聚合根只能经工厂创建（专门的聚合工厂模式）；无工厂的简单聚合不受此限（构造方法即可表达创建意图）。
+     */
+    public static ArchRule aggregateRootConstructorsNotPublicWithFactory(String rootPackage) {
+        return classes().that(describe("concrete aggregate roots in aggregate packages containing a domain factory of " + rootPackage,
+                        concreteAggregateRootInDomain(rootPackage).and(inAggregatePackageWithDomainFactory())))
+                .should(notHavePublicConstructors())
+                .allowEmptyShould(true)
+                .because("聚合包内存在领域工厂时聚合根构造方法不得public，聚合根只能经工厂创建");
+    }
+
+    /**
+     * 领域层不得依赖消息契约(message)：领域模型与消息契约的转换（装配）只发生在应用服务内。
+     * 同时拦截对框架契约类型（ICommandRequest/AbstractContractEvent/IView等）的依赖。
+     */
+    public static ArchRule domainDoesNotDependOnMessage(String rootPackage) {
+        return noClasses().that().resideInAPackage(rootPackage + ".domain..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".message..",
+                        FRAMEWORK_BASE_PACKAGE + ".contract..")
+                .allowEmptyShould(true)
+                .because("领域层不得依赖消息契约（含框架契约类型），领域模型与消息契约的装配只发生在应用服务内");
+    }
+
+    /**
+     * 领域层不得依赖北向接口（应用服务/远程服务/应用事件/应用异常）：依赖方向只能由外向内。
+     * 同时拦截对框架北向类型（IApplicationService/IRemote/AbstractApplicationEvent等）的依赖。
      */
     public static ArchRule domainDoesNotDependOnNorthbound(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".domain..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".northbound..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".northbound..",
+                        FRAMEWORK_BASE_PACKAGE + ".northbound..")
                 .allowEmptyShould(true)
-                .because("领域层不得依赖应用层与远程层，依赖方向只能由外向内");
+                .because("领域层不得依赖应用层与远程层（含框架北向类型），依赖方向只能由外向内");
     }
 
     /**
      * 领域层不得依赖南向适配器实现：领域层通过端口声明依赖，适配器实现端口（依赖倒置）。
+     * 同时拦截对框架适配器类型（IRepositoryAdapter等）的依赖。
      */
     public static ArchRule domainDoesNotDependOnSouthboundAdapter(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".domain..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".southbound.adapter..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".southbound.adapter..",
+                        FRAMEWORK_BASE_PACKAGE + ".southbound.adapter..")
                 .allowEmptyShould(true)
-                .because("领域层通过端口声明对外部资源的依赖，适配器实现端口（依赖倒置），领域层不得依赖适配器实现");
+                .because("领域层通过端口声明对外部资源的依赖，适配器实现端口（依赖倒置），领域层不得依赖适配器实现（含框架适配器类型）");
     }
 
     /**
@@ -409,59 +591,101 @@ public final class DddArchitectureRules {
         return noClasses().that().resideInAPackage(rootPackage + ".message..")
                 .should().dependOnClassesThat().resideInAnyPackage(
                         rootPackage + ".domain..",
-                        "wang.liangchen.matrix.framework.ddd.domain..")
+                        FRAMEWORK_BASE_PACKAGE + ".domain..")
                 .allowEmptyShould(true)
                 .because("消息契约是发布语言，不得依赖领域模型（含框架领域类型），跨边界通信必须与领域对象隔离");
     }
 
     /**
-     * 端口不得反向依赖适配器实现。
+     * 消息契约不得依赖北向（应用服务/远程服务/应用事件/装配器）：发布语言是自治的通信语言，
+     * 不得引用应用事件等进程内协作机制（应用事件面向应用层进程内通知，不作为跨边界发布语言）。
+     * 同时拦截对框架北向类型的依赖。
+     */
+    public static ArchRule messageDoesNotDependOnNorthbound(String rootPackage) {
+        return noClasses().that().resideInAPackage(rootPackage + ".message..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".northbound..",
+                        FRAMEWORK_BASE_PACKAGE + ".northbound..")
+                .allowEmptyShould(true)
+                .because("消息契约是自治的发布语言，不得依赖北向（应用服务/远程服务/应用事件/装配器，含框架北向类型）");
+    }
+
+    /**
+     * 端口不得反向依赖适配器实现（含框架适配器类型）。
      */
     public static ArchRule portDoesNotDependOnAdapter(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".domain.port..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".southbound.adapter..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".southbound.adapter..",
+                        FRAMEWORK_BASE_PACKAGE + ".southbound.adapter..")
                 .allowEmptyShould(true)
-                .because("端口由适配器实现，端口不得反向依赖适配器");
+                .because("端口由适配器实现，端口不得反向依赖适配器（含框架适配器类型）");
     }
 
     /**
      * 应用服务不得依赖南向适配器实现：应用服务通过端口接口访问外部资源。
+     * 同时拦截对框架适配器类型的依赖。
      */
     public static ArchRule applicationServiceDoesNotDependOnAdapter(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".northbound.local..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".southbound.adapter..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".southbound.adapter..",
+                        FRAMEWORK_BASE_PACKAGE + ".southbound.adapter..")
                 .allowEmptyShould(true)
-                .because("应用服务通过端口接口访问外部资源，不得依赖适配器实现");
+                .because("应用服务通过端口接口访问外部资源，不得依赖适配器实现（含框架适配器类型）");
     }
 
     /**
      * 应用服务不得依赖远程层：远程服务通过应用服务完成用例编排，依赖方向只能由外向内。
+     * 同时拦截对框架远程类型（IRemote/RemoteType等）的依赖。
      */
     public static ArchRule applicationServiceDoesNotDependOnRemote(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".northbound.local..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".northbound.remote..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".northbound.remote..",
+                        FRAMEWORK_BASE_PACKAGE + ".northbound.remote..")
                 .allowEmptyShould(true)
-                .because("应用服务不得依赖远程层，远程服务通过应用服务完成用例编排");
+                .because("应用服务不得依赖远程层（含框架远程类型），远程服务通过应用服务完成用例编排");
     }
 
     /**
      * 远程服务只操作消息契约，不直接访问领域对象。
+     * 同时拦截对框架领域类型（IEntity/IIdentity/领域基类等）的依赖。
      */
     public static ArchRule remoteDoesNotDependOnDomain(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".northbound.remote..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".domain..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".domain..",
+                        FRAMEWORK_BASE_PACKAGE + ".domain..")
                 .allowEmptyShould(true)
-                .because("远程服务只操作消息契约，通过应用服务完成用例编排，不直接访问领域对象");
+                .because("远程服务只操作消息契约，通过应用服务完成用例编排，不直接访问领域对象（含框架领域类型）");
     }
 
     /**
      * 远程服务不得直接依赖南向适配器：外部资源访问须经应用服务与端口。
+     * 同时拦截对框架适配器类型的依赖。
      */
     public static ArchRule remoteDoesNotDependOnAdapter(String rootPackage) {
         return noClasses().that().resideInAPackage(rootPackage + ".northbound.remote..")
-                .should().dependOnClassesThat().resideInAPackage(rootPackage + ".southbound.adapter..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".southbound.adapter..",
+                        FRAMEWORK_BASE_PACKAGE + ".southbound.adapter..")
                 .allowEmptyShould(true)
-                .because("远程服务不得直接依赖南向适配器，外部资源访问须经应用服务与端口");
+                .because("远程服务不得直接依赖南向适配器（含框架适配器类型），外部资源访问须经应用服务与端口");
+    }
+
+    /**
+     * 南向适配器不得反向依赖北向（应用服务/远程服务/应用事件/装配器）：依赖方向只能由外向内，
+     * 适配器实现端口（依赖倒置），反向依赖应用层会形成"北向→端口→适配器→北向"的潜在环。
+     * 同时拦截对框架北向类型的依赖。
+     */
+    public static ArchRule adapterDoesNotDependOnNorthbound(String rootPackage) {
+        return noClasses().that().resideInAPackage(rootPackage + ".southbound.adapter..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        rootPackage + ".northbound..",
+                        FRAMEWORK_BASE_PACKAGE + ".northbound..")
+                .allowEmptyShould(true)
+                .because("南向适配器不得反向依赖北向（应用服务/远程服务/应用事件/装配器，含框架北向类型），依赖方向只能由外向内");
     }
 
     /**
@@ -490,8 +714,10 @@ public final class DddArchitectureRules {
     }
 
     /**
-     * 值对象不可变：值对象类必须为final，实例字段必须为final（静态常量除外）。
+     * 值对象不可变：值对象类必须为final，实例字段必须为final（静态常量除外），实例字段类型必须为不可变类型。
      * 接口、枚举与抽象基类不要求final，但其具体实现类必须为final。
+     * 深度不可变：实例字段类型限定为基本类型、包装类型、String、时间类型、BigDecimal/BigInteger、枚举、
+     * 或自身不可变的值对象（IValueObject，含其子接口 IIdentity）。
      */
     public static ArchRule valueObjectImmutability(String rootPackage) {
         return CompositeArchRule
@@ -504,7 +730,25 @@ public final class DddArchitectureRules {
                                 nonStaticFieldOfDomainValueObject(rootPackage)))
                         .should(ArchConditions.beFinal())
                         .allowEmptyShould(true)
-                        .because("值对象必须不可变：值对象的实例字段必须为final"));
+                        .because("值对象必须不可变：值对象的实例字段必须为final"))
+                .and(valueObjectFieldTypeImmutability(rootPackage));
+    }
+
+    public static ArchRule valueObjectFieldTypeImmutability(String rootPackage) {
+        return fields().that(nonStaticFieldOfDomainValueObject(rootPackage))
+                .should(new ArchCondition<JavaField>("have immutable types (primitive, wrapper, String, temporal, BigDecimal, enum, or IValueObject)") {
+                    @Override
+                    public void check(JavaField field, ConditionEvents events) {
+                        JavaClass fieldType = field.getRawType();
+                        boolean satisfied = isImmutableType(fieldType);
+                        String message = String.format("%s.%s has type %s, immutable=%s",
+                                field.getOwner().getSimpleName(), field.getName(),
+                                fieldType.getSimpleName(), satisfied);
+                        events.add(new SimpleConditionEvent(field, satisfied, message));
+                    }
+                })
+                .allowEmptyShould(true)
+                .because("值对象深度不可变：实例字段类型必须是基本类型、包装类型、String、时间类型、BigDecimal、枚举或不可变值对象/身份标识");
     }
 
     /**
@@ -609,37 +853,30 @@ public final class DddArchitectureRules {
     }
 
     /**
-     * 交换方式与操作类型的约定：查询用RequestResponse，命令用FireAndForget，事件用RequestStream（发布/订阅），
-     * 调度用FireAndForget或RequestResponse；通用REQUEST/RESPONSE/RESULT/VIEW不强制。
+     * 交换方式与操作类型的约定：查询用RequestResponse，命令用FireAndForget（需要请求确认时可用RequestResponse），
+     * 事件用RequestStream（发布/订阅），调度用FireAndForget或RequestResponse；通用REQUEST/RESPONSE/RESULT/VIEW不强制。
      */
     private static boolean exchangePatternMatches(MessageContractType type, MessageExchangePattern pattern) {
-        switch (type) {
-            case COMMAND_REQUEST:
-                return pattern == MessageExchangePattern.FireAndForget;
-            case QUERY_REQUEST:
-                return pattern == MessageExchangePattern.RequestResponse;
-            case EVENT:
-                return pattern == MessageExchangePattern.RequestStream;
-            case SCHEDULING:
-                return pattern == MessageExchangePattern.FireAndForget || pattern == MessageExchangePattern.RequestResponse;
-            default:
-                return true;
-        }
+        return switch (type) {
+            case COMMAND_REQUEST, SCHEDULING -> pattern == MessageExchangePattern.FireAndForget
+                    || pattern == MessageExchangePattern.RequestResponse;
+            case QUERY_REQUEST -> pattern == MessageExchangePattern.RequestResponse;
+            case EVENT -> pattern == MessageExchangePattern.RequestStream;
+            default -> true;
+        };
     }
 
     private static String expectedExchangePattern(MessageContractType type) {
-        switch (type) {
-            case COMMAND_REQUEST:
-                return MessageExchangePattern.FireAndForget.name();
-            case QUERY_REQUEST:
-                return MessageExchangePattern.RequestResponse.name();
-            case EVENT:
-                return MessageExchangePattern.RequestStream.name();
-            case SCHEDULING:
-                return MessageExchangePattern.FireAndForget.name() + " or " + MessageExchangePattern.RequestResponse.name();
-            default:
-                return null;
-        }
+        return switch (type) {
+            case COMMAND_REQUEST -> MessageExchangePattern.FireAndForget.name()
+                    + " or " + MessageExchangePattern.RequestResponse.name()
+                    + " (when acknowledgement is required)";
+            case QUERY_REQUEST -> MessageExchangePattern.RequestResponse.name();
+            case EVENT -> MessageExchangePattern.RequestStream.name();
+            case SCHEDULING -> MessageExchangePattern.FireAndForget.name()
+                    + " or " + MessageExchangePattern.RequestResponse.name();
+            default -> null;
+        };
     }
 
     private static ArchCondition<JavaClass> haveTypeMatchingName() {
@@ -647,32 +884,22 @@ public final class DddArchitectureRules {
             @Override
             public void check(JavaClass item, ConditionEvents events) {
                 MessageContract annotation = item.tryGetAnnotationOfType(MessageContract.class).orElse(null);
-                String expectedSuffix = null;
-                if (annotation != null) {
-                    switch (annotation.type()) {
-                        case COMMAND_REQUEST:
-                            expectedSuffix = "CommandRequest";
-                            break;
-                        case QUERY_REQUEST:
-                            expectedSuffix = "QueryRequest";
-                            break;
-                        case SCHEDULING:
-                            expectedSuffix = "SchedulingRequest";
-                            break;
-                        case RESULT:
-                            expectedSuffix = "Result";
-                            break;
-                        case VIEW:
-                            expectedSuffix = "View";
-                            break;
-                        default:
-                            expectedSuffix = null;
-                    }
-                }
+                String expectedSuffix = annotation == null ? null : expectedContractSuffix(annotation.type());
                 boolean satisfied = expectedSuffix == null || item.getSimpleName().endsWith(expectedSuffix);
                 String message = String.format("%s: name suffix expected=%s", item.getSimpleName(), expectedSuffix);
                 events.add(new SimpleConditionEvent(item, satisfied, message));
             }
+        };
+    }
+
+    private static String expectedContractSuffix(MessageContractType type) {
+        return switch (type) {
+            case COMMAND_REQUEST -> "CommandRequest";
+            case QUERY_REQUEST -> "QueryRequest";
+            case SCHEDULING -> "SchedulingRequest";
+            case RESULT -> "Result";
+            case VIEW -> "View";
+            default -> null;
         };
     }
 
@@ -928,7 +1155,7 @@ public final class DddArchitectureRules {
             @Override
             public boolean test(JavaClass javaClass) {
                 return javaClass.getPackageName().startsWith(rootPackage + ".domain")
-                        && !javaClass.getPackageName().startsWith("wang.liangchen.matrix.framework.ddd.domain");
+                        && !javaClass.getPackageName().startsWith(FRAMEWORK_BASE_PACKAGE + ".domain");
             }
         };
     }
@@ -968,6 +1195,26 @@ public final class DddArchitectureRules {
                 return javaClass.getPackageName().startsWith(rootPackage + ".domain.port")
                         && javaClass.isAssignableTo(IPort.class)
                         && !javaClass.isEquivalentTo(IPort.class)
+                        && !javaClass.isEnum()
+                        && (javaClass.isInterface() || !javaClass.getModifiers().contains(JavaModifier.ABSTRACT));
+            }
+        };
+    }
+
+    /**
+     * 根包树内的端口候选（IPort实现）：排除IPort自身、适配器实现类（适配器实现端口是依赖倒置的常态）
+     * 与框架端口基接口所在包（框架包southbound.port，dogfooding豁免；不能按框架根前缀整体排除，
+     * 框架包下的测试固件仍是待检对象）。
+     */
+    private static DescribedPredicate<JavaClass> portCandidatesInRoot(String rootPackage) {
+        return new DescribedPredicate<JavaClass>("port candidates (IPort implementations, excluding adapters and the framework base ports) in " + rootPackage) {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return (javaClass.getPackageName().equals(rootPackage) || javaClass.getPackageName().startsWith(rootPackage + "."))
+                        && !javaClass.getPackageName().startsWith(FRAMEWORK_BASE_PACKAGE + ".southbound.port")
+                        && javaClass.isAssignableTo(IPort.class)
+                        && !javaClass.isEquivalentTo(IPort.class)
+                        && !javaClass.isAssignableTo(IAdapter.class)
                         && !javaClass.isEnum()
                         && (javaClass.isInterface() || !javaClass.getModifiers().contains(JavaModifier.ABSTRACT));
             }
@@ -1083,6 +1330,121 @@ public final class DddArchitectureRules {
                         && method.getName().matches("to[A-Z].*");
             }
         };
+    }
+
+    /**
+     * rootPackage包树内的具体类（非接口、非枚举、非抽象类；注解类型按接口语义排除）。
+     */
+    private static DescribedPredicate<JavaClass> concreteClassInRoot(String rootPackage) {
+        return new DescribedPredicate<JavaClass>("concrete classes in " + rootPackage) {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return (javaClass.getPackageName().equals(rootPackage) || javaClass.getPackageName().startsWith(rootPackage + "."))
+                        && !javaClass.isInterface()
+                        && !javaClass.isEnum()
+                        && !javaClass.getModifiers().contains(JavaModifier.ABSTRACT);
+            }
+        };
+    }
+
+    /**
+     * 契约标记判断：实现IRequest/IResponse或继承AbstractContractEvent（即IContractEvent体系），
+     * 但排除应用事件（AbstractApplicationEvent/IApplicationEvent体系——进程内协作机制，位于northbound.event而非message）。
+     */
+    private static boolean isContractMarkerType(JavaClass javaClass) {
+        return (javaClass.isAssignableTo(IRequest.class)
+                || javaClass.isAssignableTo(IResponse.class)
+                || javaClass.isAssignableTo(IContractEvent.class))
+                && !javaClass.isAssignableTo(IApplicationEvent.class);
+    }
+
+    private static DescribedPredicate<JavaClass> implementsContractMarker() {
+        return new DescribedPredicate<JavaClass>("implement a message contract marker (IRequest/IResponse/IContractEvent, excluding application events)") {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return isContractMarkerType(javaClass);
+            }
+        };
+    }
+
+    /**
+     * 领域模型标记判断：实体（含聚合根）、值对象（含身份标识）、领域服务、领域事件、领域工厂。
+     */
+    private static DescribedPredicate<JavaClass> implementsDomainModelMarker() {
+        return new DescribedPredicate<JavaClass>("implement a domain model marker (entity/aggregate root/value object/identity/domain service/domain event/domain factory)") {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return javaClass.isAssignableTo(IEntity.class)
+                        || javaClass.isAssignableTo(IValueObject.class)
+                        || javaClass.isAssignableTo(IDomainService.class)
+                        || javaClass.isAssignableTo(AbstractDomainEvent.class)
+                        || javaClass.isAssignableTo(IDomainFactory.class);
+            }
+        };
+    }
+
+    private static ArchCondition<JavaClass> implementContractMarker() {
+        return new ArchCondition<JavaClass>("implement a message contract marker (IRequest/IResponse or AbstractContractEvent)") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                boolean satisfied = isContractMarkerType(item);
+                String message = String.format("%s implements contract marker=%s", item.getSimpleName(), satisfied);
+                events.add(new SimpleConditionEvent(item, satisfied, message));
+            }
+        };
+    }
+
+    private static ArchCondition<JavaClass> beImplementedByAdapter() {
+        return new ArchCondition<JavaClass>("be implemented by at least one adapter (IAdapter implementation)") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                boolean satisfied = item.getAllSubclasses().stream()
+                        .anyMatch(subclass -> subclass.isAssignableTo(IAdapter.class));
+                String message = String.format("%s implemented by adapter=%s", item.getSimpleName(), satisfied);
+                events.add(new SimpleConditionEvent(item, satisfied, message));
+            }
+        };
+    }
+
+    /**
+     * 所在包内存在领域工厂实现类（IDomainFactory的非接口实现）。
+     */
+    private static DescribedPredicate<JavaClass> inAggregatePackageWithDomainFactory() {
+        return new DescribedPredicate<JavaClass>("reside in a package containing a domain factory implementation") {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return javaClass.getPackage().getClasses().stream()
+                        .anyMatch(clazz -> clazz.isAssignableTo(IDomainFactory.class) && !clazz.isInterface());
+            }
+        };
+    }
+
+    private static ArchCondition<JavaClass> notHavePublicConstructors() {
+        return new ArchCondition<JavaClass>("not have public constructors") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                boolean satisfied = item.getConstructors().stream()
+                        .noneMatch(constructor -> constructor.getModifiers().contains(JavaModifier.PUBLIC));
+                String message = String.format("%s has no public constructors=%s", item.getSimpleName(), satisfied);
+                events.add(new SimpleConditionEvent(item, satisfied, message));
+            }
+        };
+    }
+
+    private static boolean isImmutableType(JavaClass type) {
+        if (type.isPrimitive()) {
+            return true;
+        }
+        if (IMMUTABLE_TYPE_NAMES.contains(type.getName())) {
+            return true;
+        }
+        if (type.isEnum()) {
+            return true;
+        }
+        if (type.isAssignableTo(IValueObject.class)) {
+            return true;
+        }
+        return false;
     }
 
     private static <T> DescribedPredicate<T> describe(String description, DescribedPredicate<T> predicate) {

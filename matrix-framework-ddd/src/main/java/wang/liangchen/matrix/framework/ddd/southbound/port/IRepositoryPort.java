@@ -14,22 +14,22 @@ import java.util.Optional;
  * 必要时 CQRS 的读模型/DTO 查询由业务自定义端口或应用层查询组件承载，经视图(IView)返回。
  */
 @Port(PortType.Repository)
-public interface IRepositoryPort<ID extends IIdentity, AR extends IAggregateRoot<ID>> extends IPort {
+public interface IRepositoryPort<ID extends IIdentity, ROOT extends IAggregateRoot<ID>> extends IPort {
 
     /**
      * 按身份标识查找聚合根，不存在时返回Optional.empty()。
      */
-    Optional<AR> findById(ID id);
+    Optional<ROOT> findById(ID id);
 
     /**
      * 保存聚合根。
      */
-    void save(AR aggregateRoot);
+    void save(ROOT aggregateRoot);
 
     /**
      * 删除聚合根。
      */
-    void remove(AR aggregateRoot);
+    void remove(ROOT aggregateRoot);
 
     /**
      * 按身份标识删除聚合根（默认经findById定位后委托remove(AR)）。

@@ -2,6 +2,7 @@ package wang.liangchen.matrix.framework.ddd.rules;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,8 @@ class DddArchitectureRulesBehaviorTest {
     private static final String BADROOT = "wang.liangchen.matrix.framework.ddd.rules.fixture.badroot";
     /** 分层依赖反例使用独立根包（fixture.badlayered），其domain/message/northbound/southbound子包满足规则的前缀匹配 */
     private static final String BADLAYERED = "wang.liangchen.matrix.framework.ddd.rules.fixture.badlayered";
+    /** 框架自身包：dogfooding验证框架代码同样满足守护规则 */
+    private static final String FRAMEWORK = "wang.liangchen.matrix.framework.ddd";
     private static final String BAD_DOMAIN = BAD + ".domain.bad";
     private static final String BAD_DOMAIN_AGG = BAD + ".domain.badagg";
     private static final String BAD_DOMAIN_PORT = BAD + ".domain.port";
@@ -27,14 +30,20 @@ class DddArchitectureRulesBehaviorTest {
     private static final String BAD_LOCAL = BAD + ".northbound.local";
     private static final String BAD_EVENT = BAD + ".northbound.event";
     private static final String BAD_REMOTE = BAD + ".northbound.remote";
+    private static final String BAD_SOUTHBOUND = BAD + ".southbound";
     private static final String BAD_ADAPTER = BAD + ".southbound.adapter";
     private static final String LAYERED_DOMAIN = BADLAYERED + ".domain";
     private static final String LAYERED_DOMAIN_PORT = BADLAYERED + ".domain.port";
     private static final String LAYERED_MESSAGE = BADLAYERED + ".message";
     private static final String LAYERED_LOCAL = BADLAYERED + ".northbound.local";
     private static final String LAYERED_REMOTE = BADLAYERED + ".northbound.remote";
+    private static final String LAYERED_ADAPTER = BADLAYERED + ".southbound.adapter";
 
     private static final JavaClasses GOOD_CLASSES = new ClassFileImporter().importPackages(GOOD);
+    /** 框架自身（仅main代码，排除test-classes中的测试固件，避免固件被误检） */
+    private static final JavaClasses FRAMEWORK_CLASSES = new ClassFileImporter()
+            .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+            .importPackages(FRAMEWORK);
 
     // ---------- 复合规则：合规夹具全部通过 ----------
 
@@ -63,6 +72,28 @@ class DddArchitectureRulesBehaviorTest {
         DddArchitectureRules.architectureAnnotationRules(GOOD).check(GOOD_CLASSES);
     }
 
+    @Test
+    void architecturePlacementRules_passOnGoodFixture() {
+        DddArchitectureRules.architecturePlacementRules(GOOD).check(GOOD_CLASSES);
+    }
+
+    // ---------- 复合规则：框架自身dogfooding ----------
+
+    @Test
+    void layeredDependencyRules_passOnFrameworkItself() {
+        DddArchitectureRules.layeredDependencyRules(FRAMEWORK).check(FRAMEWORK_CLASSES);
+    }
+
+    @Test
+    void domainModelRules_passOnFrameworkItself() {
+        DddArchitectureRules.domainModelRules(FRAMEWORK).check(FRAMEWORK_CLASSES);
+    }
+
+    @Test
+    void architecturePlacementRules_passOnFrameworkItself() {
+        DddArchitectureRules.architecturePlacementRules(FRAMEWORK).check(FRAMEWORK_CLASSES);
+    }
+
     // ---------- 分层依赖规则反例（独立根包badlayered） ----------
 
     @Test
@@ -71,8 +102,18 @@ class DddArchitectureRulesBehaviorTest {
     }
 
     @Test
+    void domainDoesNotDependOnMessage_rejectsFrameworkContractDependency() {
+        assertViolates(DddArchitectureRules.domainDoesNotDependOnMessage(BADLAYERED), LAYERED_DOMAIN, "DomainDependsOnFrameworkContract");
+    }
+
+    @Test
     void domainDoesNotDependOnNorthbound_rejectsAppServiceDependency() {
         assertViolates(DddArchitectureRules.domainDoesNotDependOnNorthbound(BADLAYERED), LAYERED_DOMAIN, "DomainDependsOnAppService");
+    }
+
+    @Test
+    void domainDoesNotDependOnNorthbound_rejectsFrameworkNorthboundDependency() {
+        assertViolates(DddArchitectureRules.domainDoesNotDependOnNorthbound(BADLAYERED), LAYERED_DOMAIN, "DomainDependsOnFrameworkNorthbound");
     }
 
     @Test
@@ -88,6 +129,11 @@ class DddArchitectureRulesBehaviorTest {
     @Test
     void messageDoesNotDependOnDomain_rejectsDomainDependency() {
         assertViolates(DddArchitectureRules.messageDoesNotDependOnDomain(BADLAYERED), LAYERED_MESSAGE, "MessageDependsOnDomain");
+    }
+
+    @Test
+    void messageDoesNotDependOnNorthbound_rejectsAppServiceDependency() {
+        assertViolates(DddArchitectureRules.messageDoesNotDependOnNorthbound(BADLAYERED), LAYERED_MESSAGE, "MessageDependsOnNorthbound");
     }
 
     @Test
@@ -116,8 +162,75 @@ class DddArchitectureRulesBehaviorTest {
     }
 
     @Test
+    void remoteDoesNotDependOnDomain_rejectsFrameworkDomainDependency() {
+        assertViolates(DddArchitectureRules.remoteDoesNotDependOnDomain(BADLAYERED), LAYERED_REMOTE, "RemoteDependsOnFrameworkDomain");
+    }
+
+    @Test
     void remoteDoesNotDependOnAdapter_rejectsAdapterDependency() {
         assertViolates(DddArchitectureRules.remoteDoesNotDependOnAdapter(BADLAYERED), LAYERED_REMOTE, "RemoteDependsOnAdapter");
+    }
+
+    @Test
+    void adapterDoesNotDependOnNorthbound_rejectsAppServiceDependency() {
+        assertViolates(DddArchitectureRules.adapterDoesNotDependOnNorthbound(BADLAYERED), LAYERED_ADAPTER, "AdapterDependsOnAppService");
+    }
+
+    // ---------- 架构放置与装配规则反例 ----------
+
+    @Test
+    void applicationServicePlacement_rejectsRemotePackage() {
+        assertViolates(DddArchitectureRules.applicationServicePlacement(BAD), BAD_REMOTE, "AppServiceInWrongPackage");
+    }
+
+    @Test
+    void remotePlacement_rejectsLocalPackage() {
+        assertViolates(DddArchitectureRules.remotePlacement(BAD), BAD_LOCAL, "RemoteInWrongPackage");
+    }
+
+    @Test
+    void applicationEventPlacement_rejectsLocalPackage() {
+        assertViolates(DddArchitectureRules.applicationEventPlacement(BAD), BAD_LOCAL, "ApplicationEventInWrongPackage");
+    }
+
+    @Test
+    void assemblerPlacement_rejectsLocalPackage() {
+        assertViolates(DddArchitectureRules.assemblerPlacement(BAD), BAD_LOCAL, "AssemblerInWrongPackage");
+    }
+
+    @Test
+    void adapterPlacement_rejectsSouthboundRootPackage() {
+        assertViolates(DddArchitectureRules.adapterPlacement(BAD), BAD_SOUTHBOUND, "AdapterInWrongPackage");
+    }
+
+    @Test
+    void messageContractPlacement_rejectsLocalPackage() {
+        assertViolates(DddArchitectureRules.messageContractPlacement(BAD), BAD_LOCAL, "CommandInWrongPackage");
+    }
+
+    @Test
+    void domainModelPlacement_rejectsMessagePackage() {
+        assertViolates(DddArchitectureRules.domainModelPlacement(BAD), BAD_MESSAGE, "ValueObjectInWrongPackage");
+    }
+
+    @Test
+    void portPlacement_rejectsSouthboundPackage() {
+        assertViolates(DddArchitectureRules.portPlacement(BAD), BAD_SOUTHBOUND, "PortInWrongPackage");
+    }
+
+    @Test
+    void messagePackageContainsOnlyContracts_rejectsNonContractClass() {
+        assertViolates(DddArchitectureRules.messagePackageContainsOnlyContracts(BAD), BAD_MESSAGE, "ValueObjectInWrongPackage");
+    }
+
+    @Test
+    void portsImplementedByAdapters_rejectsPortWithoutAdapter() {
+        assertViolates(DddArchitectureRules.portsImplementedByAdapters(BAD), BAD_DOMAIN_PORT, "BadPortNoAnnotation");
+    }
+
+    @Test
+    void aggregateRootConstructorsNotPublicWithFactory_rejectsPublicConstructor() {
+        assertViolates(DddArchitectureRules.aggregateRootConstructorsNotPublicWithFactory(BAD), BAD_DOMAIN_AGG, "BadAggregateRoot");
     }
 
     // ---------- 单条规则反例 ----------

@@ -6,7 +6,8 @@ import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoo
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 
-/** 合规聚合根：唯一入口，业务行为收集领域事件；相等性按身份标识定义 */
+/** 合规聚合根：唯一入口，业务行为收集领域事件；相等性按身份标识定义；
+ * 聚合包内存在领域工厂，构造方法包内可见，聚合根只能经工厂创建 */
 @DomainModel(DomainMetaModel.AggregateRoot)
 public final class Order extends AbstractAggregateRoot<OrderId> implements IAggregateRoot<OrderId> {
 
@@ -15,7 +16,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
 
     private String customer;
 
-    public Order(OrderId orderId, String customer) {
+    Order(OrderId orderId, String customer) {
         this.orderId = orderId;
         this.customer = customer;
     }

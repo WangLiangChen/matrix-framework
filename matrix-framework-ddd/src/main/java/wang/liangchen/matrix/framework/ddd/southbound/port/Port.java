@@ -1,6 +1,9 @@
 package wang.liangchen.matrix.framework.ddd.southbound.port;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Liangchen.Wang
@@ -9,7 +12,6 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
 public @interface Port {
     PortType value();
 }

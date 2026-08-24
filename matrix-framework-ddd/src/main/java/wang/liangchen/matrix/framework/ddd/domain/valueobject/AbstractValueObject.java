@@ -40,7 +40,13 @@ public abstract class AbstractValueObject implements IValueObject {
     public int hashCode() {
         int result = 1;
         for (Field field : fieldsOf(getClass())) {
-            result = 31 * result + Arrays.deepHashCode(new Object[]{readField(field, this)});
+            Object value = readField(field, this);
+            // 与 Arrays.deepHashCode(new Object[]{value}) 数值等价（单元素数组的展开式），但避免了每次迭代的数组包装分配；
+            // 基本类型数组维持与 deepHashCode 相同的语义（按对象标识哈希）
+            int fieldHash = value instanceof Object[] array
+                    ? Arrays.deepHashCode(array)
+                    : Objects.hashCode(value);
+            result = 31 * result + 31 + fieldHash;
         }
         return result;
     }
