@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>wang.liangchen.matrix.shop</groupId>
+        <artifactId>matrix-shop-order</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>matrix-shop-order-infrastructure</artifactId>
+
+    <!-- 南向防腐层：适配器实现 domain 中的端口；
+         订单上下文是商品上下文的下游（客户-供应商），
+         通过依赖商品上下文的契约模块（发布语言）完成防腐翻译 -->
+    <dependencies>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-order-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-order-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-product-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
+</project>

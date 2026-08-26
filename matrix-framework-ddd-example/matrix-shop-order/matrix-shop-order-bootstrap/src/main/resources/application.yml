@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: matrix-shop-order
+  datasource:
+    url: jdbc:h2:mem:matrix-shop-order;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+server:
+  port: 8082
+
+# 订单上下文（下游）访问商品上下文（上游）开放主机服务的地址
+matrix:
+  shop:
+    order:
+      product-service-url: http://localhost:8081

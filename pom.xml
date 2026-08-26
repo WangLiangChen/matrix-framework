@@ -5,7 +5,7 @@
 
     <groupId>wang.liangchen.matrix</groupId>
     <artifactId>matrix-framework</artifactId>
-    <version>${revision}</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>
@@ -32,7 +32,7 @@
             <email>sintrue@hotmail.com</email>
             <name>Liangchen.Wang</name>
             <roles>
-                <role>developer</role>
+                <role>author</role>
             </roles>
             <timezone>+8</timezone>
         </developer>
@@ -42,10 +42,10 @@
         <module>matrix-framework-commons</module>
         <module>matrix-framework-ddd</module>
         <module>matrix-framework-spring</module>
+        <module>matrix-framework-ddd-example</module>
     </modules>
 
     <properties>
-        <revision>3.0.0-SNAPSHOT</revision>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss(+8)</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resources.sourceEncoding>UTF-8</project.build.resources.sourceEncoding>
@@ -57,42 +57,43 @@
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-commons</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-ddd</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-spring-boot</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-spring-cloud</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-spring-web</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-spring-data</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>wang.liangchen.matrix</groupId>
                 <artifactId>matrix-framework-spring-ai</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <plugins/>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -129,7 +130,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

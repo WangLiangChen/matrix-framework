@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>wang.liangchen.matrix</groupId>
+        <artifactId>matrix-framework-ddd-example</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>matrix-shop-monolith-bootstrap</artifactId>
+
+    <!-- 单体组合根：将订单与商品两个限界上下文打包为单体应用；
+         不依赖各上下文的 bootstrap（避免引入多余的主类），
+         直接组装其 interfaces 与 infrastructure 模块 -->
+    <dependencies>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-product-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-product-infrastructure</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-order-interface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-order-infrastructure</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: matrix-shop-monolith
+  datasource:
+    url: jdbc:h2:mem:matrix-shop;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+server:
+  port: 8080
+
+# 单体部署下，订单上下文仍通过商品上下文的开放主机服务（HTTP）集成，保持上下文映射关系不变
+matrix:
+  shop:
+    order:
+      product-service-url: http://localhost:8080

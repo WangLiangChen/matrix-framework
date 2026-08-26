@@ -1,0 +1,15 @@
+package wang.liangchen.matrix.shop.order.domain.readmodel;
+
+import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
+import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
+import wang.liangchen.matrix.framework.ddd.domain.valueobject.IValueObject;
+import wang.liangchen.matrix.shop.order.domain.order.Money;
+import wang.liangchen.matrix.shop.order.domain.order.ProductId;
+
+/**
+ * 商品摘要：订单上下文对商品的理解（防腐层翻译后的订单领域读模型），
+ * 仅保留下单与加购所需的最低价与商品名称，minPrice为SKU最低售价。
+ */
+@DomainModel(DomainMetaModel.ValueObject)
+public record ProductSummary(ProductId id, String productName, Money minPrice) implements IValueObject {
+}
