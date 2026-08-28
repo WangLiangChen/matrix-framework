@@ -14,6 +14,9 @@
         <version.matrix.framework>3.0.0-SNAPSHOT</version.matrix.framework>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <!-- Spring Boot 3.2+ 要求保留参数名（@PathVariable/@RequestParam 不带显式名时必需）；
+             本工程未继承 spring-boot-starter-parent，需显式开启 -parameters -->
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

@@ -23,6 +23,12 @@
             <artifactId>matrix-shop-order-contract</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 订阅商品上下文对外发布的事件契约（发布语言），仅订阅者远程入口操作，应用层以基本类型值接收（防腐） -->
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-product-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

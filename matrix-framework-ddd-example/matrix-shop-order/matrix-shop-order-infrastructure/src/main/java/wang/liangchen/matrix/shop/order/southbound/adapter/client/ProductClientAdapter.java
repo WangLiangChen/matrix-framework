@@ -9,10 +9,10 @@ import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.IClientAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.order.Money;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
 import wang.liangchen.matrix.shop.order.domain.port.ProductClientPort;
-import wang.liangchen.matrix.shop.order.domain.readmodel.ProductSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;
 import wang.liangchen.matrix.shop.product.message.response.ProductDetailView;
 import wang.liangchen.matrix.shop.product.message.response.SkuView;
 

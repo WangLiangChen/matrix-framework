@@ -2,6 +2,7 @@ package wang.liangchen.matrix.shop.order.southbound.adapter.repository;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,15 @@ public class OrderPo {
 
     @Column(name = "status", nullable = false, length = 16)
     private String status;
+
+    @Column(name = "placed_on", nullable = false)
+    private Instant placedOn;
+
+    @Column(name = "total_amount", nullable = false, precision = 19, scale = 2)
+    private java.math.BigDecimal totalAmount;
+
+    @Column(name = "currency", nullable = false, length = 8)
+    private String currency;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", nullable = false)
@@ -104,6 +114,30 @@ public class OrderPo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Instant getPlacedOn() {
+        return placedOn;
+    }
+
+    public void setPlacedOn(Instant placedOn) {
+        this.placedOn = placedOn;
+    }
+
+    public java.math.BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(java.math.BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public List<OrderItemPo> getItems() {

@@ -51,7 +51,7 @@ public final class Attribute extends AbstractAggregateRoot<AttributeId> implemen
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new AttributeCreatedEvent(id, name, type));
+        raise(new AttributeCreated(id, name, type));
     }
 
     /**

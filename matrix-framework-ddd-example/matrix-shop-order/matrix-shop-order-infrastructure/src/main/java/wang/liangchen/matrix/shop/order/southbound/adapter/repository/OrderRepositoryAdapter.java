@@ -6,22 +6,22 @@ import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.order.*;
-import wang.liangchen.matrix.shop.order.domain.port.OrderQueryPort;
 import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
-import wang.liangchen.matrix.shop.order.domain.readmodel.OrderDetail;
-import wang.liangchen.matrix.shop.order.domain.readmodel.OrderItemSummary;
-import wang.liangchen.matrix.shop.order.domain.readmodel.OrderSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * 订单仓储适配器：实现订单仓储端口与订单查询端口，完成订单聚合与持久化对象之间的防腐翻译，
- * 重建聚合时委托订单工厂的reconstitute方法。
+ * 订单仓储适配器：实现订单仓储端口，完成订单聚合与持久化对象之间的防腐翻译，
+ * 重建聚合时委托订单工厂的reconstitute方法；查询读侧经本端口承担，返回聚合根。
  */
 @Repository
 @Adapter(PortType.Repository)
-public class OrderRepositoryAdapter implements OrderRepositoryPort, OrderQueryPort, IRepositoryAdapter {
+public class OrderRepositoryAdapter implements OrderRepositoryPort, IRepositoryAdapter {
 
     private final OrderDao orderDao;
     private final OrderFactory orderFactory = new OrderFactory();
@@ -48,15 +48,17 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort, OrderQueryPo
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<OrderDetail> queryById(OrderId orderId) {
-        return orderDao.findById(orderId.value()).map(this::orderDetail);
+    public List<Order> findByBuyerId(UserId buyerId) {
+        return orderDao.findByBuyerId(buyerId.value()).stream()
+                .map(this::reconstitute)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderSummary> queryByBuyerId(UserId buyerId) {
-        return orderDao.findByBuyerId(buyerId.value()).stream()
-                .map(this::orderSummary)
+    public List<Order> findUnpaidCreatedBefore(Instant deadline) {
+        return orderDao.findByStatusAndPlacedOnBefore(OrderStatus.Created.name(), deadline).stream()
+                .map(this::reconstitute)
                 .toList();
     }
 
@@ -66,26 +68,9 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort, OrderQueryPo
                 new Address(po.getReceiverName(), po.getReceiverPhone(), po.getReceiverProvince(),
                         po.getReceiverCity(), po.getReceiverDetail()),
                 po.getItems().stream().map(this::orderItemSummary).toList(),
+                Money.of(po.getTotalAmount(), po.getCurrency()),
+                po.getPlacedOn(),
                 OrderStatus.valueOf(po.getStatus()));
-    }
-
-    private OrderDetail orderDetail(OrderPo po) {
-        return new OrderDetail(OrderId.of(po.getId()), UserId.of(po.getBuyerId()),
-                new Address(po.getReceiverName(), po.getReceiverPhone(), po.getReceiverProvince(),
-                        po.getReceiverCity(), po.getReceiverDetail()),
-                po.getItems().stream().map(this::orderItemSummary).toList(),
-                OrderStatus.valueOf(po.getStatus()), totalAmount(po));
-    }
-
-    private OrderSummary orderSummary(OrderPo po) {
-        return new OrderSummary(OrderId.of(po.getId()), UserId.of(po.getBuyerId()),
-                OrderStatus.valueOf(po.getStatus()), totalAmount(po));
-    }
-
-    private Money totalAmount(OrderPo po) {
-        return po.getItems().stream()
-                .map(item -> Money.of(item.getUnitPrice(), item.getCurrency()).multiply(item.getQuantity()))
-                .reduce(Money.ZERO, Money::add);
     }
 
     private OrderPo toPo(Order order) {
@@ -98,16 +83,19 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort, OrderQueryPo
         po.setReceiverCity(order.receiver().city());
         po.setReceiverDetail(order.receiver().detail());
         po.setStatus(order.status().name());
+        po.setPlacedOn(order.placedOn());
+        po.setTotalAmount(order.totalAmount().amount());
+        po.setCurrency(order.totalAmount().currency());
         po.setItems(order.itemSummaries().stream().map(this::orderItemPo).toList());
         return po;
     }
 
-    private OrderItemSummary orderItemSummary(OrderItemPo po) {
-        return new OrderItemSummary(ProductId.of(po.getProductId()), po.getProductName(),
+    private TradeItemSummary orderItemSummary(OrderItemPo po) {
+        return new TradeItemSummary(ProductId.of(po.getProductId()), po.getProductName(),
                 Money.of(po.getUnitPrice(), po.getCurrency()), po.getQuantity());
     }
 
-    private OrderItemPo orderItemPo(OrderItemSummary summary) {
+    private OrderItemPo orderItemPo(TradeItemSummary summary) {
         OrderItemPo po = new OrderItemPo();
         po.setProductId(summary.productId().value());
         po.setProductName(summary.productName());

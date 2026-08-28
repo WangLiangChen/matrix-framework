@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.product.northbound.local;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wang.liangchen.matrix.framework.ddd.domain.exception.AbstractDomainException;
+import wang.liangchen.matrix.framework.ddd.domain.event.IDomainEvent;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
@@ -13,17 +13,19 @@ import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.*;
+import wang.liangchen.matrix.shop.product.message.event.ProductDelistedEvent;
 import wang.liangchen.matrix.shop.product.message.request.*;
 import wang.liangchen.matrix.shop.product.message.response.*;
+import wang.liangchen.matrix.shop.product.northbound.assembler.ProductEventAssembler;
 import wang.liangchen.matrix.shop.product.northbound.exception.ApplicationException;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * 商品命令应用服务：编排商品聚合实现命令用例，一个用例对应一个事务，
- * 一次事务只修改一个商品聚合实例，领域事件在聚合保存后统一发布。
+ * 一次事务只修改一个商品聚合实例，领域事件在聚合保存后统一发布；
+ * 需要对外发布的领域事件经装配器翻译为事件契约（发布语言）发布，供跨上下文订阅。
  */
 @Service
 @ApplicationService(ApplicationServiceType.COMMAND)
@@ -31,6 +33,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
 
     private final ProductRepositoryPort productRepository;
     private final DomainEventPublisherPort eventPublisher;
+    private final ProductEventAssembler productEventAssembler = new ProductEventAssembler();
     private final ProductFactory productFactory = new ProductFactory();
 
     public ProductCommandApplicationService(ProductRepositoryPort productRepository, DomainEventPublisherPort eventPublisher) {
@@ -43,7 +46,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
      */
     @Transactional
     public CreateProductResult createProduct(CreateProductCommandRequest request) {
-        return useCase("创建商品", () -> {
+        return UseCases.execute("创建商品", () -> {
             Product product = productFactory.create(request.name(), request.subtitle(),
                     CategoryId.of(request.categoryId()), BrandId.of(request.brandId()),
                     attributeValues(request.attributeValues()), skuTemplates(request.skus()));
@@ -59,7 +62,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
      */
     @Transactional
     public PutProductOnSaleResult putProductOnSale(PutProductOnSaleCommandRequest request) {
-        return useCase("商品上架", () -> {
+        return UseCases.execute("商品上架", () -> {
             Product product = mutate(ProductId.of(request.productId()), Product::putOnSale);
             return new PutProductOnSaleResult(product.id().value(), product.listed());
         });
@@ -67,12 +70,31 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
 
     /**
      * 用例：商品下架。
+     * "商品已下架"领域事件经装配器翻译为事件契约对外发布，供下游上下文（如订单上下文）订阅。
      */
     @Transactional
     public TakeProductOffSaleResult takeProductOffSale(TakeProductOffSaleCommandRequest request) {
-        return useCase("商品下架", () -> {
-            Product product = mutate(ProductId.of(request.productId()), Product::takeOffSale);
+        return UseCases.execute("商品下架", () -> {
+            Product product = productRepository.findById(ProductId.of(request.productId()))
+                    .orElseThrow(() -> new DomainException("商品不存在：" + request.productId()));
+            product.takeOffSale();
+            productRepository.save(product);
+            eventPublisher.publish(product.events());
+            publishContractEvents(product.events());
+            product.clearEvents();
             return new TakeProductOffSaleResult(product.id().value(), product.listed());
+        });
+    }
+
+    /**
+     * 将需要对外发布的领域事件经装配器翻译为事件契约（发布语言）发布。
+     */
+    private void publishContractEvents(List<IDomainEvent> domainEvents) {
+        domainEvents.forEach(domainEvent -> {
+            if (domainEvent instanceof ProductDelisted delisted) {
+                ProductDelistedEvent contractEvent = productEventAssembler.toContractEvent(delisted);
+                eventPublisher.publishContract(contractEvent);
+            }
         });
     }
 
@@ -81,7 +103,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
      */
     @Transactional
     public ChangeSkuPriceResult changeSkuPrice(ChangeSkuPriceCommandRequest request) {
-        return useCase("调整SKU价格", () -> {
+        return UseCases.execute("调整SKU价格", () -> {
             Product product = mutate(ProductId.of(request.productId()),
                     p -> p.changeSkuPrice(SkuId.of(request.skuId()), Money.CNY(request.price())));
             return new ChangeSkuPriceResult(request.productId(), request.skuId(), request.price());
@@ -93,7 +115,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
      */
     @Transactional
     public AdjustSkuStockResult adjustSkuStock(AdjustSkuStockCommandRequest request) {
-        return useCase("调整SKU库存", () -> {
+        return UseCases.execute("调整SKU库存", () -> {
             if (request.quantityChange() == 0) {
                 throw new DomainException("库存调整量不能为零");
             }
@@ -131,16 +153,5 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
         return skus.stream()
                 .map(sku -> new SkuTemplate(attributeValues(sku.attributeValues()), Money.CNY(sku.price()), sku.stock()))
                 .toList();
-    }
-
-    /**
-     * 用例横切关注点：捕获领域异常并包装为应用异常，附加用例上下文。
-     */
-    private <T> T useCase(String useCaseName, Supplier<T> body) {
-        try {
-            return body.get();
-        } catch (AbstractDomainException ex) {
-            throw new ApplicationException("用例[" + useCaseName + "]执行失败：" + ex.getMessage(), ex);
-        }
     }
 }

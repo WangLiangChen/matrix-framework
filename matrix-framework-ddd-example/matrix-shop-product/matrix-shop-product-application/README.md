@@ -6,7 +6,7 @@
 
 ## 职责
 
-- 实现业务用例：命令服务（`*CommandApplicationService`）编排聚合完成状态变更，查询服务（`*QueryApplicationService`）经 `*QueryPort` 只读访问读模型并装配为视图
+- 实现业务用例：命令服务（`*CommandApplicationService`）编排聚合完成状态变更，查询服务（`*QueryApplicationService`）经 `*RepositoryPort` 只读获取聚合并装配为视图
 - 用例的入参与返回使用 `contract` 的消息契约（`message.request` 请求、`message.response` 响应/视图），不向外部暴露领域模型对象
 - 管理事务边界：命令用例以 `@Transactional` 标注，一个用例一个事务
 - 发布领域事件：聚合保存后统一发布聚合收集的领域事件
@@ -28,7 +28,7 @@
 ## 核心约定
 
 - 服务以 `@Service` + `@ApplicationService(ApplicationServiceType.COMMAND|QUERY)` 标注，分别实现框架标记接口 `ICommandApplicationService`/`IQueryApplicationService`
-- 命令/查询分离（CQRS）：查询服务只经 `*QueryPort` 访问读模型（`domain.readmodel`），不经过领域模型变更路径
+- 命令/查询分离（CQRS）：查询服务经 `*RepositoryPort` 只读获取聚合（findById 与统一语言命名的查询方法），不经领域模型变更路径；类目树等展示形状由应用层从聚合装配
 - 一个用例一个事务，一次事务只修改一个聚合实例；领域事件在聚合保存后统一发布（`eventPublisher.publish(product.events())` 之后 `product.clearEvents()`）
 - 用例横切关注点 `useCase` 捕获 `AbstractDomainException` 并包装为 `ApplicationException`（继承 `AbstractApplicationException`），领域异常不向远程北向泄漏
 - 不包含领域逻辑，只做流程编排；业务规则由领域模型裁决，应用服务仅触发

@@ -2,6 +2,7 @@ package wang.liangchen.matrix.shop.order.southbound.adapter.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -10,4 +11,6 @@ import java.util.List;
 public interface OrderDao extends JpaRepository<OrderPo, String> {
 
     List<OrderPo> findByBuyerId(String buyerId);
+
+    List<OrderPo> findByStatusAndPlacedOnBefore(String status, Instant deadline);
 }

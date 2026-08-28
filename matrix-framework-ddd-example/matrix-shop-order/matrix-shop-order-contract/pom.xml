@@ -11,4 +11,12 @@
 
     <artifactId>matrix-shop-order-contract</artifactId>
 
+    <dependencies>
+        <!-- 事件契约的JSON注入构造（订阅方反序列化），版本由spring-boot-dependencies管理 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -11,4 +11,18 @@
 
     <artifactId>matrix-shop-order-client</artifactId>
 
+    <!-- 客户端 SDK：远程调用独立部署的订单上下文北向远程服务，
+         实现 contract 中的应用服务接口，传输使用 Spring RestClient（spring-web） -->
+    <dependencies>
+        <dependency>
+            <groupId>wang.liangchen.matrix.shop</groupId>
+            <artifactId>matrix-shop-order-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

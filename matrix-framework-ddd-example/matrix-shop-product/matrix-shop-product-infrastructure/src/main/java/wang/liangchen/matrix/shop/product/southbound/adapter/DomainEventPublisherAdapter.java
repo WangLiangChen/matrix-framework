@@ -16,6 +16,7 @@ import java.util.List;
  * 领域事件发布适配器：实现领域事件发布端口，隔离对事件总线的访问。
  * POC简化：在应用服务保存聚合后同步发布；生产环境建议通过after-commit机制
  * 在事务提交后发布，避免事件与业务变更不一致。
+ * 单体部署下事件契约经进程内事件总线广播；微服务部署下由消息总线投递到订阅者远程入口。
  */
 @Component("productDomainEventPublisherAdapter")
 @Adapter(PortType.Publisher)
@@ -35,5 +36,11 @@ public class DomainEventPublisherAdapter implements DomainEventPublisherPort, IP
             LOGGER.info("发布领域事件：{}", event.getClass().getSimpleName());
             eventPublisher.publishEvent(event);
         });
+    }
+
+    @Override
+    public void publishContract(Object contractEvent) {
+        LOGGER.info("发布事件契约：{}", contractEvent);
+        eventPublisher.publishEvent(contractEvent);
     }
 }

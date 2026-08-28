@@ -8,23 +8,22 @@ import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.cart.Cart;
 import wang.liangchen.matrix.shop.order.domain.cart.CartFactory;
 import wang.liangchen.matrix.shop.order.domain.cart.CartId;
-import wang.liangchen.matrix.shop.order.domain.order.Money;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
-import wang.liangchen.matrix.shop.order.domain.port.CartQueryPort;
 import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
-import wang.liangchen.matrix.shop.order.domain.readmodel.CartDetail;
-import wang.liangchen.matrix.shop.order.domain.readmodel.CartItemSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
- * 购物车仓储适配器：实现购物车仓储端口与购物车查询端口，完成购物车聚合与持久化对象之间的防腐翻译，
+ * 购物车仓储适配器：实现购物车仓储端口，完成购物车聚合与持久化对象之间的防腐翻译，
  * 重建聚合时委托购物车工厂的reconstitute方法。
  */
 @Repository
 @Adapter(PortType.Repository)
-public class CartRepositoryAdapter implements CartRepositoryPort, CartQueryPort, IRepositoryAdapter {
+public class CartRepositoryAdapter implements CartRepositoryPort, IRepositoryAdapter {
 
     private final CartDao cartDao;
     private final CartFactory cartFactory = new CartFactory();
@@ -40,6 +39,18 @@ public class CartRepositoryAdapter implements CartRepositoryPort, CartQueryPort,
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Cart> findByBuyerId(UserId buyerId) {
+        return cartDao.findByBuyerId(buyerId.value()).map(this::reconstitute);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Cart> cartsContaining(ProductId productId) {
+        return cartDao.findByItemsProductId(productId.value()).stream().map(this::reconstitute).toList();
+    }
+
+    @Override
     public void save(Cart cart) {
         cartDao.save(toPo(cart));
     }
@@ -49,23 +60,9 @@ public class CartRepositoryAdapter implements CartRepositoryPort, CartQueryPort,
         cartDao.deleteById(cart.id().value());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<CartDetail> queryById(CartId cartId) {
-        return cartDao.findById(cartId.value()).map(this::cartDetail);
-    }
-
     private Cart reconstitute(CartPo po) {
         return cartFactory.reconstitute(CartId.of(po.getId()), UserId.of(po.getBuyerId()),
                 po.getItems().stream().map(this::cartItemSummary).toList());
-    }
-
-    private CartDetail cartDetail(CartPo po) {
-        return new CartDetail(CartId.of(po.getId()), UserId.of(po.getBuyerId()),
-                po.getItems().stream().map(this::cartItemSummary).toList(),
-                po.getItems().stream()
-                        .map(item -> Money.of(item.getUnitPrice(), item.getCurrency()).multiply(item.getQuantity()))
-                        .reduce(Money.ZERO, Money::add));
     }
 
     private CartPo toPo(Cart cart) {
@@ -76,12 +73,12 @@ public class CartRepositoryAdapter implements CartRepositoryPort, CartQueryPort,
         return po;
     }
 
-    private CartItemSummary cartItemSummary(CartItemPo po) {
-        return new CartItemSummary(ProductId.of(po.getProductId()), po.getProductName(),
+    private TradeItemSummary cartItemSummary(CartItemPo po) {
+        return new TradeItemSummary(ProductId.of(po.getProductId()), po.getProductName(),
                 Money.of(po.getUnitPrice(), po.getCurrency()), po.getQuantity());
     }
 
-    private CartItemPo cartItemPo(CartItemSummary summary) {
+    private CartItemPo cartItemPo(TradeItemSummary summary) {
         CartItemPo po = new CartItemPo();
         po.setProductId(summary.productId().value());
         po.setProductName(summary.productName());

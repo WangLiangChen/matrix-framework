@@ -29,7 +29,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 
 # 设计流程
 
-战略设计划定边界（子域、限界上下文、上下文映射），战术设计在边界内完成领域建模，架构映射将模型落地为代码结构。AI设计时应按以下步骤进行，每一步产出明确的工作产品。
+战略设计划定边界（子域、限界上下文、上下文映射），战术设计在边界内完成领域建模，代码映射将模型落地为代码结构。AI设计时应按以下步骤进行，每一步产出明确的工作产品。
 
 ## 第1步：需求分析与统一语言
 
@@ -81,7 +81,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 * 决策依据：各元素的引入条件与判定规则见"建模决策规则"。
 * 输出物：领域模型（聚合、实体、值对象、领域服务、领域事件、工厂、仓储端口）、消息契约清单、应用服务清单。
 
-## 第6步：架构映射——代码结构落地
+## 第6步：代码映射——代码结构落地
 
 *
 
@@ -121,7 +121,8 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 
 ## 应用服务
 
-* 应用服务类以动名词命名，可包含同一动名词范畴的多个用例方法；一个用例对应一个方法，方法编排领域对象，不包含业务逻辑。
+* 应用服务类以名词命名：{聚合名}{服务类型}ApplicationService，服务类型对应 ApplicationServiceType（Command/Query/Event/Scheduling），与 @ApplicationService 注解保持一致；同一聚合同一服务类型的用例内聚于一个类。
+* 用例方法以动宾命名（动词+名词）：一个用例对应一个方法，方法编排领域对象，不包含业务逻辑。
 * 命令与查询分离：命令修改状态走聚合并开启事务；查询只读默认经仓储端口读取聚合根，必要时 CQRS 走读模型，不经领域模型变更路径。
 
 # 战略设计元素
@@ -281,7 +282,7 @@ graph TD
 
 *
 
-应用层的用例门面，编排领域对象（聚合根、领域服务、领域工厂、领域仓储）完成用例，不包含业务逻辑。应用服务类以动名词命名（如PlaceOrderApplicationService），可包含同一动名词范畴的多个用例方法（一个用例对应一个方法）。
+应用层的用例门面，编排领域对象（聚合根、领域服务、领域工厂、领域仓储）完成用例，不包含业务逻辑。应用服务类以名词命名：{聚合名}{服务类型}ApplicationService（如OrderCommandApplicationService），服务类型对应ApplicationServiceType（Command/Query/Event/Scheduling），与@ApplicationService注解保持一致；同一聚合同一服务类型的用例内聚于一个类，用例方法以动宾命名（如placeOrder()，一个用例对应一个方法）。
 
 * 事务边界与最终一致性的落点：一个用例对应一个事务，一次事务只修改一个聚合实例。
 * 负责消息验证、错误处理、监控、日志、访问控制等横切关注点，以及消息契约与领域对象之间的装配。
@@ -336,7 +337,7 @@ graph TD
 * 协作模式决定交换方式：请求/响应 (RequestResponse，用于查询)、即发即忘 (FireAndForget，用于命令)、发布/订阅 (RequestStream)
   、消息通道 (RequestChannel，用于即时通信/IM)，通过@MessageContract的exchangePattern属性声明。
 * direction/type/exchangePattern为@MessageContract必填属性（无默认值），强制契约作者显式声明方向、类型与交换方式；版本等技术关注点由消息信封承担，不进入消息契约。
-* 请求命名：动名词 + QueryRequest/CommandRequest；响应命名：查询响应Response、命令响应Result、视图View。
+* 请求命名：命令请求动名词+CommandRequest（CreateOrderCommandRequest）；查询请求业务名词或动名词+QueryRequest（OrderQueryRequest、QueryOrdersQueryRequest）；响应命名：查询响应Response、命令响应Result、视图View。
 * 为保护领域模型，防腐层和开放主机服务操作的对象都应是消息契约，而不是领域模型。
 
 # 其它相关定义和术语
@@ -370,6 +371,7 @@ graph TD
 * Repository 在《解构领域驱动设计》中译为"资源库"，本文档统一使用"仓储"，二者同义。
 * Conformist 在《解构领域驱动设计》中译为"遵奉者"，本文档行文使用"跟随者"，二者同义。
 * Separate Ways 在《解构领域驱动设计》中译为"各行其道"，本文档行文使用"分离方式"，二者同义。
+* 架构映射：在《解构领域驱动设计》统一过程三阶段（全局分析→架构映射→领域建模）中指战略设计阶段（系统上下文、限界上下文、上下文映射）。本文档"设计流程"中的战略设计步骤（第2~4步）与之对应；领域模型到代码结构的落地本文档称"代码映射"（第6步），不使用"架构映射"一词，避免与该书术语冲突。
 * 端口 (Port)：领域层声明的南向接口，业务端口位于业务模块的domain/port包（框架自身的端口基接口位于框架包southbound/port），由南向适配层实现（依赖倒置），框架中体现为
   IRepositoryPort、IClientPort、IFilePort、IPublisherPort 等。
 * 消息契约 (MessageContract)：跨边界通信的消息模型（请求/响应/事件），见"消息契约"。
@@ -386,18 +388,18 @@ graph TD
 | 实体           | 业务名词                  | OrderItem、Post               |
 | 值对象         | 业务名词                  | Address、Money                |
 | 身份标识       | 业务名词+Id               | OrderId、UserId               |
-| 领域服务       | 业务名词+Service          | TransferService               |
+| 领域服务       | 业务名词（或动词名词化）+Service | OrderPricingService、OrderPlacementService |
 | 领域服务方法   | 动词短语                  | transfer()                    |
 | 领域事件       | 业务名词+过去式动词       | OrderPlaced、PaymentConfirmed |
 | 领域工厂       | 业务名词+Factory          | OrderFactory                  |
 | 仓储端口       | 业务名词+RepositoryPort   | OrderRepositoryPort           |
 | 命令请求       | 动名词+CommandRequest     | CreateOrderCommandRequest     |
-| 查询请求       | 动名词+QueryRequest       | OrderQueryRequest             |
+| 查询请求       | 业务名词或动名词+QueryRequest | OrderQueryRequest、QueryOrdersQueryRequest |
 | 调度请求       | 动名词+SchedulingRequest  | ReportSchedulingRequest       |
 | 命令响应       | 动名词+Result             | CreateOrderResult             |
 | 查询视图       | 业务名词+View             | OrderView                     |
 | 事件契约       | 业务名词+过去式动词       | OrderPlacedEvent              |
-| 应用服务       | 动名词+ApplicationService | PlaceOrderApplicationService  |
+| 应用服务       | 聚合名+服务类型+ApplicationService | OrderCommandApplicationService |
 | 应用服务方法   | 用例名（动词短语）        | placeOrder()                  |
 | 聚合根行为方法 | 动词短语                  | place()、confirmPayment()     |
 
@@ -465,9 +467,9 @@ graph TD
 
 *
 
-框架的架构风格对应《解构领域驱动设计》的领域驱动架构：分层架构、六边形架构（端口-适配器）与依赖倒置原则的结合——远程层、应用层、领域层、基础设施层四层，北向依赖向内（远程服务→应用服务→领域层），南向依赖倒置（领域层声明端口，适配器实现端口），领域模型位于架构核心，不依赖任何外层。
+框架的架构风格对应《解构领域驱动设计》的菱形对称架构（限界上下文内部的架构形态）：分层架构、六边形架构（端口-适配器）与依赖倒置原则的结合，体现"内外分离、南北对称"——内部为领域层（领域模型位于架构核心，不依赖任何外层），外部为网关层；北向网关面向调用方（远程服务+应用服务），南向网关面向外部资源（端口+适配器，依赖倒置：领域层声明端口，适配器实现端口）。北向依赖向内（远程服务→应用服务→领域层）。
 
-* 本文档的包结构与四层的对应：northbound（远程层与应用层北向）、domain（领域层）、southbound（基础设施层）。
+* 本文档的包结构即菱形对称架构在限界上下文内的落地：northbound（北向网关：remote 远程服务、local 应用服务、assembler 装配器、event 应用事件、exception 应用异常）、domain（领域层，含 port 业务端口）、southbound（南向网关：adapter 适配器；框架端口基接口亦位于框架包 southbound/port）、message（发布语言，跨边界的消息契约）。
 * 分层依赖规则见下节，技术组件结构见"DDD技术组件结构"。
 
 ## 分层依赖规则
@@ -730,7 +732,7 @@ ID, AR>泛型契约：findById（返回Optional）/save/remove (AR)/remove (ID)�
 
 ```mermaid
 graph TD
-    subgraph NorthBound[北向]
+    subgraph NorthBound[北向网关]
         subgraph Remote[远程调用-开放主机服务层]
             Controller[控制器]
             Resource[资源]
@@ -751,7 +753,7 @@ graph TD
         DomainFactory[领域工厂]
         Port[端口-Port]
     end
-    subgraph SouthBound[南向-适配层]
+    subgraph SouthBound[南向网关-适配层]
         RepositoryAdapter[仓储适配器]
         ClientAdapter[上游客户端适配器（防腐层）]
         PublisherAdapter[事件发布适配器]

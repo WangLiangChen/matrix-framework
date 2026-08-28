@@ -6,7 +6,6 @@ import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.readmodel.SkuSummary;
 
 import java.util.List;
 

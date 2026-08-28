@@ -6,8 +6,10 @@ import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoo
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.readmodel.OrderItemSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -23,13 +25,17 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
     private final UserId buyerId;
     private final Address receiver;
     private final List<OrderItem> items;
+    private final Money totalAmount;
+    private final Instant placedOn;
     private OrderStatus status;
 
-    Order(OrderId id, UserId buyerId, Address receiver, List<OrderItem> items, OrderStatus status) {
+    Order(OrderId id, UserId buyerId, Address receiver, List<OrderItem> items, Money totalAmount, Instant placedOn, OrderStatus status) {
         this.id = id;
         this.buyerId = buyerId;
         this.receiver = receiver;
         this.items = items;
+        this.totalAmount = totalAmount;
+        this.placedOn = placedOn;
         this.status = status;
     }
 
@@ -49,19 +55,24 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
         return status;
     }
 
-    public List<OrderItemSummary> itemSummaries() {
+    public List<TradeItemSummary> itemSummaries() {
         return items.stream()
-                .map(item -> new OrderItemSummary(item.productId(), item.productName(), item.unitPrice(), item.quantity()))
+                .map(item -> new TradeItemSummary(item.productId(), item.productName(), item.unitPrice(), item.quantity()))
                 .toList();
     }
 
     /**
-     * 订单总额：各订单项小计之和。
+     * 订单总额：下单时由订单定价领域服务计算（含大宗与忠诚折扣），此后不变。
      */
     public Money totalAmount() {
-        return items.stream()
-                .map(OrderItem::subtotal)
-                .reduce(Money.ZERO, Money::add);
+        return totalAmount;
+    }
+
+    /**
+     * 下单时间：调度场景判断订单是否超时未支付的依据，下单后不变。
+     */
+    public Instant placedOn() {
+        return placedOn;
     }
 
     /**
@@ -69,7 +80,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void placed() {
-        raise(new OrderPlaced(id, buyerId, totalAmount()));
+        raise(new OrderPlaced(id, buyerId, totalAmount));
     }
 
     /**

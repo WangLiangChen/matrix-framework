@@ -18,9 +18,9 @@
 - 定义领域模型：聚合根（`Product`、`Category`、`Brand`、`Attribute`）、聚合内部实体（`Sku`）、值对象（`Money`、`AttributeValueRef`）、身份标识（`*Id`）
 - 实现领域不变式（业务规则），违反业务规则时抛出 `DomainException`
 - 领域工厂封装聚合的创建（`create`）与重建（`reconstitute`）
-- 定义领域事件（`ProductCreatedEvent`、`ProductListedEvent`、`ProductDelistedEvent`、`SkuPriceChangedEvent`、`CategoryCreatedEvent`、`CategoryMovedEvent`、`BrandCreatedEvent`、`AttributeCreatedEvent`），记录领域事实
-- 声明南向端口（`domain.port`）：`*RepositoryPort`、`*QueryPort`、`DomainEventPublisherPort`，由 `infrastructure` 实现
-- 定义读模型（`domain.readmodel`），供查询侧（CQRS 的 Q）使用
+- 定义领域事件（`ProductCreated`、`ProductListed`、`ProductDelisted`、`SkuPriceChanged`、`CategoryCreated`、`CategoryMoved`、`BrandCreated`、`AttributeCreated`），记录领域事实
+- 声明南向端口（`domain.port`）：`*RepositoryPort`（含统一语言命名的查询方法，返回聚合根）、`DomainEventPublisherPort`，由 `infrastructure` 实现
+- 定义聚合对外的值对象快照（如 `SkuSummary`），作为聚合边界内状态的只读投影与领域工厂重建入参
 
 ## 核心约定
 
@@ -28,7 +28,7 @@
 - 领域元素以 `@DomainModel(DomainMetaModel.*)` 标注元模型类型（AggregateRoot/Entity/ValueObject/Identity/DomainEvent/DomainFactory）
 - 聚合外部只能通过聚合根访问与修改内部状态；`Sku` 是 `product` 聚合内部实体，包内可见（非 public），不对外暴露
 - 聚合之间通过身份标识（`CategoryId`、`BrandId`、`AttributeId`）引用，不持有对象引用
-- 领域事件类名以 `Event` 结尾（如 `ProductCreatedEvent`）
+- 领域事件类名使用过去式动词、不带技术后缀（如 `ProductDelisted`，区别于契约事件的 `Event` 后缀）
 - 领域事件由聚合自身收集（`AbstractAggregateRoot#raise`），经 `DomainEventPublisherPort` 发布；创建类事件仅由领域工厂调用
 - 工厂分工：全新聚合走 `create`，从持久化数据重建走 `reconstitute`，重建由仓储适配器委托领域工厂完成
 - 身份标识使用 record 实现 `ISimpleIdentity`，`generate()` 生成无业务含义的代理标识

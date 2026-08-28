@@ -6,10 +6,10 @@ import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoo
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.order.Money;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
-import wang.liangchen.matrix.shop.order.domain.readmodel.CartItemSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +40,9 @@ public final class Cart extends AbstractAggregateRoot<CartId> implements IAggreg
         return buyerId;
     }
 
-    public List<CartItemSummary> itemSummaries() {
+    public List<TradeItemSummary> itemSummaries() {
         return items.stream()
-                .map(item -> new CartItemSummary(item.productId(), item.productName(), item.unitPrice(), item.quantity()))
+                .map(item -> new TradeItemSummary(item.productId(), item.productName(), item.unitPrice(), item.quantity()))
                 .toList();
     }
 

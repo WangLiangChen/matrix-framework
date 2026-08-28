@@ -11,7 +11,9 @@
 
     <artifactId>matrix-shop-order-bootstrap</artifactId>
 
-    <!-- 组合根：组装订单限界上下文各模块，支持独立微服务部署 -->
+    <!-- 组合根：组装订单限界上下文各模块，支持独立微服务部署；
+         只直接声明组装所需的 interface 与 infrastructure，
+         application/contract/domain 经传递依赖可见（组合根最小依赖风格） -->
     <dependencies>
         <dependency>
             <groupId>wang.liangchen.matrix.shop</groupId>
@@ -21,21 +23,6 @@
         <dependency>
             <groupId>wang.liangchen.matrix.shop</groupId>
             <artifactId>matrix-shop-order-infrastructure</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>wang.liangchen.matrix.shop</groupId>
-            <artifactId>matrix-shop-order-application</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>wang.liangchen.matrix.shop</groupId>
-            <artifactId>matrix-shop-order-contract</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>wang.liangchen.matrix.shop</groupId>
-            <artifactId>matrix-shop-order-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

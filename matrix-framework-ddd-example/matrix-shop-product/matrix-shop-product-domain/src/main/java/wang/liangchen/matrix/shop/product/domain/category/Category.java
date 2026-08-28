@@ -42,7 +42,7 @@ public final class Category extends AbstractAggregateRoot<CategoryId> implements
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new CategoryCreatedEvent(id, name));
+        raise(new CategoryCreated(id, name));
     }
 
     /**
@@ -63,7 +63,7 @@ public final class Category extends AbstractAggregateRoot<CategoryId> implements
             throw new DomainException("类目不能移动到自身");
         }
         this.parentId = newParentId;
-        raise(new CategoryMovedEvent(id, newParentId));
+        raise(new CategoryMoved(id, newParentId));
     }
 
     @Override

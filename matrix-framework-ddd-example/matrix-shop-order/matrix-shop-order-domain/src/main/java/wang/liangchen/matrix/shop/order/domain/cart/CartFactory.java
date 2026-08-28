@@ -4,7 +4,7 @@ import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
-import wang.liangchen.matrix.shop.order.domain.readmodel.CartItemSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public final class CartFactory implements IDomainFactory {
     /**
      * 从持久化数据重建购物车聚合。
      */
-    public Cart reconstitute(CartId id, UserId buyerId, List<CartItemSummary> itemSummaries) {
+    public Cart reconstitute(CartId id, UserId buyerId, List<TradeItemSummary> itemSummaries) {
         List<CartItem> items = itemSummaries.stream()
                 .map(summary -> CartItem.of(summary.productId(), summary.productName(), summary.unitPrice(), summary.quantity()))
                 .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));

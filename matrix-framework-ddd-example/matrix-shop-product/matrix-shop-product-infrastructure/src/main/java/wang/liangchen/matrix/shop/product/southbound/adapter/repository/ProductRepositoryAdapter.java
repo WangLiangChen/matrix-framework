@@ -8,23 +8,20 @@ import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
-import wang.liangchen.matrix.shop.product.domain.port.ProductQueryPort;
 import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.*;
-import wang.liangchen.matrix.shop.product.domain.readmodel.ProductDetail;
-import wang.liangchen.matrix.shop.product.domain.readmodel.ProductSummary;
-import wang.liangchen.matrix.shop.product.domain.readmodel.SkuSummary;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * 商品仓储适配器：实现商品仓储端口与查询端口，完成商品聚合与持久化对象之间的防腐翻译，
- * 重建聚合时委托商品工厂的reconstitute方法，持久化对象不向领域层泄漏。
+ * 商品仓储适配器：实现商品仓储端口，完成商品聚合与持久化对象之间的防腐翻译，
+ * 重建聚合时委托商品工厂的reconstitute方法，持久化对象不向领域层泄漏；
+ * 查询读侧经本端口承担，统一语言命名的查询方法返回聚合根。
  */
 @Repository
 @Adapter(PortType.Repository)
-public class ProductRepositoryAdapter implements ProductRepositoryPort, ProductQueryPort, IRepositoryAdapter {
+public class ProductRepositoryAdapter implements ProductRepositoryPort, IRepositoryAdapter {
 
     private final ProductDao productDao;
     private final ProductFactory productFactory = new ProductFactory();
@@ -51,20 +48,9 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort, ProductQ
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<ProductDetail> queryById(ProductId productId) {
-        return productDao.findById(productId.value()).map(po -> new ProductDetail(
-                ProductId.of(po.getId()), po.getName(), po.getSubtitle(),
-                CategoryId.of(po.getCategoryId()), BrandId.of(po.getBrandId()), po.isListed(),
-                po.getAttributeValues().stream().map(this::attributeValueRef).toList(),
-                po.getSkus().stream().map(this::skuSummary).toList()));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductSummary> queryProducts(String keyword, CategoryId categoryId) {
+    public List<Product> findListed(String keyword, CategoryId categoryId) {
         return productDao.searchListed(keyword, categoryId == null ? null : categoryId.value()).stream()
-                .map(po -> new ProductSummary(ProductId.of(po.getId()), po.getName(), po.getSubtitle(),
-                        CategoryId.of(po.getCategoryId()), BrandId.of(po.getBrandId()), po.isListed()))
+                .map(this::reconstitute)
                 .toList();
     }
 

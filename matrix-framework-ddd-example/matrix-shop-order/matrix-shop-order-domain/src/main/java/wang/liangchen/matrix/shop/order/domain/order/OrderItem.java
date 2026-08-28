@@ -6,6 +6,8 @@ import wang.liangchen.matrix.framework.ddd.domain.entity.AbstractEntity;
 import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 
 /**
  * 订单项：订单聚合内部实体，以下单时的商品快照（名称、单价）表达交易内容，
@@ -54,10 +56,6 @@ final class OrderItem extends AbstractEntity<ProductId> implements IEntity<Produ
 
     int quantity() {
         return quantity;
-    }
-
-    Money subtotal() {
-        return unitPrice.multiply(quantity);
     }
 
     @Override

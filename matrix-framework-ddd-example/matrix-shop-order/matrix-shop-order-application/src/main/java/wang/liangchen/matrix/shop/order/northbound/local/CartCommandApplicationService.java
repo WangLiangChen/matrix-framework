@@ -2,7 +2,6 @@ package wang.liangchen.matrix.shop.order.northbound.local;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wang.liangchen.matrix.framework.ddd.domain.exception.AbstractDomainException;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
@@ -10,12 +9,12 @@ import wang.liangchen.matrix.shop.order.domain.cart.Cart;
 import wang.liangchen.matrix.shop.order.domain.cart.CartFactory;
 import wang.liangchen.matrix.shop.order.domain.cart.CartId;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
 import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
 import wang.liangchen.matrix.shop.order.domain.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.order.domain.port.ProductClientPort;
-import wang.liangchen.matrix.shop.order.domain.readmodel.ProductSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;
 import wang.liangchen.matrix.shop.order.message.request.AddCartItemCommandRequest;
 import wang.liangchen.matrix.shop.order.message.request.ChangeCartItemQuantityCommandRequest;
 import wang.liangchen.matrix.shop.order.message.request.ClearCartCommandRequest;
@@ -27,7 +26,6 @@ import wang.liangchen.matrix.shop.order.message.response.RemoveCartItemResult;
 import wang.liangchen.matrix.shop.order.northbound.exception.ApplicationException;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * 购物车命令应用服务：编排购物车聚合实现命令用例，
@@ -55,7 +53,7 @@ public class CartCommandApplicationService implements ICommandApplicationService
      */
     @Transactional
     public AddCartItemResult addCartItem(AddCartItemCommandRequest request) {
-        return useCase("加入购物车", () -> {
+        return UseCases.execute("加入购物车", () -> {
             CartId cartId = CartId.of(request.cartId());
             Cart cart = cartRepository.findById(cartId)
                     .orElseGet(() -> cartFactory.create(cartId, UserId.of(request.buyerId())));
@@ -73,7 +71,7 @@ public class CartCommandApplicationService implements ICommandApplicationService
      */
     @Transactional
     public ChangeCartItemQuantityResult changeCartItemQuantity(ChangeCartItemQuantityCommandRequest request) {
-        return useCase("变更购物车商品数量", () -> {
+        return UseCases.execute("变更购物车商品数量", () -> {
             Cart cart = mutate(CartId.of(request.cartId()),
                     c -> c.changeItemQuantity(ProductId.of(request.productId()), request.quantity()));
             return new ChangeCartItemQuantityResult(cart.id().value(), request.productId(), request.quantity());
@@ -85,7 +83,7 @@ public class CartCommandApplicationService implements ICommandApplicationService
      */
     @Transactional
     public RemoveCartItemResult removeCartItem(RemoveCartItemCommandRequest request) {
-        return useCase("移除购物车商品", () -> {
+        return UseCases.execute("移除购物车商品", () -> {
             Cart cart = mutate(CartId.of(request.cartId()),
                     c -> c.removeItem(ProductId.of(request.productId())));
             return new RemoveCartItemResult(cart.id().value(), request.productId());
@@ -97,7 +95,7 @@ public class CartCommandApplicationService implements ICommandApplicationService
      */
     @Transactional
     public ClearCartResult clearCart(ClearCartCommandRequest request) {
-        return useCase("清空购物车", () -> {
+        return UseCases.execute("清空购物车", () -> {
             Cart cart = mutate(CartId.of(request.cartId()), Cart::clear);
             return new ClearCartResult(cart.id().value());
         });
@@ -111,13 +109,5 @@ public class CartCommandApplicationService implements ICommandApplicationService
         eventPublisher.publish(cart.events());
         cart.clearEvents();
         return cart;
-    }
-
-    private <T> T useCase(String useCaseName, Supplier<T> body) {
-        try {
-            return body.get();
-        } catch (AbstractDomainException ex) {
-            throw new ApplicationException("用例[" + useCaseName + "]执行失败：" + ex.getMessage(), ex);
-        }
     }
 }

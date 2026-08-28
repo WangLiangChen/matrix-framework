@@ -3,6 +3,7 @@ package wang.liangchen.matrix.shop.order.domain.order;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
 
 /**
  * 订单已下单：订单创建成功的领域事实。

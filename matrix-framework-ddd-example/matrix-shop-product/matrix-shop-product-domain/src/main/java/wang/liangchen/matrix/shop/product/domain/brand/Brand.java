@@ -48,7 +48,7 @@ public final class Brand extends AbstractAggregateRoot<BrandId> implements IAggr
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new BrandCreatedEvent(brandId, name));
+        raise(new BrandCreated(brandId, name));
     }
 
     /**

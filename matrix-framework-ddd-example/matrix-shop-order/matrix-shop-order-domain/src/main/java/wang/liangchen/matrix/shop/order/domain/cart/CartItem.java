@@ -6,8 +6,8 @@ import wang.liangchen.matrix.framework.ddd.domain.entity.AbstractEntity;
 import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.order.Money;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.Money;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 
 /**
  * 购物车项：购物车聚合内部实体，以商品标识为身份标识，

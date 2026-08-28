@@ -3,8 +3,8 @@ package wang.liangchen.matrix.shop.order.domain.port;
 import wang.liangchen.matrix.framework.ddd.southbound.port.IClientPort;
 import wang.liangchen.matrix.framework.ddd.southbound.port.Port;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
-import wang.liangchen.matrix.shop.order.domain.readmodel.ProductSummary;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;
 
 /**
  * 商品客户端端口：订单上下文对商品上下文（上游）的防腐层端口，

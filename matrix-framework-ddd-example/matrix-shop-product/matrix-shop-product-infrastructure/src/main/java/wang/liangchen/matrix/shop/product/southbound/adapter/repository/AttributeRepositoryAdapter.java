@@ -9,19 +9,18 @@ import wang.liangchen.matrix.shop.product.domain.attribute.Attribute;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeFactory;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeType;
-import wang.liangchen.matrix.shop.product.domain.port.AttributeQueryPort;
 import wang.liangchen.matrix.shop.product.domain.port.AttributeRepositoryPort;
-import wang.liangchen.matrix.shop.product.domain.readmodel.AttributeSummary;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * 属性仓储适配器：实现属性仓储端口与查询端口，完成属性聚合与持久化对象之间的防腐翻译。
+ * 属性仓储适配器：实现属性仓储端口，完成属性聚合与持久化对象之间的防腐翻译，
+ * 重建聚合时委托属性工厂的reconstitute方法；查询读侧返回聚合根。
  */
 @Repository
 @Adapter(PortType.Repository)
-public class AttributeRepositoryAdapter implements AttributeRepositoryPort, AttributeQueryPort, IRepositoryAdapter {
+public class AttributeRepositoryAdapter implements AttributeRepositoryPort, IRepositoryAdapter {
 
     private final AttributeDao attributeDao;
     private final AttributeFactory attributeFactory = new AttributeFactory();
@@ -48,10 +47,9 @@ public class AttributeRepositoryAdapter implements AttributeRepositoryPort, Attr
 
     @Override
     @Transactional(readOnly = true)
-    public List<AttributeSummary> queryAllAttributes() {
+    public List<Attribute> findAll() {
         return attributeDao.findAllByOrderByNameAsc().stream()
-                .map(po -> new AttributeSummary(AttributeId.of(po.getId()), po.getName(),
-                        AttributeType.valueOf(po.getType()), List.copyOf(po.getOptions())))
+                .map(this::reconstitute)
                 .toList();
     }
 

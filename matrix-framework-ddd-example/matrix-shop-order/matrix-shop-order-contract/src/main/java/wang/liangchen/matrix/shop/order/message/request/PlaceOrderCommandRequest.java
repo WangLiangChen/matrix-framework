@@ -11,10 +11,16 @@ import java.util.List;
 
 /**
  * 下单命令请求：下单时仅携带商品标识与数量，商品名称与单价由应用服务
- * 通过商品客户端端口获取后快照。
+ * 通过商品客户端端口获取后快照；买家忠诚等级（REGULAR/GOLD）作为定价依据。
  */
 @MessageContract(direction = MessageDirection.NORTHBOUND, type = MessageContractType.COMMAND_REQUEST, exchangePattern = MessageExchangePattern.FireAndForget)
-public record PlaceOrderCommandRequest(String buyerId, Receiver receiver, List<Item> items) implements ICommandRequest {
+public record PlaceOrderCommandRequest(String buyerId, Receiver receiver, List<Item> items, String loyaltyLevel) implements ICommandRequest {
+
+    public PlaceOrderCommandRequest {
+        if (loyaltyLevel == null || loyaltyLevel.isBlank()) {
+            loyaltyLevel = "REGULAR";
+        }
+    }
 
     /**
      * 收货人信息。

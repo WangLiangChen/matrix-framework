@@ -7,7 +7,8 @@
 - 上下文映射：
   - 商品上下文是订单上下文的上游，协作模式为**客户-供应商**；
   - 商品上下文通过**开放主机服务**（`ProductResource`，RemoteType.Resource）向下游提供发布语言 `ProductDetailView`；
-  - 订单上下文在自己的边界内以**防腐层**（`ProductClientPort`/`ProductClientAdapter`）翻译本上下文的发布语言，不共享领域模型。
+  - 订单上下文在自己的边界内以**防腐层**（`ProductClientPort`/`ProductClientAdapter`）翻译本上下文的发布语言，不共享领域模型；
+  - 与订单上下文当前为同步 REST 集成（下游按需拉取商品快照），未引入事件驱动的发布/订阅集成，contract 因此不含事件契约（有意取舍，非缺位）；若演进为事件驱动集成，在 contract 的 message 事件包补充 `AbstractContractEvent` 派生的契约事件（如 `SkuPriceChanged`）并由开放主机服务发布。
 
 ## 统一语言词汇表
 
@@ -31,7 +32,7 @@
 3. **brand 聚合**：品牌为聚合根；不变式：品牌名称不能为空。
 4. **attribute 聚合**：属性为聚合根，类型为一般/关键/销售；不变式：属性选项不得重复。
 
-领域事件：ProductCreatedEvent、ProductListedEvent、ProductDelistedEvent、SkuPriceChangedEvent、CategoryCreatedEvent、CategoryMovedEvent、BrandCreatedEvent、AttributeCreatedEvent。
+领域事件：ProductCreated、ProductListed、ProductDelisted、SkuPriceChanged、CategoryCreated、CategoryMoved、BrandCreated、AttributeCreated。
 
 ## 领域建模约定（框架元模型）
 
@@ -46,19 +47,20 @@
 
 ## CQRS
 
-- 命令侧：`*CommandApplicationService` → 聚合 → `*RepositoryPort`（写模型）；
-- 查询侧：`*QueryApplicationService` → `*QueryPort` → 读模型（domain.readmodel）→ View；
+- 命令侧：`*CommandApplicationService` → 聚合 → `*RepositoryPort`；
+- 查询侧：`*QueryApplicationService` → `*RepositoryPort`（findById 与统一语言命名的查询方法返回聚合根）→ 聚合 → View；
 - 仓储以聚合根为读写单位，重建聚合由仓储适配器委托领域工厂 reconstitute。
 
 ## 模块结构（依赖方向）
 
 ```
 matrix-shop-product-bootstrap（组合根，微服务入口）
-  ├─ matrix-shop-product-interfaces（北向远程：northbound.remote，Controller/Resource）
+  ├─ matrix-shop-product-interface（北向远程：northbound.remote，Controller/Resource）
   ├─ matrix-shop-product-application（应用服务：northbound.local，命令/查询分离）
-  ├─ matrix-shop-product-contract（消息契约：message，请求/响应/视图）
+  ├─ matrix-shop-product-contract（消息契约：message 请求/响应/视图 + service 应用服务接口）
+  ├─ matrix-shop-product-client（下游客户端 SDK：client，远程调用开放主机服务）
   ├─ matrix-shop-product-infrastructure（南向防腐层：southbound.adapter，JPA适配器）
   └─ matrix-shop-product-domain（领域模型+端口：domain 与 domain.port）
 ```
 
-依赖规则：interfaces→application→domain←infrastructure，contract 为发布语言被 interfaces/application/client 引用；领域层只允许依赖 `matrix-framework-ddd`（父 POM 统一管理的框架规范），不依赖任何业务模块（contract/application/infrastructure/interfaces/client/bootstrap）与技术实现框架（Spring、JPA/Hibernate 等）；持久化对象（Po）只存在于 infrastructure，不向领域层泄漏。
+依赖规则：interface→application→domain←infrastructure，contract 为发布语言被 interface/application/client 引用；contract 的 `service` 包定义面向下游的应用服务接口（`ProductQueryService`），单体形态由应用服务本地实现，微服务形态由 client 模块的 `ProductFeignClientAdapter` 远程实现（传输为 Spring RestClient，未引入 Spring Cloud），下游只依赖 contract（按需引入 client）即可不感知部署形态；领域层只允许依赖 `matrix-framework-ddd`（父 POM 统一管理的框架规范），不依赖任何业务模块（contract/application/infrastructure/interface/client/bootstrap）与技术实现框架（Spring、JPA/Hibernate 等）；持久化对象（Po）只存在于 infrastructure，不向领域层泄漏。

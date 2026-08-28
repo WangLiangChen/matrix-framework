@@ -8,7 +8,6 @@ import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.readmodel.SkuSummary;
 
 import java.util.List;
 
@@ -81,7 +80,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new ProductCreatedEvent(id, name));
+        raise(new ProductCreated(id, name));
     }
 
     /**
@@ -92,7 +91,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
             return;
         }
         this.listed = true;
-        raise(new ProductListedEvent(id));
+        raise(new ProductListed(id));
     }
 
     /**
@@ -103,7 +102,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
             return;
         }
         this.listed = false;
-        raise(new ProductDelistedEvent(id));
+        raise(new ProductDelisted(id));
     }
 
     /**
@@ -112,7 +111,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
     public void changeSkuPrice(SkuId skuId, Money price) {
         Sku sku = skuOf(skuId);
         sku.changePrice(price);
-        raise(new SkuPriceChangedEvent(id, skuId, price));
+        raise(new SkuPriceChanged(id, skuId, price));
     }
 
     /**

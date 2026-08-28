@@ -3,7 +3,7 @@ package wang.liangchen.matrix.shop.order.domain.cart;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
-import wang.liangchen.matrix.shop.order.domain.order.ProductId;
+import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 
 /**
  * 商品已加入购物车：购物车发生商品加入的领域事实。
