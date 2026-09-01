@@ -58,5 +58,5 @@ package wang.liangchen.matrix.framework.ddd.assembler;
  *
  * @author Liangchen.Wang
  */
-public class AbstractAssembler implements IAssembler {
+public abstract class AbstractAssembler implements IAssembler {
 }

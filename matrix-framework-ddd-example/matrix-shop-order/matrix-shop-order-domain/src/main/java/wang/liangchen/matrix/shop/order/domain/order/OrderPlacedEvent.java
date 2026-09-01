@@ -9,13 +9,13 @@ import wang.liangchen.matrix.shop.order.domain.shared.Money;
  * 订单已下单：订单创建成功的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class OrderPlaced extends AbstractDomainEvent {
+public final class OrderPlacedEvent extends AbstractDomainEvent {
 
     private final OrderId orderId;
     private final UserId buyerId;
     private final Money totalAmount;
 
-    public OrderPlaced(OrderId orderId, UserId buyerId, Money totalAmount) {
+    public OrderPlacedEvent(OrderId orderId, UserId buyerId, Money totalAmount) {
         super();
         this.orderId = orderId;
         this.buyerId = buyerId;

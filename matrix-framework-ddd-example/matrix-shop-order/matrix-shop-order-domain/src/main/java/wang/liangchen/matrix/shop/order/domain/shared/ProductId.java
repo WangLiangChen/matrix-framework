@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.order.domain.shared;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.identity.ISimpleIdentity;
+import wang.liangchen.matrix.framework.ddd.domain.identity.IStringIdentity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 
 /**
@@ -11,7 +11,7 @@ import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
  * 与商品上下文的ProductId语义分离（语义分歧），仅值相同，由防腐层在边界处翻译。
  */
 @DomainModel(DomainMetaModel.Identity)
-public record ProductId(String value) implements ISimpleIdentity<String> {
+public record ProductId(String value) implements IStringIdentity {
 
     public ProductId {
         if (value == null || value.isBlank()) {

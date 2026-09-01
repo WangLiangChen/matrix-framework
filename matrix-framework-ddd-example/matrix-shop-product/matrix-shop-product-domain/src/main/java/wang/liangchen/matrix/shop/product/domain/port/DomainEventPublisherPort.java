@@ -14,7 +14,7 @@ import java.util.List;
  * 事件契约的类型约束由应用层的装配器翻译保证。
  */
 @Port(PortType.Publisher)
-public interface DomainEventPublisherPort extends IPublisherPort {
+public interface DomainEventPublisherPort extends IPublisherPort<IDomainEvent> {
 
     void publish(List<IDomainEvent> domainEvents);
 

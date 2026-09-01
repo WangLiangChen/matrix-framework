@@ -13,9 +13,9 @@ import java.util.Objects;
  * 一般属性描述SPU，销售属性描述SKU的规格。
  */
 @DomainModel(DomainMetaModel.ValueObject)
-public record AttributeValueRef(AttributeId attributeId, String value) implements IValueObject {
+public record AttributeValue(AttributeId attributeId, String value) implements IValueObject {
 
-    public AttributeValueRef {
+    public AttributeValue {
         Objects.requireNonNull(attributeId, "属性标识不能为空");
         if (value == null || value.isBlank()) {
             throw new DomainException("属性值不能为空");

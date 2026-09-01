@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.order.domain.cart;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.entity.AbstractEntity;
-import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
@@ -14,7 +13,7 @@ import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
  * 商品名称与单价为加入购物车时的快照，同一商品只存在一个购物车项。
  */
 @DomainModel(DomainMetaModel.Entity)
-final class CartItem extends AbstractEntity<ProductId> implements IEntity<ProductId> {
+final class CartItem extends AbstractEntity<ProductId> {
 
     @Identity
     private final ProductId productId;

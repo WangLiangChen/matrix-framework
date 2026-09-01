@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.product.domain.attribute;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
+import wang.liangchen.matrix.framework.ddd.domain.factory.AbstractDomainFactory;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * 属性工厂：封装属性的创建与重建逻辑。
  */
 @DomainModel(DomainMetaModel.DomainFactory)
-public final class AttributeFactory implements IDomainFactory {
+public final class AttributeFactory extends AbstractDomainFactory {
 
     /**
      * 创建全新的属性聚合。

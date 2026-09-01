@@ -15,7 +15,7 @@
 
 ## 职责
 
-- 定义领域模型：聚合根（`Product`、`Category`、`Brand`、`Attribute`）、聚合内部实体（`Sku`）、值对象（`Money`、`AttributeValueRef`）、身份标识（`*Id`）
+- 定义领域模型：聚合根（`Product`、`Category`、`Brand`、`Attribute`）、聚合内部实体（`Sku`）、值对象（`Money`、`AttributeValue`）、身份标识（`*Id`）
 - 实现领域不变式（业务规则），违反业务规则时抛出 `DomainException`
 - 领域工厂封装聚合的创建（`create`）与重建（`reconstitute`）
 - 定义领域事件（`ProductCreated`、`ProductListed`、`ProductDelisted`、`SkuPriceChanged`、`CategoryCreated`、`CategoryMoved`、`BrandCreated`、`AttributeCreated`），记录领域事实

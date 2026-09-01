@@ -7,11 +7,18 @@ package wang.liangchen.matrix.framework.ddd.northbound.exception;
  * @author Liangchen.Wang
  */
 public abstract class AbstractApplicationException extends RuntimeException implements IApplicationException {
+    public AbstractApplicationException() {
+    }
+
     public AbstractApplicationException(String message) {
         super(message);
     }
 
     public AbstractApplicationException(String message, Throwable throwable) {
         super(message, throwable);
+    }
+
+    public AbstractApplicationException(Throwable throwable) {
+        super(throwable);
     }
 }

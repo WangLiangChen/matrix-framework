@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.product.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.attribute.Attribute;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeFactory;
@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class AttributeRepositoryAdapter implements AttributeRepositoryPort, IRepositoryAdapter {
+public class AttributeRepositoryAdapter extends AbstractRepositoryAdapter<AttributeId, Attribute, AttributePo> implements AttributeRepositoryPort {
 
     private final AttributeDao attributeDao;
     private final AttributeFactory attributeFactory = new AttributeFactory();
@@ -30,19 +30,34 @@ public class AttributeRepositoryAdapter implements AttributeRepositoryPort, IRep
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Attribute> findById(AttributeId attributeId) {
-        return attributeDao.findById(attributeId.value()).map(this::reconstitute);
+    protected Optional<AttributePo> doFindById(AttributeId id) {
+        return attributeDao.findById(id.value());
     }
 
     @Override
-    public void save(Attribute attribute) {
-        attributeDao.save(toPo(attribute));
+    protected void doSave(AttributePo po) {
+        attributeDao.save(po);
     }
 
     @Override
-    public void remove(Attribute attribute) {
-        attributeDao.deleteById(attribute.id().value());
+    protected void doRemoveById(AttributeId id) {
+        attributeDao.deleteById(id.value());
+    }
+
+    @Override
+    protected Attribute reconstitute(AttributePo po) {
+        return attributeFactory.reconstitute(AttributeId.of(po.getId()), po.getName(),
+                AttributeType.valueOf(po.getType()), po.getOptions());
+    }
+
+    @Override
+    protected AttributePo toPo(Attribute attribute) {
+        AttributePo po = new AttributePo();
+        po.setId(attribute.id().value());
+        po.setName(attribute.name());
+        po.setType(attribute.type().name());
+        po.setOptions(attribute.options());
+        return po;
     }
 
     @Override
@@ -51,19 +66,5 @@ public class AttributeRepositoryAdapter implements AttributeRepositoryPort, IRep
         return attributeDao.findAllByOrderByNameAsc().stream()
                 .map(this::reconstitute)
                 .toList();
-    }
-
-    private Attribute reconstitute(AttributePo po) {
-        return attributeFactory.reconstitute(AttributeId.of(po.getId()), po.getName(),
-                AttributeType.valueOf(po.getType()), po.getOptions());
-    }
-
-    private AttributePo toPo(Attribute attribute) {
-        AttributePo po = new AttributePo();
-        po.setId(attribute.id().value());
-        po.setName(attribute.name());
-        po.setType(attribute.type().name());
-        po.setOptions(attribute.options());
-        return po;
     }
 }

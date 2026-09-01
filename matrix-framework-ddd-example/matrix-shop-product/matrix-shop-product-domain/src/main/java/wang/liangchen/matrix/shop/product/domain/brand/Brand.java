@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.product.domain.brand;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoot;
-import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
@@ -12,7 +11,7 @@ import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
  * 商品聚合通过品牌标识(BrandId)引用品牌。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Brand extends AbstractAggregateRoot<BrandId> implements IAggregateRoot<BrandId> {
+public final class Brand extends AbstractAggregateRoot<BrandId> {
 
     @Identity
     private final BrandId brandId;
@@ -48,7 +47,7 @@ public final class Brand extends AbstractAggregateRoot<BrandId> implements IAggr
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new BrandCreated(brandId, name));
+        raise(new BrandCreatedEvent(brandId, name));
     }
 
     /**

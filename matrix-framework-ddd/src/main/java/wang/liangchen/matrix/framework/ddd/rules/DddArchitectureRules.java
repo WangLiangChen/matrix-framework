@@ -41,7 +41,6 @@ import wang.liangchen.matrix.framework.ddd.southbound.port.*;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
@@ -82,20 +81,6 @@ public final class DddArchitectureRules {
      * 避免"领域类继承框架AbstractContractEvent、远程服务直接使用领域类型"等跨层依赖从包前缀匹配中漏网。
      */
     private static final String FRAMEWORK_BASE_PACKAGE = "wang.liangchen.matrix.framework.ddd";
-
-    private static final Set<String> IMMUTABLE_TYPE_NAMES = Set.of(
-            "boolean", "byte", "char", "short", "int", "long", "float", "double",
-            "java.lang.Boolean", "java.lang.Byte", "java.lang.Character",
-            "java.lang.Short", "java.lang.Integer", "java.lang.Long",
-            "java.lang.Float", "java.lang.Double",
-            "java.lang.String",
-            "java.time.Instant", "java.time.LocalDate", "java.time.LocalTime",
-            "java.time.LocalDateTime", "java.time.ZonedDateTime",
-            "java.time.OffsetDateTime", "java.time.Year", "java.time.YearMonth",
-            "java.time.MonthDay", "java.time.Duration", "java.time.Period",
-            "java.math.BigDecimal", "java.math.BigInteger",
-            "java.util.UUID", "java.util.Optional"
-    );
 
     private DddArchitectureRules() {
     }
@@ -297,7 +282,7 @@ public final class DddArchitectureRules {
     public static ArchRule boundedContextPackageAnnotated(String rootPackage) {
         return classes().that(describe("classes in the root package tree of " + rootPackage,
                         resideInRootPackageTree(rootPackage)))
-                .should(resideInOrUnderPackageAnnotatedWith(BoundedContextPackage.class))
+                .should(resideUnderSpecifiedPackageAnnotatedWith(rootPackage, BoundedContextPackage.class))
                 .allowEmptyShould(true)
                 .because("限界上下文根包必须通过package-info.java添加@BoundedContextPackage(name=..., domainType=...)");
     }
@@ -736,19 +721,23 @@ public final class DddArchitectureRules {
 
     public static ArchRule valueObjectFieldTypeImmutability(String rootPackage) {
         return fields().that(nonStaticFieldOfDomainValueObject(rootPackage))
-                .should(new ArchCondition<JavaField>("have immutable types (primitive, wrapper, String, temporal, BigDecimal, enum, or IValueObject)") {
-                    @Override
-                    public void check(JavaField field, ConditionEvents events) {
-                        JavaClass fieldType = field.getRawType();
-                        boolean satisfied = isImmutableType(fieldType);
-                        String message = String.format("%s.%s has type %s, immutable=%s",
-                                field.getOwner().getSimpleName(), field.getName(),
-                                fieldType.getSimpleName(), satisfied);
-                        events.add(new SimpleConditionEvent(field, satisfied, message));
-                    }
-                })
+                .should(haveImmutableFieldType())
                 .allowEmptyShould(true)
                 .because("值对象深度不可变：实例字段类型必须是基本类型、包装类型、String、时间类型、BigDecimal、枚举或不可变值对象/身份标识");
+    }
+
+    private static ArchCondition<JavaField> haveImmutableFieldType() {
+        return new ArchCondition<JavaField>("have immutable types (primitive, wrapper, String, temporal, BigDecimal, enum, or IValueObject)") {
+            @Override
+            public void check(JavaField field, ConditionEvents events) {
+                JavaClass fieldType = field.getRawType();
+                boolean satisfied = isImmutableType(fieldType);
+                String message = String.format("%s.%s has type %s, immutable=%s",
+                        field.getOwner().getSimpleName(), field.getName(),
+                        fieldType.getSimpleName(), satisfied);
+                events.add(new SimpleConditionEvent(field, satisfied, message));
+            }
+        };
     }
 
     /**
@@ -766,7 +755,11 @@ public final class DddArchitectureRules {
                                 nonStaticFieldOfDomainEvent(rootPackage)))
                         .should(ArchConditions.beFinal())
                         .allowEmptyShould(true)
-                        .because("领域事件必须不可变：事件实例字段必须为final"));
+                        .because("领域事件必须不可变：事件实例字段必须为final"))
+                .and(fields().that(nonStaticFieldOfDomainEvent(rootPackage))
+                        .should(haveImmutableFieldType())
+                        .allowEmptyShould(true)
+                        .because("领域事件必须深度不可变：事件实例字段类型必须是不可变类型或不可变值对象"));
     }
 
     /**
@@ -989,6 +982,24 @@ public final class DddArchitectureRules {
         };
     }
 
+    private static ArchCondition<JavaClass> resideUnderSpecifiedPackageAnnotatedWith(
+            String packageName, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        return new ArchCondition<JavaClass>("reside under package " + packageName + " annotated with @"
+                + annotationType.getSimpleName()) {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                JavaPackage targetPackage = item.getPackage();
+                while (targetPackage != null && !targetPackage.getName().equals(packageName)) {
+                    targetPackage = targetPackage.getParent().orElse(null);
+                }
+                boolean satisfied = targetPackage != null && targetPackage.isAnnotatedWith(annotationType);
+                String message = String.format("%s resides under package %s annotated=%s",
+                        item.getSimpleName(), packageName, satisfied);
+                events.add(new SimpleConditionEvent(item, satisfied, message));
+            }
+        };
+    }
+
     private static DomainMetaModel expectedDomainMetaModel(JavaClass javaClass) {
         if (javaClass.isAssignableTo(IAggregateRoot.class)) {
             return DomainMetaModel.AggregateRoot;
@@ -1113,7 +1124,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("concrete IEntity implementations in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && javaClass.isAssignableTo(IEntity.class)
                         && !javaClass.isInterface()
                         && !javaClass.isEnum()
@@ -1126,7 +1137,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("domain model classes (marker implementations) in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && !javaClass.isInterface()
                         && !javaClass.isEnum()
                         && (javaClass.isAssignableTo(IEntity.class)
@@ -1143,7 +1154,7 @@ public final class DddArchitectureRules {
             @Override
             public boolean test(JavaClass javaClass) {
                 // 异常经Throwable天然可序列化，枚举按JLS规范隐式实现Serializable，均豁免
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && !javaClass.isAssignableTo(RuntimeException.class)
                         && !javaClass.isEnum();
             }
@@ -1154,8 +1165,8 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("domain classes (excluding the framework itself) in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
-                        && !javaClass.getPackageName().startsWith(FRAMEWORK_BASE_PACKAGE + ".domain");
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
+                        && !inPackageTree(javaClass.getPackageName(), FRAMEWORK_BASE_PACKAGE + ".domain");
             }
         };
     }
@@ -1164,7 +1175,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("concrete message contract classes in the message package of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".message")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".message")
                         && !javaClass.isInterface()
                         && !javaClass.isEnum()
                         && !javaClass.getModifiers().contains(JavaModifier.ABSTRACT)
@@ -1179,7 +1190,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("concrete classes in the " + subPackage + " package of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + subPackage)
+                return inPackageTree(javaClass.getPackageName(), rootPackage + subPackage)
                         && !javaClass.isInterface()
                         && !javaClass.isEnum()
                         && !javaClass.getModifiers().contains(JavaModifier.ABSTRACT);
@@ -1192,7 +1203,7 @@ public final class DddArchitectureRules {
             @Override
             public boolean test(JavaClass javaClass) {
                 // 接口在ArchUnit中带有ABSTRACT修饰符，需放行接口（业务端口通常为接口），仅排除抽象类
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain.port")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain.port")
                         && javaClass.isAssignableTo(IPort.class)
                         && !javaClass.isEquivalentTo(IPort.class)
                         && !javaClass.isEnum()
@@ -1235,7 +1246,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("classes in the domain package tree of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain");
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain");
             }
         };
     }
@@ -1244,7 +1255,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("concrete aggregate roots in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && javaClass.isAssignableTo(IAggregateRoot.class)
                         && !javaClass.isInterface()
                         && !javaClass.isEnum()
@@ -1258,7 +1269,7 @@ public final class DddArchitectureRules {
             @Override
             public boolean test(JavaClass javaClass) {
                 // 聚合包位于领域层domain包下；嵌套类同样纳入检查
-                return javaClass.getPackage().getName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackage().getName(), rootPackage + ".domain")
                         && javaClass.getPackage().isAnnotatedWith(AggregatePackage.class)
                         && javaClass.isAssignableTo(IEntity.class)
                         && !javaClass.isAssignableTo(IAggregateRoot.class);
@@ -1270,7 +1281,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("value objects (IValueObject implementations) in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && javaClass.isAssignableTo(IValueObject.class)
                         && !javaClass.isInterface()
                         && !javaClass.isEnum();
@@ -1292,7 +1303,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaClass>("domain events (AbstractDomainEvent subclasses) in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaClass javaClass) {
-                return javaClass.getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
                         && javaClass.isAssignableTo(AbstractDomainEvent.class)
                         && !javaClass.isInterface()
                         && !javaClass.isEnum();
@@ -1314,7 +1325,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaMethod>("public setter methods in the domain layer of " + rootPackage) {
             @Override
             public boolean test(JavaMethod method) {
-                return method.getOwner().getPackageName().startsWith(rootPackage + ".domain")
+                return inPackageTree(method.getOwner().getPackageName(), rootPackage + ".domain")
                         && method.getModifiers().contains(JavaModifier.PUBLIC)
                         && method.getName().matches("set[A-Z].*");
             }
@@ -1325,7 +1336,7 @@ public final class DddArchitectureRules {
         return new DescribedPredicate<JavaMethod>("methods named toXxx() (excluding toString) in the message package of " + rootPackage) {
             @Override
             public boolean test(JavaMethod method) {
-                return method.getOwner().getPackageName().startsWith(rootPackage + ".message")
+                return inPackageTree(method.getOwner().getPackageName(), rootPackage + ".message")
                         && !method.getName().equals("toString")
                         && method.getName().matches("to[A-Z].*");
             }
@@ -1435,7 +1446,7 @@ public final class DddArchitectureRules {
         if (type.isPrimitive()) {
             return true;
         }
-        if (IMMUTABLE_TYPE_NAMES.contains(type.getName())) {
+        if (DomainMetaModel.IMMUTABLE_TYPE_NAMES.contains(type.getName())) {
             return true;
         }
         if (type.isEnum()) {
@@ -1445,6 +1456,10 @@ public final class DddArchitectureRules {
             return true;
         }
         return false;
+    }
+
+    private static boolean inPackageTree(String packageName, String packageRoot) {
+        return packageName.equals(packageRoot) || packageName.startsWith(packageRoot + ".");
     }
 
     private static <T> DescribedPredicate<T> describe(String description, DescribedPredicate<T> predicate) {

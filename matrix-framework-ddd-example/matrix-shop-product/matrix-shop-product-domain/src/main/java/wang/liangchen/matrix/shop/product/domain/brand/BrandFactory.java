@@ -2,14 +2,14 @@ package wang.liangchen.matrix.shop.product.domain.brand;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
+import wang.liangchen.matrix.framework.ddd.domain.factory.AbstractDomainFactory;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
 /**
  * 品牌工厂：封装品牌的创建与重建逻辑。
  */
 @DomainModel(DomainMetaModel.DomainFactory)
-public final class BrandFactory implements IDomainFactory {
+public final class BrandFactory extends AbstractDomainFactory {
 
     /**
      * 创建全新的品牌聚合。

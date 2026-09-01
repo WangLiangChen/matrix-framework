@@ -13,7 +13,7 @@ import java.util.UUID;
  * @author Liangchen.Wang
  */
 @DomainModel(DomainMetaModel.Identity)
-public final class UUIDIdentity extends AbstractIdentity implements IStringIdentity {
+public final class UUIDIdentity extends AbstractSimpleIdentity<String> implements IStringIdentity {
 
     private final String value;
 

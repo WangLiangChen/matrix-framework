@@ -5,19 +5,31 @@ import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
 
 /**
- * 商品已下架：商品退出可售状态的领域事实。
+ * SKU价格已变更：SKU销售价格发生调整的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class ProductDelisted extends AbstractDomainEvent {
+public final class SkuPriceChangedEvent extends AbstractDomainEvent {
 
     private final ProductId productId;
+    private final SkuId skuId;
+    private final Money price;
 
-    public ProductDelisted(ProductId productId) {
+    public SkuPriceChangedEvent(ProductId productId, SkuId skuId, Money price) {
         super();
         this.productId = productId;
+        this.skuId = skuId;
+        this.price = price;
     }
 
     public ProductId productId() {
         return productId;
+    }
+
+    public SkuId skuId() {
+        return skuId;
+    }
+
+    public Money price() {
+        return price;
     }
 }

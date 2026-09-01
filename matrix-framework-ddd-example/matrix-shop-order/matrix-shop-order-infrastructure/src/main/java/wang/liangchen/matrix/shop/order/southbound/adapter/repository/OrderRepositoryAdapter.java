@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.order.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.order.*;
 import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class OrderRepositoryAdapter implements OrderRepositoryPort, IRepositoryAdapter {
+public class OrderRepositoryAdapter extends AbstractRepositoryAdapter<OrderId, Order, OrderPo> implements OrderRepositoryPort {
 
     private final OrderDao orderDao;
     private final OrderFactory orderFactory = new OrderFactory();
@@ -31,19 +31,48 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort, IRepositoryA
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Order> findById(OrderId orderId) {
-        return orderDao.findById(orderId.value()).map(this::reconstitute);
+    protected Optional<OrderPo> doFindById(OrderId id) {
+        return orderDao.findById(id.value());
     }
 
     @Override
-    public void save(Order order) {
-        orderDao.save(toPo(order));
+    protected void doSave(OrderPo po) {
+        orderDao.save(po);
     }
 
     @Override
-    public void remove(Order order) {
-        orderDao.deleteById(order.id().value());
+    protected void doRemoveById(OrderId id) {
+        orderDao.deleteById(id.value());
+    }
+
+    @Override
+    protected Order reconstitute(OrderPo po) {
+        return orderFactory.reconstitute(
+                OrderId.of(po.getId()), UserId.of(po.getBuyerId()),
+                new Address(po.getReceiverName(), po.getReceiverPhone(), po.getReceiverProvince(),
+                        po.getReceiverCity(), po.getReceiverDetail()),
+                po.getItems().stream().map(this::orderItemSummary).toList(),
+                Money.of(po.getTotalAmount(), po.getCurrency()),
+                po.getPlacedOn(),
+                OrderStatus.valueOf(po.getStatus()));
+    }
+
+    @Override
+    protected OrderPo toPo(Order order) {
+        OrderPo po = new OrderPo();
+        po.setId(order.id().value());
+        po.setBuyerId(order.buyerId().value());
+        po.setReceiverName(order.receiver().receiver());
+        po.setReceiverPhone(order.receiver().phone());
+        po.setReceiverProvince(order.receiver().province());
+        po.setReceiverCity(order.receiver().city());
+        po.setReceiverDetail(order.receiver().detail());
+        po.setStatus(order.status().name());
+        po.setPlacedOn(order.placedOn());
+        po.setTotalAmount(order.totalAmount().amount());
+        po.setCurrency(order.totalAmount().currency());
+        po.setItems(order.itemSummaries().stream().map(this::orderItemPo).toList());
+        return po;
     }
 
     @Override
@@ -60,34 +89,6 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort, IRepositoryA
         return orderDao.findByStatusAndPlacedOnBefore(OrderStatus.Created.name(), deadline).stream()
                 .map(this::reconstitute)
                 .toList();
-    }
-
-    private Order reconstitute(OrderPo po) {
-        return orderFactory.reconstitute(
-                OrderId.of(po.getId()), UserId.of(po.getBuyerId()),
-                new Address(po.getReceiverName(), po.getReceiverPhone(), po.getReceiverProvince(),
-                        po.getReceiverCity(), po.getReceiverDetail()),
-                po.getItems().stream().map(this::orderItemSummary).toList(),
-                Money.of(po.getTotalAmount(), po.getCurrency()),
-                po.getPlacedOn(),
-                OrderStatus.valueOf(po.getStatus()));
-    }
-
-    private OrderPo toPo(Order order) {
-        OrderPo po = new OrderPo();
-        po.setId(order.id().value());
-        po.setBuyerId(order.buyerId().value());
-        po.setReceiverName(order.receiver().receiver());
-        po.setReceiverPhone(order.receiver().phone());
-        po.setReceiverProvince(order.receiver().province());
-        po.setReceiverCity(order.receiver().city());
-        po.setReceiverDetail(order.receiver().detail());
-        po.setStatus(order.status().name());
-        po.setPlacedOn(order.placedOn());
-        po.setTotalAmount(order.totalAmount().amount());
-        po.setCurrency(order.totalAmount().currency());
-        po.setItems(order.itemSummaries().stream().map(this::orderItemPo).toList());
-        return po;
     }
 
     private TradeItemSummary orderItemSummary(OrderItemPo po) {

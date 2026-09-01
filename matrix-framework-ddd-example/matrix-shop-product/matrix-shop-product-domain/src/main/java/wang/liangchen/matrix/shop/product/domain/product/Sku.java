@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.product.domain.product;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.entity.AbstractEntity;
-import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
@@ -14,22 +13,22 @@ import java.util.List;
  * 拥有独立的价格与库存，生命周期依附于商品聚合根。
  */
 @DomainModel(DomainMetaModel.Entity)
-final class Sku extends AbstractEntity<SkuId> implements IEntity<SkuId> {
+final class Sku extends AbstractEntity<SkuId> {
 
     @Identity
     private final SkuId id;
-    private final List<AttributeValueRef> attributeValues;
+    private final List<AttributeValue> attributeValues;
     private Money price;
     private int stock;
 
-    private Sku(SkuId id, List<AttributeValueRef> attributeValues, Money price, int stock) {
+    private Sku(SkuId id, List<AttributeValue> attributeValues, Money price, int stock) {
         this.id = id;
         this.attributeValues = attributeValues;
         this.price = price;
         this.stock = stock;
     }
 
-    static Sku of(SkuId id, List<AttributeValueRef> attributeValues, Money price, int stock) {
+    static Sku of(SkuId id, List<AttributeValue> attributeValues, Money price, int stock) {
         if (price == null || !price.isPositive()) {
             throw new DomainException("SKU价格必须大于零");
         }
@@ -43,7 +42,7 @@ final class Sku extends AbstractEntity<SkuId> implements IEntity<SkuId> {
         return id;
     }
 
-    List<AttributeValueRef> attributeValues() {
+    List<AttributeValue> attributeValues() {
         return attributeValues;
     }
 

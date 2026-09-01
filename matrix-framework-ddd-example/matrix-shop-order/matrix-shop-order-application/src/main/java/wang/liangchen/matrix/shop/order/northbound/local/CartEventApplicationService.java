@@ -11,7 +11,7 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.IEventApplicationService;
 import wang.liangchen.matrix.shop.order.domain.cart.Cart;
-import wang.liangchen.matrix.shop.order.domain.order.OrderPlaced;
+import wang.liangchen.matrix.shop.order.domain.order.OrderPlacedEvent;
 import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
 import wang.liangchen.matrix.shop.order.domain.port.DomainEventPublisherPort;
 
@@ -40,7 +40,7 @@ public class CartEventApplicationService implements IEventApplicationService {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void onOrderPlaced(OrderPlaced event) {
+    public void onOrderPlacedEvent(OrderPlacedEvent event) {
         try {
             cartRepository.findByBuyerId(event.buyerId()).ifPresent(this::clearCart);
             LOGGER.info("订单已下单，购物车已清空：orderId={}, buyerId={}",

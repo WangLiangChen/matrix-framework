@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.order.domain.cart;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoot;
-import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
@@ -19,7 +18,7 @@ import java.util.List;
  * 维护不变式：同一商品在购物车中只存在一个购物车项，商品数量必须大于零。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Cart extends AbstractAggregateRoot<CartId> implements IAggregateRoot<CartId> {
+public final class Cart extends AbstractAggregateRoot<CartId> {
 
     @Identity
     private final CartId id;
@@ -65,7 +64,7 @@ public final class Cart extends AbstractAggregateRoot<CartId> implements IAggreg
         } else {
             existing.increaseQuantity(quantity);
         }
-        raise(new CartItemAdded(id, productId, quantity));
+        raise(new CartItemAddedEvent(id, productId, quantity));
     }
 
     /**

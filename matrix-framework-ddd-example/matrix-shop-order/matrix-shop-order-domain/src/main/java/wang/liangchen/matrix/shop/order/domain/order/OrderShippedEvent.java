@@ -5,14 +5,14 @@ import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
 
 /**
- * 订单已支付：订单完成支付的领域事实。
+ * 订单已发货：订单完成发货的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class OrderPaid extends AbstractDomainEvent {
+public final class OrderShippedEvent extends AbstractDomainEvent {
 
     private final OrderId orderId;
 
-    public OrderPaid(OrderId orderId) {
+    public OrderShippedEvent(OrderId orderId) {
         super();
         this.orderId = orderId;
     }

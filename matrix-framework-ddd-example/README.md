@@ -12,7 +12,7 @@
 * java 17
 * spring boot
 * spring data jpa
-* H2（内存数据库，POC 演示用，生产可替换为 PostgreSQL）
+* PostgreSQL
 
 ### Product
 

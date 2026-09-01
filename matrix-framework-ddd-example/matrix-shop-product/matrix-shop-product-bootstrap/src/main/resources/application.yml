@@ -2,10 +2,10 @@ spring:
   application:
     name: matrix-shop-product
   datasource:
-    url: jdbc:h2:mem:matrix-shop-product;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:postgresql://localhost:5432/matrix_shop
+    driver-class-name: org.postgresql.jdbc.Driver
+    username: postgres
+    password: postgres
   jpa:
     hibernate:
       ddl-auto: create-drop

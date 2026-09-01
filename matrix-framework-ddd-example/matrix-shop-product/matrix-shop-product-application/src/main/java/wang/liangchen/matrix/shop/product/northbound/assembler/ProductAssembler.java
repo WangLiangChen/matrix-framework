@@ -1,11 +1,10 @@
 package wang.liangchen.matrix.shop.product.northbound.assembler;
 
+import wang.liangchen.matrix.framework.ddd.assembler.AbstractAssembler;
 import wang.liangchen.matrix.framework.ddd.assembler.Assembler;
-import wang.liangchen.matrix.framework.ddd.assembler.IAssembler;
-import wang.liangchen.matrix.shop.product.domain.product.AttributeValueRef;
+import wang.liangchen.matrix.shop.product.domain.product.AttributeValue;
 import wang.liangchen.matrix.shop.product.domain.product.Product;
 import wang.liangchen.matrix.shop.product.domain.product.SkuSummary;
-import wang.liangchen.matrix.shop.product.message.request.AttributeValue;
 import wang.liangchen.matrix.shop.product.message.response.ProductDetailView;
 import wang.liangchen.matrix.shop.product.message.response.ProductView;
 import wang.liangchen.matrix.shop.product.message.response.SkuView;
@@ -17,7 +16,7 @@ import java.util.List;
  * 只做字段映射与类型转换，不含业务规则。
  */
 @Assembler
-public class ProductAssembler implements IAssembler {
+public class ProductAssembler extends AbstractAssembler {
 
     /**
      * 出站：商品聚合 → 商品视图。
@@ -47,9 +46,9 @@ public class ProductAssembler implements IAssembler {
     /**
      * 出站：属性值引用列表 → 属性值契约列表。
      */
-    public List<AttributeValue> attributeValues(List<AttributeValueRef> refs) {
+    public List<wang.liangchen.matrix.shop.product.message.request.AttributeValue> attributeValues(List<AttributeValue> refs) {
         return refs.stream()
-                .map(ref -> new AttributeValue(ref.attributeId().value(), ref.value()))
+                .map(ref -> new wang.liangchen.matrix.shop.product.message.request.AttributeValue(ref.attributeId().value(), ref.value()))
                 .toList();
     }
 }

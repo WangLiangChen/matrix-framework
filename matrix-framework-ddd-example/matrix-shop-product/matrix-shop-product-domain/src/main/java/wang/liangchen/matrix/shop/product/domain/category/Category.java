@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.product.domain.category;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoot;
-import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
@@ -12,7 +11,7 @@ import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
  * 同一层级的类目名称在上下文中保持语义一致。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Category extends AbstractAggregateRoot<CategoryId> implements IAggregateRoot<CategoryId> {
+public final class Category extends AbstractAggregateRoot<CategoryId> {
 
     @Identity
     private final CategoryId id;
@@ -42,7 +41,7 @@ public final class Category extends AbstractAggregateRoot<CategoryId> implements
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new CategoryCreated(id, name));
+        raise(new CategoryCreatedEvent(id, name));
     }
 
     /**
@@ -63,7 +62,7 @@ public final class Category extends AbstractAggregateRoot<CategoryId> implements
             throw new DomainException("类目不能移动到自身");
         }
         this.parentId = newParentId;
-        raise(new CategoryMoved(id, newParentId));
+        raise(new CategoryMovedEvent(id, newParentId));
     }
 
     @Override

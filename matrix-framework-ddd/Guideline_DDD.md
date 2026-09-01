@@ -36,7 +36,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 * 输入：业务需求（用户故事、用例、流程描述、业务规则）。
 * 活动：梳理领域词汇，明确每个术语的精确定义；可借助事件风暴工作坊梳理业务流程与领域事件（事件风暴工作坊的产出物含领域事件、命令、聚合、参与者、外部系统、策略
   (Policy，事件触发后续动作的业务规则)、读模型 (Read Model，供查询侧展示的信息模型)与热点 (Hot
-  Spot，识别出的风险、问题与争议点)等要素；执行顺序为先识别领域事件（过去时态），再识别触发事件的命令与承载命令的聚合，最后按概念内聚与语义边界划定限界上下文并完成上下文映射），辅助统一语言的形成。
+  Spot，识别出的风险、问题与争议点)等要素；执行顺序为先识别领域事件（过去时态，以Event结尾），再识别触发事件的命令与承载命令的聚合，最后按概念内聚与语义边界划定限界上下文并完成上下文映射），辅助统一语言的形成。
 * 判定：术语是否存在歧义？同一概念是否有多个叫法？技术术语是否混入业务描述？
 * 输出物：统一语言词汇表（术语+定义），格式为"术语｜英文命名｜精确定义"，作为后续所有模型与代码命名的唯一依据。
 
@@ -75,7 +75,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
     1. 识别聚合与聚合根：以不变式、事务边界、完整领域概念为依据划分聚合，选定聚合根；
     2. 识别实体与值对象：以是否需要唯一身份标识为根本判据——有身份者为实体（通常亦有独立生命周期与持续变化的状态），无身份且不变者为值对象，身份标识用值对象表达；
     3. 识别领域行为：将业务行为归属到实体或值对象，无处归属的行为放入领域服务；
-    4. 识别领域事件：聚合的重要状态变化发布领域事件（过去时命名）；
+    4. 识别领域事件：聚合的重要状态变化发布领域事件（过去时命名，以Event结尾）；
     5. 设计领域工厂与领域仓储：复杂创建用工厂（create/reconstitute），生命周期管理用仓储（以聚合根为单位）；
     6. 设计应用服务与消息契约：每个用例对应一个应用服务方法，定义命令/查询/事件/调度消息契约。
 * 决策依据：各元素的引入条件与判定规则见"建模决策规则"。
@@ -143,7 +143,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 
 ## 上下文映射 (Context Map)
 
-限界上下文之间的协作关系，通过上下文映射模式明确集成方式。模式分为两类：团队协作模式（合作关系、共享内核、客户-供应商、遵奉者、各行其道）界定团队之间的协作关系与职责边界；系统集成模式（防腐层、开放主机服务、发布语言、大泥球）界定系统之间的技术集成方式。
+限界上下文之间的协作关系，通过上下文映射模式明确集成方式。模式分为两类（《解构领域驱动设计》的组织级别映射与系统级别映射）：组织级别映射（合作关系、共享内核、客户-供应商、遵奉者、各行其道）界定团队之间的协作关系与职责边界；系统级别映射（防腐层、开放主机服务、发布语言、大泥球）界定系统之间的技术集成方式。
 
 * 合作关系 (Partnership)：两个团队/上下文彼此合作，接口随需变更。适用于由同一团队或合作紧密的团队维护的上下文。
 * 共享内核 (Shared Kernel)：多个上下文共享一部分模型，需共同维护。仅适用于共享模型较小且稳定、双方能够紧密协调的场景，避免共享过多。
@@ -300,7 +300,7 @@ graph TD
 
 *
 
-命令表达意图，领域事件陈述事实：命令是请求方期望执行的操作意图，可能被拒绝或执行失败；领域事件是不可撤销的既成事实。命令执行成功、聚合状态变更后才发布对应的领域事件；命名上命令用动名词（CreateOrder），事件用过去时态（OrderPlaced），不得混用。
+命令表达意图，领域事件陈述事实：命令是请求方期望执行的操作意图，可能被拒绝或执行失败；领域事件是不可撤销的既成事实。命令执行成功、聚合状态变更后才发布对应的领域事件；命名上命令用动名词（CreateOrder），事件用过去时态并以Event结尾（OrderPlacedEvent），不得混用。
 
 * 本框架不将领域命令建模为领域对象：命令由消息契约承载（ICommandRequest），命令的验证、装配与执行编排由应用服务完成。
 
@@ -321,7 +321,7 @@ graph TD
 
 * 负责消息契约模型与领域对象之间的相互转换：入站将消息契约装配为领域对象（可兼任工厂），出站将领域对象装配为消息契约。
 * 装配器位于应用层（northbound/assembler包）；消息契约不能引用领域模型，更不能担任工厂。
-* 实现标记接口IAssembler并添加注解@Assembler（标注由框架ArchUnit规则assemblersAnnotated守护，放置由assemblerPlacement守护）。
+* 继承框架的AbstractAssembler基类（基类已实现IAssembler），或直接实现IAssembler接口；并添加注解@Assembler（标注由框架ArchUnit规则assemblersAnnotated守护，放置由assemblerPlacement守护）。
 
 ## 消息契约 (MessageContract)
 
@@ -390,7 +390,7 @@ graph TD
 | 身份标识       | 业务名词+Id               | OrderId、UserId               |
 | 领域服务       | 业务名词（或动词名词化）+Service | OrderPricingService、OrderPlacementService |
 | 领域服务方法   | 动词短语                  | transfer()                    |
-| 领域事件       | 业务名词+过去式动词       | OrderPlaced、PaymentConfirmed |
+| 领域事件       | 业务名词+过去式动词+Event | OrderPlacedEvent、PaymentConfirmedEvent |
 | 领域工厂       | 业务名词+Factory          | OrderFactory                  |
 | 仓储端口       | 业务名词+RepositoryPort   | OrderRepositoryPort           |
 | 命令请求       | 动名词+CommandRequest     | CreateOrderCommandRequest     |
@@ -398,7 +398,7 @@ graph TD
 | 调度请求       | 动名词+SchedulingRequest  | ReportSchedulingRequest       |
 | 命令响应       | 动名词+Result             | CreateOrderResult             |
 | 查询视图       | 业务名词+View             | OrderView                     |
-| 事件契约       | 业务名词+过去式动词       | OrderPlacedEvent              |
+| 事件契约       | 业务名词+过去式动词+Event | OrderPlacedEvent              |
 | 应用服务       | 聚合名+服务类型+ApplicationService | OrderCommandApplicationService |
 | 应用服务方法   | 用例名（动词短语）        | placeOrder()                  |
 | 聚合根行为方法 | 动词短语                  | place()、confirmPayment()     |
@@ -442,7 +442,7 @@ graph TD
 * 响应契约实现IResponse：命令响应实现IResult，查询视图实现IView。
 *
 
-命名规范：命令请求命名xxxCommandRequest，查询请求命名xxxQueryRequest，调度请求命名xxxSchedulingRequest（动名词+SchedulingRequest）；命令响应命名xxxResult，查询响应命名xxxView/xxxResponse；事件契约命名业务名词+过去式动词。
+命名规范：命令请求命名xxxCommandRequest，查询请求命名xxxQueryRequest，调度请求命名xxxSchedulingRequest（动名词+SchedulingRequest）；命令响应命名xxxResult，查询响应命名xxxView/xxxResponse；事件契约命名业务名词+过去式动词+Event。
 
 * 事件契约继承框架的AbstractContractEvent基类（contract/event），使用@MessageContract (type=MessageContractType.EVENT)
   标注。AbstractContractEvent遵守"消息契约不依赖领域模型"的原则（消息契约单独提供给下游），不继承领域元模型：自带字符串值的事件标识eventId与事件发生时间occurredOn，并按eventId与类型实现值相等（幂等消费以eventId为准）。领域事件向外发布前由装配器翻译为继承AbstractContractEvent的事件契约（复制事件标识值与发生时间）。
@@ -515,7 +515,7 @@ graph TD
 * 实现静态工厂方法of，用来将身份标识的值转换为身份标识对象。
 *
 
-框架提供通用代理标识：UUIDIdentity（不可变，提供of/next静态工厂与值相等实现，of校验UUID字符串格式，非法值抛出IllegalArgumentException）与EventId（事件唯一标识，组合UUIDIdentity复用其格式校验与值相等语义，同样提供of/next）；无业务含义的标识可直接复用，有业务含义的标识使用领域类型身份标识。
+框架提供通用代理标识UUIDIdentity（不可变，提供of/next静态工厂与值相等实现，of校验UUID字符串格式，非法值抛出IllegalArgumentException）；无业务含义的标识可直接复用，有业务含义的标识使用领域类型身份标识。领域事件的eventId由AbstractDomainEvent以UUID字符串提供，不是领域身份标识类型。
 
 * 标识生成时机：身份标识在创建时生成（工厂/静态工厂/构造函数），不由持久化层生成——代理标识（如UUIDIdentity.next ()
   ）在工厂创建聚合时生成，自然标识在创建时由业务规则赋予；禁止依赖数据库自增主键回填标识，保证聚合根在落库前即持有完整身份（领域模型自治，不依赖存储回填）。
@@ -524,12 +524,12 @@ graph TD
 
 * 不变类 (Immutable Class)，需符合不变类 (Immutable Class)的定义和特征。如果使用Java，必须用final修饰。
 * 没有唯一身份标识 (No Identity)，没有独立的生命周期，其生命周期随所属实体或聚合；实例可独立出现（如领域服务的参数或返回值）。
-* 实现接口IValueObject；可直接继承框架的AbstractValueObject基类，或自行重写equals ()和hashCode ()方法，来保证值对象的正确比较和使用。
+* 继承框架的AbstractValueObject基类，或直接实现接口IValueObject（record形式只能选后者，并自行重写equals ()和hashCode ()方法，来保证值对象的正确比较和使用）。
 *
 
 AbstractValueObject的相等性口径：按全部非static、非transient字段含继承层次比较，数组按内容比较；字段已做缓存以缓解反射开销。派生/懒加载缓存字段不属于值对象属性，必须声明为transient以排除在相等性之外。
 
-* 深度不可变：实例字段应使用不可变类型（String、Instant、自身不可变的值对象等）；集合字段在构造时防御性拷贝或使用不可变集合，防止字段引用可变对象破坏不可变性。
+* 深度不可变：实例字段应使用不可变类型（String、Instant、自身不可变的值对象等）。当前框架的静态规则不接受集合或Optional字段，因为无法从字段原始类型可靠验证元素的不可变性；需要集合语义时，将其封装为独立的不可变值对象。
 * 不可变的校验口径（与ArchUnit规则一致）：接口、枚举与抽象基类不要求final，其具体实现类必须为final。
 * 添加注解@DomainModel (DomainMetaModel.ValueObject)
 
@@ -539,8 +539,8 @@ AbstractValueObject的相等性口径：按全部非static、非transient字段�
 * 所有状态变更通过明确的业务方法完成。
 * 方法命名遵循统一语言，体现业务语义。
 * 身份标识字段使用@Identity注解标注：有且仅有一个（含继承），字段类型实现IIdentity（由框架ArchUnit规则entitiesDeclareIdentity守护）。
-* 实现接口IEntity<ID>
-  （ID为身份标识类型）；可继承框架的AbstractEntity基类（纯标记基类）。身份标识不由基类持有——不同实体的标识属性命名不一定相同（如orderId、userId）；实体自行声明身份标识字段并以@Identity标注，并按身份标识类型与值重写equals/hashCode（实体相等按身份标识定义，由框架ArchUnit规则entitiesImplementEqualsAndHashCode守护）。
+* 继承框架的AbstractEntity基类（纯标记基类，已实现IEntity<ID>
+  ，ID为身份标识类型），或直接实现接口IEntity<ID>。身份标识不由基类持有——不同实体的标识属性命名不一定相同（如orderId、userId）；实体自行声明身份标识字段并以@Identity标注，并按身份标识类型与值重写equals/hashCode（实体相等按身份标识定义，由框架ArchUnit规则entitiesImplementEqualsAndHashCode守护）。
 * 添加注解@DomainModel (DomainMetaModel.Entity)
 
 ## 聚合 (Aggregate)
@@ -570,7 +570,7 @@ AbstractValueObject的相等性口径：按全部非static、非transient字段�
 * 可依赖领域仓储及其它领域服务，但不应依赖应用层与基础设施层细节。
 * 方法应细粒度，每个方法表达一个明确的领域职责，不应将多个不相关的领域行为塞入同一个方法。
 * 应克制使用，领域行为优先归属实体或值对象，避免贫血模型。不应成为过程式编程的退路——不应将所有逻辑放在服务方法中形成事务脚本，而应让实体和值对象承担尽可能多的行为。
-* 实现接口 IDomainService
+* 继承框架的AbstractDomainService基类，或直接实现接口IDomainService
 * 添加注解 @DomainModel (DomainMetaModel.DomainService)
 
 ## 聚合根 (AggregateRoot)
@@ -578,33 +578,28 @@ AbstractValueObject的相等性口径：按全部非static、非transient字段�
 * 是实体的特例，同时也是聚合的唯一入口，外部只能持有聚合根的引用。
 * 负责维护聚合内部的不变式，所有跨实体的状态变更必须通过聚合根的业务方法完成。
 * 跨聚合只能通过身份标识 (Identity)引用其他聚合根，不能将其他聚合根的对象引用作为属性持久持有。
-* 可继承框架的AbstractAggregateRoot基类：聚合根是实体的特例，基类提供领域事件收集（raise/events/clearEvents），供应用服务在事务提交后统一发布。
-* 实现接口 IAggregateRoot
+* 继承框架的AbstractAggregateRoot基类（基类提供领域事件收集raise/events/clearEvents；IAggregateRoot<ID>经基类满足，无需重复实现），或直接实现接口IAggregateRoot<ID>（自行承担领域事件收集）。该内存收集仅用于领域内协调，不替代跨进程事件的可靠投递。
 * 添加注解 @DomainModel (DomainMetaModel.AggregateRoot)
 
 ## 领域事件 (DomainEvent)
 
 * 不变类 (Immutable Class)，需符合不变类 (Immutable Class)
   的定义和特征。如果使用Java，具体事件类必须用final修饰（抽象基类AbstractDomainEvent/AbstractApplicationEvent豁免）。
-* 命名使用过去时态，体现业务事实，例如 OrderPlaced、PaymentConfirmed。
-* 必须包含事件发生时间 (occurredOn)和事件唯一标识 (uuidEventId)
+* 命名使用过去时态并以Event结尾，体现业务事实，例如 OrderPlacedEvent、PaymentConfirmedEvent。
+* 必须包含事件发生时间 (occurredOn)和事件唯一标识 (eventId)
   等基础信息；框架的AbstractDomainEvent基类已提供两者。默认构造使用系统时钟与随机eventId（正常业务路径）；注入构造
-  (uuidEventId, occurredOn)用于测试、reconstitute与历史事件回放，保证事件的确定性与可复现。
+  (eventId, occurredOn)用于测试、reconstitute与历史事件回放，保证事件的确定性与可复现。
 * 只携带消费方必要的数据，不应是整个聚合根的完整快照。
 * 事件基类不继承java.util.EventObject，不携带发布者引用——事件是对已发生事实的陈述，与发布者解耦。
 * 事件基类按eventId与类型实现值相等（equals/hashCode/toString），支撑事件幂等消费（以eventId为准）。
 *
 
-源聚合标识不进基类：涉及聚合状态变化的领域事件，由具体事件类以业务命名字段携带（如OrderPlaced携带orderId）；源聚合标识可用身份标识值对象类型（如OrderId）承载，也可用基本类型值承载；跨边界发布时由装配器翻译为消息契约的基本类型值。幂等消费以eventId为准。
+源聚合标识不进基类：涉及聚合状态变化的领域事件，由具体事件类以业务命名字段携带（如OrderPlacedEvent携带orderId）；源聚合标识可用身份标识值对象类型（如OrderId）承载，也可用基本类型值承载；跨边界发布时由装配器翻译为消息契约的基本类型值。幂等消费以eventId为准。
 
 * eventType/version/traceId等技术关注点由序列化器、消息信封等技术机制承担，不进入领域事件属性，也不进入消息契约属性。
 * 领域事件的消费方应保证幂等，并具备重试处理能力。
-* 发布时机：领域事件由聚合在业务行为中收集（聚合根通过AbstractAggregateRoot#raise收集），应用服务在事务提交后通过events ()
-  （只读快照）/clearEvents ()提取并统一发布，避免事件与业务变更不一致。
-* 统一发布流程：①聚合在业务行为中raise收集事件；②应用服务在事务提交后提取events ()（只读快照）并clearEvents ()
-  ；③应用服务将领域事件经装配器翻译为事件契约，通过IPublisherPort发布。领域事件发布与业务变更的一致性以"事务提交后发布"保证。
-* 发布可靠性：事务提交后发布存在窗口期——提交成功但发布失败会丢事件。对可靠性要求高的场景采用发件箱 (Outbox)
-  模式：业务变更与事件记录在同一事务内落库，由后台投递器异步发布，保证至少一次投递；配合消费方按eventId幂等去重，实现最终一致。
+* 发布时机：领域事件由聚合在业务行为中收集（聚合根通过AbstractAggregateRoot#raise收集）。进程内通知可由应用服务提取events ()（只读快照）并在成功处理后clearEvents ()；不得将该内存队列视为可靠投递机制。
+* 跨上下文发布：应用服务将领域事件经装配器翻译为事件契约，并将业务变更与Outbox事件记录置于同一事务；后台投递器通过IPublisherPort异步发布，至少一次投递，消费方按eventId幂等去重。这是保证最终一致性的必要约束。
 * 继承框架的AbstractDomainEvent基类（domain/event）。
 * 添加注解 @DomainModel (DomainMetaModel.DomainEvent)
 
@@ -615,7 +610,7 @@ AbstractValueObject的相等性口径：按全部非static、非transient字段�
 * 工厂方法命名应体现业务语义，例如 create、reconstitute（重建已有聚合）。
 * create 用于创建全新的聚合，reconstitute 用于从持久化数据中重建聚合。仓储将重建逻辑委托给工厂而非在适配器中直接构造，保证创建逻辑集中——无论
   create 还是 reconstitute，创建规则与不变式保证都统一由工厂承载。
-* 实现接口 IDomainFactory（位于框架domain/factory包），并添加注解 @DomainModel (DomainMetaModel.DomainFactory)
+* 继承框架的AbstractDomainFactory基类（位于框架domain/factory包，已实现IDomainFactory并提供requireXxx验证方法），或直接实现接口IDomainFactory；并添加注解 @DomainModel (DomainMetaModel.DomainFactory)
   （注解匹配由框架ArchUnit规则domainModelsAnnotated守护）
 * 聚合自身担任工厂，在聚合根中提供静态工厂方法来创建聚合产品实例，聚合产品的构造方法设置为私有。方法可以使用of、valueOf、from等方法名。适用于创建逻辑简单、与聚合自身紧密相关的场景。
 * 由被依赖聚合担任工厂，例如 Blog 与 Post 分属两个聚合时，可由 Blog.createPost () 创建 Post 聚合根；若 Post 是 Blog
@@ -655,7 +650,7 @@ ID, AR>泛型契约：findById（返回Optional）/save/remove (AR)/remove (ID)�
   声明对外部资源的依赖（依赖倒置），业务端口接口位于业务模块的domain/port包（框架自身的端口基接口IRepositoryPort等位于框架包southbound/port）；南向适配层通过适配器
   (Adapter)实现端口。
 * 端口接口实现IPort并添加注解@Port (PortType.xxx)；适配器实现IAdapter并添加注解@Adapter (PortType.xxx)
-  。业务端口必须由至少一个适配器实现（由框架ArchUnit规则portsImplementedByAdapters守护）。
+  。默认业务端口应由至少一个适配器实现（由框架ArchUnit规则portsImplementedByAdapters守护）；适配器在独立部署模块或运行时提供时，应在该模块的架构测试中执行等价校验。
 * 端口类型与职责（PortType）：
     * Repository：隔离对数据库的访问，对应IRepositoryPort/IRepositoryAdapter；
     * Client：隔离对上游限界上下文或第三方服务的访问，对应IClientPort/IClientAdapter；
@@ -691,7 +686,7 @@ ID, AR>泛型契约：findById（返回Optional）/save/remove (AR)/remove (ID)�
     * Provider：服务行为契约，面向下游限界上下文或第三方调用者，消息契约模型为Request/Response或FireAndForget（一般为RPC），对应IProviderRemote；
     * Subscriber：服务事件契约，消息契约模型为Event，对应ISubscriberRemote；
     * Scheduler：定时调度契约，对应ISchedulerRemote。
-* 远程服务只操作消息契约，通过应用服务完成用例编排，不直接访问领域对象与南向适配器（外部资源访问须经应用服务与端口）。
+* 远程服务的对外方法只暴露消息契约，并通过应用服务完成用例编排，不直接访问领域对象与南向适配器（外部资源访问须经应用服务与端口）。ArchUnit守护直接领域对象与适配器依赖；API签名和调用路径需在代码评审中确认。
 
 ## 异常 (Exception)
 
@@ -793,14 +788,14 @@ graph TD
 * 值对象是否不可变、无身份、重写了equals/hashCode？是否存在值对象被误建模为实体（或有独立生命周期却无身份）？
 * 实体状态变更是否全部通过业务方法完成，无公共setter（框架规则按set[A-Z]前缀拦截公共setter方法，合法的领域行为应使用体现业务语义的动词短语命名，避免set开头）？
 * 领域行为是否优先归属实体/值对象？领域服务是否克制使用、无状态？
-* 领域事件是否过去时命名、携带occurredOn/uuidEventId、只含消费方必要数据？
+* 领域事件是否过去时命名且以Event结尾、携带occurredOn/eventId、只含消费方必要数据？
 * 仓储是否以聚合根为读写单位、只返回聚合根（读模型/DTO查询由自定义端口或查询组件承载）？
 * 应用服务是否不含业务逻辑？命令/查询是否分离（CQRS）？
 * 领域模型是否未依赖消息契约？领域行为是否未依赖持久化等技术实现细节？
 
 ## 代码落地检查
 
-以下检查项绝大部分已由框架ArchUnit规则集守护（layeredDependencyRules/domainModelRules/messageContractRules/packageAnnotationRules/architectureAnnotationRules/architecturePlacementRules，见"分层依赖规则"），业务模块在测试中引用规则集即可自动执行；规则未覆盖的语义性检查（事件过去时命名、统一语言取词、领域行为归属等）仍需人工评审。
+以下检查项绝大部分已由框架ArchUnit规则集守护（layeredDependencyRules/domainModelRules/messageContractRules/packageAnnotationRules/architectureAnnotationRules/architecturePlacementRules，见"分层依赖规则"），业务模块在测试中引用规则集即可自动执行；规则未覆盖的语义性检查（事件过去时命名且以Event结尾、统一语言取词、领域行为归属等）仍需人工评审。
 
 * 每个限界上下文根包是否有package-info.java并添加@BoundedContextPackage (name=..., domainType=...)？
 * 领域层包是否添加@DomainPackage？每个聚合包是否添加@AggregatePackage (name=聚合名称)？

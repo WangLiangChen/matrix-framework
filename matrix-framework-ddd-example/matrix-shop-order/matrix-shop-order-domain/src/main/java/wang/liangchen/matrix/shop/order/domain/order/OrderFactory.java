@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.order.domain.order;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
+import wang.liangchen.matrix.framework.ddd.domain.factory.AbstractDomainFactory;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
 import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
@@ -16,7 +16,7 @@ import java.util.List;
  * 从持久化数据重建聚合使用{@link #reconstitute}。
  */
 @DomainModel(DomainMetaModel.DomainFactory)
-public final class OrderFactory implements IDomainFactory {
+public final class OrderFactory extends AbstractDomainFactory {
 
     private final OrderPricingService pricingService = new OrderPricingService();
 

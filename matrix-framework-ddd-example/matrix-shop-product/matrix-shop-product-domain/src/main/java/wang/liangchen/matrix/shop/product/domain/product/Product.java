@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.product.domain.product;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoot;
-import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
@@ -17,7 +16,7 @@ import java.util.List;
  * 聚合外部只能通过本聚合根访问与修改内部状态。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Product extends AbstractAggregateRoot<ProductId> implements IAggregateRoot<ProductId> {
+public final class Product extends AbstractAggregateRoot<ProductId> {
 
     @Identity
     private final ProductId id;
@@ -25,12 +24,12 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
     private final String subtitle;
     private final CategoryId categoryId;
     private final BrandId brandId;
-    private final List<AttributeValueRef> attributeValues;
+    private final List<AttributeValue> attributeValues;
     private final List<Sku> skus;
     private boolean listed;
 
     Product(ProductId id, String name, String subtitle, CategoryId categoryId, BrandId brandId,
-            List<AttributeValueRef> attributeValues, List<Sku> skus, boolean listed) {
+            List<AttributeValue> attributeValues, List<Sku> skus, boolean listed) {
         this.id = id;
         this.name = name;
         this.subtitle = subtitle;
@@ -65,7 +64,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
         return listed;
     }
 
-    public List<AttributeValueRef> attributeValues() {
+    public List<AttributeValue> attributeValues() {
         return attributeValues;
     }
 
@@ -80,7 +79,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new ProductCreated(id, name));
+        raise(new ProductCreatedEvent(id, name));
     }
 
     /**
@@ -91,7 +90,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
             return;
         }
         this.listed = true;
-        raise(new ProductListed(id));
+        raise(new ProductListedEvent(id));
     }
 
     /**
@@ -102,7 +101,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
             return;
         }
         this.listed = false;
-        raise(new ProductDelisted(id));
+        raise(new ProductDelistedEvent(id));
     }
 
     /**
@@ -111,7 +110,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> implements I
     public void changeSkuPrice(SkuId skuId, Money price) {
         Sku sku = skuOf(skuId);
         sku.changePrice(price);
-        raise(new SkuPriceChanged(id, skuId, price));
+        raise(new SkuPriceChangedEvent(id, skuId, price));
     }
 
     /**

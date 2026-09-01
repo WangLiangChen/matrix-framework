@@ -10,7 +10,7 @@ import java.util.Objects;
  * 携带属性值集合（防御性拷贝的不可变record），
  * 不标记为值对象（值对象字段须为深度不可变类型，集合类型不满足）。
  */
-public record SkuTemplate(List<AttributeValueRef> attributeValues, Money price, int stock) {
+public record SkuTemplate(List<AttributeValue> attributeValues, Money price, int stock) {
 
     public SkuTemplate {
         Objects.requireNonNull(attributeValues, "SKU属性值不能为空");

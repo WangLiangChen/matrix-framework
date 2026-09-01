@@ -291,6 +291,11 @@ class DddArchitectureRulesBehaviorTest {
     }
 
     @Test
+    void eventImmutability_rejectsMutableFieldType() {
+        assertViolates(DddArchitectureRules.eventImmutability(BAD), BAD_DOMAIN, "BadEventWithMutableType");
+    }
+
+    @Test
     void domainDoesNotUsePublicSetters_rejectsSetter() {
         assertViolates(DddArchitectureRules.domainDoesNotUsePublicSetters(BAD), BAD_DOMAIN, "BadSetterEntity");
     }

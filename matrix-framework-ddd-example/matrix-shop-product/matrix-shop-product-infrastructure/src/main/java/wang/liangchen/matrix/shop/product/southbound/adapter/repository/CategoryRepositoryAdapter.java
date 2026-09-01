@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.product.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.category.Category;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryFactory;
@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class CategoryRepositoryAdapter implements CategoryRepositoryPort, IRepositoryAdapter {
+public class CategoryRepositoryAdapter extends AbstractRepositoryAdapter<CategoryId, Category, CategoryPo> implements CategoryRepositoryPort {
 
     private final CategoryDao categoryDao;
     private final CategoryFactory categoryFactory = new CategoryFactory();
@@ -29,19 +29,33 @@ public class CategoryRepositoryAdapter implements CategoryRepositoryPort, IRepos
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Category> findById(CategoryId categoryId) {
-        return categoryDao.findById(categoryId.value()).map(this::reconstitute);
+    protected Optional<CategoryPo> doFindById(CategoryId id) {
+        return categoryDao.findById(id.value());
     }
 
     @Override
-    public void save(Category category) {
-        categoryDao.save(toPo(category));
+    protected void doSave(CategoryPo po) {
+        categoryDao.save(po);
     }
 
     @Override
-    public void remove(Category category) {
-        categoryDao.deleteById(category.id().value());
+    protected void doRemoveById(CategoryId id) {
+        categoryDao.deleteById(id.value());
+    }
+
+    @Override
+    protected Category reconstitute(CategoryPo po) {
+        return categoryFactory.reconstitute(CategoryId.of(po.getId()), po.getName(),
+                po.getParentId() == null ? null : CategoryId.of(po.getParentId()));
+    }
+
+    @Override
+    protected CategoryPo toPo(Category category) {
+        CategoryPo po = new CategoryPo();
+        po.setId(category.id().value());
+        po.setName(category.name());
+        po.setParentId(category.parentId() == null ? null : category.parentId().value());
+        return po;
     }
 
     @Override
@@ -50,18 +64,5 @@ public class CategoryRepositoryAdapter implements CategoryRepositoryPort, IRepos
         return categoryDao.findAllByOrderByNameAsc().stream()
                 .map(this::reconstitute)
                 .toList();
-    }
-
-    private Category reconstitute(CategoryPo po) {
-        return categoryFactory.reconstitute(CategoryId.of(po.getId()), po.getName(),
-                po.getParentId() == null ? null : CategoryId.of(po.getParentId()));
-    }
-
-    private CategoryPo toPo(Category category) {
-        CategoryPo po = new CategoryPo();
-        po.setId(category.id().value());
-        po.setName(category.name());
-        po.setParentId(category.parentId() == null ? null : category.parentId().value());
-        return po;
     }
 }

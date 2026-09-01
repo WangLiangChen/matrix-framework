@@ -13,11 +13,11 @@ import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.*;
-import wang.liangchen.matrix.shop.product.message.event.ProductDelistedEvent;
+
+import wang.liangchen.matrix.shop.product.domain.product.AttributeValue;
 import wang.liangchen.matrix.shop.product.message.request.*;
 import wang.liangchen.matrix.shop.product.message.response.*;
 import wang.liangchen.matrix.shop.product.northbound.assembler.ProductEventAssembler;
-import wang.liangchen.matrix.shop.product.northbound.exception.ApplicationException;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -91,8 +91,8 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
      */
     private void publishContractEvents(List<IDomainEvent> domainEvents) {
         domainEvents.forEach(domainEvent -> {
-            if (domainEvent instanceof ProductDelisted delisted) {
-                ProductDelistedEvent contractEvent = productEventAssembler.toContractEvent(delisted);
+            if (domainEvent instanceof ProductDelistedEvent delisted) {
+                wang.liangchen.matrix.shop.product.message.event.ProductDelistedEvent contractEvent = productEventAssembler.toContractEvent(delisted);
                 eventPublisher.publishContract(contractEvent);
             }
         });
@@ -143,9 +143,9 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
         return product;
     }
 
-    private List<AttributeValueRef> attributeValues(List<AttributeValue> values) {
+    private List<AttributeValue> attributeValues(List<wang.liangchen.matrix.shop.product.message.request.AttributeValue> values) {
         return values.stream()
-                .map(value -> new AttributeValueRef(AttributeId.of(value.attributeId()), value.value()))
+                .map(value -> new AttributeValue(AttributeId.of(value.attributeId()), value.value()))
                 .toList();
     }
 

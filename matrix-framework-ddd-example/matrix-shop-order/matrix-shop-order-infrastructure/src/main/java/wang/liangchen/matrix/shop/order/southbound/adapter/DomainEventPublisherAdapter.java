@@ -30,6 +30,11 @@ public class DomainEventPublisherAdapter implements DomainEventPublisherPort, IP
     }
 
     @Override
+    public void publish(IDomainEvent event) {
+        publish(List.of(event));
+    }
+
+    @Override
     public void publish(List<IDomainEvent> domainEvents) {
         domainEvents.forEach(event -> {
             LOGGER.info("发布领域事件：{}", event.getClass().getSimpleName());

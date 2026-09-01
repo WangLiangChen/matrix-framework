@@ -25,26 +25,15 @@ import java.util.Set;
 public class ValueObjectFieldTypeProcessor extends AbstractProcessor {
     private static final String IVALUEOBJECT = "wang.liangchen.matrix.framework.ddd.domain.valueobject.IValueObject";
 
-    private static final Set<String> IMMUTABLE_TYPE_NAMES = Set.of(
-            "boolean", "byte", "char", "short", "int", "long", "float", "double",
-            "java.lang.Boolean", "java.lang.Byte", "java.lang.Character",
-            "java.lang.Short", "java.lang.Integer", "java.lang.Long",
-            "java.lang.Float", "java.lang.Double",
-            "java.lang.String",
-            "java.time.Instant", "java.time.LocalDate", "java.time.LocalTime",
-            "java.time.LocalDateTime", "java.time.ZonedDateTime",
-            "java.time.OffsetDateTime", "java.time.Year", "java.time.YearMonth",
-            "java.time.MonthDay", "java.time.Duration", "java.time.Period",
-            "java.math.BigDecimal", "java.math.BigInteger",
-            "java.util.UUID", "java.util.Optional"
-    );
-
     private TypeElement valueObjectTypeElement;
+
+    private Set<String> immutableTypeNames;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         valueObjectTypeElement = processingEnv.getElementUtils().getTypeElement(IVALUEOBJECT);
+        immutableTypeNames = DomainMetaModel.IMMUTABLE_TYPE_NAMES;
     }
 
     @Override
@@ -109,7 +98,7 @@ public class ValueObjectFieldTypeProcessor extends AbstractProcessor {
         if (isPrimitive(typeName)) {
             return true;
         }
-        if (IMMUTABLE_TYPE_NAMES.contains(typeName)) {
+        if (immutableTypeNames.contains(typeName)) {
             return true;
         }
         if (isEnum(type)) {

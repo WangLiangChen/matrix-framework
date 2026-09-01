@@ -8,12 +8,12 @@ import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
  * 商品已创建：商品进入商品目录的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class ProductCreated extends AbstractDomainEvent {
+public final class ProductCreatedEvent extends AbstractDomainEvent {
 
     private final ProductId productId;
     private final String productName;
 
-    public ProductCreated(ProductId productId, String productName) {
+    public ProductCreatedEvent(ProductId productId, String productName) {
         super();
         this.productId = productId;
         this.productName = productName;

@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.order.domain.order;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.AbstractAggregateRoot;
-import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
@@ -18,7 +17,7 @@ import java.util.List;
  * 通过商品标识(ProductId)引用商品聚合，商品名称与单价为下单时快照。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Order extends AbstractAggregateRoot<OrderId> implements IAggregateRoot<OrderId> {
+public final class Order extends AbstractAggregateRoot<OrderId> {
 
     @Identity
     private final OrderId id;
@@ -80,7 +79,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void placed() {
-        raise(new OrderPlaced(id, buyerId, totalAmount));
+        raise(new OrderPlacedEvent(id, buyerId, totalAmount));
     }
 
     /**
@@ -89,7 +88,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
     public void pay() {
         requireStatus(OrderStatus.Created, "支付");
         this.status = OrderStatus.Paid;
-        raise(new OrderPaid(id));
+        raise(new OrderPaidEvent(id));
     }
 
     /**
@@ -98,7 +97,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
     public void ship() {
         requireStatus(OrderStatus.Paid, "发货");
         this.status = OrderStatus.Shipped;
-        raise(new OrderShipped(id));
+        raise(new OrderShippedEvent(id));
     }
 
     /**
@@ -107,7 +106,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
     public void complete() {
         requireStatus(OrderStatus.Shipped, "完成");
         this.status = OrderStatus.Completed;
-        raise(new OrderCompleted(id));
+        raise(new OrderCompletedEvent(id));
     }
 
     /**
@@ -116,7 +115,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> implements IAggr
     public void cancel() {
         requireStatus(OrderStatus.Created, "取消");
         this.status = OrderStatus.Canceled;
-        raise(new OrderCanceled(id));
+        raise(new OrderCanceledEvent(id));
     }
 
     private void requireStatus(OrderStatus expected, String action) {

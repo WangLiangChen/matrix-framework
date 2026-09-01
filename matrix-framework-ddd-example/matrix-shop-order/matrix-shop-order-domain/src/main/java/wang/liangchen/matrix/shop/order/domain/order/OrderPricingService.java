@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.order.domain.order;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.service.IDomainService;
+import wang.liangchen.matrix.framework.ddd.domain.service.AbstractDomainService;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
 
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ import java.util.List;
  * 忠诚折扣（金卡买家对折后总额再享折扣），为无状态的领域概念。
  */
 @DomainModel(DomainMetaModel.DomainService)
-public class OrderPricingService implements IDomainService {
+public class OrderPricingService extends AbstractDomainService {
 
     /** 大宗折扣的购买数量门槛（同一商品）。 */
     public static final int BULK_QUANTITY_THRESHOLD = 10;

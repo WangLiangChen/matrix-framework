@@ -1,7 +1,7 @@
 package wang.liangchen.matrix.shop.order.northbound.assembler;
 
+import wang.liangchen.matrix.framework.ddd.assembler.AbstractAssembler;
 import wang.liangchen.matrix.framework.ddd.assembler.Assembler;
-import wang.liangchen.matrix.framework.ddd.assembler.IAssembler;
 import wang.liangchen.matrix.shop.order.domain.order.Address;
 import wang.liangchen.matrix.shop.order.domain.order.Order;
 import wang.liangchen.matrix.shop.order.domain.order.OrderItemTemplate;
@@ -18,7 +18,7 @@ import wang.liangchen.matrix.shop.order.message.response.OrderView;
  * 出站将订单聚合装配为查询视图，只做字段映射与类型转换，不含业务规则。
  */
 @Assembler
-public class OrderAssembler implements IAssembler {
+public class OrderAssembler extends AbstractAssembler {
 
     /**
      * 入站：下单请求的收货人契约 → 地址值对象。

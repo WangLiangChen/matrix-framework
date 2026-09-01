@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.order.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.cart.Cart;
 import wang.liangchen.matrix.shop.order.domain.cart.CartFactory;
@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class CartRepositoryAdapter implements CartRepositoryPort, IRepositoryAdapter {
+public class CartRepositoryAdapter extends AbstractRepositoryAdapter<CartId, Cart, CartPo> implements CartRepositoryPort {
 
     private final CartDao cartDao;
     private final CartFactory cartFactory = new CartFactory();
@@ -33,9 +33,33 @@ public class CartRepositoryAdapter implements CartRepositoryPort, IRepositoryAda
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Cart> findById(CartId cartId) {
-        return cartDao.findById(cartId.value()).map(this::reconstitute);
+    protected Optional<CartPo> doFindById(CartId id) {
+        return cartDao.findById(id.value());
+    }
+
+    @Override
+    protected void doSave(CartPo po) {
+        cartDao.save(po);
+    }
+
+    @Override
+    protected void doRemoveById(CartId id) {
+        cartDao.deleteById(id.value());
+    }
+
+    @Override
+    protected Cart reconstitute(CartPo po) {
+        return cartFactory.reconstitute(CartId.of(po.getId()), UserId.of(po.getBuyerId()),
+                po.getItems().stream().map(this::cartItemSummary).toList());
+    }
+
+    @Override
+    protected CartPo toPo(Cart cart) {
+        CartPo po = new CartPo();
+        po.setId(cart.id().value());
+        po.setBuyerId(cart.buyerId().value());
+        po.setItems(cart.itemSummaries().stream().map(this::cartItemPo).toList());
+        return po;
     }
 
     @Override
@@ -48,29 +72,6 @@ public class CartRepositoryAdapter implements CartRepositoryPort, IRepositoryAda
     @Transactional(readOnly = true)
     public List<Cart> cartsContaining(ProductId productId) {
         return cartDao.findByItemsProductId(productId.value()).stream().map(this::reconstitute).toList();
-    }
-
-    @Override
-    public void save(Cart cart) {
-        cartDao.save(toPo(cart));
-    }
-
-    @Override
-    public void remove(Cart cart) {
-        cartDao.deleteById(cart.id().value());
-    }
-
-    private Cart reconstitute(CartPo po) {
-        return cartFactory.reconstitute(CartId.of(po.getId()), UserId.of(po.getBuyerId()),
-                po.getItems().stream().map(this::cartItemSummary).toList());
-    }
-
-    private CartPo toPo(Cart cart) {
-        CartPo po = new CartPo();
-        po.setId(cart.id().value());
-        po.setBuyerId(cart.buyerId().value());
-        po.setItems(cart.itemSummaries().stream().map(this::cartItemPo).toList());
-        return po;
     }
 
     private TradeItemSummary cartItemSummary(CartItemPo po) {

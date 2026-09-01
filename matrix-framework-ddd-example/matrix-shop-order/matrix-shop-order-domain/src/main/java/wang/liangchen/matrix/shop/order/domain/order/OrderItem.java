@@ -3,7 +3,6 @@ package wang.liangchen.matrix.shop.order.domain.order;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.entity.AbstractEntity;
-import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
@@ -14,7 +13,7 @@ import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
  * 每个商品在订单中最多出现一次，以商品标识为身份标识。
  */
 @DomainModel(DomainMetaModel.Entity)
-final class OrderItem extends AbstractEntity<ProductId> implements IEntity<ProductId> {
+final class OrderItem extends AbstractEntity<ProductId> {
 
     @Identity
     private final ProductId productId;

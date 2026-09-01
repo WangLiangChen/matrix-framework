@@ -5,25 +5,25 @@ import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
 
 /**
- * 类目已创建：类目进入商品目录的领域事实。
+ * 类目已移动：类目归属的父类目发生变更的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class CategoryCreated extends AbstractDomainEvent {
+public final class CategoryMovedEvent extends AbstractDomainEvent {
 
     private final CategoryId categoryId;
-    private final String categoryName;
+    private final CategoryId newParentId;
 
-    public CategoryCreated(CategoryId categoryId, String categoryName) {
+    public CategoryMovedEvent(CategoryId categoryId, CategoryId newParentId) {
         super();
         this.categoryId = categoryId;
-        this.categoryName = categoryName;
+        this.newParentId = newParentId;
     }
 
     public CategoryId categoryId() {
         return categoryId;
     }
 
-    public String categoryName() {
-        return categoryName;
+    public CategoryId newParentId() {
+        return newParentId;
     }
 }

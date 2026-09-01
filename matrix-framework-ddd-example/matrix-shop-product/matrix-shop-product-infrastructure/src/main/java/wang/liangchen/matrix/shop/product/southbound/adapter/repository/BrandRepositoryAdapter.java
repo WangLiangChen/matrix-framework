@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.product.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.brand.Brand;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandFactory;
@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class BrandRepositoryAdapter implements BrandRepositoryPort, IRepositoryAdapter {
+public class BrandRepositoryAdapter extends AbstractRepositoryAdapter<BrandId, Brand, BrandPo> implements BrandRepositoryPort {
 
     private final BrandDao brandDao;
     private final BrandFactory brandFactory = new BrandFactory();
@@ -29,19 +29,33 @@ public class BrandRepositoryAdapter implements BrandRepositoryPort, IRepositoryA
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Brand> findById(BrandId brandId) {
-        return brandDao.findById(brandId.value()).map(this::reconstitute);
+    protected Optional<BrandPo> doFindById(BrandId id) {
+        return brandDao.findById(id.value());
     }
 
     @Override
-    public void save(Brand brand) {
-        brandDao.save(toPo(brand));
+    protected void doSave(BrandPo po) {
+        brandDao.save(po);
     }
 
     @Override
-    public void remove(Brand brand) {
-        brandDao.deleteById(brand.id().value());
+    protected void doRemoveById(BrandId id) {
+        brandDao.deleteById(id.value());
+    }
+
+    @Override
+    protected Brand reconstitute(BrandPo po) {
+        return brandFactory.reconstitute(BrandId.of(po.getId()), po.getName(), po.getDescription(), po.getLogo());
+    }
+
+    @Override
+    protected BrandPo toPo(Brand brand) {
+        BrandPo po = new BrandPo();
+        po.setId(brand.id().value());
+        po.setName(brand.name());
+        po.setDescription(brand.description());
+        po.setLogo(brand.logo());
+        return po;
     }
 
     @Override
@@ -50,18 +64,5 @@ public class BrandRepositoryAdapter implements BrandRepositoryPort, IRepositoryA
         return brandDao.findAllByOrderByNameAsc().stream()
                 .map(this::reconstitute)
                 .toList();
-    }
-
-    private Brand reconstitute(BrandPo po) {
-        return brandFactory.reconstitute(BrandId.of(po.getId()), po.getName(), po.getDescription(), po.getLogo());
-    }
-
-    private BrandPo toPo(Brand brand) {
-        BrandPo po = new BrandPo();
-        po.setId(brand.id().value());
-        po.setName(brand.name());
-        po.setDescription(brand.description());
-        po.setLogo(brand.logo());
-        return po;
     }
 }

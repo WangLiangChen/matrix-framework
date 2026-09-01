@@ -7,7 +7,7 @@ import java.util.List;
  * 携带属性值集合（防御性拷贝的不可变record），
  * 不标记为值对象（值对象字段须为深度不可变类型，集合类型不满足）。
  */
-public record SkuSummary(SkuId id, List<AttributeValueRef> attributeValues, Money price, int stock) {
+public record SkuSummary(SkuId id, List<AttributeValue> attributeValues, Money price, int stock) {
 
     public SkuSummary {
         attributeValues = List.copyOf(attributeValues);

@@ -15,7 +15,7 @@ import java.util.List;
  * 商品聚合通过属性标识(AttributeId)引用属性并携带属性值。
  */
 @DomainModel(DomainMetaModel.AggregateRoot)
-public final class Attribute extends AbstractAggregateRoot<AttributeId> implements IAggregateRoot<AttributeId> {
+public final class Attribute extends AbstractAggregateRoot<AttributeId> {
 
     @Identity
     private final AttributeId id;
@@ -51,7 +51,7 @@ public final class Attribute extends AbstractAggregateRoot<AttributeId> implemen
      * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
      */
     void created() {
-        raise(new AttributeCreated(id, name, type));
+        raise(new AttributeCreatedEvent(id, name, type));
     }
 
     /**

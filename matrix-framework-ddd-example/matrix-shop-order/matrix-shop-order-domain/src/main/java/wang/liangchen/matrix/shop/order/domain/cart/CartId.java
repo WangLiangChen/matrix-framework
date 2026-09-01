@@ -2,7 +2,7 @@ package wang.liangchen.matrix.shop.order.domain.cart;
 
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
-import wang.liangchen.matrix.framework.ddd.domain.identity.ISimpleIdentity;
+import wang.liangchen.matrix.framework.ddd.domain.identity.IStringIdentity;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 
 import java.util.UUID;
@@ -11,7 +11,7 @@ import java.util.UUID;
  * 购物车身份标识：系统生成的代理标识，无业务含义。
  */
 @DomainModel(DomainMetaModel.Identity)
-public record CartId(String value) implements ISimpleIdentity<String> {
+public record CartId(String value) implements IStringIdentity {
 
     public CartId {
         if (value == null || value.isBlank()) {

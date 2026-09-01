@@ -8,11 +8,11 @@ import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
  * 订单已取消：订单被取消的领域事实。
  */
 @DomainModel(DomainMetaModel.DomainEvent)
-public final class OrderCanceled extends AbstractDomainEvent {
+public final class OrderCanceledEvent extends AbstractDomainEvent {
 
     private final OrderId orderId;
 
-    public OrderCanceled(OrderId orderId) {
+    public OrderCanceledEvent(OrderId orderId) {
         super();
         this.orderId = orderId;
     }

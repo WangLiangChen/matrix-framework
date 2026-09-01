@@ -2,8 +2,8 @@ package wang.liangchen.matrix.shop.product.southbound.adapter.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
-import wang.liangchen.matrix.framework.ddd.southbound.adapter.IRepositoryAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 @Repository
 @Adapter(PortType.Repository)
-public class ProductRepositoryAdapter implements ProductRepositoryPort, IRepositoryAdapter {
+public class ProductRepositoryAdapter extends AbstractRepositoryAdapter<ProductId, Product, ProductPo> implements ProductRepositoryPort {
 
     private final ProductDao productDao;
     private final ProductFactory productFactory = new ProductFactory();
@@ -31,30 +31,22 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort, IReposit
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Product> findById(ProductId productId) {
-        return productDao.findById(productId.value()).map(this::reconstitute);
+    protected Optional<ProductPo> doFindById(ProductId id) {
+        return productDao.findById(id.value());
     }
 
     @Override
-    public void save(Product product) {
-        productDao.save(toPo(product));
+    protected void doSave(ProductPo po) {
+        productDao.save(po);
     }
 
     @Override
-    public void remove(Product product) {
-        productDao.deleteById(product.id().value());
+    protected void doRemoveById(ProductId id) {
+        productDao.deleteById(id.value());
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Product> findListed(String keyword, CategoryId categoryId) {
-        return productDao.searchListed(keyword, categoryId == null ? null : categoryId.value()).stream()
-                .map(this::reconstitute)
-                .toList();
-    }
-
-    private Product reconstitute(ProductPo po) {
+    protected Product reconstitute(ProductPo po) {
         return productFactory.reconstitute(
                 ProductId.of(po.getId()), po.getName(), po.getSubtitle(),
                 CategoryId.of(po.getCategoryId()), BrandId.of(po.getBrandId()),
@@ -63,7 +55,8 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort, IReposit
                 po.isListed());
     }
 
-    private ProductPo toPo(Product product) {
+    @Override
+    protected ProductPo toPo(Product product) {
         ProductPo po = new ProductPo();
         po.setId(product.id().value());
         po.setName(product.name());
@@ -74,6 +67,14 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort, IReposit
         po.setAttributeValues(product.attributeValues().stream().map(this::attributeValueRefPo).toList());
         po.setSkus(product.skuSummaries().stream().map(this::skuPo).toList());
         return po;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> findListed(String keyword, CategoryId categoryId) {
+        return productDao.searchListed(keyword, categoryId == null ? null : categoryId.value()).stream()
+                .map(this::reconstitute)
+                .toList();
     }
 
     private SkuSummary skuSummary(SkuPo po) {
@@ -92,11 +93,11 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort, IReposit
         return po;
     }
 
-    private AttributeValueRef attributeValueRef(AttributeValueRefPo po) {
-        return new AttributeValueRef(AttributeId.of(po.getAttributeId()), po.getValue());
+    private AttributeValue attributeValueRef(AttributeValueRefPo po) {
+        return new AttributeValue(AttributeId.of(po.getAttributeId()), po.getValue());
     }
 
-    private AttributeValueRefPo attributeValueRefPo(AttributeValueRef ref) {
+    private AttributeValueRefPo attributeValueRefPo(AttributeValue ref) {
         AttributeValueRefPo po = new AttributeValueRefPo();
         po.setAttributeId(ref.attributeId().value());
         po.setValue(ref.value());
