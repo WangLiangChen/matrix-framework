@@ -7,7 +7,7 @@ import wang.liangchen.matrix.framework.ddd.rules.DddArchitectureRules;
 
 /**
  * 订单限界上下文架构守护测试：引用框架的DDD架构规则集，
- * 守护分层依赖规则、领域模型规则、消息契约规则、包与架构标注规则。
+ * 守护分层依赖规则、领域模型规则、消息契约规则、包与架构标注规则、架构放置规则。
  */
 class ArchitectureTest {
 
@@ -37,5 +37,10 @@ class ArchitectureTest {
     @Test
     void architectureAnnotationRules() {
         DddArchitectureRules.architectureAnnotationRules(ROOT).check(CLASSES);
+    }
+
+    @Test
+    void architecturePlacementRules() {
+        DddArchitectureRules.architecturePlacementRules(ROOT).check(CLASSES);
     }
 }

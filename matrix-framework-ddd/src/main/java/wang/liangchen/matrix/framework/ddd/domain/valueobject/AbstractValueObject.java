@@ -42,7 +42,7 @@ public abstract class AbstractValueObject implements IValueObject {
         for (Field field : fieldsOf(getClass())) {
             Object value = readField(field, this);
             int fieldHash = Arrays.deepHashCode(new Object[]{value});
-            result = 31 * result + 31 + fieldHash;
+            result = 31 * result + fieldHash;
         }
         return result;
     }

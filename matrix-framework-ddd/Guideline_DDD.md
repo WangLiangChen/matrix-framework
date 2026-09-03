@@ -1,5 +1,7 @@
 # 亚里士多德哲学
 
+> 本节为领域元模型中"实体—属性"建模提供哲学依据：实体作为独立存在的主语、属性作为依附实体的谓语，对应下文"实体 (Entity)"与"属性 (Attribute)"的划分。
+
 * 范畴定义：是对存在进行分类和描述的最高概念，通过主谓结构 (subject is predicate)来逻辑化地表达存在的特征和关系。
 * 范畴内容：实体、数量、性质、关系、场所、时间、位置、状态、动作、受动。
 * 主谓逻辑：实体是唯一能充当主语的范畴，其它九个属性范畴只能充当谓语。
@@ -143,18 +145,17 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 
 ## 上下文映射 (Context Map)
 
-限界上下文之间的协作关系，通过上下文映射模式明确集成方式。模式分为两类（《解构领域驱动设计》的组织级别映射与系统级别映射）：组织级别映射（合作关系、共享内核、客户-供应商、遵奉者、各行其道）界定团队之间的协作关系与职责边界；系统级别映射（防腐层、开放主机服务、发布语言、大泥球）界定系统之间的技术集成方式。
+限界上下文之间的协作关系，通过上下文映射模式明确集成方式。模式按关注点分为两类：团队协作类（合作关系、共享内核、客户-供应商、遵奉者、各行其道）界定团队之间的协作关系与职责边界；通信集成类（防腐层、开放主机服务、发布语言）界定系统之间的技术集成方式。大泥球不是一种集成模式，而是描述某上下文内部混乱状态的反模式，与其集成时只能经防腐层做防御性隔离（见下）。
 
 * 合作关系 (Partnership)：两个团队/上下文彼此合作，接口随需变更。适用于由同一团队或合作紧密的团队维护的上下文。
 * 共享内核 (Shared Kernel)：多个上下文共享一部分模型，需共同维护。仅适用于共享模型较小且稳定、双方能够紧密协调的场景，避免共享过多。
 * 客户-供应商 (Customer-Supplier)：下游依赖上游，上游向下游承诺契约。适用于上游处于主导地位、能够向下游承诺契约的场景。
-* 跟随者 (Conformist，《解构领域驱动设计》译为"遵奉者"，二者同义)：下游只能跟随上游模型，不做变更。适用于下游对上游无影响力、不得不接受上游模型的场景。
+* 跟随者 (Conformist，也作"遵奉者"，二者同义：下游只能跟随上游模型，不做变更。适用于下游对上游无影响力、不得不接受上游模型的场景。
 * 防腐层 (Anti-Corruption Layer)：下游在自己的边界内建立隔离层，翻译上游模型，避免上游模型腐化自身领域。适用于下游需要保护自身领域不被上游模型侵入的场景。
 * 开放主机服务 (Open Host Service)：上游为下游提供定义良好的协议，配合发布语言供多个下游复用。适用于上游服务多个下游、需要稳定协议的场景。
 * 发布语言 (Published Language)：与开放主机服务配套的精确定义、可复用的通信语言；落地为本文档的"消息契约"。
-* 大泥球 (Big Ball of Mud)：边界模糊、内部混杂耦合的模型或系统（常见于遗留系统）。与其集成时不得直接依赖或沿用其模型，只能经防腐层做防御性翻译集成，避免混乱渗入自身领域模型。
-* 分离方式 (Separate Ways，《解构领域驱动设计》译为"各行其道"，二者同义)
-  ：上下文之间不存在协作关系，各自独立建模、独立演进，不建立集成。适用于协作成本高于集成收益、各自重复实现反而成本更低的场景。应优先评估：无需协作就不集成。
+* 大泥球 (Big Ball of Mud)：边界模糊、内部混杂耦合的模型或系统（常见于遗留系统），本质是反模式而非集成模式。与其集成时不得直接依赖或沿用其模型，只能经防腐层做防御性翻译集成，避免混乱渗入自身领域模型。
+* 分离方式 (Separate Ways)：上下文之间不存在协作关系，各自独立建模、独立演进，不建立集成。适用于协作成本高于集成收益、各自重复实现反而成本更低的场景。应优先评估：无需协作就不集成。
 
 # 领域模型模式 (Domain Model Pattern)
 
@@ -169,7 +170,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 
 # 领域元模型
 
-领域元模型是战术设计的基本建模元素，含实体、属性、值对象、身份标识、聚合与聚合根、领域服务、领域事件、领域工厂、领域仓储（与《解构领域驱动设计》的元模型一致）；其中需以@DomainModel注解标注的七类（Entity/AggregateRoot/ValueObject/DomainService/DomainEvent/DomainFactory/Identity）对应框架DomainMetaModel枚举；属性是实体的组成部分（无独立枚举值），领域仓储以端口（IRepositoryPort）承载（不入枚举）。
+领域元模型是战术设计的基本建模元素，含实体、属性、值对象、身份标识、聚合与聚合根、领域服务、领域事件、领域工厂、领域仓储；其中需以@DomainModel注解标注的七类（Entity/AggregateRoot/ValueObject/DomainService/DomainEvent/DomainFactory/Identity）对应框架DomainMetaModel枚举；属性是实体的组成部分（无独立枚举值），领域仓储以端口（IRepositoryPort）承载（不入枚举）。
 
 ## 实体 (Entity)
 
@@ -198,7 +199,7 @@ src/main/java/wang/liangchen/matrix/framework/ddd，应充分使用。
 * 实体的唯一标识，值对象的一个特例，具有值对象的特征。
 * 无业务含义的通用类型身份标识。
 * 有业务含义的领域类型身份标识。
-* 按来源可分为自然标识（业务规则赋予的唯一标识）与代理标识（系统生成、无业务含义的标识），分别对应领域类型与通用类型的身份标识。
+* 按来源可分为自然标识（业务规则赋予的唯一标识）与代理标识（系统生成、无业务含义的标识），通常分别以领域类型与通用类型的身份标识承载（并非硬性对应，自然标识亦可用通用类型承载）。
 
 ## 聚合 (Aggregate)
 
@@ -327,7 +328,7 @@ graph TD
 
 * 跨边界（限界上下文之间、北向/南向）通信的消息模型，用注解@MessageContract标识，对应发布语言 (Published Language)。
 * 消息契约是纯数据模型：不能引用领域模型，更不能担任工厂（不得提供toXxx ()
-  等方法创建领域对象）。《解构领域驱动设计》讨论了消息契约模型自身提供转换方法的翻译方式；本框架统一采用装配器（Assembler）承担领域对象的创建与消息契约的装配，不在消息契约中提供转换方法。
+  等方法创建领域对象）。也有消息契约模型自身提供转换方法的方式；本框架统一采用装配器（Assembler）承担领域对象的创建与消息契约的装配，不在消息契约中提供转换方法。
 * 操作类型决定消息契约类型（MessageContractType）：命令请求 (COMMAND_REQUEST)、查询请求 (QUERY_REQUEST)、事件 (EVENT)、调度
   (SCHEDULING)，另有通用类型REQUEST/RESPONSE/RESULT/VIEW。
 *
@@ -367,11 +368,11 @@ graph TD
 
 ## 术语约定
 
-* Ubiquitous Language 在《解构领域驱动设计》中译为"统一协作语言"，本文档统一使用"统一语言"，二者同义。
-* Repository 在《解构领域驱动设计》中译为"资源库"，本文档统一使用"仓储"，二者同义。
-* Conformist 在《解构领域驱动设计》中译为"遵奉者"，本文档行文使用"跟随者"，二者同义。
-* Separate Ways 在《解构领域驱动设计》中译为"各行其道"，本文档行文使用"分离方式"，二者同义。
-* 架构映射：在《解构领域驱动设计》统一过程三阶段（全局分析→架构映射→领域建模）中指战略设计阶段（系统上下文、限界上下文、上下文映射）。本文档"设计流程"中的战略设计步骤（第2~4步）与之对应；领域模型到代码结构的落地本文档称"代码映射"（第6步），不使用"架构映射"一词，避免与该书术语冲突。
+* Ubiquitous Language 有"统一语言""通用语言""统一协作语言"等多种译法（均强调其作为领域专家与开发团队协作媒介的性质），本文档统一使用"统一语言"。
+* Repository "资源库"，本文档统一使用"仓储"，二者同义。
+* Conformist "遵奉者"，本文档行文使用"跟随者"，二者同义。
+* Separate Ways "各行其道"，本文档行文使用"分离方式"，二者同义。
+* 架构映射：过程三阶段（全局分析→架构映射→领域建模）中指战略设计阶段（系统上下文、限界上下文、上下文映射）。本文档"设计流程"中的战略设计步骤（第2~4步）与之对应；领域模型到代码结构的落地本文档称"代码映射"（第6步），不使用"架构映射"一词，避免与该书术语冲突。
 * 端口 (Port)：领域层声明的南向接口，业务端口位于业务模块的domain/port包（框架自身的端口基接口位于框架包southbound/port），由南向适配层实现（依赖倒置），框架中体现为
   IRepositoryPort、IClientPort、IFilePort、IPublisherPort 等。
 * 消息契约 (MessageContract)：跨边界通信的消息模型（请求/响应/事件），见"消息契约"。
@@ -407,7 +408,7 @@ graph TD
 
 >
 说明：以下约束中涉及的接口与注解（IIdentity、ISimpleIdentity、@Identity、@DomainModel、@DomainPackage、@AggregatePackage、@BoundedContextPackage、@MessageContract、@ApplicationService、@Remote、@Port、@Adapter
-等）为本框架的工程约定；设计原则源自《解构领域驱动设计》。
+等）为本框架的工程约定。
 
 ## 统一语言 (Ubiquitous Language)
 
@@ -467,9 +468,10 @@ graph TD
 
 *
 
-框架的架构风格对应《解构领域驱动设计》的菱形对称架构（限界上下文内部的架构形态）：分层架构、六边形架构（端口-适配器）与依赖倒置原则的结合，体现"内外分离、南北对称"——内部为领域层（领域模型位于架构核心，不依赖任何外层），外部为网关层；北向网关面向调用方（远程服务+应用服务），南向网关面向外部资源（端口+适配器，依赖倒置：领域层声明端口，适配器实现端口）。北向依赖向内（远程服务→应用服务→领域层）。
+框架的架构风格对应菱形对称架构（限界上下文内部的架构形态）：分层架构、六边形架构（端口-适配器）与依赖倒置原则的结合，体现"内外分离、南北对称"——内部为领域层（领域模型位于架构核心，不依赖任何外层），外部为网关层；北向网关面向调用方（远程服务+应用服务），南向网关面向外部资源（端口+适配器，依赖倒置：领域层声明端口，适配器实现端口）。北向依赖向内（远程服务→应用服务→领域层）。
 
 * 本文档的包结构即菱形对称架构在限界上下文内的落地：northbound（北向网关：remote 远程服务、local 应用服务、assembler 装配器、event 应用事件、exception 应用异常）、domain（领域层，含 port 业务端口）、southbound（南向网关：adapter 适配器；框架端口基接口亦位于框架包 southbound/port）、message（发布语言，跨边界的消息契约）。
+* 端口归属说明：菱形对称架构在概念上将"端口"划归南向网关，本框架依据依赖倒置原则将**业务端口接口**声明在领域层的 domain/port 包（由领域需要驱动、随领域演进），仅将**框架端口基接口**（IRepositoryPort 等）置于框架包 southbound/port，适配器在 southbound/adapter 实现。此为对经典六边形/DIP 的取舍，端口的"南向"语义不变，但物理位置与书中"端口位于南向网关"的表述存在差异，特此说明。
 * 分层依赖规则见下节，技术组件结构见"DDD技术组件结构"。
 
 ## 分层依赖规则
@@ -485,7 +487,7 @@ graph TD
     *
   layeredDependencyRules：领域层不得依赖消息契约/北向/南向适配器；领域模型类（实体、值对象、事件、工厂，领域服务豁免）不得使用端口；消息契约不得依赖领域模型（含框架领域类型）与北向；端口不得反向依赖适配器；应用服务不得依赖远程层与适配器；远程服务不得直接访问领域对象与适配器；南向适配器不得反向依赖北向。
     *
-  domainModelRules：领域命名禁止技术后缀（豁免框架自身基类与标记接口）、领域模型@DomainModel标注及类型匹配、实体身份标识、实体重写equals/hashCode、聚合内部实体封装（含嵌套类）、值对象与事件不可变、无公共setter、领域对象不实现Serializable（枚举与异常类豁免）、存在领域工厂时聚合根构造方法不得public。
+  domainModelRules：领域命名禁止技术后缀（豁免框架自身基类与标记接口）、领域模型@DomainModel标注及类型匹配、实体身份标识、实体重写equals/hashCode、聚合内部实体封装（含嵌套类）、值对象与事件不可变、领域事件必须继承AbstractDomainEvent（domainEventsExtendBase）、无公共setter、领域对象不实现Serializable（枚举与异常类豁免）、存在领域工厂时聚合根构造方法不得public。
     *
   messageContractRules：契约标注@MessageContract且type/exchangePattern与标记接口匹配（命令FireAndForget、查询RequestResponse、事件RequestStream、调度FireAndForget或RequestResponse）、契约命名规范（xxxCommandRequest/xxxQueryRequest/xxxSchedulingRequest/xxxResult/xxxView）、契约不得提供toXxx
   ()公共工厂方法、message包只放消息契约。
@@ -495,7 +497,7 @@ graph TD
     *
   architecturePlacementRules：架构元素的具体实现类必须位于约定包——应用服务→northbound.local、远程服务→northbound.remote、应用事件→northbound.event、装配器→northbound.assembler、适配器→southbound.adapter、消息契约→message、领域模型→domain、业务端口→domain.port（框架自身的端口基接口位于框架包southbound/port，豁免）；并守护装配完整性（message包只放契约、业务端口必须由至少一个适配器实现）。
     *
-  另有domainDoesNotDependOnMessage、domainNamingRule、entitiesDeclareIdentity、entitiesImplementEqualsAndHashCode、domainModelClassesDoNotDependOnPorts、applicationEventsExtendBase、messageContractsAnnotated、portsAnnotated、assemblersAnnotated、applicationServicePlacement、portPlacement、adapterDoesNotDependOnNorthbound、messageDoesNotDependOnNorthbound、aggregateRootConstructorsNotPublicWithFactory、messagePackageContainsOnlyContracts、portsImplementedByAdapters等单条规则方法可单独引用。
+  另有domainDoesNotDependOnMessage、domainNamingRule、entitiesDeclareIdentity、entitiesImplementEqualsAndHashCode、domainModelClassesDoNotDependOnPorts、applicationEventsExtendBase、domainEventsExtendBase、messageContractsAnnotated、portsAnnotated、assemblersAnnotated、applicationServicePlacement、portPlacement、adapterDoesNotDependOnNorthbound、messageDoesNotDependOnNorthbound、aggregateRootConstructorsNotPublicWithFactory、messagePackageContainsOnlyContracts、portsImplementedByAdapters等单条规则方法可单独引用。
 * 框架以optional方式依赖archunit，业务模块需在pom中自行声明archunit测试依赖：
   ```xml
   <dependency>
@@ -550,7 +552,7 @@ AbstractValueObject的相等性口径：按全部非static、非transient字段�
 一个聚合内，只有聚合根是public的，其它实体都应是包内可见的（package-private，嵌套类形式的内部实体同样受此约束），外部只能通过聚合根来访问和修改聚合内部的状态；值对象（含身份标识）因跨聚合引用与应用服务传参需要不强制包内可见，以不可变保证安全。
 
 * 聚合的不变量，施加在聚合边界内部各个对象之上，使其遵守一种恒定关系的业务约束。
-* Aggregate=IV (Root Entity,{Entities},{Value Objects})
+* Aggregate=IV (Root Entity,{Entities},{Value Objects})（IV 指不变量 Invariant：聚合由一个聚合根、一组实体与一组值对象在不变量约束下构成的整体）
 * 一个聚合拥有独立的包结构，包内创建package-info.java来标识聚合边界，并添加注解@AggregatePackage (name="{聚合名称}")
 * 聚合之间推荐通过身份标识引用进行关联关系协作。
 * 位于同一限界上下文内的聚合，可通过互为协作的领域行为进行瞬态协作：将另一聚合根作为方法参数传入，但不持久持有该引用。
@@ -687,6 +689,7 @@ ID, AR>泛型契约：findById（返回Optional）/save/remove (AR)/remove (ID)�
     * Subscriber：服务事件契约，消息契约模型为Event，对应ISubscriberRemote；
     * Scheduler：定时调度契约，对应ISchedulerRemote。
 * 远程服务的对外方法只暴露消息契约，并通过应用服务完成用例编排，不直接访问领域对象与南向适配器（外部资源访问须经应用服务与端口）。ArchUnit守护直接领域对象与适配器依赖；API签名和调用路径需在代码评审中确认。
+* 部署无关的开放主机服务接口（可选）：除以@Remote远程服务直接暴露协议外，上下文也可在契约模块（message同级的service包）额外声明面向下游的应用服务接口（如OrderCommandService/ProductQueryService），方法只操作消息契约、不暴露领域模型。该接口单体部署时由应用服务本地实现（northbound.local），微服务部署时由client模块的远程适配器（Feign等）实现，下游只依赖此接口即可对部署形态无感知。接口本身不实现IRemote，故不受远程服务放置规则约束；其两种实现分别落位northbound.local与client模块。
 
 ## 异常 (Exception)
 

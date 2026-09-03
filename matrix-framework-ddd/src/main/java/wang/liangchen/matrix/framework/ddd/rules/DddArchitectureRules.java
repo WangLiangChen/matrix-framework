@@ -27,6 +27,7 @@ import wang.liangchen.matrix.framework.ddd.domain.aggregate.AggregatePackage;
 import wang.liangchen.matrix.framework.ddd.domain.aggregate.IAggregateRoot;
 import wang.liangchen.matrix.framework.ddd.domain.entity.IEntity;
 import wang.liangchen.matrix.framework.ddd.domain.event.AbstractDomainEvent;
+import wang.liangchen.matrix.framework.ddd.domain.event.IDomainEvent;
 import wang.liangchen.matrix.framework.ddd.domain.factory.IDomainFactory;
 import wang.liangchen.matrix.framework.ddd.domain.identity.IIdentity;
 import wang.liangchen.matrix.framework.ddd.domain.identity.Identity;
@@ -118,6 +119,7 @@ public final class DddArchitectureRules {
                 .and(aggregateInternalEntityEncapsulation(rootPackage))
                 .and(valueObjectImmutability(rootPackage))
                 .and(eventImmutability(rootPackage))
+                .and(domainEventsExtendBase(rootPackage))
                 .and(domainDoesNotUsePublicSetters(rootPackage))
                 .and(domainDoesNotImplementSerializable(rootPackage))
                 .and(aggregateRootConstructorsNotPublicWithFactory(rootPackage));
@@ -339,6 +341,26 @@ public final class DddArchitectureRules {
                 })
                 .allowEmptyShould(true)
                 .because("应用事件必须继承AbstractApplicationEvent基类");
+    }
+
+    /**
+     * 领域事件必须继承AbstractDomainEvent基类：domain包下实现IDomainEvent的具体类必须继承AbstractDomainEvent，
+     * 从而统一获得eventId/occurredOn、值相等与不可变约束，并纳入其余以AbstractDomainEvent为基准的事件规则守护
+     * （命名、不可变、不可序列化、@DomainModel标注等）。与应用事件的applicationEventsExtendBase对称。
+     */
+    public static ArchRule domainEventsExtendBase(String rootPackage) {
+        return classes().that(describe("concrete IDomainEvent implementations in the domain layer of " + rootPackage,
+                        concreteDomainEventCandidatesIn(rootPackage)))
+                .should(new ArchCondition<JavaClass>("extend AbstractDomainEvent") {
+                    @Override
+                    public void check(JavaClass item, ConditionEvents events) {
+                        boolean satisfied = item.isAssignableTo(AbstractDomainEvent.class);
+                        String message = String.format("%s extends AbstractDomainEvent=%s", item.getSimpleName(), satisfied);
+                        events.add(new SimpleConditionEvent(item, satisfied, message));
+                    }
+                })
+                .allowEmptyShould(true)
+                .because("领域事件必须继承AbstractDomainEvent基类");
     }
 
     /**
@@ -1010,7 +1032,7 @@ public final class DddArchitectureRules {
         if (javaClass.isAssignableTo(IDomainService.class)) {
             return DomainMetaModel.DomainService;
         }
-        if (javaClass.isAssignableTo(AbstractDomainEvent.class)) {
+        if (javaClass.isAssignableTo(IDomainEvent.class)) {
             return DomainMetaModel.DomainEvent;
         }
         if (javaClass.isAssignableTo(IValueObject.class)) {
@@ -1311,6 +1333,23 @@ public final class DddArchitectureRules {
         };
     }
 
+    /**
+     * domain包下实现IDomainEvent标记接口的具体类（无论是否已继承AbstractDomainEvent）——
+     * 供domainEventsExtendBase强制其继承基类。
+     */
+    private static DescribedPredicate<JavaClass> concreteDomainEventCandidatesIn(String rootPackage) {
+        return new DescribedPredicate<JavaClass>("concrete IDomainEvent implementations in the domain layer of " + rootPackage) {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return inPackageTree(javaClass.getPackageName(), rootPackage + ".domain")
+                        && javaClass.isAssignableTo(IDomainEvent.class)
+                        && !javaClass.isInterface()
+                        && !javaClass.isEnum()
+                        && !javaClass.getModifiers().contains(JavaModifier.ABSTRACT);
+            }
+        };
+    }
+
     private static DescribedPredicate<JavaField> nonStaticFieldOfDomainEvent(String rootPackage) {
         return new DescribedPredicate<JavaField>("non-static fields of domain events of " + rootPackage) {
             @Override
@@ -1388,7 +1427,7 @@ public final class DddArchitectureRules {
                 return javaClass.isAssignableTo(IEntity.class)
                         || javaClass.isAssignableTo(IValueObject.class)
                         || javaClass.isAssignableTo(IDomainService.class)
-                        || javaClass.isAssignableTo(AbstractDomainEvent.class)
+                        || javaClass.isAssignableTo(IDomainEvent.class)
                         || javaClass.isAssignableTo(IDomainFactory.class);
             }
         };

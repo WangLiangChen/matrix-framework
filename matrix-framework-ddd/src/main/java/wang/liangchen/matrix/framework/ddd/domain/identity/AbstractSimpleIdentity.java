@@ -5,8 +5,9 @@ import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.valueobject.AbstractValueObject;
 
 /**
- * 身份标识基类：身份标识是值对象的特例——可为无业务含义的通用类型（如UUIDIdentity），
- * 也可为有业务含义的领域类型。
+ * 简单身份标识基类：包装单个值(T)的身份标识，是值对象的特例。
+ * 相等性与哈希继承自AbstractValueObject（按字段值比较），子类应为final并以静态工厂of创建。
+ * 多字段/复合身份标识可改为继承AbstractIdentity。
  *
  * @author Liangchen.Wang
  */

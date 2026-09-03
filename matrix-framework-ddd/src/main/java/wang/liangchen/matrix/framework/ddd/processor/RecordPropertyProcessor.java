@@ -1,23 +1,24 @@
 package wang.liangchen.matrix.framework.ddd.processor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Liangchen.Wang 2022-11-27 22:12
  */
-public class RecordPropertyProcessor implements IPropertyProcessor {
+final class RecordPropertyProcessor implements IPropertyProcessor {
     private final RecordComponent component;
     private final Method accessor;
+    private final Set<Annotation> annotations;
 
-    public RecordPropertyProcessor(RecordComponent component, Method accessor) {
+    public RecordPropertyProcessor(RecordComponent component) {
         this.component = component;
-        this.accessor = accessor;
+        this.accessor = component.getAccessor();
+        this.annotations = Set.of(component.getAnnotations());
     }
 
     @Override
@@ -40,7 +41,7 @@ public class RecordPropertyProcessor implements IPropertyProcessor {
         try {
             return accessor.invoke(target);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to read record component: " + getName(), e.getCause());
         }
     }
 
@@ -51,30 +52,11 @@ public class RecordPropertyProcessor implements IPropertyProcessor {
 
     @Override
     public Set<Annotation> getAnnotations() {
-        return new HashSet<>(Arrays.asList(component.getAnnotations()));
+        return annotations;
     }
 
     @Override
     public Class<?> getDeclaringClass() {
         return accessor.getDeclaringClass();
-    }
-
-    @Override
-    public int getModifiers() {
-        try {
-            return accessor.getDeclaringClass().getDeclaredField(component.getName()).getModifiers();
-        } catch (NoSuchFieldException e) {
-            return 0;
-        }
-    }
-
-    @Override
-    public boolean isReadable() {
-        return true;
-    }
-
-    @Override
-    public boolean isWritable() {
-        return false;
     }
 }
