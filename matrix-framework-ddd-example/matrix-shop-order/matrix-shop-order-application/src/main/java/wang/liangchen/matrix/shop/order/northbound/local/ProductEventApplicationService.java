@@ -9,8 +9,8 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.IEventApplicationService;
 import wang.liangchen.matrix.shop.order.domain.cart.Cart;
-import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
-import wang.liangchen.matrix.shop.order.domain.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.order.southbound.port.CartRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 
 /**

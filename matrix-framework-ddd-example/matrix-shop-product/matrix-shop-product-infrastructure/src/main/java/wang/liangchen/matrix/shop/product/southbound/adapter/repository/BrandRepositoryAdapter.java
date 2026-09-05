@@ -6,23 +6,21 @@ import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepository
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.brand.Brand;
-import wang.liangchen.matrix.shop.product.domain.brand.BrandFactory;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
-import wang.liangchen.matrix.shop.product.domain.port.BrandRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.BrandRepositoryPort;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * 品牌仓储适配器：实现品牌仓储端口，完成品牌聚合与持久化对象之间的防腐翻译，
- * 重建聚合时委托品牌工厂的reconstitute方法；查询读侧返回聚合根。
+ * 重建聚合时委托品牌聚合自身的reconstitute静态方法；查询读侧返回聚合根。
  */
 @Repository
 @Adapter(PortType.Repository)
 public class BrandRepositoryAdapter extends AbstractRepositoryAdapter<BrandId, Brand, BrandPo> implements BrandRepositoryPort {
 
     private final BrandDao brandDao;
-    private final BrandFactory brandFactory = new BrandFactory();
 
     public BrandRepositoryAdapter(BrandDao brandDao) {
         this.brandDao = brandDao;
@@ -45,7 +43,7 @@ public class BrandRepositoryAdapter extends AbstractRepositoryAdapter<BrandId, B
 
     @Override
     protected Brand reconstitute(BrandPo po) {
-        return brandFactory.reconstitute(BrandId.of(po.getId()), po.getName(), po.getDescription(), po.getLogo());
+        return Brand.reconstitute(BrandId.of(po.getId()), po.getName(), po.getDescription(), po.getLogo());
     }
 
     @Override

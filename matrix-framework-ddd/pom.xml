@@ -29,4 +29,23 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--
+                    ValueObjectFieldTypeProcessor 在本模块定义但通过 META-INF/services 注册，
+                    javac 编译本模块时 ServiceLoader 会尝试加载它，但此时类尚未编译完成导致 ServiceConfigurationError。
+                    -proc:none 禁用本模块编译期的注解处理；该处理器由依赖本模块的其他模块使用。
+                    -->
+                    <compilerArgs>
+                        <arg>-proc:none</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

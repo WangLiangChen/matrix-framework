@@ -8,7 +8,7 @@ import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
-import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.*;
 
 import java.util.List;

@@ -9,7 +9,7 @@ import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.IClientAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.port.ProductClientPort;
+import wang.liangchen.matrix.shop.order.southbound.port.ProductClientPort;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;

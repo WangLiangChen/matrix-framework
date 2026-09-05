@@ -7,7 +7,7 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ISchedulingApplicationService;
 import wang.liangchen.matrix.shop.order.domain.order.Order;
-import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.OrderRepositoryPort;
 import wang.liangchen.matrix.shop.order.message.request.CancelOrderCommandRequest;
 import wang.liangchen.matrix.shop.order.message.request.CancelTimeoutOrdersSchedulingRequest;
 import wang.liangchen.matrix.shop.order.message.response.CancelTimeoutOrdersResult;

@@ -2,21 +2,19 @@ package wang.liangchen.matrix.shop.order.northbound.local;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wang.liangchen.matrix.framework.ddd.domain.exception.AbstractDomainException;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.order.*;
-import wang.liangchen.matrix.shop.order.domain.port.DomainEventPublisherPort;
-import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
-import wang.liangchen.matrix.shop.order.domain.port.ProductClientPort;
+import wang.liangchen.matrix.shop.order.southbound.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.order.southbound.port.OrderRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.ProductClientPort;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;
 import wang.liangchen.matrix.shop.order.message.request.*;
 import wang.liangchen.matrix.shop.order.message.response.*;
 import wang.liangchen.matrix.shop.order.northbound.assembler.OrderAssembler;
-import wang.liangchen.matrix.shop.order.northbound.exception.ApplicationException;
 import wang.liangchen.matrix.shop.order.service.OrderCommandService;
 
 import java.util.List;
@@ -36,15 +34,18 @@ public class OrderCommandApplicationService implements ICommandApplicationServic
     private final OrderRepositoryPort orderRepository;
     private final ProductClientPort productClient;
     private final DomainEventPublisherPort eventPublisher;
+    private final OrderPricingService pricingService;
     private final OrderFactory orderFactory = new OrderFactory();
     private final OrderAssembler orderAssembler = new OrderAssembler();
 
     public OrderCommandApplicationService(OrderRepositoryPort orderRepository,
                                           ProductClientPort productClient,
-                                          DomainEventPublisherPort eventPublisher) {
+                                          DomainEventPublisherPort eventPublisher,
+                                          OrderPricingService pricingService) {
         this.orderRepository = orderRepository;
         this.productClient = productClient;
         this.eventPublisher = eventPublisher;
+        this.pricingService = pricingService;
     }
 
     /**
@@ -53,12 +54,12 @@ public class OrderCommandApplicationService implements ICommandApplicationServic
     @Transactional
     public PlaceOrderResult placeOrder(PlaceOrderCommandRequest request) {
         return UseCases.execute("下单", () -> {
-            List<OrderItemTemplate> templates = request.items().stream()
-                    .map(item -> itemTemplate(item.productId(), item.quantity()))
+            List<OrderItemSpec> specs = request.items().stream()
+                    .map(item -> itemSpec(item.productId(), item.quantity()))
                     .toList();
             Address receiver = orderAssembler.toAddress(request.receiver());
-            Order order = orderFactory.create(UserId.of(request.buyerId()), receiver, templates,
-                    LoyaltyLevel.of(request.loyaltyLevel()));
+            Order order = orderFactory.create(UserId.of(request.buyerId()), receiver, specs,
+                    LoyaltyLevel.of(request.loyaltyLevel()), pricingService);
             orderRepository.save(order);
             eventPublisher.publish(order.events());
             order.clearEvents();
@@ -120,8 +121,8 @@ public class OrderCommandApplicationService implements ICommandApplicationServic
         return order;
     }
 
-    private OrderItemTemplate itemTemplate(String productIdValue, int quantity) {
+    private OrderItemSpec itemSpec(String productIdValue, int quantity) {
         ProductSummary summary = productClient.obtainProduct(ProductId.of(productIdValue));
-        return orderAssembler.toOrderItemTemplate(summary, quantity);
+        return orderAssembler.toOrderItemSpec(summary, quantity);
     }
 }

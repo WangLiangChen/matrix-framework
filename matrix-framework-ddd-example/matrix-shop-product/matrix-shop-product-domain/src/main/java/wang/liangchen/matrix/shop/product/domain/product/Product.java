@@ -36,7 +36,7 @@ public final class Product extends AbstractAggregateRoot<ProductId> {
         this.categoryId = categoryId;
         this.brandId = brandId;
         this.attributeValues = List.copyOf(attributeValues);
-        this.skus = skus;
+        this.skus = List.copyOf(skus);
         this.listed = listed;
     }
 

@@ -10,8 +10,8 @@ import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
-import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.product.southbound.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.*;
 
 import wang.liangchen.matrix.shop.product.domain.product.AttributeValue;
@@ -64,6 +64,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
     public PutProductOnSaleResult putProductOnSale(PutProductOnSaleCommandRequest request) {
         return UseCases.execute("商品上架", () -> {
             Product product = mutate(ProductId.of(request.productId()), Product::putOnSale);
+            product.clearEvents();
             return new PutProductOnSaleResult(product.id().value(), product.listed());
         });
     }
@@ -75,11 +76,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
     @Transactional
     public TakeProductOffSaleResult takeProductOffSale(TakeProductOffSaleCommandRequest request) {
         return UseCases.execute("商品下架", () -> {
-            Product product = productRepository.findById(ProductId.of(request.productId()))
-                    .orElseThrow(() -> new DomainException("商品不存在：" + request.productId()));
-            product.takeOffSale();
-            productRepository.save(product);
-            eventPublisher.publish(product.events());
+            Product product = mutate(ProductId.of(request.productId()), Product::takeOffSale);
             publishContractEvents(product.events());
             product.clearEvents();
             return new TakeProductOffSaleResult(product.id().value(), product.listed());
@@ -106,6 +103,7 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
         return UseCases.execute("调整SKU价格", () -> {
             Product product = mutate(ProductId.of(request.productId()),
                     p -> p.changeSkuPrice(SkuId.of(request.skuId()), Money.CNY(request.price())));
+            product.clearEvents();
             return new ChangeSkuPriceResult(request.productId(), request.skuId(), request.price());
         });
     }
@@ -119,19 +117,21 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
             if (request.quantityChange() == 0) {
                 throw new DomainException("库存调整量不能为零");
             }
-            mutate(ProductId.of(request.productId()), product -> {
+            Product product = mutate(ProductId.of(request.productId()), p -> {
                 if (request.quantityChange() > 0) {
-                    product.increaseSkuStock(SkuId.of(request.skuId()), request.quantityChange());
+                    p.increaseSkuStock(SkuId.of(request.skuId()), request.quantityChange());
                 } else {
-                    product.decreaseSkuStock(SkuId.of(request.skuId()), -request.quantityChange());
+                    p.decreaseSkuStock(SkuId.of(request.skuId()), -request.quantityChange());
                 }
             });
+            product.clearEvents();
             return new AdjustSkuStockResult(request.productId(), request.skuId(), request.quantityChange());
         });
     }
 
     /**
      * 查询商品聚合并执行变更，随后保存并发布聚合收集的领域事件。
+     * 调用方负责在后续处理（如契约事件发布）完成后清除事件。
      */
     private Product mutate(ProductId productId, Consumer<Product> mutation) {
         Product product = productRepository.findById(productId)
@@ -139,7 +139,6 @@ public class ProductCommandApplicationService implements ICommandApplicationServ
         mutation.accept(product);
         productRepository.save(product);
         eventPublisher.publish(product.events());
-        product.clearEvents();
         return product;
     }
 

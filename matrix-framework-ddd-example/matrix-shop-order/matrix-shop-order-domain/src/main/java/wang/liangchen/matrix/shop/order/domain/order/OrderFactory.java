@@ -18,20 +18,19 @@ import java.util.List;
 @DomainModel(DomainMetaModel.DomainFactory)
 public final class OrderFactory extends AbstractDomainFactory {
 
-    private final OrderPricingService pricingService = new OrderPricingService();
-
     /**
-     * 创建全新的订单聚合，下单时商品名称与单价已快照在订单项模板中，
+     * 创建全新的订单聚合，下单时商品名称与单价已快照在订单项规格中，
      * 订单总额经订单定价领域服务按大宗与忠诚折扣计算。
+     * 订单定价领域服务由调用方显式传入，使依赖关系显式化。
      */
-    public Order create(UserId buyerId, Address receiver, List<OrderItemTemplate> itemTemplates, LoyaltyLevel loyalty) {
-        if (itemTemplates == null || itemTemplates.isEmpty()) {
+    public Order create(UserId buyerId, Address receiver, List<OrderItemSpec> itemSpecs, LoyaltyLevel loyalty, OrderPricingService pricingService) {
+        if (itemSpecs == null || itemSpecs.isEmpty()) {
             throw new DomainException("订单必须包含商品");
         }
-        List<OrderItem> items = itemTemplates.stream()
-                .map(template -> OrderItem.of(template.productId(), template.productName(), template.unitPrice(), template.quantity()))
+        List<OrderItem> items = itemSpecs.stream()
+                .map(spec -> OrderItem.of(spec.productId(), spec.productName(), spec.unitPrice(), spec.quantity()))
                 .toList();
-        Money totalAmount = pricingService.totalOf(itemTemplates, loyalty);
+        Money totalAmount = pricingService.totalOf(itemSpecs, loyalty);
         Order order = new Order(OrderId.generate(), buyerId, receiver, items, totalAmount, Instant.now(), OrderStatus.Created);
         order.placed();
         return order;

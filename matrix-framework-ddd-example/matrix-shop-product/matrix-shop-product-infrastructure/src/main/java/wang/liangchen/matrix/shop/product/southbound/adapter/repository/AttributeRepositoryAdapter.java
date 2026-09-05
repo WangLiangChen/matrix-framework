@@ -9,7 +9,7 @@ import wang.liangchen.matrix.shop.product.domain.attribute.Attribute;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeFactory;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeId;
 import wang.liangchen.matrix.shop.product.domain.attribute.AttributeType;
-import wang.liangchen.matrix.shop.product.domain.port.AttributeRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.AttributeRepositoryPort;
 
 import java.util.List;
 import java.util.Optional;

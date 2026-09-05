@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.shop.product.domain.port;
+package wang.liangchen.matrix.shop.product.southbound.port;
 
 import wang.liangchen.matrix.framework.ddd.domain.event.IDomainEvent;
 import wang.liangchen.matrix.framework.ddd.southbound.port.IPublisherPort;

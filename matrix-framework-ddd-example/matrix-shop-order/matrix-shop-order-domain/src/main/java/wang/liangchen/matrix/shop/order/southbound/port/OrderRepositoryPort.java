@@ -1,4 +1,4 @@
-package wang.liangchen.matrix.shop.order.domain.port;
+package wang.liangchen.matrix.shop.order.southbound.port;
 
 import wang.liangchen.matrix.framework.ddd.southbound.port.IRepositoryPort;
 import wang.liangchen.matrix.framework.ddd.southbound.port.Port;

@@ -9,7 +9,7 @@ import wang.liangchen.matrix.shop.order.domain.cart.Cart;
 import wang.liangchen.matrix.shop.order.domain.cart.CartFactory;
 import wang.liangchen.matrix.shop.order.domain.cart.CartId;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
-import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.CartRepositoryPort;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;

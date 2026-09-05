@@ -27,8 +27,8 @@ public class OrderPricingService extends AbstractDomainService {
     /**
      * 计算订单总额：先按订单项汇总（大宗项按折扣单价计），金卡买家再享忠诚折扣。
      */
-    public Money totalOf(List<OrderItemTemplate> itemTemplates, LoyaltyLevel loyalty) {
-        Money subtotal = itemTemplates.stream()
+    public Money totalOf(List<OrderItemSpec> itemSpecs, LoyaltyLevel loyalty) {
+        Money subtotal = itemSpecs.stream()
                 .map(this::lineAmount)
                 .reduce(Money.ZERO, Money::add);
         return applyLoyaltyDiscount(subtotal, loyalty);
@@ -37,12 +37,12 @@ public class OrderPricingService extends AbstractDomainService {
     /**
      * 订单项金额：购买数量达到大宗门槛时按折扣单价计。
      */
-    private Money lineAmount(OrderItemTemplate template) {
-        Money unitPrice = template.unitPrice();
-        if (template.quantity() >= BULK_QUANTITY_THRESHOLD) {
+    private Money lineAmount(OrderItemSpec spec) {
+        Money unitPrice = spec.unitPrice();
+        if (spec.quantity() >= BULK_QUANTITY_THRESHOLD) {
             unitPrice = discounted(unitPrice, BULK_DISCOUNT_RATE);
         }
-        return unitPrice.multiply(template.quantity());
+        return unitPrice.multiply(spec.quantity());
     }
 
     private Money applyLoyaltyDiscount(Money amount, LoyaltyLevel loyalty) {

@@ -7,11 +7,10 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
 import wang.liangchen.matrix.shop.product.domain.category.Category;
-import wang.liangchen.matrix.shop.product.domain.category.CategoryFactory;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.port.CategoryRepositoryPort;
-import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.product.southbound.port.CategoryRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.product.message.request.CreateCategoryCommandRequest;
 import wang.liangchen.matrix.shop.product.message.request.MoveCategoryCommandRequest;
 import wang.liangchen.matrix.shop.product.message.request.RenameCategoryCommandRequest;
@@ -32,7 +31,6 @@ public class CategoryCommandApplicationService implements ICommandApplicationSer
 
     private final CategoryRepositoryPort categoryRepository;
     private final DomainEventPublisherPort eventPublisher;
-    private final CategoryFactory categoryFactory = new CategoryFactory();
 
     public CategoryCommandApplicationService(CategoryRepositoryPort categoryRepository, DomainEventPublisherPort eventPublisher) {
         this.categoryRepository = categoryRepository;
@@ -46,7 +44,7 @@ public class CategoryCommandApplicationService implements ICommandApplicationSer
     public CreateCategoryResult createCategory(CreateCategoryCommandRequest request) {
         return useCase("创建类目", () -> {
             CategoryId parentId = request.parentId() == null ? null : CategoryId.of(request.parentId());
-            Category category = categoryFactory.create(request.name(), parentId);
+            Category category = Category.create(request.name(), parentId);
             categoryRepository.save(category);
             eventPublisher.publish(category.events());
             category.clearEvents();

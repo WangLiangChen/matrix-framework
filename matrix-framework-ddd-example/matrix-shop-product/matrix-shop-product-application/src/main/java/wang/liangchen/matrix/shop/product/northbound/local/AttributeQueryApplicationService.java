@@ -5,7 +5,7 @@ import wang.liangchen.matrix.framework.ddd.domain.exception.AbstractDomainExcept
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.IQueryApplicationService;
-import wang.liangchen.matrix.shop.product.domain.port.AttributeRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.AttributeRepositoryPort;
 import wang.liangchen.matrix.shop.product.message.request.AttributeQueryRequest;
 import wang.liangchen.matrix.shop.product.message.response.AttributeView;
 import wang.liangchen.matrix.shop.product.northbound.exception.ApplicationException;

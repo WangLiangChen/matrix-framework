@@ -7,11 +7,10 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ICommandApplicationService;
 import wang.liangchen.matrix.shop.product.domain.brand.Brand;
-import wang.liangchen.matrix.shop.product.domain.brand.BrandFactory;
 import wang.liangchen.matrix.shop.product.domain.brand.BrandId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.port.BrandRepositoryPort;
-import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.product.southbound.port.BrandRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.DomainEventPublisherPort;
 import wang.liangchen.matrix.shop.product.message.request.CreateBrandCommandRequest;
 import wang.liangchen.matrix.shop.product.message.request.RenameBrandCommandRequest;
 import wang.liangchen.matrix.shop.product.message.response.CreateBrandResult;
@@ -30,7 +29,6 @@ public class BrandCommandApplicationService implements ICommandApplicationServic
 
     private final BrandRepositoryPort brandRepository;
     private final DomainEventPublisherPort eventPublisher;
-    private final BrandFactory brandFactory = new BrandFactory();
 
     public BrandCommandApplicationService(BrandRepositoryPort brandRepository, DomainEventPublisherPort eventPublisher) {
         this.brandRepository = brandRepository;
@@ -43,7 +41,7 @@ public class BrandCommandApplicationService implements ICommandApplicationServic
     @Transactional
     public CreateBrandResult createBrand(CreateBrandCommandRequest request) {
         return useCase("创建品牌", () -> {
-            Brand brand = brandFactory.create(request.name(), request.description(), request.logo());
+            Brand brand = Brand.create(request.name(), request.description(), request.logo());
             brandRepository.save(brand);
             eventPublisher.publish(brand.events());
             brand.clearEvents();

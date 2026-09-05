@@ -18,10 +18,29 @@ public final class Category extends AbstractAggregateRoot<CategoryId> {
     private String name;
     private CategoryId parentId;
 
-    Category(CategoryId id, String name, CategoryId parentId) {
+    private Category(CategoryId id, String name, CategoryId parentId) {
         this.id = id;
         this.name = name;
         this.parentId = parentId;
+    }
+
+    /**
+     * 创建全新的类目聚合（聚合自身担任工厂）。
+     */
+    public static Category create(String name, CategoryId parentId) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException("类目名称不能为空");
+        }
+        Category category = new Category(CategoryId.generate(), name, parentId);
+        category.raise(new CategoryCreatedEvent(category.id, category.name));
+        return category;
+    }
+
+    /**
+     * 从持久化数据重建类目聚合（仓储委托重建）。
+     */
+    public static Category reconstitute(CategoryId id, String name, CategoryId parentId) {
+        return new Category(id, name, parentId);
     }
 
     public CategoryId id() {
@@ -34,14 +53,6 @@ public final class Category extends AbstractAggregateRoot<CategoryId> {
 
     public CategoryId parentId() {
         return parentId;
-    }
-
-    /**
-     * 收集类目创建领域事实：仅由类目工厂在创建新类目时调用
-     * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
-     */
-    void created() {
-        raise(new CategoryCreatedEvent(id, name));
     }
 
     /**

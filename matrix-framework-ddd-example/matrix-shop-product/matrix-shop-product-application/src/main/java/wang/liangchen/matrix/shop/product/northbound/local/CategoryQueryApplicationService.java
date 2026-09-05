@@ -6,7 +6,7 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationService;
 import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceType;
 import wang.liangchen.matrix.framework.ddd.northbound.local.IQueryApplicationService;
 import wang.liangchen.matrix.shop.product.domain.category.Category;
-import wang.liangchen.matrix.shop.product.domain.port.CategoryRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.CategoryRepositoryPort;
 import wang.liangchen.matrix.shop.product.message.request.CategoryQueryRequest;
 import wang.liangchen.matrix.shop.product.message.response.CategoryView;
 import wang.liangchen.matrix.shop.product.northbound.exception.ApplicationException;

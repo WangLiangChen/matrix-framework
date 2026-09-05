@@ -19,11 +19,30 @@ public final class Brand extends AbstractAggregateRoot<BrandId> {
     private String description;
     private String logo;
 
-    Brand(BrandId brandId, String name, String description, String logo) {
+    private Brand(BrandId brandId, String name, String description, String logo) {
         this.brandId = brandId;
         this.name = name;
         this.description = description;
         this.logo = logo;
+    }
+
+    /**
+     * 创建全新的品牌聚合（聚合自身担任工厂）。
+     */
+    public static Brand create(String name, String description, String logo) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException("品牌名称不能为空");
+        }
+        Brand brand = new Brand(BrandId.generate(), name, description, logo);
+        brand.raise(new BrandCreatedEvent(brand.brandId, brand.name));
+        return brand;
+    }
+
+    /**
+     * 从持久化数据重建品牌聚合（仓储委托重建）。
+     */
+    public static Brand reconstitute(BrandId id, String name, String description, String logo) {
+        return new Brand(id, name, description, logo);
     }
 
     public BrandId id() {
@@ -40,14 +59,6 @@ public final class Brand extends AbstractAggregateRoot<BrandId> {
 
     public String logo() {
         return logo;
-    }
-
-    /**
-     * 收集品牌创建领域事实：仅由品牌工厂在创建新品牌时调用
-     * （AbstractAggregateRoot#raise为受保护成员，事件由聚合自身收集）。
-     */
-    void created() {
-        raise(new BrandCreatedEvent(brandId, name));
     }
 
     /**

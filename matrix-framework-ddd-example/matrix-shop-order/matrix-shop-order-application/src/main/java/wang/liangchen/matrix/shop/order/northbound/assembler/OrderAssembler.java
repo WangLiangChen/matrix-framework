@@ -4,7 +4,7 @@ import wang.liangchen.matrix.framework.ddd.assembler.AbstractAssembler;
 import wang.liangchen.matrix.framework.ddd.assembler.Assembler;
 import wang.liangchen.matrix.shop.order.domain.order.Address;
 import wang.liangchen.matrix.shop.order.domain.order.Order;
-import wang.liangchen.matrix.shop.order.domain.order.OrderItemTemplate;
+import wang.liangchen.matrix.shop.order.domain.order.OrderItemSpec;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductSummary;
 import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
 import wang.liangchen.matrix.shop.order.message.request.PlaceOrderCommandRequest;
@@ -14,7 +14,7 @@ import wang.liangchen.matrix.shop.order.message.response.OrderView;
 
 /**
  * 订单装配器：消息契约与订单领域对象之间的双向转换——
- * 入站将下单命令请求装配为领域值对象（地址、订单项模板，兼任工厂），
+ * 入站将下单命令请求装配为领域值对象（地址、订单项规格，兼任工厂），
  * 出站将订单聚合装配为查询视图，只做字段映射与类型转换，不含业务规则。
  */
 @Assembler
@@ -28,10 +28,10 @@ public class OrderAssembler extends AbstractAssembler {
     }
 
     /**
-     * 入站：商品快照（防腐层获取）+ 数量 → 订单项模板值对象。
+     * 入站：商品快照（防腐层获取）+ 数量 → 订单项规格值对象。
      */
-    public OrderItemTemplate toOrderItemTemplate(ProductSummary summary, int quantity) {
-        return new OrderItemTemplate(summary.id(), summary.productName(), summary.minPrice(), quantity);
+    public OrderItemSpec toOrderItemSpec(ProductSummary summary, int quantity) {
+        return new OrderItemSpec(summary.id(), summary.productName(), summary.minPrice(), quantity);
     }
 
     /**

@@ -7,12 +7,10 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.IQueryApplicationSer
 import wang.liangchen.matrix.shop.order.domain.cart.Cart;
 import wang.liangchen.matrix.shop.order.domain.cart.CartId;
 import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.order.domain.port.CartRepositoryPort;
-import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;
+import wang.liangchen.matrix.shop.order.southbound.port.CartRepositoryPort;
 import wang.liangchen.matrix.shop.order.message.request.CartQueryRequest;
-import wang.liangchen.matrix.shop.order.message.response.CartItemView;
 import wang.liangchen.matrix.shop.order.message.response.CartView;
-import wang.liangchen.matrix.shop.order.northbound.exception.ApplicationException;
+import wang.liangchen.matrix.shop.order.northbound.assembler.CartAssembler;
 
 /**
  * 购物车查询应用服务：CQRS查询侧，经购物车仓储端口只读获取购物车聚合并装配为视图。
@@ -22,6 +20,7 @@ import wang.liangchen.matrix.shop.order.northbound.exception.ApplicationExceptio
 public class CartQueryApplicationService implements IQueryApplicationService {
 
     private final CartRepositoryPort cartRepository;
+    private final CartAssembler cartAssembler = new CartAssembler();
 
     public CartQueryApplicationService(CartRepositoryPort cartRepository) {
         this.cartRepository = cartRepository;
@@ -34,14 +33,7 @@ public class CartQueryApplicationService implements IQueryApplicationService {
         return UseCases.execute("查询购物车", () -> {
             Cart cart = cartRepository.findById(CartId.of(request.cartId()))
                     .orElseThrow(() -> new DomainException("购物车不存在：" + request.cartId()));
-            return new CartView(cart.id().value(), cart.buyerId().value(),
-                    cart.itemSummaries().stream().map(this::cartItemView).toList(),
-                    cart.totalAmount().amount());
+            return cartAssembler.toCartView(cart);
         });
-    }
-
-    private CartItemView cartItemView(TradeItemSummary item) {
-        return new CartItemView(item.productId().value(), item.productName(),
-                item.unitPrice().amount(), item.quantity(), item.unitPrice().multiply(item.quantity()).amount());
     }
 }

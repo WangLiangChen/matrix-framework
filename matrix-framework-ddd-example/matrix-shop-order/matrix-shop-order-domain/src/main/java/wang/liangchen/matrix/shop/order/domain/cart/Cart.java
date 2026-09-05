@@ -28,7 +28,7 @@ public final class Cart extends AbstractAggregateRoot<CartId> {
     Cart(CartId id, UserId buyerId, List<CartItem> items) {
         this.id = id;
         this.buyerId = buyerId;
-        this.items = items;
+        this.items = new ArrayList<>(items);
     }
 
     public CartId id() {

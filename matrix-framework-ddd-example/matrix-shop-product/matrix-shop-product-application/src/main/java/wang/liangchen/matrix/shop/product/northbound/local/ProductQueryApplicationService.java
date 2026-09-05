@@ -6,7 +6,7 @@ import wang.liangchen.matrix.framework.ddd.northbound.local.ApplicationServiceTy
 import wang.liangchen.matrix.framework.ddd.northbound.local.IQueryApplicationService;
 import wang.liangchen.matrix.shop.product.domain.category.CategoryId;
 import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
-import wang.liangchen.matrix.shop.product.domain.port.ProductRepositoryPort;
+import wang.liangchen.matrix.shop.product.southbound.port.ProductRepositoryPort;
 import wang.liangchen.matrix.shop.product.domain.product.Product;
 import wang.liangchen.matrix.shop.product.domain.product.ProductId;
 import wang.liangchen.matrix.shop.product.message.request.ProductQueryRequest;

@@ -8,7 +8,7 @@ import wang.liangchen.matrix.framework.ddd.domain.event.IDomainEvent;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.IPublisherAdapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
-import wang.liangchen.matrix.shop.product.domain.port.DomainEventPublisherPort;
+import wang.liangchen.matrix.shop.product.southbound.port.DomainEventPublisherPort;
 
 import java.util.List;
 

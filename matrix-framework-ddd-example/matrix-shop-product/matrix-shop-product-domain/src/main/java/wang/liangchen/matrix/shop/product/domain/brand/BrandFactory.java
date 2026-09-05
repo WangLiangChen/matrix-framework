@@ -3,10 +3,9 @@ package wang.liangchen.matrix.shop.product.domain.brand;
 import wang.liangchen.matrix.framework.ddd.domain.DomainMetaModel;
 import wang.liangchen.matrix.framework.ddd.domain.DomainModel;
 import wang.liangchen.matrix.framework.ddd.domain.factory.AbstractDomainFactory;
-import wang.liangchen.matrix.shop.product.domain.exception.DomainException;
 
 /**
- * 品牌工厂：封装品牌的创建与重建逻辑。
+ * 品牌工厂：委托品牌聚合自身的静态工厂方法，保留工厂角色以兼容既有调用方。
  */
 @DomainModel(DomainMetaModel.DomainFactory)
 public final class BrandFactory extends AbstractDomainFactory {
@@ -15,18 +14,13 @@ public final class BrandFactory extends AbstractDomainFactory {
      * 创建全新的品牌聚合。
      */
     public Brand create(String name, String description, String logo) {
-        if (name == null || name.isBlank()) {
-            throw new DomainException("品牌名称不能为空");
-        }
-        Brand brand = new Brand(BrandId.generate(), name, description, logo);
-        brand.created();
-        return brand;
+        return Brand.create(name, description, logo);
     }
 
     /**
      * 从持久化数据重建品牌聚合。
      */
     public Brand reconstitute(BrandId id, String name, String description, String logo) {
-        return new Brand(id, name, description, logo);
+        return Brand.reconstitute(id, name, description, logo);
     }
 }

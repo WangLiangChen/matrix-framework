@@ -6,7 +6,7 @@ import wang.liangchen.matrix.framework.ddd.southbound.adapter.AbstractRepository
 import wang.liangchen.matrix.framework.ddd.southbound.adapter.Adapter;
 import wang.liangchen.matrix.framework.ddd.southbound.port.PortType;
 import wang.liangchen.matrix.shop.order.domain.order.*;
-import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.OrderRepositoryPort;
 import wang.liangchen.matrix.shop.order.domain.shared.Money;
 import wang.liangchen.matrix.shop.order.domain.shared.ProductId;
 import wang.liangchen.matrix.shop.order.domain.shared.TradeItemSummary;

@@ -8,7 +8,7 @@ import wang.liangchen.matrix.shop.order.domain.exception.DomainException;
 import wang.liangchen.matrix.shop.order.domain.order.Order;
 import wang.liangchen.matrix.shop.order.domain.order.OrderId;
 import wang.liangchen.matrix.shop.order.domain.order.UserId;
-import wang.liangchen.matrix.shop.order.domain.port.OrderRepositoryPort;
+import wang.liangchen.matrix.shop.order.southbound.port.OrderRepositoryPort;
 import wang.liangchen.matrix.shop.order.message.request.OrderQueryRequest;
 import wang.liangchen.matrix.shop.order.message.request.QueryOrdersQueryRequest;
 import wang.liangchen.matrix.shop.order.message.response.OrderDetailView;

@@ -32,7 +32,7 @@ public final class Order extends AbstractAggregateRoot<OrderId> {
         this.id = id;
         this.buyerId = buyerId;
         this.receiver = receiver;
-        this.items = items;
+        this.items = List.copyOf(items);
         this.totalAmount = totalAmount;
         this.placedOn = placedOn;
         this.status = status;

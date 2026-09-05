@@ -65,8 +65,8 @@ class OrderPricingServiceTest {
         assertThat(total.amount()).isEqualByComparingTo("980.00");
     }
 
-    private OrderItemTemplate item(int quantity, String unitPrice) {
-        return new OrderItemTemplate(ProductId.of("product-1"), "测试商品",
+    private OrderItemSpec item(int quantity, String unitPrice) {
+        return new OrderItemSpec(ProductId.of("product-1"), "测试商品",
                 Money.CNY(new BigDecimal(unitPrice)), quantity);
     }
 }
