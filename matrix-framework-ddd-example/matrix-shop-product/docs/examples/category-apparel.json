@@ -1,0 +1,15 @@
+{
+  "id": "30000000-0000-4000-8000-000000000001",
+  "code": "APPAREL",
+  "parentCategoryId": null,
+  "name": "服装",
+  "slug": "apparel",
+  "description": "服装分类",
+  "imageMediaId": null,
+  "sortOrder": 10,
+  "productTypePolicy": {
+    "restricted": false,
+    "allowedProductTypeIds": []
+  },
+  "status": "ENABLED"
+}

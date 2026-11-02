@@ -1,0 +1,68 @@
+{
+  "id": "10000000-0000-4000-8000-000000000001",
+  "code": "CLOTHING",
+  "name": "服装",
+  "status": "PUBLISHED",
+  "publishedVersion": 1,
+  "attributes": [
+    {
+      "attributeCode": "material",
+      "scope": "SPU",
+      "role": "NORMAL",
+      "dataType": "ENUM",
+      "required": true,
+      "allowedOptionCodes": [
+        "COTTON",
+        "POLYESTER"
+      ],
+      "searchable": true,
+      "filterable": true,
+      "facetable": true
+    },
+    {
+      "attributeCode": "gender",
+      "scope": "SPU",
+      "role": "NORMAL",
+      "dataType": "ENUM",
+      "required": true,
+      "allowedOptionCodes": [
+        "MEN",
+        "WOMEN",
+        "UNISEX"
+      ],
+      "searchable": true,
+      "filterable": true,
+      "facetable": true
+    },
+    {
+      "attributeCode": "color",
+      "scope": "SKU",
+      "role": "VARIANT_DIMENSION",
+      "dataType": "ENUM",
+      "required": true,
+      "allowedOptionCodes": [
+        "RED",
+        "BLACK",
+        "WHITE"
+      ],
+      "searchable": true,
+      "filterable": true,
+      "facetable": true
+    },
+    {
+      "attributeCode": "size",
+      "scope": "SKU",
+      "role": "VARIANT_DIMENSION",
+      "dataType": "ENUM",
+      "required": true,
+      "allowedOptionCodes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "searchable": true,
+      "filterable": true,
+      "facetable": true
+    }
+  ]
+}

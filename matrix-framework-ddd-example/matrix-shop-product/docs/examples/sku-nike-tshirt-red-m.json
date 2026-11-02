@@ -1,0 +1,54 @@
+{
+  "tenantId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "skuId": "bbbbbbbb-1111-4111-8111-bbbbbbbbbbbb",
+  "spuId": "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+  "skuCode": "NIKE-TEE-001-RED-M",
+  "variantKey": "color=RED|size=M",
+  "status": "DRAFT",
+  "attributes": [
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000003",
+      "attributeCode": "color",
+      "dataType": "ENUM",
+      "value": "RED"
+    },
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000004",
+      "attributeCode": "size",
+      "dataType": "ENUM",
+      "value": "M"
+    }
+  ],
+  "barcodes": [
+    {
+      "type": "EAN13",
+      "value": "6901234567892"
+    }
+  ],
+  "packageSpecification": {
+    "weight": {
+      "value": 0.25,
+      "unitCode": "KG"
+    },
+    "length": {
+      "value": 30,
+      "unitCode": "CM"
+    },
+    "width": {
+      "value": 22,
+      "unitCode": "CM"
+    },
+    "height": {
+      "value": 2,
+      "unitCode": "CM"
+    }
+  },
+  "media": [
+    {
+      "mediaId": "media-sku-001",
+      "role": "SWATCH",
+      "altText": "红色短袖",
+      "sortOrder": 0
+    }
+  ]
+}

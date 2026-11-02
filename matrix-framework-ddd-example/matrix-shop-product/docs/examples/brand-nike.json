@@ -1,0 +1,10 @@
+{
+  "id": "20000000-0000-4000-8000-000000000001",
+  "code": "NIKE",
+  "name": "Nike",
+  "description": "Sportswear brand",
+  "logoMediaId": null,
+  "website": "https://www.nike.com",
+  "countryCode": "US",
+  "status": "ENABLED"
+}

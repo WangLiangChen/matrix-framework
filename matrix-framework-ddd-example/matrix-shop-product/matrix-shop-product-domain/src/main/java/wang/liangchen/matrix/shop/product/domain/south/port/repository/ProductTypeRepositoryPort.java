@@ -1,0 +1,3 @@
+package wang.liangchen.matrix.shop.product.domain.south.port.repository;
+import wang.liangchen.matrix.product.domain.aggregate.producttype.*; import wang.liangchen.matrix.shop.product.domain.aggregate.producttype.ProductTypeId; import java.util.Optional;
+public interface ProductTypeRepositoryPort { Optional<ProductType> findById(ProductTypeId id); Optional<ProductTypeVersion> findPublishedVersion(ProductTypeId id, int version); }

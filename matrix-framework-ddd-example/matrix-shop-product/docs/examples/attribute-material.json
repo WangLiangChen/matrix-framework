@@ -1,0 +1,26 @@
+{
+  "id": "40000000-0000-4000-8000-000000000001",
+  "code": "material",
+  "name": "材质",
+  "description": "服装面料",
+  "dataType": "ENUM",
+  "valueMode": "ENUM_OPTIONS",
+  "cardinality": "SINGLE",
+  "unitCode": null,
+  "localized": false,
+  "status": "ENABLED",
+  "options": [
+    {
+      "code": "COTTON",
+      "name": "棉",
+      "swatch": null,
+      "active": true
+    },
+    {
+      "code": "POLYESTER",
+      "name": "聚酯纤维",
+      "swatch": null,
+      "active": true
+    }
+  ]
+}

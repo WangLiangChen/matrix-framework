@@ -22,8 +22,10 @@
 
     <modules>
         <module>matrix-shop-product</module>
+        <!--
         <module>matrix-shop-order</module>
         <module>matrix-shop-monolith-bootstrap</module>
+        -->
     </modules>
 
     <dependencyManagement>

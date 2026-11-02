@@ -1,0 +1,3 @@
+package wang.liangchen.matrix.shop.product.domain.south.port.repository;
+import wang.liangchen.matrix.shop.product.domain.aggregate.sku.Sku; import wang.liangchen.matrix.product.domain.shared.id.*; import java.util.Optional;
+public interface SkuRepositoryPort { Sku save(Sku sku); Optional<Sku> findById(TenantId tenantId, SkuId id); boolean existsBySkuCode(TenantId tenantId, String skuCode); boolean existsBySpuAndVariantKey(TenantId tenantId, SpuId spuId, String variantKey); boolean hasSkuUsingOption(TenantId tenantId, SpuId spuId, AttributeId attributeId, String optionCode); }

@@ -1,0 +1,32 @@
+{
+  "id": "40000000-0000-4000-8000-000000000003",
+  "code": "color",
+  "name": "颜色",
+  "description": "SKU 颜色",
+  "dataType": "ENUM",
+  "valueMode": "ENUM_OPTIONS",
+  "cardinality": "SINGLE",
+  "unitCode": null,
+  "localized": false,
+  "status": "ENABLED",
+  "options": [
+    {
+      "code": "RED",
+      "name": "红色",
+      "swatch": "#e53935",
+      "active": true
+    },
+    {
+      "code": "BLACK",
+      "name": "黑色",
+      "swatch": "#111111",
+      "active": true
+    },
+    {
+      "code": "WHITE",
+      "name": "白色",
+      "swatch": "#ffffff",
+      "active": true
+    }
+  ]
+}

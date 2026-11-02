@@ -1,30 +1,32 @@
-# matrix-shop-product-interfaces
+# matrix-shop-product-interface
 
-## 允许的依赖
-
+## 1. 必要的依赖
 - `matrix-shop-product-application`
-- `matrix-shop-product-contract`（经 application 传递）
-- `matrix-framework-ddd`（根 POM 统一注入的框架规范）
+- `matrix-shop-product-contract`
+- `spring-boot-starter-webmvc`（HTTP 适配器）
 
-## 不允许的依赖
+## 2. 禁止的依赖
+- 禁止依赖 infrastructure、service、client-sdk。
+- Controller 不直接访问 Repository Port / DAO / EntityManager。
+- 不允许 Contract DTO 穿透到 Domain。
 
-- `matrix-shop-product-domain`
-- `matrix-shop-product-infrastructure`
-- `matrix-shop-product-client`
-- `matrix-shop-product-bootstrap`
+## 3. 建议的 package 结构
+```text
+interfaceadapter/north/remote/
+├── rest/controller/
+├── rest/mapper/
+├── rpc/provider/
+├── messaging/subscriber/
+└── exception/
+```
 
-## 角色
+## 4. 角色和职责
+- 北向远程适配器：REST Controller、RPC Provider、MQ Subscriber 等。
+- 做协议解析、格式校验、Contract 到 Application Command 的映射。
+- 返回 Contract Response，不暴露 Domain 类型。
 
-北向远程层（`northbound.remote`）：将应用服务暴露为 HTTP API（spring-boot-starter-web），是客户端与下游限界上下文进入本上下文的入口。
-
-## 职责
-
-- `*Controller`（`@Remote(RemoteType.Controller)`，实现 `IControllerRemote`）：面向 UI 的远程服务，只操作消息契约（请求/结果/视图），通过应用服务完成用例编排
-- `ProductResource`（`@Remote(RemoteType.Resource)`，实现 `IResourceRemote`）：面向下游限界上下文的开放主机服务，以发布语言 `ProductDetailView` 服务下游（订单上下文的防腐层经此获取商品快照）
-- `ProductApplicationExceptionHandler`：将应用异常转换为客户端可读的 HTTP 响应（400 Bad Request）
-
-## 核心约定
-
-- 远程服务只调用应用服务，不直接访问领域对象、聚合或端口
-- 入参与返回均为 contract 中的消息类型，领域模型不越过应用层
-- 应用异常统一由 `@RestControllerAdvice`（限定 `northbound.remote` 包）处理，不向客户端泄漏堆栈
+## 5. 核心约定
+- Controller 保持薄；业务规则放 Domain，流程编排放 Application。
+- URL 带租户范围；租户身份必须由认证上下文确定，不能盲信请求体。
+- 统一异常映射；不要把内部堆栈或数据库异常暴露给调用方。
+- 示例接口仅用于演示，生产需接入认证授权、限流、审计和幂等策略。

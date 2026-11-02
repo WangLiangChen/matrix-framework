@@ -1,0 +1,58 @@
+{
+  "spuCode": "NIKE-TEE-001",
+  "productTypeId": "10000000-0000-4000-8000-000000000001",
+  "productTypeVersion": 1,
+  "brandId": "20000000-0000-4000-8000-000000000001",
+  "name": "Nike 男士纯棉短袖",
+  "subtitle": "基础款圆领短袖",
+  "description": "100% 棉",
+  "attributes": [
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000001",
+      "attributeCode": "material",
+      "dataType": "ENUM",
+      "value": "COTTON"
+    },
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000002",
+      "attributeCode": "gender",
+      "dataType": "ENUM",
+      "value": "MEN"
+    }
+  ],
+  "categories": [
+    {
+      "categoryId": "30000000-0000-4000-8000-000000000001",
+      "primary": true
+    }
+  ],
+  "variantDimensions": [
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000003",
+      "attributeCode": "color",
+      "optionCodes": [
+        "RED",
+        "BLACK"
+      ],
+      "displayOrder": 10
+    },
+    {
+      "attributeId": "40000000-0000-4000-8000-000000000004",
+      "attributeCode": "size",
+      "optionCodes": [
+        "M",
+        "L",
+        "XL"
+      ],
+      "displayOrder": 20
+    }
+  ],
+  "media": [
+    {
+      "mediaId": "media-spu-001",
+      "role": "MAIN",
+      "altText": "商品主图",
+      "sortOrder": 0
+    }
+  ]
+}

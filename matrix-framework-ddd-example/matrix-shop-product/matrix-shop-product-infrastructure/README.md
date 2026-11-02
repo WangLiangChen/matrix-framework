@@ -1,32 +1,35 @@
 # matrix-shop-product-infrastructure
 
-## 允许的依赖
-
+## 1. 必要的依赖
 - `matrix-shop-product-domain`
-- `matrix-framework-ddd`（根 POM 统一注入的框架规范）
+- Spring Context（注册 Adapter Bean）。
+- 生产持久化可增加 Spring Data JPA / JDBC、PostgreSQL Driver、Jackson（只在 Adapter 内使用）。
 
-## 不允许的依赖
+## 2. 禁止的依赖
+- Domain 禁止依赖 Infrastructure；Infrastructure 不反向改变 Domain 模型。
+- 禁止依赖 interface、client-sdk、service。
+- 不把 JPA Entity / DAO 作为 Repository Port 返回值。
 
-- `matrix-shop-product-application`
-- `matrix-shop-product-contract`
-- `matrix-shop-product-interface`
-- `matrix-shop-product-client`
-- `matrix-shop-product-bootstrap`
+## 3. 建议的 package 结构
+```text
+infrastructure/
+├── south/adapter/
+│   ├── persistence/{jpa,jdbc,memory}/
+│   ├── client/{feign,http}/
+│   ├── messaging/{outbox,mq}/
+│   └── storage/
+├── configuration/
+└── migration/
+```
 
-## 角色
+## 4. 角色和职责
+- 实现 Domain 的 Repository / Publisher / Client Port。
+- 负责 ORM/SQL 映射、Outbox 持久化、外部系统 ACL、技术配置。
+- 本包当前提供内存 Adapter 以便示例启动，并附 PostgreSQL DDL 基线。
 
-南向防腐层（`southbound.adapter`）：实现领域层声明的端口，适配技术实现（spring-boot-starter-data-jpa）。领域模型与技术实现在此边界双向翻译，Po 不向领域层泄漏。
-
-## 职责
-
-- `*RepositoryAdapter`（`@Adapter(PortType.Repository)`）：实现 `*RepositoryPort`（含统一语言命名的查询方法），完成聚合与持久化对象（Po）之间的翻译；重建聚合委托领域工厂 `reconstitute`；查询侧从 Po 重建聚合根返回
-- `*Po`（JPA 实体）与 `*Dao`（Spring Data JPA 仓储）：仅在南向适配层内部可见
-- `DomainEventPublisherAdapter`（`@Adapter(PortType.Publisher)`）：实现 `DomainEventPublisherPort`，经 Spring `ApplicationEventPublisher` 发布领域事件
-- `ProductJpaConfiguration`：限定 JPA 仓储与实体的扫描范围，商品与订单合并为单体应用时互不干扰
-
-## 核心约定
-
-- 适配器实现框架标记接口（`IRepositoryAdapter`/`IPublisherAdapter`），以 `@Adapter(PortType.*)` 标注
-- 聚合重建走领域工厂 `reconstitute`，适配器不直接构造聚合
-- 查询侧不建立独立读模型存储，统一语言命名的查询方法由同一仓储适配器从 Po 重建聚合根返回
-- POC 简化：领域事件在聚合保存后同步发布；生产建议以 after-commit 机制在事务提交后发布
+## 5. 核心约定
+- 内存 Adapter 仅供本地演示/测试；重启数据丢失，不可用于生产。
+- 生产环境应实现 PostgreSQL Repository Adapter；唯一键：tenant+SPU code、tenant+SKU code、tenant+SPU+variant_key。
+- SPU/SKU 动态属性写模型可用 JSONB 保存；如需高频筛选，建立独立查询投影/倒排索引，避免把所有查询压到聚合 JSONB。
+- Outbox 记录与聚合更新必须同库同事务；Relay 至少一次投递，消费者按 eventId 幂等。
+- Category 树环检测、SKU 规格值引用检查应在应用流程和数据库约束两侧共同保护。
